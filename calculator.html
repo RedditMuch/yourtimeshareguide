@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Points Value Calculator | Your Timeshare Guide</title><meta name="description" content="Find what your Club Wyndham points cost per 1,000 and compare with Wyndham's own prices.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap"><link rel="stylesheet" href="style.css"></head>
+<body>
+<header class="site-header"><div class="in"><a class="brand" href="index.html">Your Timeshare Guide<small>Club Wyndham, explained by an owner</small></a>
+<nav class="site-nav" aria-label="Main"><a href="index.html">Home</a><a href="calculator.html" aria-current="page">Calculator</a><a href="seasons.html">Season Finder</a><a href="fees.html">Fees</a><a href="errors.html">Directory Errors</a><a href="resources.html">Resources</a></nav></div></header>
+<main class="prose">
+<h1>Points Value Calculator</h1>
+<p><em>What does each Club Wyndham point really cost you?</em></p>
+<p>Your maintenance fees are the price you pay for your points every year. Enter your numbers below to see your cost per 1,000 points, and how it compares with what Wyndham itself pays and charges for points.</p>
+
+<style>
+.calc{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;display:grid;gap:18px;margin:20px 0}
+.calc .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+.calc label{font-weight:700;display:block;margin-bottom:4px}
+.calc .hint{font-size:15px;color:var(--muted);margin-top:4px}
+.calc input[type=text]{font:inherit;font-size:20px;width:100%;padding:10px 12px;min-height:52px;border:2px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
+.calc .check{display:flex;gap:10px;align-items:center;font-weight:700}
+.calc .check input{width:24px;height:24px;accent-color:var(--accent)}
+.result{font-size:20px}
+.big{font-family:var(--font-display);font-weight:800;font-size:clamp(34px,6vw,48px);color:var(--accent);line-height:1.1}
+.compare{display:grid;gap:10px;margin-top:8px}
+.bar{display:grid;grid-template-columns:minmax(150px,240px) 1fr;gap:12px;align-items:center;font-size:17px}
+.bar .track{background:var(--hl);border-radius:6px;height:30px;position:relative;overflow:hidden}
+.bar .fill{height:100%;border-radius:6px;background:var(--muted);display:flex;align-items:center;justify-content:flex-end;padding-right:8px;color:var(--panel);font-weight:700;font-size:15px;min-width:max-content}
+.bar.you .fill{background:var(--accent);color:var(--accent-ink)}
+@media (max-width:520px){.bar{grid-template-columns:1fr}}
+</style>
+
+<div class="calc" id="calc">
+  <div class="row">
+    <div><label for="fees">Total yearly fees ($)</label>
+      <input type="text" id="fees" inputmode="decimal" value="1,500">
+      <div class="hint">Your maintenance fee plus Club Wyndham program fee, for all contracts, for one year. Find it on your Annual Summary or in My Ownership online.</div></div>
+    <div><label for="points">Points you own</label>
+      <input type="text" id="points" inputmode="numeric" value="154,000">
+      <div class="hint">The points you receive each Use Year (or every other year if biennial).</div></div>
+  </div>
+  <label class="check"><input type="checkbox" id="bien"> My points come every other year (biennial)</label>
+  <div class="hint" style="margin-top:-10px">Biennial owners are billed every year but get points every other year, so we use half your points per year.</div>
+  <div class="result" id="out" aria-live="polite"></div>
+</div>
+
+<p class="callout" style="margin-top:0"><strong>The sample numbers above are made up.</strong> Replace them with your own.</p>
+
+<h2>Stay cost: what a trip costs you in dollars</h2>
+<div class="calc">
+  <div class="row">
+    <div><label for="stay">Points needed for the stay</label>
+      <input type="text" id="stay" inputmode="numeric" value="112,000">
+      <div class="hint">Example: a 2-bedroom week in Value season at Club Wyndham Bonnet Creek is 112,000 points (directory page 71).</div></div>
+  </div>
+  <div class="result" id="out2" aria-live="polite"></div>
+</div>
+
+<h2>How to read your number</h2>
+<div class="tablewrap"><table>
+<thead><tr><th>Price per 1,000 points</th><th>What it is</th><th>Directory page</th></tr></thead>
+<tbody>
+<tr><td>$2.10</td><td>What Wyndham credits you if you convert unused points to "Maintenance Dollars"</td><td>285</td></tr>
+<tr><td>$5.00</td><td>What Wyndham charges for last-minute "Bonus Time" points (0–14 days before arrival)</td><td>281</td></tr>
+<tr><td>$12.00</td><td>What Wyndham charges to rent extra points</td><td>280</td></tr>
+</tbody></table></div>
+<ul>
+<li><strong>Lower than $5?</strong> Your own points cost less than any points Wyndham sells.</li>
+<li><strong>Between $5 and $12?</strong> Your points cost less than renting, but more than last-minute Bonus Time points.</li>
+<li><strong>Above $12?</strong> Your points cost more than Wyndham's own rental price. Renting has limits (see page 280), but it's worth knowing.</li>
+<li>Converting unused points to Maintenance Dollars gets back only <strong>$2.10 per 1,000</strong>, usually far less than you paid. Using the points, or saving them with Points Deposit, is almost always better value.</li>
+</ul>
+<p>This calculator doesn't count your purchase price, extra booking fees, or exchange fees. Those make the true cost higher.</p>
+</main>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const num=s=>{const n=parseFloat(String(s).replace(/[^0-9.]/g,""));return isFinite(n)?n:0};
+const money=n=>"$"+n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+function perK(){const pts=num($("points").value)/($("bien").checked?2:1);const fees=num($("fees").value);return pts>0&&fees>0?fees/(pts/1000):null}
+function run(){
+  const v=perK();
+  if(v===null){$("out").innerHTML="Enter your yearly fees and your points to see your cost.";$("out2").innerHTML="";return}
+  const max=Math.max(v,12)*1.1;
+  const bar=(label,val,you)=>`<div class="bar${you?" you":""}"><span>${label}</span><div class="track"><div class="fill" style="width:${Math.max(val/max*100,8)}%">${money(val)}</div></div></div>`;
+  let note=v<5?"Your points cost less than any points Wyndham sells.":v<=12?"Your points cost less than renting from Wyndham, but more than last-minute Bonus Time.":"Your points cost more than Wyndham's own rental price.";
+  $("out").innerHTML=`<div>Your points cost you about</div><div class="big">${money(v)} per 1,000 points</div><p style="margin:6px 0 10px">${note}</p>
+   <div class="compare" role="img" aria-label="Your cost of ${money(v)} per 1,000 points compared with Wyndham's $2.10 credit, $5 Bonus Time, and $12 rental prices">
+   ${bar("Your cost",v,true)}${bar("Wyndham credit",2.10)}${bar("Bonus Time price",5)}${bar("Rental price",12)}</div>`;
+  const stay=num($("stay").value);
+  $("out2").innerHTML=stay>0?`That stay costs you about <strong class="big" style="font-size:inherit">${money(stay/1000*v)}</strong> in maintenance fees. Renting the same points from Wyndham would cost ${money(stay/1000*12)}.`:"Enter the points for a stay.";
+}
+["fees","points","stay"].forEach(id=>$(id).addEventListener("input",run));
+$("bien").addEventListener("change",run);
+run();
+})();
+</script>
+
+<footer class="site-footer"><div class="in">
+<p><strong>Your Timeshare Guide</strong> is an independent site run by a Club Wyndham owner. It is not affiliated with, endorsed by, or sponsored by Club Wyndham, Wyndham Destinations, or Travel + Leisure Co. "Club Wyndham" and related names are trademarks of their owners.</p>
+<p>Information here comes from official Club Wyndham publications and is provided to help owners. It is not legal or financial advice. Rules and fees change; always confirm with Club Wyndham before you book or decide.</p>
+</div></footer>
+</body></html>

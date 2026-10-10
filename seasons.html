@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Season Finder | Your Timeshare Guide</title><meta name="description" content="Club Wyndham seasons for every week of the year, color-coded, with points by suite size and a trip cost calculator.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&display=swap"><link rel="stylesheet" href="style.css"><style>
+/* Layout: one working column — controls panel, legend, then a wide season grid that scrolls sideways inside its own frame with the resort column pinned. Built for readers 50+: large type, letter + color on every cell. */
+:root{
+  --bg:#f3f6f7; --panel:#ffffff; --ink:#15242d; --muted:#4d5f69; --line:#d3dde2;
+  --accent:#0b6475; --accent-ink:#ffffff; --hl:#e6f1f3;
+  --prime:#c93b3b; --prime-ink:#ffffff;
+  --high:#ee8a2a; --high-ink:#1d1306;
+  --value:#f3cd4b; --value-ink:#251d02;
+  --quiet:#4aa865; --quiet-ink:#06190c;
+  --none:#e4e9ec; --none-ink:#6a7a83;
+  --font-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body:"Atkinson Hyperlegible", "Verdana", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f181d; --panel:#16232a; --ink:#e8eff2; --muted:#a3b4bc; --line:#2c3d46;
+  --accent:#5fc3d3; --accent-ink:#06171b; --hl:#1c3038;
+  --prime:#d65353; --prime-ink:#ffffff; --high:#f0953d; --high-ink:#1d1306;
+  --value:#e9c447; --value-ink:#251d02; --quiet:#58b673; --quiet-ink:#06190c;
+  --none:#24333b; --none-ink:#8ea0a9; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#0f181d; --panel:#16232a; --ink:#e8eff2; --muted:#a3b4bc; --line:#2c3d46;
+  --accent:#5fc3d3; --accent-ink:#06171b; --hl:#1c3038;
+  --prime:#d65353; --prime-ink:#ffffff; --high:#f0953d; --high-ink:#1d1306;
+  --value:#e9c447; --value-ink:#251d02; --quiet:#58b673; --quiet-ink:#06190c;
+  --none:#24333b; --none-ink:#8ea0a9; color-scheme:dark;}
+
+*{box-sizing:border-box}
+.sf{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:18px;line-height:1.5;padding-inline:16px;padding-block:20px 48px}
+.wrap{max-width:1400px;margin:0 auto;display:grid;gap:20px}
+h1{font-family:var(--font-display);font-weight:800;font-size:clamp(28px,4vw,40px);line-height:1.1;margin:0;text-wrap:balance}
+.lede{margin:6px 0 0;color:var(--muted);max-width:68ch}
+.sample{display:inline-block;margin-top:10px;background:var(--hl);border:1px solid var(--line);border-radius:6px;padding:4px 10px;font-size:15px}
+
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;display:grid;gap:16px}
+.panel h2{font-family:var(--font-display);font-weight:600;font-size:21px;margin:0}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.field{display:grid;gap:4px;min-width:0}
+.field label{font-weight:700;font-size:16px}
+select,input[type=date],input[type=number]{font:inherit;font-size:17px;padding:10px 12px;border:2px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);width:100%;min-height:48px}
+select:focus-visible,input:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.checkline{display:flex;gap:10px;align-items:center;font-weight:700;font-size:16px;min-height:48px}
+.checkline input{width:24px;height:24px;accent-color:var(--accent)}
+button{font:inherit;font-weight:700;font-size:16px;min-height:48px;padding:8px 16px;border-radius:8px;border:2px solid var(--accent);background:var(--accent);color:var(--accent-ink);cursor:pointer}
+button.ghost{background:transparent;color:var(--accent)}
+.btnrow{display:flex;flex-wrap:wrap;gap:10px;align-items:end}
+
+.legend{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;font-size:16px}
+.chip{display:inline-flex;align-items:center;gap:8px}
+.sw{width:30px;height:24px;border-radius:4px;display:inline-grid;place-items:center;font-weight:700;font-size:14px}
+.s-P{background:var(--prime);color:var(--prime-ink)}
+.s-H{background:var(--high);color:var(--high-ink)}
+.s-V{background:var(--value);color:var(--value-ink)}
+.s-Q{background:var(--quiet);color:var(--quiet-ink)}
+.s-N{background:var(--none);color:var(--none-ink)}
+
+.status{font-size:16px;color:var(--muted)}
+.status strong{color:var(--ink)}
+
+.gridframe{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--panel);min-width:0}
+table{border-collapse:separate;border-spacing:0;font-variant-numeric:tabular-nums}
+th,td{border-bottom:1px solid var(--line)}
+thead th{position:sticky;top:0;background:var(--panel);z-index:2;font-size:13px;font-weight:700;padding:6px 2px;text-align:center;color:var(--muted);min-width:58px}
+thead th .wk{display:block;font-size:16px;color:var(--ink)}
+thead th.cur{background:var(--hl)}
+.rescol{position:sticky;left:0;z-index:3;background:var(--panel);text-align:left;min-width:300px;max-width:300px;padding:10px 12px;border-right:2px solid var(--line);vertical-align:top}
+thead .rescol{z-index:4;font-size:15px;color:var(--ink)}
+.trip{min-width:120px;text-align:right;padding:8px 12px;border-right:2px solid var(--line);font-weight:700;vertical-align:middle;background:var(--panel)}
+thead .trip{text-align:right}
+.rname{font-weight:700;font-size:17px;line-height:1.25;display:flex;gap:10px;align-items:flex-start}
+.rname input{width:22px;height:22px;margin-top:2px;flex:none;accent-color:var(--accent)}
+.rmeta{font-size:14px;color:var(--muted);margin-top:4px;line-height:1.35}
+.tag{display:inline-block;font-size:12px;font-weight:700;border:1px solid var(--line);border-radius:4px;padding:0 5px;margin:4px 4px 0 0;color:var(--muted)}
+.tag.warn{border-color:var(--prime);color:var(--prime)}
+td.c{padding:0;height:62px;text-align:center;font-size:14px;font-weight:700;border-right:1px solid color-mix(in srgb, var(--panel) 55%, transparent)}
+td.c .L{display:block;font-size:11px;opacity:.85;letter-spacing:.06em}
+td.c.cur{box-shadow:inset 0 0 0 3px var(--ink)}
+tr.checked .rescol{background:var(--hl)}
+.best{color:var(--quiet)}
+.dim{color:var(--muted);font-weight:400}
+
+.notes{font-size:16px;color:var(--muted);display:grid;gap:8px;max-width:80ch}
+.notes h2{color:var(--ink)}
+.notes p{margin:0}
+
+@media (max-width:640px){
+  .sf{font-size:17px}
+  .rescol{min-width:190px;max-width:190px;padding:8px}
+  .rname{font-size:15px}
+  .rmeta{font-size:13px}
+}
+@media (prefers-reduced-motion:no-preference){ td.c{transition:filter .15s} td.c:hover{filter:brightness(1.08)} }
+</style></head>
+<body>
+<header class="site-header"><div class="in"><a class="brand" href="index.html">Your Timeshare Guide<small>Club Wyndham, explained by an owner</small></a>
+<nav class="site-nav" aria-label="Main"><a href="index.html">Home</a><a href="calculator.html">Calculator</a><a href="seasons.html" aria-current="page">Season Finder</a><a href="fees.html">Fees</a><a href="errors.html">Directory Errors</a><a href="resources.html">Resources</a></nav></div></header>
+<main class="sf"><div class="wrap">
+  <header>
+    <h1>Resort Season Finder</h1>
+    <p class="lede">Every row is a resort. Every column is a Friday-to-Friday week. The color shows the season: <strong>red is Prime</strong>, <strong>orange is High</strong>, <strong>yellow is Value</strong>, <strong>green is Quiet</strong>. Pick a suite size to see the points in each box, or enter your dates to total up a trip.</p>
+    <span class="sample">Sample: 7 suite charts from the 2026/27 Member's Directory. More resorts to come.</span>
+  </header>
+
+  <section class="panel" aria-labelledby="h-filter">
+    <h2 id="h-filter">1. Choose what to compare</h2>
+    <div class="controls">
+      <div class="field"><label for="f-state">State</label>
+        <select id="f-state"></select></div>
+      <div class="field"><label for="f-size">Suite size</label>
+        <select id="f-size">
+          <option value="0">Seasons only (no points)</option>
+          <option value="1" selected>1 Bedroom</option>
+          <option value="2">2 Bedroom</option>
+          <option value="3">3 Bedroom</option>
+          <option value="4">4 Bedroom</option>
+        </select></div>
+      <div class="field"><label for="f-rate">Points shown in each box</label>
+        <select id="f-rate">
+          <option value="wk" selected>Full week (7 nights)</option>
+          <option value="st">One weeknight (Sun–Thu)</option>
+          <option value="fs">One weekend night (Fri–Sat)</option>
+        </select></div>
+      <div class="field"><label for="f-year">Week dates for</label>
+        <select id="f-year"><option>2026</option><option selected>2027</option><option>2028</option></select></div>
+      <div class="field"><label for="f-near">Near</label>
+        <select id="f-near"></select></div>
+      <div class="field"><label for="f-miles">Within</label>
+        <select id="f-miles">
+          <option value="0">Any distance</option>
+          <option value="10">10 miles</option>
+          <option value="25" selected>25 miles</option>
+          <option value="50">50 miles</option>
+          <option value="100">100 miles</option>
+          <option value="250">250 miles</option>
+        </select></div>
+    </div>
+    <div class="btnrow">
+      <label class="checkline"><input type="checkbox" id="f-only"> Show only the resorts I've checked</label>
+      <button type="button" class="ghost" id="b-clear">Clear checkmarks</button>
+      <button type="button" class="ghost" id="b-reset">Reset everything</button>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="h-trip">
+    <h2 id="h-trip">2. Price a trip (optional)</h2>
+    <div class="controls">
+      <div class="field"><label for="t-in">Check-in date</label><input type="date" id="t-in"></div>
+      <div class="field"><label for="t-n">Number of nights (1–14)</label><input type="number" id="t-n" min="1" max="14" value="7" inputmode="numeric"></div>
+    </div>
+    <p class="status" id="t-status">Enter a check-in date to add a <strong>Your trip</strong> column, sorted cheapest first. Friday and Saturday nights use the weekend rate; Sunday through Thursday use the weeknight rate.</p>
+  </section>
+
+  <div class="legend" aria-label="Season colors">
+    <span class="chip"><span class="sw s-P">P</span> Prime</span>
+    <span class="chip"><span class="sw s-H">H</span> High</span>
+    <span class="chip"><span class="sw s-V">V</span> Value</span>
+    <span class="chip"><span class="sw s-Q">Q</span> Quiet</span>
+    <span class="chip"><span class="sw s-N">–</span> Suite size not offered</span>
+    <span class="status" id="count"></span>
+  </div>
+
+  <div class="gridframe" id="frame"><table id="grid" aria-describedby="count"></table></div>
+
+  <section class="notes">
+    <h2>How these numbers were checked</h2>
+    <p>Points and seasons come from the Club Wyndham Member's Directory 2026/2027, read page by page. Each row names the directory page it came from. Every full-week figure was checked against the nightly rates (2 weekend nights + 5 weeknights) and all of them match.</p>
+    <p>Where a resort has more than one suite of the chosen size, the row shows the one that costs the fewest points and names it. "Lockoff" combinations are priced as the two halves added together, as the directory's footnotes say.</p>
+    <p>Week numbers follow the directory's Friday-to-Friday calendar: week 1 starts on the first Friday of January. The 2026, 2027 and 2028 calendars in the directory are correct. The 2029 calendar in the directory is wrong (it starts week 1 on Friday, Jan 1, 2029, but that day is a Monday), so this page works the weeks out from the real calendar instead. 2027 has a week 53 (Dec 31, 2027 – Jan 7, 2028) that no points chart lists; this page prices it like week 1.</p>
+    <p>Distances use each resort's approximate map location. Always confirm points on clubwyndham.com before booking. This site is independent and not affiliated with Club Wyndham or Travel + Leisure Co.</p>
+  </section>
+</div>
+
+<script>
+(function(){
+// ---------- Data (2026/27 Member's Directory; printed page numbers) ----------
+// rates: [FriSat, SunThu, FullWeek] per season letter
+const SEASON_NAMES={P:"Prime",H:"High",V:"Value",Q:"Quiet"};
+const R=[
+ {id:"bison",name:"Club Wyndham Bison Ranch",city:"Overgaard",state:"AZ",addr:"2361 Bison Ranch Trail Road, Overgaard, AZ 85933",phone:"928-535-3010",page:"16–17",lat:34.392,lng:-110.540,managed:true,vip:true,note:"Limited number of accommodations",
+  seasons:{P:"1,11-47,52",H:"5-10,48-49",V:"2-4,50-51"},
+  suites:[{name:"2 BR",br:2,P:[32500,19800,164000],H:[22900,13800,114800],V:[16500,9800,82000]}]},
+ {id:"bonnet",name:"Club Wyndham Bonnet Creek",city:"Lake Buena Vista",state:"FL",addr:"9560 Via Encinas, Lake Buena Vista, FL 32830",phone:"407-238-3500",page:"70–71",lat:28.363,lng:-81.530,managed:true,vip:true,
+  seasons:{P:"7-14,23-33,51-52",H:"1-6,20-22,34-35,40-42",V:"15-19,36-39,43-50"},
+  suites:[
+   {name:"1 BR Deluxe",br:1,P:[33000,20000,166000],H:[25500,15000,126000],V:[19500,9000,84000]},
+   {name:"2 BR Deluxe",br:2,P:[44500,27000,224000],H:[38000,22600,189000],V:[23500,13000,112000]},
+   {name:"3 BR Deluxe",br:3,P:[64000,36000,308000],H:[45500,28000,231000],V:[35000,21000,175000]}]},
+ {id:"bonnet-pr",name:"Club Wyndham Bonnet Creek — Presidential",city:"Lake Buena Vista",state:"FL",addr:"9560 Via Encinas, Lake Buena Vista, FL 32830",phone:"407-238-3500",page:"71",lat:28.363,lng:-81.530,managed:true,vip:true,note:"Presidential suites",
+  seasons:{P:"7-14,23-33,51-52",H:"1-6,20-22,34-35,40-42",V:"15-19,36-39,43-50"},
+  suites:[
+   {name:"1 BR Presidential",br:1,P:[44500,27000,224000],H:[38000,22600,189000],V:[23500,13000,112000]},
+   {name:"2 BR Presidential",br:2,P:[64000,36000,308000],H:[45500,28000,231000],V:[35000,21000,175000]},
+   {name:"3 BR Presidential",br:3,P:[77500,46000,385000],H:[62000,33000,289000],V:[44500,26000,219000]},
+   {name:"4 BR Presidential",br:4,P:[87000,50000,424000],H:[71000,41000,347000],V:[45500,28000,231000]}]},
+ {id:"cypress",name:"Club Wyndham Cypress Palms",city:"Kissimmee",state:"FL",addr:"5324 Fairfield Lake Drive, Kissimmee, FL 34746",phone:"407-397-1600",page:"72",lat:28.339,lng:-81.540,managed:true,vip:true,
+  seasons:{P:"7,11-16,24-33,51-52",H:"1-6,8-10,17-23,34-36,41-48",V:"37-40,49-50"},
+  suites:[
+   {name:"1 BR Suite (lockoff half)",br:1,P:[21000,10500,94500],H:[18500,8000,77000],V:[14000,7000,63000]},
+   {name:"1 BR (lockoff half)",br:1,P:[23500,13000,112000],H:[21000,10500,94500],V:[18500,8000,77000]},
+   {name:"1 BR Deluxe",br:1,P:[26500,15000,128000],H:[22500,12000,105000],V:[19500,9000,84000]},
+   {name:"2 BR Deluxe",br:2,P:[35000,21000,175000],H:[32000,18000,154000],V:[25500,15000,126000]},
+   {name:"2 BR Lockoff",br:2,P:[47500,25500,222500],H:[41000,20000,182000],V:[33500,16000,147000]},
+   {name:"2 BR Deluxe Lockoff",br:2,P:[50000,28000,240000],H:[43500,22500,199500],V:[38000,17000,161000]}]},
+ {id:"kingstown",name:"Club Wyndham Kingstown Reef",city:"Orlando",state:"FL",addr:"12000 International Drive, Orlando, FL 32821",phone:"407-597-2550",page:"74–75",lat:28.383,lng:-81.506,managed:true,vip:true,note:"Presidential Reserve · limited number of accommodations",
+  seasons:{P:"7,11-16,24-33,51-52",H:"1-6,8-10,17-23,34-36,41-48",V:"37-40,49-50"},
+  suites:[
+   {name:"1 BR Presidential",br:1,P:[65000,39000,325000],H:[55000,33000,275000],V:[45500,28000,231000]},
+   {name:"2 BR Presidential",br:2,P:[85000,51000,425000],H:[70000,42000,350000],V:[60000,36000,300000]},
+   {name:"3 BR Presidential",br:3,P:[100000,60000,500000],H:[85000,51000,425000],V:[75000,45000,375000]},
+   {name:"4 BR Presidential",br:4,P:[120000,72000,600000],H:[105000,63000,525000],V:[85000,51000,425000]}]},
+ {id:"reunion",name:"Club Wyndham Reunion",city:"Reunion",state:"FL",addr:"7593 Gathering Drive, Reunion, FL 34747",phone:"407-662-1800",page:"76",lat:28.269,lng:-81.589,managed:false,vip:false,
+  seasons:{P:"7-14,23-33,51-52",H:"1-6,20-22,34-35,40-42",V:"15-19,36-39,43-50"},
+  suites:[{name:"3 BR Deluxe",br:3,P:[57500,34000,285000],H:[42500,26000,215000],V:[32500,20000,165000]}]},
+ {id:"star",name:"Club Wyndham Star Island",city:"Kissimmee",state:"FL",addr:"5000 Avenue of the Stars, Kissimmee, FL 34746",phone:"407-997-8000",page:"77",lat:28.316,lng:-81.546,managed:false,vip:false,
+  seasons:{P:"7,11-16,24-33,51-52",H:"1-6,8-10,17-23,34-36,41-48",V:"37-40,49-50"},
+  suites:[
+   {name:"1 BR Suite (lockoff half)",br:1,P:[22500,12000,105000],H:[19500,9000,84000],V:[18500,8000,77000]},
+   {name:"1 BR Deluxe (lockoff half)",br:1,P:[26500,15000,128000],H:[22500,12000,105000],V:[19500,9000,84000]},
+   {name:"2 BR Lockoff",br:2,P:[49000,27000,233000],H:[42000,21000,189000],V:[38000,17000,161000]}]}
+];
+const STATE_NAMES={AZ:"Arizona",FL:"Florida"};
+const PLACES=[
+ {id:"",label:"Anywhere"},
+ {id:"wdw",label:"Walt Disney World, FL",lat:28.3852,lng:-81.5639},
+ {id:"orl",label:"Orlando, FL",lat:28.5384,lng:-81.3789},
+ {id:"kis",label:"Kissimmee, FL",lat:28.2920,lng:-81.4076},
+ {id:"phx",label:"Phoenix, AZ",lat:33.4484,lng:-112.0740},
+ {id:"sho",label:"Show Low, AZ",lat:34.2542,lng:-110.0298}
+];
+
+// ---------- Helpers ----------
+function parseWeeks(s){const set=new Set();s.split(",").forEach(p=>{const [a,b]=p.split("-").map(Number);for(let w=a;w<=(b||a);w++)set.add(w)});return set}
+R.forEach(r=>{r.wk={};for(const k in r.seasons){parseWeeks(r.seasons[k]).forEach(w=>r.wk[w]=k)}
+  for(let w=1;w<=52;w++) if(!r.wk[w]) console.warn("Missing week",w,r.name);});
+const DAY=86400000;
+function firstFri(y){const d=new Date(Date.UTC(y,0,1));const off=(5-d.getUTCDay()+7)%7;return Date.UTC(y,0,1+off)}
+function weekOf(t){ // t = UTC ms of a night; returns {year,week}
+  const dow=new Date(t).getUTCDay(); const fri=t-((dow-5+7)%7)*DAY;
+  let y=new Date(fri).getUTCFullYear(); if(fri<firstFri(y)) y--;
+  return {year:y,week:Math.floor((fri-firstFri(y))/DAY/7)+1};
+}
+function haversine(a,b,c,d){const R=3958.8,r=Math.PI/180;const x=Math.sin((c-a)*r/2)**2+Math.cos(a*r)*Math.cos(c*r)*Math.sin((d-b)*r/2)**2;return 2*R*Math.asin(Math.sqrt(x))}
+const fmt=n=>n.toLocaleString("en-US");
+const short=n=>n>=1000?(Math.round(n/100)/10).toString().replace(/\.0$/,"")+"k":String(n);
+const mon=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function dlabel(t){const d=new Date(t);return mon[d.getUTCMonth()]+" "+d.getUTCDate()}
+function pickSuite(r,br){const c=r.suites.filter(s=>s.br===br);if(!c.length)return null;return c.slice().sort((a,b)=>a.P[2]-b.P[2])[0]}
+
+// ---------- State ----------
+const $=id=>document.getElementById(id);
+const checked=new Set();
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+
+// Populate selects
+const states=[...new Set(R.map(r=>r.state))].sort();
+$("f-state").innerHTML='<option value="">All states</option>'+states.map(s=>`<option value="${s}">${STATE_NAMES[s]||s}</option>`).join("");
+$("f-near").innerHTML=PLACES.map(p=>`<option value="${p.id}">${p.label}</option>`).join("")+
+  '<optgroup label="Near a resort">'+R.filter((r,i,a)=>a.findIndex(x=>x.addr===r.addr)===i).map(r=>`<option value="r:${r.id}">${r.name.replace(" — Presidential","")}</option>`).join("")+'</optgroup>';
+
+function center(){const v=$("f-near").value;if(!v)return null;if(v.startsWith("r:")){const r=R.find(x=>x.id===v.slice(2));return {lat:r.lat,lng:r.lng}}return PLACES.find(p=>p.id===v)}
+
+function tripCost(r,br){
+  const inV=$("t-in").value; let n=parseInt($("t-n").value,10);
+  if(!inV||!n||n<1)return null; n=Math.min(n,14);
+  const s=pickSuite(r,br); if(!s) return {na:true};
+  const [y,m,d]=inV.split("-").map(Number); let t=Date.UTC(y,m-1,d); let total=0; const weeks=[];
+  for(let i=0;i<n;i++,t+=DAY){let {year,week}=weekOf(t); if(week===53)week=1; const se=r.wk[week]; const dow=new Date(t).getUTCDay(); const rate=(dow===5||dow===6)?s[se][0]:s[se][1]; total+=rate; weeks.push({year,week})}
+  return {total,suite:s,weeks};
+}
+function tripWeeks(){
+  const inV=$("t-in").value; let n=parseInt($("t-n").value,10); if(!inV||!n)return new Set();
+  const [y,m,d]=inV.split("-").map(Number); let t=Date.UTC(y,m-1,d); const out=new Set();
+  for(let i=0;i<Math.min(n,14);i++,t+=DAY){const w=weekOf(t); if(w.year===+$("f-year").value) out.add(w.week===53?53:w.week)}
+  return out;
+}
+
+function render(){
+  const st=$("f-state").value, br=+$("f-size").value, rate=$("f-rate").value, yr=+$("f-year").value;
+  const c=center(), miles=+$("f-miles").value, only=$("f-only").checked;
+  $("f-miles").disabled=!c; $("f-rate").disabled=br===0;
+  let rows=R.filter(r=>(!st||r.state===st)&&(!only||checked.has(r.id)));
+  if(c&&miles) rows=rows.filter(r=>haversine(c.lat,c.lng,r.lat,r.lng)<=miles);
+  const hasTrip=!!$("t-in").value && br>0;
+  const costs=new Map(); rows.forEach(r=>costs.set(r.id,hasTrip?tripCost(r,br):null));
+  if(hasTrip) rows.sort((a,b)=>{const x=costs.get(a.id),y=costs.get(b.id);const ax=x&&!x.na?x.total:Infinity, by=y&&!y.na?y.total:Infinity;return ax-by});
+  const cheapest=hasTrip?Math.min(...rows.map(r=>{const x=costs.get(r.id);return x&&!x.na?x.total:Infinity})):null;
+  const tw=tripWeeks();
+  const ff=firstFri(yr);
+  const nweeks=(firstFri(yr+1)-ff)/DAY/7;
+  let h='<thead><tr><th class="rescol" scope="col">Resort <span class="dim">(✓ to compare)</span></th>';
+  if(hasTrip) h+='<th class="trip" scope="col">Your trip<br><span class="dim">points</span></th>';
+  for(let w=1;w<=nweeks;w++){h+=`<th scope="col" class="${tw.has(w)?"cur":""}"><span class="wk">${w}</span>${dlabel(ff+(w-1)*7*DAY)}</th>`}
+  h+='</tr></thead><tbody>';
+  if(!rows.length){h+=`<tr><td class="rescol" colspan="2" style="max-width:none">No resorts match. Try a bigger distance, another state, or uncheck "Show only the resorts I've checked."</td></tr>`}
+  rows.forEach(r=>{
+    const s=br?pickSuite(r,br):null; const isC=checked.has(r.id);
+    const dist=c?Math.round(haversine(c.lat,c.lng,r.lat,r.lng)):null;
+    h+=`<tr class="${isC?"checked":""}"><th class="rescol" scope="row"><div class="rname"><input type="checkbox" data-id="${r.id}" ${isC?"checked":""} aria-label="Compare ${r.name}"><span>${r.name}</span></div>
+      <div class="rmeta">${r.city}, ${r.state}${dist!==null?` · about ${dist} mi`:""}<br>${r.addr}<br>${r.phone} · Directory p. ${r.page}
+      ${br?`<br><strong>${s?s.name:"No "+br+" BR suite here"}</strong>`:""}</div>
+      ${r.vip?'<span class="tag">VIP benefits apply</span>':'<span class="tag warn">Not managed by Club Wyndham · no VIP</span>'}${r.note?`<span class="tag">${r.note}</span>`:""}</th>`;
+    if(hasTrip){const x=costs.get(r.id);h+=`<td class="trip">${x.na?'<span class="dim">—</span>':`<span class="${x.total===cheapest?"best":""}">${fmt(x.total)}</span>${x.total===cheapest?'<br><span class="dim">lowest</span>':""}`}</td>`}
+    for(let w=1;w<=nweeks;w++){
+      const se=r.wk[w===53?1:w]; const cur=tw.has(w)?" cur":"";
+      let txt="", cls="s-"+se, tip=`Week ${w} (${dlabel(ff+(w-1)*7*DAY)}): ${SEASON_NAMES[se]}`;
+      if(br){ if(s){const v=s[se][rate==="wk"?2:rate==="st"?1:0];txt=short(v);tip+=` · ${s.name}: ${fmt(v)} points ${rate==="wk"?"per week":"per night"}`} else {cls="s-N";txt="–";tip+=" · size not offered"} }
+      h+=`<td class="c ${cls}${cur}" title="${tip}"><span class="L">${se}</span>${txt}</td>`;
+    }
+    h+='</tr>';
+  });
+  h+='</tbody>';
+  $("grid").innerHTML=h;
+  $("count").textContent=`Showing ${rows.length} of ${R.length} resort charts`;
+  if(hasTrip){const n=Math.min(parseInt($("t-n").value,10)||0,14);$("t-status").innerHTML=`Pricing <strong>${n} night${n===1?"":"s"}</strong> from <strong>${$("t-in").value}</strong> in a <strong>${br} bedroom</strong>. The cheapest resort is at the top. Weeks you'd be staying in ${yr} are outlined.`}
+  else if($("t-in").value && !br){$("t-status").innerHTML='Pick a suite size above to price your trip.'}
+  else {$("t-status").innerHTML='Enter a check-in date to add a <strong>Your trip</strong> column, sorted cheapest first. Friday and Saturday nights use the weekend rate; Sunday through Thursday use the weeknight rate.'}
+  const tgt=$("frame").querySelector("th.cur"); if(tgt&&render.scroll){$("frame").scrollLeft=Math.max(0,tgt.offsetLeft-$("frame").querySelector(".rescol").offsetWidth-(hasTrip?130:0)-8)} render.scroll=false;
+  store.set("csf",JSON.stringify({st,br,rate,yr:String(yr),near:$("f-near").value,miles:String(miles),only,checked:[...checked]}));
+}
+
+document.addEventListener("change",e=>{
+  if(e.target.matches("input[data-id]")){const id=e.target.dataset.id; e.target.checked?checked.add(id):checked.delete(id); render(); return}
+  if(e.target.id==="t-in"){const y=+e.target.value.slice(0,4); if(y>=2026&&y<=2028)$("f-year").value=String(y); render.scroll=true}
+  if(["f-state","f-size","f-rate","f-year","f-near","f-miles","f-only","t-in","t-n"].includes(e.target.id)) render();
+});
+$("t-n").addEventListener("input",render);
+$("b-clear").addEventListener("click",()=>{checked.clear();$("f-only").checked=false;render()});
+$("b-reset").addEventListener("click",()=>{checked.clear();["f-state","f-near"].forEach(i=>$(i).value="");$("f-size").value="1";$("f-rate").value="wk";$("f-year").value="2027";$("f-miles").value="25";$("f-only").checked=false;$("t-in").value="";$("t-n").value="7";render()});
+
+// restore per-viewer settings
+try{const s=JSON.parse(store.get("csf")||"null");if(s){$("f-state").value=s.st||"";$("f-size").value=String(s.br??1);$("f-rate").value=s.rate||"wk";$("f-year").value=s.yr||"2027";$("f-near").value=s.near||"";$("f-miles").value=s.miles||"25";$("f-only").checked=!!s.only;(s.checked||[]).forEach(i=>checked.add(i))}}catch(e){}
+render();
+})();
+</script>
+</main>
+<footer class="site-footer"><div class="in">
+<p><strong>Your Timeshare Guide</strong> is an independent site run by a Club Wyndham owner. It is not affiliated with, endorsed by, or sponsored by Club Wyndham, Wyndham Destinations, or Travel + Leisure Co. "Club Wyndham" and related names are trademarks of their owners.</p>
+<p>Information here comes from official Club Wyndham publications and is provided to help owners. It is not legal or financial advice. Rules and fees change; always confirm with Club Wyndham before you book or decide.</p>
+</div></footer>
+</body></html>
