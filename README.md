@@ -23,9 +23,14 @@ Shared styles are in `style.css`. The Season Finder keeps its color palette and 
 
 ## Making changes
 
-1. `git pull` to get the latest version.
-2. Edit the HTML or CSS, then open the page in a browser to check it.
-3. Commit and `git push`. The live site updates within a minute or two.
+`main` is the live site and is protected, so every change goes through a pull request:
+
+1. `git pull`, then create a branch: `git switch -c issue-<N>-<short-slug>`.
+2. Edit the HTML or CSS, then open the page in a browser to check it at desktop and phone widths.
+3. Commit, push, and open a pull request (`gh pr create`). The template asks how the change was checked.
+4. The owner reviews and **squash-merges**. The live site updates within a minute or two, and the branch is deleted.
+
+Work is planned in a separate private repository. Agents should read [CLAUDE.md](CLAUDE.md) first.
 
 Every page repeats the same header, menu and footer, so a menu change must be made on all six pages.
 
