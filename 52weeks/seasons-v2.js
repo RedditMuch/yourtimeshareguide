@@ -159,22 +159,22 @@
   /* ---- Which rows to show ---- */
   function placeFilter() {
     const q = state.query;
-    if (!q) return { test: () => true, hint: 'The radius applies when you pick a city from the list.' };
+    if (!q) return { test: () => true, hint: 'The search radius needs a city and state, such as Orlando, Florida.' };
     const region = regionByName.get(norm(q));
     if (region) return { test: s => regionOf(s) === region, region: true,
       hint: 'Showing resorts in ' + region + '. The radius works from a city: to include nearby states, type a city, such as Phoenix, Arizona.' };
     const center = GEO ? GEO.resolve(q) : null;
-    if (center) return { test: s => GEO.match({ resort_id: s.resort_id, name: s.name, city: s.city, state: s.state, country: s.country, schedule: s.schedule }, q, state.radius),
+    if (center) return { city: true, test: s => GEO.match({ resort_id: s.resort_id, name: s.name, city: s.city, state: s.state, country: s.country, schedule: s.schedule }, q, state.radius),
       hint: 'Within ' + state.radius.toLocaleString('en-US') + ' miles of ' + center.label + ', in a straight line.' };
     const words = norm(q).split(' ').filter(Boolean);
     return { test: s => { const t = norm([s.name, s.city, s.state, s.country, s.schedule].join(' ')); return words.every(w => t.includes(w)); },
-      hint: 'Matching “' + q + '”. The radius applies when you pick a city from the list.' };
+      hint: 'Matching “' + q + '”. The search radius needs a city and state, such as Orlando, Florida.' };
   }
 
   function candidateRows(place) {
     const rows = [], groups = relevantGroups();
     for (const s of D.rows) {
-      // Collections and locations each narrow the list only when something is ticked, so they can't cancel each other out
+      // Collections and locations each narrow the list only when something is checked, so they can't cancel each other out
       if (state.collections.size && !state.collections.has(s.collection)) continue;
       if (!place.test(s)) continue;
       const pl = placeOf(s); if (state.places.size && pl !== 'other' && !state.places.has(pl)) continue;
@@ -232,7 +232,7 @@
     syncControls();
     const wk = WEEKS[state.idx].w, place = placeFilter(), t = trip();
     $('searchHint').textContent = place.hint;
-    $('radius').disabled = !!place.region;
+    $('radius').disabled = !place.city;
 
     const cand = candidateRows(place);
     const bySeason = { '': new Set(), none: new Set() }; SEASONS.forEach(x => bySeason[x] = new Set());
@@ -258,7 +258,7 @@
     // Count line and messages
     const groups = relevantGroups(), g1 = groups[0];
     const sizesOr = groups.map(g => g === 'Studio' ? 'studios' : g === 'Hotel' ? 'hotel rooms' : br(g)).join(' or ') + (groups.some(g => /Bedroom/.test(g)) ? ' units' : '');
-    const sz = groups.length > 1 ? 'the ticked room types' : g1 === 'Studio' ? 'studios' : g1 === 'Hotel' ? 'hotel rooms' : br(g1) + ' units';
+    const sz = groups.length > 1 ? 'the checked room types' : g1 === 'Studio' ? 'studios' : g1 === 'Hotel' ? 'hotel rooms' : br(g1) + ' units';
     const total = bySeason[''].size, have = new Set(cand.filter(r => !r.gap).map(r => resortKey(r.s))).size;
     const shown = new Set(rows.map(r => resortKey(r.s))).size;
     let count = !pointsOn() ? '<b>' + total + '</b> resorts' : '<b>' + have + ' / ' + total + '</b> resorts have ' + esc(sz);
@@ -267,7 +267,7 @@
     $('count').innerHTML = rows.length ? count : 'No resorts match these filters';
 
     const picks = new Set(cand.filter(r => r.gap === 'pick').map(r => resortKey(r.s))).size;
-    if (pointsOn() && state.types.size === 0) { $('typeAlert').hidden = false; $('typeAlert').innerHTML = '<strong>No room types are selected.</strong> Open “Room types” in the filters and tick at least one to see points.'; }
+    if (pointsOn() && state.types.size === 0) { $('typeAlert').hidden = false; $('typeAlert').innerHTML = '<strong>No room types are selected.</strong> Open “Room types” in the filters and check at least one to see points.'; }
     else $('typeAlert').hidden = true;
 
     renderTripNote(t);

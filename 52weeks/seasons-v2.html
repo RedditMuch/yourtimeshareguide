@@ -30,45 +30,10 @@
 
     <hr class="sep">
 
-    <section class="group">
-      <div class="mode" role="radiogroup" aria-label="Choose by week or by dates">
-        <label class="mode-opt"><input type="radio" name="mode" value="week" checked> By week</label>
-        <label class="mode-opt"><input type="radio" name="mode" value="dates"> By dates</label>
-      </div>
-
-      <div id="weekBox" class="mode-body">
-        <div class="field">
-          <label for="week">Vacation week</label>
-          <select id="week"></select>
-        </div>
-        <div class="field">
-          <span class="label small-label">Weeks shown (before / after)</span>
-          <div class="segmented small" id="spanButtons" role="group" aria-label="Weeks shown before and after"></div>
-        </div>
-      </div>
-
-      <div id="dateBox" class="mode-body" hidden>
-        <div class="two">
-          <div class="field"><label for="startDate">Start date</label><input type="date" id="startDate"></div>
-          <div class="field"><label for="endDate">End date</label><input type="date" id="endDate"></div>
-        </div>
-        <p class="trip-note" id="tripNote" aria-live="polite"></p>
-        <button type="button" class="link" id="clearDates">Clear dates</button>
-      </div>
-    </section>
-
-    <hr class="sep">
-
     <details class="group fold" id="filterBox" open>
       <summary class="group-title">Filters</summary>
       <div class="fold-body">
 
-        <div class="field">
-          <label for="bedrooms">Bedrooms</label>
-          <select id="bedrooms"></select>
-        </div>
-
-        <hr class="sep">
 
         <div class="field">
           <label for="search">State, Resort or City/State</label>
@@ -76,9 +41,9 @@
           <datalist id="places"></datalist>
         </div>
         <div class="field">
-          <label for="radius">Search radius</label>
+          <label for="radius">Search Radius <span class="hint">(Requires City &amp; State)</span></label>
           <select id="radius"></select>
-          <p class="hint" id="searchHint">The radius applies when you pick a city from the list.</p>
+          <p class="hint" id="searchHint">The search radius needs a city and state, such as Orlando, Florida.</p>
         </div>
 
         <hr class="sep">
@@ -95,6 +60,11 @@
         </details>
 
         <hr class="sep">
+
+        <div class="field">
+          <label for="bedrooms">Bedrooms</label>
+          <select id="bedrooms"></select>
+        </div>
 
         <details class="sub fold" id="typeBox">
           <summary>Room types <span class="hint" id="typeSummary"></span></summary>
@@ -118,6 +88,32 @@
           <p class="count" id="count" aria-live="polite"></p>
         </div>
       </div>
+      <section class="timebox" aria-label="Choose the weeks or dates to show">
+      <div class="mode" role="radiogroup" aria-label="Choose by week or by dates">
+        <label class="mode-opt"><input type="radio" name="mode" value="week" checked> By week</label>
+        <label class="mode-opt"><input type="radio" name="mode" value="dates"> By dates</label>
+      </div>
+  
+      <div id="weekBox" class="mode-body">
+        <div class="field">
+          <label for="week">Vacation week</label>
+          <select id="week"></select>
+        </div>
+        <div class="field">
+          <span class="label small-label">Weeks shown (before / after)</span>
+          <div class="segmented small" id="spanButtons" role="group" aria-label="Weeks shown before and after"></div>
+        </div>
+      </div>
+  
+      <div id="dateBox" class="mode-body" hidden>
+        <div class="two">
+          <div class="field"><label for="startDate">Start date</label><input type="date" id="startDate"></div>
+          <div class="field"><label for="endDate">End date</label><input type="date" id="endDate"></div>
+        </div>
+        <p class="trip-note" id="tripNote" aria-live="polite"></p>
+        <button type="button" class="link" id="clearDates">Clear dates</button>
+      </div>
+      </section>
       <div class="today" id="today"></div>
     </div>
 
