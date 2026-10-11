@@ -43,6 +43,16 @@ Double-click **`preview.cmd`**. It opens the site at http://localhost:8080/ and 
 
 From a terminal: `npm ci` once, then `npm start` to preview or `npm run build` to build `_site/`.
 
+### Sharing a preview with a friend
+
+Double-click **`share.cmd`** to get a private, temporary link a friend can open to look at the site and give feedback. (To choose how long it lasts, run `share.cmd 4` for 4 hours. The default is 2 hours and the most is 24.)
+
+- It builds the site, then prints a short message with a link, a password and the time the link stops working. The message (without the password) is also copied, so you can paste it into an email or text. The password appears on screen only: send it in a separate message. If someone tries a wrong password 20 times, sharing stops by itself.
+- The link and password are **new every time**. Anyone who has both can view the site until the link expires, so send them only to people you trust. The user name can be anything.
+- It works **only while this computer is on and the window is open**. Closing the window, pressing Ctrl+C or reaching the end time stops it completely.
+- The window shows when pages are opened (no names or addresses), so you can see when your friend is looking.
+- It needs Node.js and `cloudflared` (free, from Cloudflare). From a terminal: `node scripts/share.mjs --hours 3` or `--minutes 30`.
+
 ## Checks
 
 Every pull request is checked automatically by GitHub, and the site is published only if the checks pass. The checks open every page in a real browser (Chromium), once at phone size (390 px wide) and once at desktop size (1280 px wide), and look for:

@@ -15,7 +15,7 @@ This repository is the public source of **yourtimeshareguide.com**. Every merge 
 - Open a **draft** PR early and push often, so unfinished work is never stuck on one computer.
 - The PR description must say `Closes RedditMuch/yourtimeshareguide-planning#<N>`.
 - Before stopping with work unfinished, push and leave a handoff comment on the issue (format in `docs/WORKFLOW.md`).
-- **Only the owner merges.** Never merge without the owner's explicit OK in the current session.
+- **Claude may merge** (owner, 2026-10-11) once the checks pass and a second agent has reviewed code changes; tell the owner what was merged. Never merge a change to season chart v2 the owner didn't ask for.
 
 ## Content rules
 
@@ -42,4 +42,5 @@ This repository is the public source of **yourtimeshareguide.com**. Every merge 
 - `npm run check:protected` fails if season chart v2 or any file it loads differs from `scripts/protected-files.sha256` (line endings ignored). It runs on every pull request.
 - Browser checks (planning #30): `npm test` builds, then Playwright opens every built page at phone and desktop size (errors, sideways scrolling, title, one h1, noindex, axe accessibility, internal links, season chart v2) and saves screenshots to `test-results/screenshots/`. Existing problems are recorded in `tests/baseline.json`; tests fail only on new ones. After fixing a known problem, run `npm run test:update-baseline`; never use it to hide a new failure. CI runs these in the `test` job, and publishing to Pages waits for it. `scripts/serve.mjs` is the static server they use (`--password` adds Basic auth).
 - Preview: `preview.cmd` (double-click) or `npm start`, at http://localhost:8080/. The preview server adds a live-reload `<script>` to pages it serves; the built files don't have it. Check phone width (about 400 px) as well as desktop.
+- Private share links (planning #34): `share.cmd` or `node scripts/share.mjs [--hours N | --minutes N]` builds the site, serves `_site/` with a fresh password through `scripts/serve.mjs`, and opens a Cloudflare quick tunnel. It stops by itself after 2 hours (default, max 24), on Ctrl+C, or when the window closes.
 - Windows: Git converts line endings to CRLF on checkout; the repository stores LF. Compare files with line endings normalized.
