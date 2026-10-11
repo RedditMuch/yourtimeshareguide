@@ -53,18 +53,14 @@
     "52weeks/layouts.html": {
       "desktop": {
         "consoleErrors": [
-          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/property-maps/rN-N.jpg",
-          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/published-plans/plan-NbNdNddN.jpg",
-          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/published-plans/plan-NdbNdNaN.jpg",
-          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/published-plans/plan-daNbNdNbNa.jpg"
+          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/property-maps/*.jpg",
+          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/published-plans/*.jpg"
         ]
       },
       "phone": {
         "consoleErrors": [
-          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/property-maps/rN-N.jpg",
-          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/published-plans/plan-NbNdNddN.jpg",
-          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/published-plans/plan-NdbNdNaN.jpg",
-          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/published-plans/plan-daNbNdNbNa.jpg"
+          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/property-maps/*.jpg",
+          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/published-plans/*.jpg"
         ]
       }
     },
@@ -86,9 +82,7 @@
           "color-contrast"
         ],
         "consoleErrors": [
-          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/resort-photos/bonnet-exterior.webp",
-          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/resort-photos/cypress-exterior.webp",
-          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/resort-photos/star-exterior.webp"
+          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/resort-photos/*.webp"
         ]
       },
       "phone": {
@@ -96,9 +90,7 @@
           "color-contrast"
         ],
         "consoleErrors": [
-          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/resort-photos/bonnet-exterior.webp",
-          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/resort-photos/cypress-exterior.webp",
-          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/resort-photos/star-exterior.webp"
+          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/resort-photos/*.webp"
         ]
       }
     },
@@ -302,19 +294,24 @@
       ],
       "desktop": {
         "consoleErrors": [
-          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/resort-photos/rN-official.webp"
+          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/resort-photos/*.webp"
+        ]
+      },
+      "phone": {
+        "consoleErrors": [
+          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/resort-photos/*.webp"
         ]
       }
     },
     "52weeks/rooms.html": {
       "desktop": {
         "consoleErrors": [
-          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/room-maps/bonnet_operator_site_map.png"
+          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/room-maps/*.png"
         ]
       },
       "phone": {
         "consoleErrors": [
-          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/room-maps/bonnet_operator_site_map.png"
+          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/room-maps/*.png"
         ]
       }
     },

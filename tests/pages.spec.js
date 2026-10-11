@@ -31,6 +31,15 @@ test.describe("pages", () => {
 
       const response = await browserPage.goto(`/${page}`, { waitUntil: "load" });
       await browserPage.waitForTimeout(400); // let deferred scripts draw
+      // Scroll through the page so lazy-loaded images are requested every time; otherwise which ones fail depends on timing.
+      await browserPage.evaluate(async () => {
+        for (let y = 0; y < document.documentElement.scrollHeight; y += window.innerHeight) {
+          window.scrollTo(0, y);
+          await new Promise(r => setTimeout(r, 30));
+        }
+        window.scrollTo(0, 0);
+      });
+      await browserPage.waitForTimeout(500);
 
       const deviceWidth = testInfo.project.use.viewport.width; // not window.innerWidth: on a phone it grows to fit wide content
       const dom = await browserPage.evaluate(deviceWidth => ({

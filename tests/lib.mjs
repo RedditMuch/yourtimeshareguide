@@ -60,7 +60,7 @@ export function errorKind(text, url = "") {
   const clean = s => s.replace(/https?:\/\/[^\s)]+/g, "<url>").replace(/\d+/g, "N").slice(0, 200);
   let kind = clean(text);
   if (/^Failed to load resource/.test(text) && url) {
-    try { kind += ` ${new URL(url).pathname.replace(/\d+/g, "N")}`; } catch { /* keep text only */ }
+    try { kind += ` ${new URL(url).pathname.replace(/[^/]+(\.\w+)$/, "*$1").replace(/\d+/g, "N")}`; } catch { /* keep text only */ }
   }
   return kind;
 }
