@@ -1,0 +1,155 @@
+/* Mobile reference layouts: values first, complete conditions, deliberate detail views. */
+.benefit-status{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 0}
+.benefit-status .status-line{margin:0;font-size:13px}
+.benefit-status button{flex-shrink:0}
+.benefit-column-heads,.benefit-matrix{display:grid;grid-template-columns:minmax(0,1.3fr) repeat(var(--tier-count,1),minmax(0,1fr));gap:14px;align-items:start}
+.benefit-column-heads{padding:10px 14px;background:#e3edf2;font-size:12px;color:#486777;border:1px solid var(--line);border-bottom:0}
+.benefit-column-heads strong{text-align:right;font-weight:650;color:var(--navy)}
+.vip-benefit-grid{display:block;border:1px solid var(--line);background:#fff}
+.benefit-card{padding:0;border:0;border-bottom:1px solid var(--line);border-radius:0;background:transparent}
+.benefit-card:last-child{border-bottom:0}
+.benefit-card[data-different=true]{box-shadow:inset 3px 0 #27857e}
+.benefit-card summary{display:block;cursor:pointer;list-style:none;padding:13px 14px;min-height:48px}
+.benefit-card summary::-webkit-details-marker{display:none}
+.benefit-name{font-size:15px;font-weight:600;line-height:1.4}
+.benefit-name:after{content:' ⌄';color:#6b8694;font-weight:400}
+.benefit-card details[open] .benefit-name:after{content:' ⌃'}
+.benefit-matrix>strong{font-size:16px;line-height:1.4;text-align:right;font-variant-numeric:tabular-nums;color:#0a6170;overflow-wrap:anywhere}
+.benefit-context{display:block;font-size:13px;line-height:1.5;color:#536c7b;margin:6px 0 0}
+.benefit-expanded{padding:0 14px 14px;background:#f5f9fb;border-top:1px solid var(--line)}
+.benefit-expanded-head{display:flex;justify-content:space-between;gap:12px;align-items:center;font-size:12px;color:#536c7b}
+.benefit-expanded .tier-ladder{margin:0}
+.benefit-source{font-size:12px;margin:10px 0 0;line-height:1.5}
+.benefit-source a{color:var(--teal)}
+.pin-mark{font-size:10px;color:#99702c}
+.vip-selectors{margin:0}
+.vip-selectors label{min-width:0}
+.vip-selectors select{width:100%;min-width:0}
+.filter-sheet>label{display:flex;flex-direction:column;gap:6px;margin:16px 0;font-size:14px;font-weight:600}
+.filter-sheet input[type=search],.filter-sheet select{width:100%;min-height:44px;font-size:16px;border:1px solid #bdcfd9;border-radius:5px;padding:8px 10px;background:#fff;color:var(--ink)}
+.filter-sheet>.check-label{flex-direction:row;align-items:center;gap:10px;min-height:44px;margin:2px 0}
+.filter-sheet .check-label input{width:20px;height:20px;accent-color:var(--teal)}
+.filter-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:18px}
+.filter-actions button{min-height:44px}
+.filter-sheet .remember-row{display:block;border-top:1px solid var(--line);padding-top:10px}
+.filter-sheet .remember-row span{display:block;font-size:12px}
+.discount-disclosure{margin:18px 0;background:#fff;border:1px solid var(--line)}
+.discount-disclosure>summary{padding:12px 14px;min-height:44px;cursor:pointer;font-weight:650;color:var(--teal)}
+.discount-disclosure .discount-lab{margin:0;border:0;border-top:1px solid var(--line)}
+.chart-actions{display:flex;gap:6px;flex-shrink:0}
+.room-view-tabs,#focusChart{display:none}
+.result-meta{display:flex;align-items:center;justify-content:space-between;gap:12px}.result-meta>button{flex-shrink:0}
+.room-identity{display:flex;justify-content:space-between;gap:12px;align-items:baseline;margin:10px 0}
+.room-identity h2,.room-identity .room-date{margin:0}
+.room-photos summary{font-size:14px;color:var(--teal);font-weight:600;cursor:pointer;padding:10px 0;min-height:44px}
+.reference-heading{display:flex;align-items:start;justify-content:space-between;gap:16px}
+.reference-heading h2{flex:1;margin:0}
+.reference-heading .reference-value{max-width:46%;text-align:right}
+
+@media(max-width:760px){
+ body{font-size:14px;line-height:1.45}
+ .topbar{height:52px;min-height:52px;padding:4px 12px;gap:8px}
+ .topbar .brand{gap:8px}.brand strong{font-size:17px}.brandmark{width:24px;height:24px;gap:3px}
+ .brand-sub{display:none}.menu-toggle{min-height:44px;padding:7px 10px;font-size:13px;border:0;background:transparent;gap:7px}
+ .portal-main{padding:14px 12px 64px}.workspace{padding:12px 12px 64px;gap:12px}
+ .page-head{margin-bottom:12px}.page-head .eyebrow,.explorer-heading .eyebrow{display:none}
+ .page-head h1,.explorer-heading h1{font-family:inherit;font-size:22px;font-weight:700;line-height:1.2;letter-spacing:-.45px}
+ .page-head p{font-size:13px;line-height:1.45;margin:5px 0 0}
+ .status-line{font-size:12px;line-height:1.45;margin:8px 0}
+ .toolbar,.quickbar{padding:10px;gap:8px;margin-bottom:10px;border-radius:5px}
+ .toolbar label,.quickbar label{font-size:12px;gap:4px;min-width:0}
+ .toolbar input,.toolbar select,.quickbar input,.quickbar select,select,input[type=search]{min-height:44px;font-size:16px!important;padding:8px;line-height:1.25}
+ .toolbar .quiet-button,.quickbar .primary{min-height:44px;padding:8px 12px}
+ .module-tabs{margin:10px 0;gap:0}.module-tabs button{min-height:44px;padding:8px 6px;font-size:13px}
+ .quiet-button{font-size:13px;min-height:44px;padding:8px 11px}
+ .text-button{min-height:44px;font-size:13px}.notes{padding:10px 12px;margin:12px 0;font-size:14px;line-height:1.5}
+ .notes>summary{min-height:24px}.notice{padding:9px 10px;font-size:13px;line-height:1.45;margin:10px 0}
+ .portal-footer{font-size:12px;line-height:1.5;margin-top:18px;padding-top:12px}
+ .card-links{gap:4px 14px}.card-links a{min-height:36px;font-size:13px}
+ .directory-menu{padding:14px 12px}.directory-menu nav{margin:10px 0}.directory-menu nav a{min-height:48px;padding:10px;font-size:15px}
+ .dialog-top{padding:6px 0;top:-14px}.dialog-top h2{font-family:inherit;font-size:20px;font-weight:650;letter-spacing:-.3px}
+ .filter-sheet{height:auto;max-height:90dvh;margin:auto 0 0;padding:14px 16px calc(18px + env(safe-area-inset-bottom));border-radius:12px 12px 0 0}
+ /* Two selectors replace the tier hero and duplicate tier rail. */
+ .vip-selectors{gap:10px}.vip-selectors label{font-size:12px;gap:4px}.vip-selectors select{min-height:44px;font-size:16px;padding:8px}
+ .benefit-status{margin:4px 0 8px;gap:8px}.benefit-status .status-line{font-size:12px}
+ .benefit-column-heads{position:sticky;top:52px;z-index:3;padding:8px 10px;font-size:12px;gap:10px}
+ .benefit-card summary{padding:10px;min-height:48px}.benefit-matrix{gap:10px}
+ .benefit-name{font-size:14px;line-height:1.35}.benefit-matrix>strong{font-size:14px;line-height:1.35}
+ .benefit-context{font-size:13px;line-height:1.4;margin-top:6px}.benefit-expanded{padding:0 10px 10px}
+ .benefit-accordion{padding:0 10px;margin:0;border-radius:0;border-bottom:0}
+ .benefit-accordion:last-child{border-bottom:1px solid var(--line)}.benefit-accordion>summary{font-size:14px;min-height:50px;padding:8px 0}
+ .benefit-accordion summary small{font-size:11px;margin-bottom:2px}.tier-ladder>div{padding:7px 0;font-size:14px;gap:10px}
+ .discount-disclosure{margin:12px 0}.discount-disclosure .discount-lab{padding:12px}.discount-lab h2{font-family:inherit;font-size:19px;line-height:1.3}
+ .discount-lab .eyebrow{display:none}#discountExample{margin-top:12px}.example-tier strong{font-size:17px}.example-conditions{font-size:13px;margin:12px 0 0}
+ /* Complete rules in a continuous reference list; no tall presentation cards. */
+ .reference-cards{gap:0;border:1px solid var(--line);background:#fff;border-radius:4px;overflow:hidden}
+ .reference-card{padding:10px 12px;border:0;border-bottom:1px solid var(--line);border-radius:0}
+ .reference-card:last-child{border-bottom:0}.reference-card .card-kicker{font-size:11px;line-height:1.35;letter-spacing:.2px;margin:0 0 4px}
+ .reference-card h2{font-size:14px;line-height:1.35;margin:0}.reference-card .reference-value{font-size:15px;line-height:1.35;letter-spacing:-.2px}
+ .reference-heading{gap:12px}.reference-card p{font-size:13px;line-height:1.45;margin:5px 0}.reference-card .secondary{font-size:12px}
+ .reference-card .source-ref{font-size:12px}.reference-card p:last-child{margin-bottom:0}.reference-card details{font-size:13px}
+ .reference-card details summary{padding:6px 0;min-height:32px}
+ .window-strip{grid-template-columns:repeat(3,minmax(0,1fr));gap:3px;margin:10px 0}
+ .window-strip>div{padding:8px 7px;border:0;border-bottom:3px solid #397e9c;font-size:12px;line-height:1.35}
+ .window-strip span{font-size:11px;display:block;margin-top:4px}
+ body[data-page=windows] .toolbar,body[data-page=fees] .toolbar{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr)}
+ body[data-page=windows] .toolbar label.grow,body[data-page=fees] .toolbar label.grow{min-width:0}
+ /* The full 52-column grid remains the default. Frozen labels wrap fully. */
+ .resort-search{padding:0 0 6px}.resort-search .field-label{font-size:12px;margin:0 0 4px}.search-field{height:44px}
+ .sidebar summary{min-height:44px;padding:10px 12px;font-size:13px;border-radius:4px}.sidebar .filter-content{padding:12px}
+ .explorer-heading{margin-bottom:8px;gap:8px}.result-count strong{font-size:19px}.result-count span{font-size:10px}
+ .view-tabs{margin-bottom:8px;padding:2px}.view-tabs button{min-height:44px;padding:6px 8px;font-size:13px}
+ .room-controls{padding:8px 10px;margin-bottom:8px;border-radius:4px}.room-controls label{font-size:12px}.room-controls select{margin-top:4px}
+ .room-controls p{font-size:12px;line-height:1.4;margin:5px 0 0}.timeline-controls,.week-controls{gap:6px}
+ .week-controls #year{width:85px;padding:8px 5px}.week-picker button{min-height:44px;min-width:40px}.week-picker select{padding:8px 3px}
+ .view-control{font-size:12px;margin-top:0}.view-control select{min-height:40px;padding:6px 8px}
+ .focus-summary{gap:4px 7px;margin:7px 0;font-size:12px;line-height:1.4}.focus-summary .text-button{padding:4px 0;min-height:28px;font-size:12px}
+ .map-legend{gap:5px 9px;margin:6px 0;font-size:11px;line-height:1.4}.map-legend .swatch{width:9px;height:9px}
+ .points-summary{font-size:12px;line-height:1.4;padding:7px 9px;margin:6px 0}.chart-navigation{font-size:11px;margin:6px 0;gap:6px}
+ .chart-navigation button{min-height:44px;padding:6px 8px;font-size:12px}.chart-actions{gap:5px}#focusChart{display:inline-block}
+ .table-shell{border-radius:4px;max-height:70dvh}.season-table th,.season-table td{width:26px;min-width:26px}
+ .season-table th{height:32px}.season-table th button{min-width:26px;height:32px;font-size:12px}
+ .season-table td{height:46px;padding:3px 1px}.season-table .season-cell{min-width:24px;height:32px;border-radius:2px}
+ .season-table th:first-child,.season-table td:first-child{width:136px;min-width:136px;max-width:136px}
+ .season-table th:first-child{font-size:9px;letter-spacing:.4px;padding-left:7px}
+ .season-table td.row-label{padding:6px}.season-table .resort-label{gap:5px}.season-table .compare-check{width:16px;height:16px;flex-shrink:0;margin-top:2px}
+ .season-table .resort-name{font-size:13px;line-height:1.25}.season-table .resort-location,.season-table .room-name,.season-table .schedule-label{font-size:11px;line-height:1.25;margin-top:2px}
+ .season-table.points-table td:not(.row-label),.season-table.points-table th:not(:first-child){width:82px;min-width:82px}
+ .season-table.points-table .season-cell{min-width:80px;font-size:13px;height:34px;padding:0 3px}
+ .compare-tray{top:56px;padding:8px;gap:6px}.map-footer{font-size:11px;margin-top:8px;gap:3px}.map-footnote{font-size:12px;margin-top:6px}
+ .chart-focus .workspace{padding:0 8px;display:block}.chart-focus .sidebar,.chart-focus .explorer-heading,.chart-focus .view-tabs,.chart-focus .view-control,.chart-focus .map-footer,.chart-focus .map-footnote,.chart-focus #sourceGuide,.chart-focus #pointsSummary{display:none}
+ .chart-focus .explorer{height:calc(100dvh - 52px);display:flex;flex-direction:column;gap:0;padding:6px 0;min-height:460px}
+ .chart-focus .explorer>*{flex-shrink:0}.chart-focus .room-controls{padding:0 0 5px;margin-bottom:5px;background:transparent;border:0}
+ .chart-focus .table-shell{flex:1;min-height:160px;max-height:none}.chart-focus .focus-summary{margin:4px 0}.chart-focus .chart-navigation{margin:3px 0}
+ .chart-focus .compare-tray{position:static;margin:3px 0}.chart-focus .selected-chips{max-height:35px}
+ /* Switch between room facts and source map without traversing both on a phone. */
+ .room-guide .page-head{margin-bottom:8px}.room-guide #roomCoverage{font-size:11px;line-height:1.4;margin:6px 0}
+ .room-toolbar{display:grid;grid-template-columns:1fr 1fr}.room-toolbar label.grow{min-width:0}.room-toolbar label:first-child{grid-column:1/-1}
+ .room-toolbar label:nth-child(3){grid-column:auto}
+ .room-workspace{gap:8px}.room-selection{order:0}.room-picker{font-size:12px}.room-picker select{min-height:44px;margin-top:4px;padding:8px}
+ .room-selection .status-line{margin:5px 0}.room-view-tabs{display:flex;order:1;width:100%;margin:0}
+ #roomDetail{order:2;width:100%}.map-panel{order:3}.room-workspace[data-view=room] .map-panel,.room-workspace[data-view=map] #roomDetail{display:none}
+ .room-fact-card{padding:11px 12px;border-radius:4px}.evidence-badge{padding:3px 6px;font-size:11px;border-radius:3px}
+ .room-identity{margin:7px 0}.room-fact-card h2{font-size:23px;line-height:1.2;letter-spacing:-.5px;margin:0}.room-date{font-size:12px;line-height:1.3;margin:0}
+ .room-facts>div{grid-template-columns:105px minmax(0,1fr);gap:10px;padding:6px 0;font-size:13px;line-height:1.35}
+ .room-evidence-note{font-size:13px;line-height:1.4;margin:9px 0}.room-sources{margin:0 0 8px;padding:0;font-size:13px}.room-sources summary{padding:10px 0;min-height:44px}
+ .room-fact-card .quiet-button{width:auto;min-height:44px;padding:7px 10px}.room-fact-card #copyStatus:empty{display:none}.room-fact-card .card-links{margin-top:6px}
+ .map-panel{border-radius:4px}.map-panel-head{padding:9px 10px}.map-panel-head h2{font-size:15px}.map-controls{padding:0 10px 7px;gap:8px}
+ .map-caption{font-size:12px;line-height:1.4;padding:0 10px}.map-panel .card-links{padding:0 10px 8px}.map-viewport{max-height:50dvh}
+ body[data-page=layouts] .toolbar,body[data-page=resorts] .toolbar{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,.9fr)}
+ body[data-page=layouts] .toolbar label.grow,body[data-page=resorts] .toolbar label.grow{min-width:0}body[data-page=resorts] #collectionLabel{grid-column:1/-1}.result-meta{gap:8px}.result-meta .text-button{padding:4px 0}.result-meta .status-line{margin:5px 0}
+ /* Plan thumbnails are an index; opening one still gives its complete drawing. */
+ .layout-content h2{font-size:19px;margin:10px 0 4px}.layout-content>.muted{font-size:12px;margin:4px 0}.mobile-layout-picker{font-size:12px;margin:10px 0}
+ .asset-grid{gap:8px}.asset-card{border-radius:4px}.asset-card button{display:grid;grid-template-columns:88px minmax(0,1fr);align-items:stretch}
+ .asset-thumb{height:auto;min-height:96px;max-height:150px;padding:6px;border:0;border-right:1px solid var(--line)}
+ .asset-thumb img{max-width:100%;max-height:138px;width:auto;height:auto;object-fit:contain}.asset-text{padding:8px 10px}.asset-text strong{font-size:14px;line-height:1.35;margin:3px 0 5px}
+ .asset-text small{font-size:11px;line-height:1.4}.asset-text .tag{font-size:10px;padding:2px 4px}.no-image{font-size:11px}
+ .resort-card,.contact-card{padding:12px;border-radius:4px}.resort-card h2,.contact-card h2{font-size:18px;line-height:1.3;margin:5px 0}.resort-card p,.contact-card p,.resort-card address{font-size:13px;line-height:1.45;margin:6px 0}.telephone{font-size:17px;line-height:1.5}.card-kicker{font-size:11px}
+ .directory-anchor{padding:13px 14px;margin:12px 0;border-left-width:4px}.directory-anchor .eyebrow{font-size:10px}.directory-anchor h2{font-family:inherit;font-size:22px;font-weight:650;margin:4px 0 7px}.directory-anchor p{font-size:13px}.directory-anchor a{margin-top:10px;min-height:44px;padding:8px;font-size:14px}
+ .hub-card{min-height:0;padding:12px;gap:6px}.hub-card strong{font-family:inherit;font-size:16px;font-weight:650;line-height:1.25;letter-spacing:-.2px}.hub-card p{font-size:12px;line-height:1.45}.hub-card small{font-size:11px}.hub-number{font-size:10px}.hub-foot{font-size:12px;margin-top:12px}
+ .plan-form{padding:10px}.plan-primary{gap:10px}.plan-primary label{font-size:12px}.trip-context{gap:8px;margin-top:10px}.trip-context #planDates{font-size:14px}.trip-context small{font-size:12px}.trip-context .primary{min-height:44px;padding:7px 10px;font-size:13px}
+ .results-heading{margin-top:14px}.results-heading h2{font-family:inherit;font-size:21px;font-weight:650}.results-heading p{margin:5px 0;font-size:12px}
+ .trip-results{gap:10px}.trip-candidate{padding:12px}.candidate-heading h2{font-family:inherit;font-weight:650;font-size:20px;line-height:1.25}.candidate-room{font-size:13px;margin:7px 0}.candidate-rate{margin:12px 0}.candidate-rate>div>strong{font-size:25px;letter-spacing:-1px}.point-opportunity{font-size:13px;margin:10px 0}.candidate-actions{margin-top:12px;gap:8px}.candidate-actions button{font-size:13px}.trip-links{margin-top:8px;padding-top:5px}.trip-links a{min-height:36px;font-size:12px}
+}
+@media(max-width:350px){.chart-navigation{flex-wrap:wrap}.chart-actions{margin-left:auto}.benefit-matrix,.benefit-column-heads{gap:7px;grid-template-columns:minmax(0,1.2fr) repeat(var(--tier-count,1),minmax(0,1fr))}.reference-heading{gap:9px}.window-strip>div{padding:7px 5px}.room-facts>div{grid-template-columns:95px minmax(0,1fr)}}
+@media print{.benefit-card details>*{display:block}.room-workspace[data-view] #roomDetail,.room-workspace[data-view] .map-panel{display:block}.room-view-tabs,.chart-actions{display:none}}
