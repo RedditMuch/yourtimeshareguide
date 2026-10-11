@@ -20,6 +20,8 @@
 // published, so repository files such as README.md and CLAUDE.md never reach
 // the live site.
 
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { buildTokens, TOKENS_OUTPUT, TOKENS_SOURCE } from "./scripts/build-tokens.mjs";
 import { ASSET_EXTENSIONS, ROOT_FILES, SITE_FOLDERS } from "./scripts/site-files.mjs";
@@ -34,11 +36,29 @@ export default function (eleventyConfig) {
 
   // Design system: tokens.css is generated before every build (and every
   // rebuild while previewing); components.css and ytg.js are copied as they are.
+  const designFiles = {
+    "/assets/css/components.css": "design-system/components.css",
+    "/assets/js/ytg.js": "design-system/ytg.js",
+  };
+  const versions = new Map();
   eleventyConfig.on("eleventy.before", ({ directories }) => {
-    buildTokens(TOKENS_SOURCE, join(directories.output, TOKENS_OUTPUT));
+    const tokensFile = buildTokens(TOKENS_SOURCE, join(directories.output, TOKENS_OUTPUT));
+    // Short content hashes for cache-busting (see the "versioned" filter).
+    const hash = (file) => createHash("sha256").update(readFileSync(file)).digest("hex").slice(0, 10);
+    versions.set(`/${TOKENS_OUTPUT}`, hash(tokensFile));
+    for (const [url, source] of Object.entries(designFiles)) versions.set(url, hash(source));
   });
-  eleventyConfig.addPassthroughCopy({ "design-system/components.css": "assets/css/components.css" });
-  eleventyConfig.addPassthroughCopy({ "design-system/ytg.js": "assets/js/ytg.js" });
+  for (const [url, source] of Object.entries(designFiles)) {
+    eleventyConfig.addPassthroughCopy({ [source]: url.slice(1) });
+  }
+
+  // "/assets/css/components.css" becomes "/assets/css/components.css?v=<hash of its
+  // content>", so a returning visitor never gets new pages with old styles from the
+  // browser's cache (GitHub Pages lets browsers keep files for 10 minutes).
+  eleventyConfig.addFilter("versioned", (url) => {
+    if (!versions.has(url)) throw new Error(`versioned: no design-system file at ${url}`);
+    return `${url}?v=${versions.get(url)}`;
+  });
   eleventyConfig.addWatchTarget("design-system/");
 
   // Dates for LastChecked. Front matter may give "2026-10-11" as text or as a
