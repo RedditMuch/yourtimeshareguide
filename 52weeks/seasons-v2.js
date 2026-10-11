@@ -15,14 +15,20 @@
   /* Charts that print week 53 themselves (2026/2027): Page 91 (CW search bar page 95) and Page 184 (CW search bar page 188).
      Every other resort's week 53 is gray, priced like week 1, until Club Wyndham confirms. */
   const WEEK53 = { 'Club Wyndham Paniolo Greens': 'Prime', 'Little Sweden': 'Prime' };
-  const COLLECTION_LABEL = { 'Club Pass': 'WorldMark (Club Pass $99)', 'Associate': 'Associate (Australia & New Zealand)' };
+  const COLLECTION_LABEL = { 'Club Pass': 'WorldMark ($99)', 'Margaritaville Vacation Club': 'Margaritaville', 'Associate': 'Associate (Australia & New Zealand)' };
+  /* Resorts where some associations voted to close (Club Wyndham, "Your Resort Portfolio Is Getting A Refresh", 2025; bankruptcy tracking sites from Owner Services) */
+  const NOTICES = {
+    'Club Wyndham Star Island': { url: 'https://cases.omniagentsolutions.com/?clientId=3756', site: 'Star Island Vacation Ownership Association, Inc.' },
+    'Club Wyndham Pagosa': { url: 'https://omniagentsolutions.com/Pagosa', site: 'The Pagosa Associations' }
+  };
+  const NOTICE_TEXT = 'Some associations at this resort voted to close, so its inventory is being consolidated.';
   const COLLECTION_ORDER = ['Club Wyndham', 'Margaritaville Vacation Club', 'Club Pass', 'Affiliate', 'Associate'];
   const COLLECTION_OFF = ['Club Pass', 'Associate'];
   const PLACES = [['us', 'United States'], ['ca', 'Canada'], ['mx', 'Mexico'], ['isl', 'PR, USVI & Fiji']];
   const PLACE_OFF = ['mx', 'isl'];
   const placeOf = s => ({ 'United States': 'us', 'Canada': 'ca', 'Mexico': 'mx', 'Puerto Rico': 'isl', 'U.S. Virgin Islands': 'isl', 'Fiji': 'isl' })[s.country] || 'other';
   const GROUPS = ['Hotel', 'Studio', '1 Bedroom', '2 Bedroom', '3 Bedroom', '4 Bedroom', '5 Bedroom']; // smallest first
-  const SPANS = [5, 10, 15, 0]; // weeks before and after the chosen week; 0 = the whole year
+  const SPANS = [0, 5, 10, 15, -1]; // weeks before and after the chosen week; 0 = just that week, -1 = the whole year
   const RADII = [10, 25, 35, 50, 75, 100, 150, 200, 250, 350, 500, 750, 1000];
   const MAX_DAYS = 14;
 
@@ -119,12 +125,15 @@
     $('typeTree').innerHTML = GROUPS.filter(g => typesInGroup(g).length).map(g => '<div class="tree-group"><label class="check"><input type="checkbox" data-group="' + g + '"> ' + groupLabel(g) + '</label><div class="checks">' +
       typesInGroup(g).map(c => '<label class="check"><input type="checkbox" value="' + c.id + '"> ' + esc(br(c.label)) + '</label>').join('') + '</div></div>').join('');
     $('radius').innerHTML = RADII.map(r => '<option value="' + r + '">' + r.toLocaleString('en-US') + ' miles</option>').join('');
-    $('collectionChecks').innerHTML = collections.map(c => '<label class="check"><input type="checkbox" value="' + esc(c) + '"> ' + esc(COLLECTION_LABEL[c] || c) +
-      (c === 'Affiliate' ? '<i class="dot aff"></i>' : c === 'Associate' ? '<i class="dot assoc"></i>' : '') +
-      (D.rows.some(s => s.collection === c && hasChart(s)) ? '' : ' <span class="hint">(no charts yet)</span>') + '</label>').join('');
+    $('collectionChecks').innerHTML = collections.map(c => {
+      const label = COLLECTION_LABEL[c] || c, dot = c === 'Affiliate' ? '<i class="dot aff"></i>' : c === 'Associate' ? '<i class="dot assoc"></i>' : '';
+      const m = label.match(/^(\S+)( \(.*\))$/), name = c === 'Associate' && m ? esc(m[1]) + dot + ' ' + esc(m[2].trim()) : esc(label) + dot;
+      const soon = D.rows.some(s => s.collection === c && hasChart(s)) ? '' : '<span class="hint soon">Points coming soon</span>';
+      return '<label class="check"><input type="checkbox" value="' + esc(c) + '"><span class="lbl">' + name + soon + '</span></label>';
+    }).join('');
     $('placeChecks').innerHTML = PLACES.map(([v, label]) => '<label class="check"><input type="checkbox" value="' + v + '"> ' + esc(label) + '</label>').join('');
     $('cwaCount').textContent = '(' + cwaCount + ')';
-    $('spanButtons').innerHTML = SPANS.map(n => '<button type="button" data-span="' + n + '">' + (n ? n : 'All') + '</button>').join('');
+    $('spanButtons').innerHTML = SPANS.map(n => '<button type="button" data-span="' + n + '">' + (n < 0 ? 'All' : n === 0 ? 'None' : n) + '</button>').join('');
     const firstDay = iso(WEEKS.find(x => x.y === startYear).start), lastDay = iso(WEEKS[WEEKS.length - 1].start + 6 * DAY);
     for (const id of ['startDate', 'endDate']) { $(id).min = firstDay; $(id).max = lastDay; }
     const names = [...new Set(D.rows.map(s => shortName(s.name)).concat(D.rows.map(s => s.name)))].sort();
@@ -223,7 +232,7 @@
         return Object.assign({ nights }, c);
       });
     }
-    if (!state.span) return WEEKS.filter(x => x.y === sel.y);
+    if (state.span < 0) return WEEKS.filter(x => x.y === sel.y);
     const a = Math.max(0, state.idx - state.span), b = Math.min(WEEKS.length - 1, state.idx + state.span);
     return WEEKS.slice(a, b + 1);
   }
@@ -326,7 +335,7 @@
         const dot = s.collection === 'Affiliate' ? '<i class="dot aff" title="Affiliate resort"></i>' : s.collection === 'Associate' ? '<i class="dot assoc" title="Associate resort"></i>' : '';
         const bldg = s.multiple ? '<span class="res-bldg">' + esc(s.schedule) + '</span>' : '';
         const extra = !showType && r.gap === 'chart' ? '<span class="res-loc gap">Points chart coming soon</span>' : '';
-        body += '<th class="res" scope="row"' + (span > 1 ? ' rowspan="' + span + '"' : '') + '><button type="button" class="res-name" data-row="' + i + '">' + esc(shortName(s.name)) + '</button>' + vip + dot +
+        body += '<th class="res" scope="row"' + (span > 1 ? ' rowspan="' + span + '"' : '') + '><button type="button" class="res-name" data-row="' + i + '">' + esc(shortName(s.name)) + '</button>' + vip + dot + (NOTICES[s.name] ? '<span class="notice" title="' + esc(NOTICE_TEXT) + '">⚠</span>' : '') +
           '<span class="res-loc">' + esc(s.location || [s.city, s.state].filter(Boolean).join(', ')) + '</span>' + bldg + extra + '</th>';
       }
       if (showType) body += r.gap === 'pick' ? '<td class="typ pick">Select a valid room type for this resort</td>'
@@ -384,6 +393,7 @@
       const notes = [...new Set(ps.map(p => p.note).concat(ps.map(p => p.derivedNote)).filter(Boolean))];
       if (notes.length) h += '<p class="hint">' + notes.map(esc).join(' ') + '</p>';
     } else h += '<p>The directory doesn’t print a points chart for this resort; it’s on clubwyndham.com and is being added here.' + '</p>';
+    if (NOTICES[s.name]) h += '<p class="alert">⚠ ' + esc(NOTICE_TEXT) + ' Club Wyndham explains it in <a href="https://clubwyndham.wyndhamdestinations.com/us/en/resorts/resort-news/2025/your-resort-portfolio-refresh" target="_blank" rel="noopener">Your Resort Portfolio Is Getting A Refresh</a>. Court updates: <a href="' + NOTICES[s.name].url + '" target="_blank" rel="noopener">' + esc(NOTICES[s.name].site) + '</a>.</p>';
     if (s.note) h += '<p class="hint">' + esc(s.note) + '</p>';
     if (WEEK53[s.name]) h += '<p class="hint">This resort’s chart lists week 53 as ' + WEEK53[s.name] + '.</p>';
     $('detailBody').innerHTML = h;
@@ -420,7 +430,7 @@
     $('collectionChecks').addEventListener('change', e => { e.target.checked ? state.collections.add(e.target.value) : state.collections.delete(e.target.value); render(); });
     $('placeChecks').addEventListener('change', e => { e.target.checked ? state.places.add(e.target.value) : state.places.delete(e.target.value); render(); });
     $('collectionBox').addEventListener('click', e => { const b = e.target.closest('[data-coll]'); if (!b) return;
-      if (b.dataset.coll === 'all') { state.collections = new Set(collections); state.places = new Set(PLACES.map(p => p[0])); } else state.collections = new Set();
+      if (b.dataset.coll === 'all') { state.collections = new Set(collections); state.places = new Set(PLACES.map(p => p[0])); } else { state.collections = new Set(); state.places = new Set(); }
       render(); });
     $('cwaOnly').addEventListener('change', e => { state.cwaOnly = e.target.checked; render(); });
     $('spanButtons').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { state.span = Number(b.dataset.span); render(); } });
