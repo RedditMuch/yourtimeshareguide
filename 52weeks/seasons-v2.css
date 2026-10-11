@@ -250,3 +250,21 @@ select:disabled{background:#f0f3f5;color:var(--muted)}
 .timebox{flex:1 1 560px;min-width:0}
 .today{flex:0 0 auto;margin-left:auto}
 @media (max-width:1500px){.timebox .mode-body{grid-template-columns:minmax(260px,1.4fr) minmax(170px,1fr)}}
+
+/* Round 8 (#24): darker week/date box that fits its contents, Today at the top right, room to scroll the filters */
+.timebox{height:auto;min-height:104px;background:#dfe7ec;border-color:#c3d0d8}
+.timebox .mode-body{height:auto;min-height:84px}
+.timebox select,.timebox input[type=date]{background:#fff}
+.top{position:relative}
+.top .today{margin-left:auto;text-align:right}
+.top .today .t,.top .today .d{display:inline;margin-right:6px}
+.top .today .w{display:block;font-size:20px}
+.filters{padding-bottom:50vh}
+.keys .cwa{margin-left:0}
+
+/* Let the week/date box shrink to the space it has */
+.chart-head{flex-wrap:wrap}
+.timebox{max-width:100%;flex:1 1 520px;grid-template-columns:minmax(150px,190px) minmax(0,1fr)}
+.timebox .mode-body{grid-template-columns:minmax(0,1.5fr) minmax(150px,1fr)}
+.timebox .mode-body > .field{min-width:0}
+.timebox select{min-width:0;text-overflow:ellipsis}

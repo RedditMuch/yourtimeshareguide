@@ -103,8 +103,13 @@
   const regions = [...new Set(D.rows.map(regionOf).filter(Boolean))].sort();
   const regionByName = new Map(regions.map(r => [norm(r), r]));
   /* Room type first, then any building name: "Mountain Laurels: 1 Bedroom Deluxe" becomes "1 BR Deluxe · Mountain Laurels" */
+  /* Building names can come three ways: "Mountain Laurels: 1 Bedroom Deluxe", "Studio Deluxe (Ocean View)",
+     or, on Club Wyndham's own charts, before the room type ("Cabin Share II 3 BR Deluxe") */
   const typeParts = p => { const t = p.roomType || (classOf.get(p.category) || {}).label || '', i = t.indexOf(': ');
-    return i > 0 ? { type: br(t.slice(i + 2)), bldg: t.slice(0, i) } : { type: br(t), bldg: '' }; };
+    if (i > 0) return { type: br(t.slice(i + 2)), bldg: t.slice(0, i) };
+    const m = t.match(/^(.*?)\s*\(([^)]+)\)\s*$/); if (m) return { type: br(m[1]), bldg: m[2] };
+    if (p.cpChart) { const k = t.search(/\b(Hotel|Studio|\d\s*BR|\d\s*Bedroom|I BR)\b/i); if (k > 0) return { type: br(t.slice(k)), bldg: t.slice(0, k).trim() }; }
+    return { type: br(t), bldg: '' }; };
   const typeLabel = p => { const x = typeParts(p); return x.type + (x.bldg ? ' · ' + x.bldg : ''); };
   const typeHtml = r => esc(typeParts(r.p).type) + (r.twice ? ' <span class="bldg" title="The directory prints this room type twice, with the same points.">(listed twice)</span>' : '');
   /* Building or building group for a row: from the room type name ("Mountain Laurels: ..."), or from the chart it belongs to */
@@ -139,7 +144,17 @@
     query: '', radius: 35, collections: new Set(collections.filter(c => !COLLECTION_OFF.includes(c))), places: new Set(PLACES.map(p => p[0]).filter(p => !PLACE_OFF.includes(p))),
     cwaOnly: false, showAll: true, sort: { key: 'resort', dir: 1 }
   });
-  let state = DEFAULTS();
+  /* Remember the reader's filters in this browser (localStorage), so a refresh or a later visit keeps them */
+  const STORE = 'ytg-season-chart-v2';
+  function saveState() { try { localStorage.setItem(STORE, JSON.stringify(state, (k, v) => v instanceof Set ? { set: [...v] } : v)); } catch (_) {} }
+  function loadState() {
+    try { const raw = localStorage.getItem(STORE); if (!raw) return null;
+      const o = JSON.parse(raw, (k, v) => v && typeof v === 'object' && Array.isArray(v.set) ? new Set(v.set) : v), d = DEFAULTS();
+      for (const k of Object.keys(d)) if (k in o && typeof o[k] === typeof d[k]) d[k] = o[k];
+      if (!(d.idx >= 0 && d.idx < WEEKS.length)) d.idx = DEFAULTS().idx;
+      return d; } catch (_) { return null; }
+  }
+  let state = loadState() || DEFAULTS();
   const groupsTicked = () => [...new Set([...state.types].map(groupOfType))].filter(Boolean).sort((a, b) => GROUPS.indexOf(a) - GROUPS.indexOf(b));
   const relevantGroups = () => { const g = groupsTicked(); return g.length ? g : [state.lastGroup]; };
   const pointsOn = () => !state.colorsOnly;
@@ -194,7 +209,7 @@
     for (const i of $('collectionChecks').querySelectorAll('input')) i.checked = state.collections.has(i.value);
     for (const i of $('placeChecks').querySelectorAll('input')) i.checked = state.places.has(i.value);
     $('cwaOnly').checked = state.cwaOnly;
-    const ch = !state.collections.size && !state.cwaOnly ? 'No collections are checked. Check at least one to see resorts.' : !state.places.size ? 'No locations are checked, so every location is shown.' : '';
+    const ch = !state.collections.size && !state.cwaOnly ? 'No collections are checked, so all collections are shown.' : '';
     $('collectionHint').hidden = !ch; $('collectionHint').textContent = ch;
     for (const b of $('spanButtons').querySelectorAll('button')) b.setAttribute('aria-pressed', String(Number(b.dataset.span) === state.span));
     if (document.activeElement !== $('startDate')) $('startDate').value = state.start ? iso(state.start) : '';
@@ -222,7 +237,7 @@
       // Collections and locations each narrow the list only when something is checked, so they can't cancel each other out
       // A resort shows if its collection is checked, or if Club Wyndham Access is checked and the resort is in the CWA Trust
       const isCwa = refOf(s).club_wyndham_access === 'Yes';
-      if (!state.collections.has(s.collection) && !(state.cwaOnly && isCwa)) continue;
+      if ((state.collections.size || state.cwaOnly) && !state.collections.has(s.collection) && !(state.cwaOnly && isCwa)) continue;
       if (!place.test(s)) continue;
       const pl = placeOf(s); if (state.places.size && pl !== 'other' && !state.places.has(pl)) continue;
       if (!pointsOn()) { rows.push({ s, p: null, gap: hasChart(s) ? '' : 'chart' }); continue; }
@@ -245,7 +260,7 @@
 
   function sortRows(rows, totals) {
     const d = state.sort.dir;
-    const byResort = (a, b) => shortName(a.s.name).localeCompare(shortName(b.s.name)) || a.s.schedule.localeCompare(b.s.schedule);
+    const byResort = (a, b) => shortName(a.s.name).localeCompare(shortName(b.s.name)) || a.s.schedule.localeCompare(b.s.schedule) || bldgOf(a).localeCompare(bldgOf(b));
     const typeOrder = r => r.p ? classOf.get(r.p.category).order : 9999;
     const byType = (a, b) => typeOrder(a) - typeOrder(b) || (a.p && b.p ? typeLabel(a.p).localeCompare(typeLabel(b.p)) : 0);
     if (state.sort.key === 'type') return rows.sort((a, b) => d * byType(a, b) || byResort(a, b));
@@ -277,6 +292,7 @@
 
   function render() {
     syncControls();
+    saveState();
     const wk = WEEKS[state.idx].w, place = placeFilter(), t = trip();
     $('searchHint').textContent = place.hint;
     $('radius').disabled = !place.city;
@@ -342,11 +358,11 @@
   function renderGrid(rows, cols, t, totals) {
     if (!rows.length) { $('grid').innerHTML = '<tbody><tr><td class="empty">No resorts match these filters. <button type="button" class="reset" id="emptyReset">Reset filters</button></td></tr></tbody>'; $('emptyReset').onclick = reset; $('week53Note').hidden = true; return; }
     const sel = WEEKS[state.idx], showType = pointsOn(), tripMode = t && !t.bad && !t.pending, groups = relevantGroups();
-    const showBld = showType && rows.some(r => bldgOf(r));
+    const showBld = false; // buildings now sit in the resort cell, under the resort's name
     const arrow = key => state.sort.key === key ? (state.sort.dir > 0 ? '▲' : '▼') : '▲▼';
     const sortBtn = (key, label) => '<button type="button" class="sort" data-sort="' + key + '" aria-pressed="' + (state.sort.key === key) + '">' + label + ' <span class="arrow">' + arrow(key) + '</span></button>';
     let head = '<thead><tr><th class="res" scope="col"><div class="col-head">' + sortBtn('resort', 'Resort') +
-      (showType ? '<label class="show-all"><input type="checkbox" id="showAll"' + (state.showAll ? ' checked' : '') + '> Show all resorts</label>' : '') + '</div></th>' +
+      '</div></th>' +
       (showBld ? '<th class="bld" scope="col">Building</th>' : '') +
       (showType ? '<th class="typ" scope="col">' + sortBtn('type', 'Room type') + '</th>' : '');
     let prevYear = null;
@@ -362,13 +378,13 @@
 
     let body = '<tbody>', any53 = false;
     rows.forEach((r, i) => {
-      const s = r.s, ref = refOf(s), first = i === 0 || resortKey(rows[i - 1].s) !== resortKey(s);
-      let span = 1; if (first) while (i + span < rows.length && resortKey(rows[i + span].s) === resortKey(s)) span++;
+      const s = r.s, ref = refOf(s), gk = x => resortKey(x.s) + '|' + bldgOf(x), first = i === 0 || gk(rows[i - 1]) !== gk(r);
+      let span = 1; if (first) while (i + span < rows.length && gk(rows[i + span]) === gk(r)) span++;
       body += '<tr' + (r.gap ? ' class="gray"' : '') + '>';
       if (first) {
         const vip = ref.vip_benefits === 'Yes' ? crownSvg('') : ref.vip_benefits === 'Conditional' ? crownSvg('half') : '';
         const dot = s.collection === 'Affiliate' ? '<i class="dot aff" title="Affiliate resort"></i>' : s.collection === 'Associate' ? '<i class="dot assoc" title="Associate resort"></i>' : '';
-        const bldg = '';
+        const bldg = bldgOf(r) ? '<span class="res-bldg">' + esc(bldgOf(r)) + '</span>' : '';
         const extra = !showType && r.gap === 'chart' ? '<span class="res-loc gap">Points chart coming soon</span>' : '';
         body += '<th class="res" scope="row"' + (span > 1 ? ' rowspan="' + span + '"' : '') + '><button type="button" class="res-name" data-row="' + i + '">' + esc(shortName(s.name)) + '</button>' + vip + dot + (ref.club_wyndham_access === 'Yes' ? '<span class="cwa" title="Club Wyndham Access: one of the resorts in the Club Wyndham Access Trust">CWA</span>' : '') + (NOTICES[s.name] ? '<span class="notice" title="' + esc(NOTICE_TEXT) + '">⚠</span>' : '') +
           '<span class="res-loc">' + esc(s.location || [s.city, s.state].filter(Boolean).join(', ')) + '</span>' + bldg + extra + '</th>';
@@ -450,7 +466,7 @@
     $('detail').showModal();
   }
 
-  function reset() { state = DEFAULTS(); render(); }
+  function reset() { state = DEFAULTS(); try { localStorage.removeItem(STORE); } catch (_) {} render(); }
   const parseDate = v => v ? Date.parse(v + 'T00:00:00Z') : null;
 
   /* ---- Events ---- */
