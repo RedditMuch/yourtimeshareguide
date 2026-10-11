@@ -1,0 +1,601 @@
+/* Your Timeshare Guide: component styles.
+   Uses only the custom properties from tokens.css (generated from tokens.json):
+   no literal colors, sizes or fonts. Every class starts with ytg-.
+   The website loads this same file, so a component looks the same everywhere. */
+
+/* ---------- Base ---------- */
+
+:where(body) {
+  margin: 0;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+:where(h1, h2, h3) {
+  font-family: var(--font-display);
+  font-weight: 800;
+  color: var(--ink);
+  text-wrap: balance;
+  margin: 0;
+}
+:where(h1) { font-size: var(--fs-h1); line-height: var(--lh-tight); }
+:where(h2) { font-size: var(--fs-h2); line-height: var(--lh-heading); }
+:where(h3) { font-size: var(--fs-h3); line-height: var(--lh-heading); font-weight: 700; }
+:where(p) { margin: 0; }
+:where(a) {
+  color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+:where(a:hover) { color: var(--accent-strong); text-decoration-thickness: 2px; }
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+:where(table, td, th, .ytg-data) { font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+}
+
+.ytg-container {
+  width: 100%;
+  max-width: var(--layout-max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+  box-sizing: border-box;
+}
+.ytg-prose { max-width: var(--measure); }
+.ytg-prose > * + * { margin-top: var(--space-4); }
+.ytg-lead { font-size: var(--fs-lead); line-height: var(--lh-body); color: var(--muted); }
+.ytg-eyebrow {
+  font-family: var(--font-body);
+  font-size: var(--fs-label);
+  font-weight: 700;
+  line-height: var(--lh-ui);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0;
+}
+.ytg-data { font-family: var(--font-data); font-size: var(--fs-small); font-weight: 500; }
+
+/* ---------- PageLayout ---------- */
+
+.ytg-main { padding-block: var(--space-6) var(--space-7); }
+.ytg-page-head { display: grid; gap: var(--space-2); margin-bottom: var(--space-6); }
+.ytg-page-head .ytg-lead { max-width: var(--measure); }
+.ytg-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-6) var(--space-7);
+}
+.ytg-columns > * { min-width: 0; display: grid; gap: var(--space-5); align-content: start; }
+@media (max-width: 760px) {
+  .ytg-columns { grid-template-columns: minmax(0, 1fr); gap: var(--space-7); }
+}
+.ytg-column-head { display: grid; gap: var(--space-1); padding-top: var(--space-3); border-top: 3px solid var(--ink); }
+.ytg-column-head p { color: var(--muted); font-size: var(--fs-ui); line-height: var(--lh-ui); }
+/* The regions under the page heading (a search form, the columns, the page foot), space-7 apart. */
+.ytg-regions { display: grid; gap: var(--space-7); }
+/* The last region of a page: downloads and "About this page" details, under a hairline. */
+.ytg-page-foot { display: grid; gap: var(--space-4); padding-top: var(--space-5); border-top: 1px solid var(--line); }
+
+/* ---------- Disclosure ---------- */
+
+.ytg-disclosure { color: var(--ink); font-size: var(--fs-ui); line-height: var(--lh-ui); }
+.ytg-disclosure > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--touch);
+  color: var(--accent);
+  font-weight: 700;
+  list-style: none;
+  cursor: pointer;
+}
+.ytg-disclosure > summary::-webkit-details-marker { display: none; }
+/* The open/closed arrow: points right when closed, down when open. */
+.ytg-disclosure > summary::before {
+  content: "";
+  flex: none;
+  width: 10px;
+  height: 12px;
+  background: currentColor;
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+  transition: transform 0.15s;
+}
+.ytg-disclosure[open] > summary::before { transform: rotate(90deg); }
+.ytg-disclosure > summary:hover { color: var(--accent-strong); }
+.ytg-disclosure__body { display: grid; gap: var(--space-2); max-width: var(--measure); padding-bottom: var(--space-3); color: var(--muted); font-size: var(--fs-small); }
+
+/* ---------- FactList ---------- */
+
+/* Short facts as name and value pairs (<dl> with a <div> per pair), such as data coverage. */
+.ytg-facts { display: grid; margin: 0; max-width: var(--measure); }
+.ytg-facts > div {
+  display: grid;
+  grid-template-columns: minmax(0, 12em) minmax(0, 1fr);
+  gap: var(--space-3);
+  padding-block: var(--space-1);
+  border-bottom: 1px solid var(--line);
+}
+.ytg-facts > div:last-child { border-bottom: 0; }
+.ytg-facts dt { color: var(--muted); }
+.ytg-facts dd { margin: 0; color: var(--ink); font-weight: 700; }
+
+/* ---------- SiteHeader ---------- */
+
+.ytg-skip {
+  position: absolute;
+  left: var(--space-3);
+  top: -100px;
+  z-index: 10;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 700;
+}
+.ytg-skip:focus { top: var(--space-3); }
+
+.ytg-header {
+  background: var(--paper);
+  border-bottom: 1px solid var(--line);
+}
+.ytg-header__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-6);
+  padding-block: var(--space-3);
+}
+/* The logo, variant 5D (owner, 2026-10-11): four-square icon beside the name,
+   a medium-weight name, and the 3px 52-week band exactly as wide as the name. */
+.ytg-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink);
+  text-decoration: none;
+}
+.ytg-logo:hover { color: var(--ink); }
+.ytg-logo__icon { flex: none; display: block; width: 36px; height: 36px; }
+.ytg-logo__text { display: inline-grid; gap: 5px; }
+.ytg-logo__name {
+  font-family: var(--font-display);
+  font-size: var(--fs-logo);
+  font-weight: 500;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+.ytg-logo__band { display: block; width: 100%; height: 3px; }
+
+.ytg-nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ytg-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch);
+  padding-inline: var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--ink);
+  font-size: var(--fs-ui);
+  text-decoration: none;
+}
+.ytg-nav a:hover { background: var(--sunk); color: var(--ink); }
+.ytg-nav a[aria-current="page"] {
+  color: var(--accent);
+  font-weight: 700;
+  box-shadow: inset 0 -3px 0 var(--accent);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+/* ---------- SiteFooter ---------- */
+
+.ytg-footer {
+  margin-top: var(--space-8);
+  padding-block: var(--space-6);
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: var(--fs-small);
+  line-height: var(--lh-ui);
+}
+/* The inner box keeps the page width (it also has .ytg-container); the paragraphs keep a readable line. */
+.ytg-footer__inner { display: grid; gap: var(--space-3); max-width: var(--layout-max); }
+.ytg-footer__inner > * { max-width: var(--measure); }
+.ytg-footer .ytg-nowrap { white-space: nowrap; }
+.ytg-footer strong { color: var(--ink); }
+.ytg-footer a { color: var(--accent); }
+
+/* ---------- Button ---------- */
+
+.ytg-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--touch);
+  padding: var(--space-2) var(--space-5);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-md);
+  background: var(--accent);
+  color: var(--on-accent);
+  font: inherit;
+  font-size: var(--fs-ui);
+  font-weight: 700;
+  line-height: var(--lh-ui);
+  text-decoration: none;
+  cursor: pointer;
+}
+.ytg-button:hover { background: var(--accent-strong); border-color: var(--accent-strong); color: var(--on-accent); }
+.ytg-button--secondary { background: var(--paper); border-color: var(--line-strong); color: var(--ink); }
+.ytg-button--secondary:hover { background: var(--sunk); border-color: var(--line-strong); color: var(--ink); }
+.ytg-button--quiet { background: transparent; border-color: transparent; color: var(--accent); padding-inline: var(--space-3); }
+.ytg-button--quiet:hover { background: var(--sunk); border-color: transparent; color: var(--accent-strong); }
+.ytg-button:disabled, .ytg-button[aria-disabled="true"] {
+  background: var(--sunk);
+  border-color: var(--line);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+/* ---------- Tag ---------- */
+
+.ytg-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 1px var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--sunk);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--fs-label);
+  font-weight: 700;
+  line-height: 1.5;
+  white-space: nowrap;
+  vertical-align: 2px;
+}
+.ytg-tag--success { background: var(--success-soft); color: var(--success); }
+.ytg-tag--caution { background: var(--caution-soft); color: var(--caution); }
+.ytg-tag--danger { background: var(--danger-soft); color: var(--danger); }
+
+/* ---------- LinkList ---------- */
+
+.ytg-links-group { display: grid; gap: var(--space-1); }
+.ytg-links {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ytg-links__item {
+  display: block;
+  margin-inline: calc(var(--space-3) * -1);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--ink);
+  text-decoration: none;
+}
+.ytg-links__item:hover { background: var(--sunk); color: var(--ink); }
+.ytg-links__title {
+  color: var(--accent);
+  font-size: var(--fs-body);
+  font-weight: 700;
+  line-height: var(--lh-ui);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+.ytg-links__item:hover .ytg-links__title { color: var(--accent-strong); text-decoration-thickness: 2px; }
+.ytg-links__item .ytg-tag { margin-left: var(--space-2); }
+.ytg-links__desc {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: var(--fs-small);
+  line-height: var(--lh-ui);
+}
+
+/* ---------- Card ---------- */
+
+.ytg-card {
+  display: block;
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+  color: var(--ink);
+}
+.ytg-card > * + * { margin-top: var(--space-2); }
+a.ytg-card { text-decoration: none; }
+a.ytg-card:hover { background: var(--sunk); color: var(--ink); }
+.ytg-card__title {
+  font-family: var(--font-display);
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  line-height: var(--lh-heading);
+}
+a.ytg-card .ytg-card__title { color: var(--accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 0.18em; }
+.ytg-card__text { color: var(--muted); font-size: var(--fs-small); line-height: var(--lh-ui); }
+
+/* ---------- Callout ---------- */
+
+.ytg-callout {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--info-soft);
+  color: var(--ink);
+  font-size: var(--fs-ui);
+  line-height: var(--lh-ui);
+}
+.ytg-callout__title { font-weight: 700; }
+.ytg-callout--caution { background: var(--caution-soft); }
+.ytg-callout--caution .ytg-callout__title { color: var(--caution); }
+.ytg-callout--danger { background: var(--danger-soft); }
+.ytg-callout--danger .ytg-callout__title { color: var(--danger); }
+
+/* ---------- Citation ---------- */
+
+.ytg-cite {
+  display: inline;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  background: var(--sunk);
+  color: var(--muted);
+  font-size: var(--fs-small);
+  font-style: normal;
+  line-height: var(--lh-ui);
+  white-space: normal;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.ytg-cite__page { color: var(--ink); font-weight: 700; }
+.ytg-cite a { color: var(--accent); }
+
+/* ---------- LastChecked ---------- */
+
+.ytg-checked {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-1);
+  color: var(--muted);
+  font-size: var(--fs-small);
+  line-height: var(--lh-ui);
+}
+.ytg-checked time { color: var(--ink); font-weight: 700; }
+
+/* ---------- SeasonKey and season cells ---------- */
+
+.ytg-season {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--ink);
+  font-size: var(--fs-ui);
+  line-height: var(--lh-ui);
+}
+.ytg-season__swatch {
+  display: inline-grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  background: var(--season-none);
+  color: var(--season-ink);
+  font-family: var(--font-data);
+  font-size: var(--fs-label);
+  font-weight: 700;
+}
+.ytg-season-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ytg-season-cell {
+  display: inline-grid;
+  place-items: center;
+  min-width: 48px;
+  height: 28px;
+  padding-inline: var(--space-1);
+  border-radius: var(--radius-sm);
+  background: var(--season-none);
+  color: var(--season-ink);
+  font-family: var(--font-data);
+  font-size: var(--fs-small);
+  font-weight: 500;
+  box-sizing: border-box;
+}
+.ytg-s-prime { background: var(--season-prime); }
+.ytg-s-high { background: var(--season-high); }
+.ytg-s-value { background: var(--season-value); }
+.ytg-s-quiet { background: var(--season-quiet); }
+.ytg-s-none { background: var(--season-none); }
+.ytg-s-wm-high { background: var(--wm-high); }
+.ytg-s-wm-medium { background: var(--wm-medium); }
+.ytg-s-wm-low { background: var(--wm-low); }
+
+/* ---------- PointsTable ---------- */
+
+.ytg-table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+}
+.ytg-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-ui);
+  line-height: var(--lh-ui);
+}
+.ytg-table caption {
+  padding: var(--space-3) var(--space-4) 0;
+  color: var(--muted);
+  font-size: var(--fs-small);
+  text-align: left;
+}
+.ytg-table th, .ytg-table td {
+  padding: var(--space-2) var(--space-4);
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+.ytg-table thead th {
+  color: var(--muted);
+  font-size: var(--fs-label);
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.ytg-table tbody tr:last-child > * { border-bottom: 0; }
+.ytg-table tbody tr:hover { background: var(--sunk); }
+.ytg-table .ytg-num { font-family: var(--font-data); font-size: var(--fs-small); font-weight: 500; text-align: right; white-space: nowrap; }
+.ytg-table thead .ytg-num { font-family: var(--font-body); font-size: var(--fs-label); font-weight: 700; }
+
+/* ---------- FormField ---------- */
+
+.ytg-field { display: grid; gap: var(--space-1); }
+.ytg-field__label { color: var(--ink); font-size: var(--fs-ui); font-weight: 700; line-height: var(--lh-ui); }
+.ytg-field__hint { color: var(--muted); font-size: var(--fs-small); line-height: var(--lh-ui); }
+.ytg-input, .ytg-select {
+  min-height: var(--touch);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-md);
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--fs-body);
+  line-height: var(--lh-ui);
+  box-sizing: border-box;
+}
+.ytg-input::placeholder { color: var(--muted); opacity: 1; }
+.ytg-input:hover, .ytg-select:hover { border-color: var(--ink); }
+.ytg-input[aria-invalid="true"] { border-color: var(--danger); }
+.ytg-field__error { color: var(--danger); font-size: var(--fs-small); font-weight: 700; }
+/* A form's fields in one column, space-4 apart, no wider than a line of text. */
+.ytg-form { display: grid; gap: var(--space-4); max-width: var(--measure); }
+/* A field read as one phrase: "Within [35 miles] of the destination". Wraps on phones. */
+.ytg-field--inline { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2) var(--space-3); }
+.ytg-field__text { color: var(--ink); font-size: var(--fs-ui); line-height: var(--lh-ui); }
+.ytg-search { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.ytg-search .ytg-input { flex: 1 1 220px; min-width: 0; }
+.ytg-check {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 32px;
+  color: var(--ink);
+  font-size: var(--fs-ui);
+  line-height: var(--lh-ui);
+  cursor: pointer;
+}
+.ytg-check input { width: 20px; height: 20px; margin: 0; accent-color: var(--accent); }
+
+/* ---------- Progress: the 52-week band as a loading indicator ---------- */
+
+/* The year in season colors, in the logo band's exact week order
+   (52weeks/logo-band.svg: 1 P, 4 Q, 3 V, 2 H, 4 P, 1 H, 5 V, 1 H, 12 P, 2 H, 5 V, 6 Q, 1 H, 3 Q, 2 P). */
+.ytg-band,
+.ytg-progress__track {
+  background: linear-gradient(90deg,
+    var(--mark-prime) 0 1.923%, var(--mark-quiet) 0 9.615%, var(--mark-value) 0 15.385%,
+    var(--mark-high) 0 19.231%, var(--mark-prime) 0 26.923%, var(--mark-high) 0 28.846%,
+    var(--mark-value) 0 38.462%, var(--mark-high) 0 40.385%, var(--mark-prime) 0 63.462%,
+    var(--mark-high) 0 67.308%, var(--mark-value) 0 76.923%, var(--mark-quiet) 0 88.462%,
+    var(--mark-high) 0 90.385%, var(--mark-quiet) 0 96.154%, var(--mark-prime) 0 100%);
+}
+.ytg-band { display: block; height: 3px; }
+
+.ytg-progress {
+  --ytg-progress: 0%;
+  display: grid;
+  gap: var(--space-2);
+  width: 100%;
+  max-width: 420px;
+  color: var(--ink);
+  font-size: var(--fs-ui);
+  line-height: var(--lh-ui);
+}
+.ytg-progress__label { display: flex; justify-content: space-between; gap: var(--space-3); }
+.ytg-progress__value { color: var(--muted); font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+.ytg-progress__track { position: relative; height: 6px; overflow: hidden; }
+/* The weeks still to load: covered, so the band fills January to December, week by week. */
+.ytg-progress__track::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: var(--ytg-progress);
+  background: var(--line);
+}
+/* Waiting with no known end: the year is dimmed and a bright window sweeps across it. */
+.ytg-progress--waiting .ytg-progress__track::after {
+  left: 0;
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--paper) 72%, transparent) 0 36%,
+    transparent 44% 56%,
+    color-mix(in srgb, var(--paper) 72%, transparent) 64% 100%);
+  background-size: 300% 100%;
+  animation: ytg-weeks-sweep 2.4s linear infinite;
+}
+@keyframes ytg-weeks-sweep {
+  from { background-position: 100% 0; }
+  to { background-position: 0 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ytg-progress--waiting .ytg-progress__track::after { animation: none; background: none; }
+}
+
+/* A region being updated: dimmed and marked busy, so people see it is changing. */
+.ytg-region { transition: opacity 0.15s ease; }
+.ytg-region[aria-busy="true"] { opacity: 0.55; cursor: progress; }
+
+/* ---------- ResortBadges ---------- */
+
+.ytg-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 0 5px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  color: var(--ink);
+  font-size: var(--fs-label);
+  font-weight: 700;
+  line-height: 1.5;
+  white-space: nowrap;
+  vertical-align: 1px;
+}
+.ytg-badge--cwa { border-color: var(--accent); color: var(--accent); }
+.ytg-badge--vip { border-color: var(--vip); color: var(--vip); }
+.ytg-badge--affiliate::before, .ytg-badge--associate::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+.ytg-badge--associate::before { background: transparent; border: 2px solid var(--muted); width: 4px; height: 4px; }
+.ytg-badge--closing { border-color: var(--danger); background: var(--danger-soft); color: var(--danger); }

@@ -10,7 +10,7 @@ While the site is under construction, the repository holds two complete versions
 |---|---|
 | `index.html` (root) | A "coming soon" page, with no links to either version |
 | `starburst/` | The owner's site: six pages and `style.css` |
-| `52weeks/` | The version being built out: the Owner Atlas pages built with ChatGPT (15 pages) plus season chart v2. `index.html` is the main page |
+| `52weeks/` | The version being built out: the Owner Atlas pages built with ChatGPT (15 pages) plus season chart v2. The main page, `index.html`, is built from `index.njk` with the design system |
 
 Each folder is self-contained: it uses only relative links and shares no files with the other, so either can be moved to the root unchanged.
 
@@ -30,8 +30,8 @@ Shared styles are in `style.css`. The Season Finder keeps its color palette and 
 ## How the site is built
 
 - **[Eleventy](https://www.11ty.dev/)** builds the site into `_site/`, and a GitHub Actions workflow (`.github/workflows/site.yml`) publishes it to **GitHub Pages** whenever `main` changes. Every pull request is built and checked too.
-- Existing `.html` pages are **copied exactly as they are**. New pages are `.njk` files that use the shared layouts and components in `_includes/`.
-- Only the site folders (`52weeks/`, `starburst/`, `assets/`), the root `index.html` and `CNAME` are published. Repository files such as this README are not.
+- Existing `.html` pages are **copied exactly as they are**. New pages are `.njk` files that use the shared layout and components in `_includes/` (see "Design system" below).
+- Only the site folders (`52weeks/`, `starburst/`, `assets/`), the root `index.html` and `CNAME` are published, plus `assets/css/tokens.css`, `assets/css/components.css` and `assets/js/ytg.js`, which the build makes from `design-system/`. Repository files such as this README are not.
 - **Season chart v2 is protected:** the build checks that it and the files it loads match `scripts/protected-files.sha256`, and fails if they don't.
 - `starburst/`: plain HTML and CSS, with a little JavaScript on the calculator and Season Finder.
 - `52weeks/`: HTML pages with more JavaScript and eight stylesheets. Its saved stays, saved plans and points ledger needed a server in their original home, so they don't work here.
@@ -52,6 +52,40 @@ Double-click **`share.cmd`** to get a private, temporary link a friend can open 
 - It works **only while this computer is on and the window is open**. Closing the window, pressing Ctrl+C or reaching the end time stops it completely.
 - The window shows when pages are opened (no names or addresses), so you can see when your friend is looking.
 - It needs Node.js and `cloudflared` (free, from Cloudflare). From a terminal: `node scripts/share.mjs --hours 3` or `--minutes 30`.
+
+## Design system
+
+The site's look (colors, fonts, spacing and components such as the header, link lists, cards and buttons) is designed in **Claude Design**, which is the source of truth: https://claude.ai/artifact/Sn1itr4wptnoimJovtDDx1. Its brand book explains the rules. The main page (`52weeks/index.njk`) is the first page built with it; the other pages follow (planning #33).
+
+| Where | What |
+|---|---|
+| `design-system/` | `tokens.json`, `components.css` and `ytg.js`, copied unchanged from Claude Design. Not published |
+| `scripts/build-tokens.mjs` | Turns `tokens.json` into `assets/css/tokens.css` on every build (fonts, light and dark colors). `components.css` and `ytg.js` are copied to `assets/css/` and `assets/js/` |
+| `assets/fonts/` | The four font files (Bricolage Grotesque, Atkinson Hyperlegible Next and Mono) and their SIL Open Font License texts. Nothing loads from Google |
+| `_includes/layouts/base.njk` | The page frame: head, skip link, header and menu, page heading, footer |
+| `_includes/components.njk` | One macro per component, writing exactly the design system's markup |
+| `_data/site.js` | The site name and the header menu |
+| `_data/mainPage.js` | The main page's links, as data |
+
+**Making a page.** A page is a `.njk` file with a few settings at the top, then its content built from components:
+
+```njk
+---
+layout: layouts/base.njk
+title: Fees
+lead: Every Club Wyndham fee, in one place.
+description: One sentence for search results.
+checked: 2026-10-11
+---
+{%- import "components.njk" as ui -%}
+{{ ui.tag("In progress", "success") }}
+{{ ui.linkList({ id: "plan", label: "Plan a stay", links: [{ title: "Find a stay", href: "planner.html", desc: "Nearby resorts and points budgets." }] }) }}
+<p>Prime weeks cost the most points {{ ui.citation(241) }}.</p>
+```
+
+`title` is the page's main heading and its tab title ("Fees · Your Timeshare Guide"). `checked` adds the "Last checked" date. `scripts` lists JavaScript files to load. Pages add **no styles of their own**: if a page needs something the design system doesn't have, it is designed in Claude Design first.
+
+**Updating from Claude Design.** Copy the new `tokens.json`, `components/bundle.css` and `components/bundle.js` into `design-system/` (as `tokens.json`, `components.css` and `ytg.js`), update any changed macro in `_includes/components.njk`, then run `npm test` and look at the pages in light and dark. Details are in `design-system/README.md`.
 
 ## Checks
 

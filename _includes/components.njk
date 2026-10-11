@@ -1,0 +1,224 @@
+{#
+  The design system's components as Nunjucks macros. Each macro writes exactly
+  the markup documented in Claude Design (components/<Name>/README.md), with
+  the classes styled by design-system/components.css. Pages never add their own
+  styles: if a page needs something new, design it in Claude Design first.
+
+  In a page or layout:  {% import "components.njk" as ui %}
+  then for example      {{ ui.tag("In progress", "success") }}
+                        {{ ui.linkList(group) }}
+                        {{ ui.citation(241) }}
+                        {% call ui.disclosure("About this page") %}<p>…</p>{% endcall %}
+
+  Tag tones: "" (neutral), "success", "caution", "danger".
+#}
+
+{# ---------- Logo (variant 5D): the four-square icon beside the name, the 52-week band under the name (part of SiteHeader) ---------- #}
+{# The only place the logo markup is written: change it here and every page follows. #}
+{% macro logo(site) -%}
+<a class="ytg-logo" href="{{ site.home }}">
+  <img class="ytg-logo__icon" src="{{ site.icon }}" alt="" width="36" height="36">
+  <span class="ytg-logo__text">
+    <span class="ytg-logo__name">{{ site.name }}</span>
+    <img class="ytg-logo__band" src="{{ site.logoBand }}" alt="" width="156" height="3">
+  </span>
+</a>
+{%- endmacro %}
+
+{# ---------- SiteHeader: skip link, logo and main menu ---------- #}
+{# site: _data/site.js; currentUrl: page.url (that menu item gets aria-current="page"; Eleventy gives
+   /52weeks/index.html as /52weeks/, so a folder URL matches its index.html). #}
+{% macro siteHeader(site, currentUrl) -%}
+<a class="ytg-skip" href="#main">Skip to content</a>
+<header class="ytg-header">
+  <div class="ytg-container ytg-header__inner">
+    {{ logo(site) }}
+    <nav class="ytg-nav" aria-label="Main"><ul>
+      {%- for item in site.menu %}
+      <li><a href="{{ item.url }}"{% if item.url == currentUrl or item.url == currentUrl + "index.html" %} aria-current="page"{% endif %}>{{ item.title }}</a></li>
+      {%- endfor %}
+    </ul></nav>
+  </div>
+</header>
+{%- endmacro %}
+
+{# ---------- SiteFooter: independence and not-advice notice (owner's wording; never shorten) ---------- #}
+{% macro siteFooter(site) -%}
+<footer class="ytg-footer">
+  <div class="ytg-container ytg-footer__inner">
+    <p><strong>{{ site.name }}</strong> is an independent site run by a Club Wyndham owner. It is not affiliated with, endorsed by, or sponsored by Club Wyndham, Wyndham Destinations, or Travel + Leisure Co. "Club Wyndham" and related names are trademarks of their owners.</p>
+    <p>Information here comes from official Club Wyndham publications and is provided to help owners. It is not legal or financial advice. Rules and fees change; always confirm with Club Wyndham (<span class="ytg-nowrap">800-251-8736</span>) before you book or decide.</p>
+  </div>
+</footer>
+{%- endmacro %}
+
+{# ---------- PageLayout ---------- #}
+{# The page heading: h1, optional lead sentence, optional LastChecked date (YYYY-MM-DD). #}
+{% macro pageHead(heading, lead, checked) -%}
+<header class="ytg-page-head">
+  <h1>{{ heading }}</h1>
+  {%- if lead %}
+  <p class="ytg-lead">{{ lead }}</p>
+  {%- endif %}
+  {%- if checked %}
+  {{ lastChecked(checked) }}
+  {%- endif %}
+</header>
+{%- endmacro %}
+
+{# The head of one of the two ytg-columns: { id, title, text }. #}
+{% macro columnHead(column) -%}
+<header class="ytg-column-head"><h2 id="{{ column.id }}">{{ column.title }}</h2>{% if column.text %}<p>{{ column.text }}</p>{% endif %}</header>
+{%- endmacro %}
+
+{# ---------- Tag ---------- #}
+{% macro tag(text, tone) -%}
+<span class="ytg-tag{% if tone %} ytg-tag--{{ tone }}{% endif %}">{{ text }}</span>
+{%- endmacro %}
+
+{# ---------- Button ---------- #}
+{# options: { type: "button" | "submit", variant: "" | "secondary" | "quiet", disabled: true } #}
+{% macro button(text, options = {}) -%}
+<button class="ytg-button{% if options.variant %} ytg-button--{{ options.variant }}{% endif %}" type="{{ options.type or 'button' }}"{% if options.disabled %} disabled{% endif %}>{{ text }}</button>
+{%- endmacro %}
+
+{# ---------- LinkList ---------- #}
+{# One link: { title, href, desc, tag: { text, tone }, download: true } #}
+{% macro linkItem(link) -%}
+<li><a class="ytg-links__item" href="{{ link.href }}"{% if link.download %} download{% endif %}><span class="ytg-links__title">{{ link.title }}</span>{% if link.tag %}{{ tag(link.tag.text, link.tag.tone) }}{% endif %}{% if link.desc %}<span class="ytg-links__desc">{{ link.desc }}</span>{% endif %}</a></li>
+{%- endmacro %}
+
+{# A group: { id, label, links: [...], level: 3 } (level is the heading level of the label; 3 unless set). #}
+{% macro linkList(group) -%}
+{%- set h = "h" + (group.level or 3) -%}
+<section class="ytg-links-group" aria-labelledby="{{ group.id }}">
+  <{{ h }} class="ytg-eyebrow" id="{{ group.id }}">{{ group.label }}</{{ h }}>
+  <ul class="ytg-links">
+    {%- for link in group.links %}
+    {{ linkItem(link) }}
+    {%- endfor %}
+  </ul>
+</section>
+{%- endmacro %}
+
+{# ---------- Card ---------- #}
+{# A link card: { href, title, desc, tag: { text, tone } }. One featured card per group at most. #}
+{% macro card(item) -%}
+<a class="ytg-card" href="{{ item.href }}"><span class="ytg-card__title">{{ item.title }}</span>{% if item.tag %} {{ tag(item.tag.text, item.tag.tone) }}{% endif %}{% if item.desc %}<p class="ytg-card__text">{{ item.desc }}</p>{% endif %}</a>
+{%- endmacro %}
+
+{# ---------- Disclosure ---------- #}
+{# {% call ui.disclosure("About this directory and its data") %}<p>…</p>{% endcall %} #}
+{% macro disclosure(summary, open = false) -%}
+<details class="ytg-disclosure"{% if open %} open{% endif %}>
+  <summary>{{ summary }}</summary>
+  <div class="ytg-disclosure__body">
+    {{ caller() }}
+  </div>
+</details>
+{%- endmacro %}
+
+{# ---------- Callout ---------- #}
+{# tone: "" (note), "caution" or "danger". {% call ui.callout("Error in the directory", "danger") %}<p>…</p>{% endcall %} #}
+{% macro callout(title, tone) -%}
+<div class="ytg-callout{% if tone %} ytg-callout--{{ tone }}{% endif %}" role="note">
+  <p class="ytg-callout__title">{{ title }}</p>
+  {{ caller() }}
+</div>
+{%- endmacro %}
+
+{# ---------- Citation ---------- #}
+{# Book page (blue circle) first, then the online directory's search-bar page (book page + 4 in 2026/2027). #}
+{% macro citation(bookPage, href, offset = 4) -%}
+<cite class="ytg-cite">{% if href %}<a href="{{ href }}"><span class="ytg-cite__page">Page {{ bookPage }}</span></a>{% else %}<span class="ytg-cite__page">Page {{ bookPage }}</span>{% endif %} (CW search bar page {{ bookPage + offset }})</cite>
+{%- endmacro %}
+
+{# ---------- LastChecked ---------- #}
+{# date: "YYYY-MM-DD" #}
+{% macro lastChecked(date) -%}
+<p class="ytg-checked">Last checked <time datetime="{{ date | isoDate }}">{{ date | longDate }}</time></p>
+{%- endmacro %}
+
+{# ---------- FormField ---------- #}
+{# A search box with its button: { id, name, label, placeholder, hint, list (datalist id), button } #}
+{% macro searchField(field) -%}
+<div class="ytg-field">
+  <label class="ytg-field__label" for="{{ field.id }}">{{ field.label }}</label>
+  <div class="ytg-search"><input class="ytg-input" type="search" id="{{ field.id }}" name="{{ field.name or field.id }}"{% if field.list %} list="{{ field.list }}"{% endif %}{% if field.placeholder %} placeholder="{{ field.placeholder }}"{% endif %} autocomplete="off"{% if field.hint %} aria-describedby="{{ field.id }}-hint"{% endif %}>{% if field.list %}<datalist id="{{ field.list }}"></datalist>{% endif %}{{ button(field.button or "Find", { type: "submit" }) }}</div>
+  {%- if field.hint %}
+  <p class="ytg-field__hint" id="{{ field.id }}-hint">{{ field.hint }}</p>
+  {%- endif %}
+</div>
+{%- endmacro %}
+
+{# A select: { id, name, label, options: [{ value, label }], selected, after, inline }.
+   inline: the label, select and "after" text read as one phrase ("Within [35 miles] of the destination"). #}
+{% macro selectField(field) -%}
+<div class="ytg-field{% if field.inline %} ytg-field--inline{% endif %}">
+  <label class="ytg-field__label" for="{{ field.id }}">{{ field.label }}</label>
+  <select class="ytg-select" id="{{ field.id }}" name="{{ field.name or field.id }}"{% if field.after %} aria-describedby="{{ field.id }}-after"{% endif %}>
+    {%- for option in field.options %}
+    <option value="{{ option.value }}"{% if option.value == field.selected %} selected{% endif %}>{{ option.label }}</option>
+    {%- endfor %}
+  </select>
+  {%- if field.after %}
+  <span class="ytg-field__text" id="{{ field.id }}-after">{{ field.after }}</span>
+  {%- endif %}
+</div>
+{%- endmacro %}
+
+{# A checkbox: { label, name, value, checked } #}
+{% macro check(box) -%}
+<label class="ytg-check"><input type="checkbox"{% if box.name %} name="{{ box.name }}"{% endif %}{% if box.value %} value="{{ box.value }}"{% endif %}{% if box.checked %} checked{% endif %}> {{ box.label }}</label>
+{%- endmacro %}
+
+{# ---------- FactList ---------- #}
+{# Name and value pairs: [{ name, value }] #}
+{% macro facts(items) -%}
+<dl class="ytg-facts">
+  {%- for item in items %}
+  <div><dt>{{ item.name }}</dt><dd>{{ item.value }}</dd></div>
+  {%- endfor %}
+</dl>
+{%- endmacro %}
+
+{# ---------- SeasonKey and season cells ---------- #}
+{% macro seasonKey() -%}
+<ul class="ytg-season-key" aria-label="Season key">
+  <li class="ytg-season"><span class="ytg-season__swatch ytg-s-prime">P</span>Prime</li>
+  <li class="ytg-season"><span class="ytg-season__swatch ytg-s-high">H</span>High</li>
+  <li class="ytg-season"><span class="ytg-season__swatch ytg-s-value">V</span>Value</li>
+  <li class="ytg-season"><span class="ytg-season__swatch ytg-s-quiet">Q</span>Quiet</li>
+  <li class="ytg-season"><span class="ytg-season__swatch ytg-s-none"></span>No season listed</li>
+</ul>
+{%- endmacro %}
+
+{# season: prime, high, value, quiet, none, wm-high, wm-medium, wm-low; title names the week and season. #}
+{% macro seasonCell(season, text, title) -%}
+<span class="ytg-season-cell ytg-s-{{ season }}" title="{{ title }}">{{ text }}</span>
+{%- endmacro %}
+
+{# ---------- PointsTable ---------- #}
+{# Wraps a <table class="ytg-table"> so it scrolls inside its own box. label: what the table shows. #}
+{% macro tableWrap(label) -%}
+<div class="ytg-table-wrap" tabindex="0" role="region" aria-label="{{ label }}">
+  {{ caller() }}
+</div>
+{%- endmacro %}
+
+{# ---------- Progress: the 52-week band as a loading indicator ---------- #}
+{# label: what is loading, in plain words ("Loading the season chart"). Starts hidden; drive it with
+   /assets/js/ytg.js: const p = YTG.progress(el); const done = YTG.showAfter(el); p.wait() or p.set(0.45); done(). #}
+{% macro progress(label, id) -%}
+<div class="ytg-progress"{% if id %} id="{{ id }}"{% endif %} role="status" aria-live="polite" hidden>
+  <p class="ytg-progress__label"><span class="ytg-progress__text">{{ label }}</span><span class="ytg-progress__value"></span></p>
+  <div class="ytg-progress__track" role="progressbar" aria-label="{{ label }}" aria-valuemin="0" aria-valuemax="100"></div>
+</div>
+{%- endmacro %}
+
+{# ---------- ResortBadges ---------- #}
+{# kind: vip, cwa, affiliate, associate, closing #}
+{% macro badge(kind) -%}
+{%- set badgeText = { vip: "♛ VIP", cwa: "CWA", affiliate: "Affiliate", associate: "Associate", closing: "⚠ Closing" } -%}
+<span class="ytg-badge ytg-badge--{{ kind }}">{{ badgeText[kind] }}</span>
+{%- endmacro %}
