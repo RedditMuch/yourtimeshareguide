@@ -1,0 +1,17 @@
+{
+  "name": "yourtimeshareguide",
+  "private": true,
+  "description": "Source for yourtimeshareguide.com. Built with Eleventy; see README.md.",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "eleventy && node scripts/check-build.mjs",
+    "start": "eleventy --serve --port=8080",
+    "check:protected": "node scripts/check-protected.mjs"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "3.1.6"
+  }
+}

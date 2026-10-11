@@ -10,7 +10,7 @@ While the site is under construction, the repository holds two complete versions
 |---|---|
 | `index.html` (root) | A "coming soon" page, with no links to either version |
 | `starburst/` | The owner's site: six pages and `style.css` |
-| `52weeks/` | An alternative version built with ChatGPT ("Owner Atlas"), 15 pages |
+| `52weeks/` | The version being built out: the Owner Atlas pages built with ChatGPT (15 pages) plus season chart v2. `index.html` is the main page |
 
 Each folder is self-contained: it uses only relative links and shares no files with the other, so either can be moved to the root unchanged.
 
@@ -29,19 +29,28 @@ Shared styles are in `style.css`. The Season Finder keeps its color palette and 
 
 ## How the site is built
 
-- `starburst/`: plain HTML and CSS, with a little JavaScript on the calculator and Season Finder. There's no build step or framework.
+- **[Eleventy](https://www.11ty.dev/)** builds the site into `_site/`, and a GitHub Actions workflow (`.github/workflows/site.yml`) publishes it to **GitHub Pages** whenever `main` changes. Every pull request is built and checked too.
+- Existing `.html` pages are **copied exactly as they are**. New pages are `.njk` files that use the shared layouts and components in `_includes/`.
+- Only the site folders (`52weeks/`, `starburst/`, `assets/`), the root `index.html` and `CNAME` are published. Repository files such as this README are not.
+- **Season chart v2 is protected:** the build checks that it and the files it loads match `scripts/protected-files.sha256`, and fails if they don't.
+- `starburst/`: plain HTML and CSS, with a little JavaScript on the calculator and Season Finder.
 - `52weeks/`: HTML pages with more JavaScript and eight stylesheets. Its saved stays, saved plans and points ledger needed a server in their original home, so they don't work here.
-- Hosted on **GitHub Pages** from the `main` branch, at the repository root.
-- `CNAME` sets the custom domain. `.nojekyll` tells GitHub Pages to serve the files exactly as they are.
+- `CNAME` sets the custom domain.
+
+### Previewing
+
+Double-click **`preview.cmd`**. It opens the site at http://localhost:8080/ and rebuilds when a file changes. Close its window to stop. (Needs Node.js 22 or later; the first run installs Eleventy.)
+
+From a terminal: `npm ci` once, then `npm start` to preview or `npm run build` to build `_site/`.
 
 ## Making changes
 
 `main` is the live site and is protected, so every change goes through a pull request:
 
 1. `git pull`, then create a branch: `git switch -c issue-<N>-<short-slug>`.
-2. Edit the HTML or CSS, then open the page in a browser to check it at desktop and phone widths.
-3. Commit, push, and open a pull request (`gh pr create`). The template asks how the change was checked.
-4. The owner reviews and **squash-merges**. The live site updates within a minute or two, and the branch is deleted.
+2. Edit the pages, then preview (`preview.cmd`) and check at desktop and phone widths.
+3. Commit, push, and open a pull request (`gh pr create`). The template asks how the change was checked. GitHub builds the site and runs the checks on the pull request.
+4. The owner reviews and **squash-merges**. GitHub Actions publishes the site within a minute or two, and the branch is deleted.
 
 Work is planned in a separate private repository. Agents should read [CLAUDE.md](CLAUDE.md) first.
 

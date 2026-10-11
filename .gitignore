@@ -6,3 +6,11 @@ Thumbs.db
 desktop.ini
 .DS_Store
 .vscode/
+
+# Eleventy build output and Node packages
+_site/
+node_modules/
+
+# Test runs
+test-results/
+playwright-report/
