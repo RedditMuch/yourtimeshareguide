@@ -1,0 +1,52 @@
+---
+layout: layouts/base.njk
+title: Owner directory
+lead: Wyndham resort information and planning tools.
+description: Plan Wyndham stays with exact weekly points, sourced room evidence and connected owner tools.
+# The search box's city suggestions: portal.js fills <datalist id="cities"> from
+# geo.js (with geo-data.js), and needs reference-data.js to start. It finds the
+# form by the ids query, cities and radius, so keep them.
+scripts:
+  - reference-data.js
+  - geo-data.js
+  - geo.js
+  - portal.js
+---
+{%- import "components.njk" as ui -%}
+{#- The main page (planning #28, #32): every page of both versions. The links
+    are data in _data/mainPage.js; this file only arranges them. -#}
+<div class="ytg-regions">
+
+<form class="ytg-form" action="resorts.html" role="search">
+  {{ ui.searchField({ id: "query", name: "q", label: "Find a resort or destination", placeholder: "Resort name or city", list: "cities", button: "Find" }) }}
+  {%- set radiusOptions = [] -%}
+  {%- for miles in mainPage.radius.options -%}
+    {%- set radiusOptions = (radiusOptions.push({ value: miles, label: miles + " miles" }), radiusOptions) -%}
+  {%- endfor %}
+  {{ ui.selectField({ id: "radius", label: "Within", options: radiusOptions, selected: mainPage.radius.selected, after: "of the destination", inline: true }) }}
+</form>
+
+<div class="ytg-columns" id="all-pages">
+  {%- for column in mainPage.columns %}
+  <section aria-labelledby="{{ column.id }}">
+    {{ ui.columnHead(column) }}
+    {%- if column.featured %}
+    {{ ui.card(column.featured) }}
+    {%- endif %}
+    {%- for group in column.groups %}
+    {{ ui.linkList(group) }}
+    {%- endfor %}
+  </section>
+  {%- endfor %}
+</div>
+
+<footer class="ytg-page-foot">
+  {{ ui.linkList(mainPage.download) }}
+  {% call ui.disclosure("About this directory & data coverage") %}
+    <p>Directory snapshot: March 25, 2026. Online maps and layouts researched October 6, 2026. Sources are linked inside each tool; missing information remains marked as unknown.</p>
+    {{ ui.facts(mainPage.coverage) }}
+    <p>Personal planning reference. This guide does not show live inventory or guarantee room assignments. Source material belongs to its publishers.</p>
+  {% endcall %}
+</footer>
+
+</div>
