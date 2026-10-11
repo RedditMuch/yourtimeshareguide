@@ -43,6 +43,25 @@ Double-click **`preview.cmd`**. It opens the site at http://localhost:8080/ and 
 
 From a terminal: `npm ci` once, then `npm start` to preview or `npm run build` to build `_site/`.
 
+## Checks
+
+Every pull request is checked automatically by GitHub, and the site is published only if the checks pass. The checks open every page in a real browser (Chromium), once at phone size (390 px wide) and once at desktop size (1280 px wide), and look for:
+
+- the page loads (no "not found") and has no JavaScript or console errors
+- no sideways scrolling on a phone
+- a page title, exactly one main heading (`<h1>`), and the `noindex, nofollow` tag
+- accessibility problems (the axe tool, WCAG 2.1 levels A and AA)
+- every link to another page of this site works
+- the season chart v2 loads and draws its chart
+
+Screenshots of every page at both sizes are saved with each run (in the pull request's "Browser checks" step, under Artifacts, for 14 days), so a reviewer can look without running anything.
+
+**Run them yourself:** `npm ci` once, `npx playwright install chromium` once, then `npm test`. It builds the site and runs the checks (about a minute). Screenshots land in `test-results/screenshots/`, and the full report is `playwright-report/index.html`.
+
+**Known problems (the baseline).** Some pages already had problems when the checks were added (mostly in `52weeks/`: low-contrast text, missing directory-scan images, pages that need a server). They are listed page by page in `tests/baseline.json`. The checks fail only on **new** problems (including more instances of a known accessibility problem on the same page), and print a short summary of the known ones. Fixing a known problem and then running `npm run test:update-baseline` removes it from the list.
+
+**Updating the baseline** is acceptable only to record fixes (the list gets shorter), or when the owner has decided a new problem is acceptable. Never update it just to make a failing check go green: look at the failure first. Review the change to `tests/baseline.json` in the pull request.
+
 ## Making changes
 
 `main` is the live site and is protected, so every change goes through a pull request:

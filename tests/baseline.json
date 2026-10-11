@@ -1,0 +1,405 @@
+{
+  "_note": "Problems that already existed when the checks were added. Regenerate with `npm run test:update-baseline`. Tests fail only on problems not listed here.",
+  "pages": {
+    "52weeks/briefing.html": {
+      "desktop": {
+        "consoleErrors": [
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /api/ledger",
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /api/plans"
+        ]
+      },
+      "phone": {
+        "consoleErrors": [
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /api/ledger",
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /api/plans"
+        ]
+      }
+    },
+    "52weeks/compare.html": {
+      "desktop": {
+        "axe": {
+          "color-contrast": 1
+        },
+        "consoleErrors": [
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /api/plans"
+        ]
+      },
+      "phone": {
+        "axe": {
+          "color-contrast": 1
+        },
+        "consoleErrors": [
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /api/plans"
+        ]
+      }
+    },
+    "52weeks/fees.html": {
+      "brokenLinks": [
+        "/52weeks/charts/page-266.webp (404)",
+        "/52weeks/charts/page-272.webp (404)",
+        "/52weeks/charts/page-277.webp (404)",
+        "/52weeks/charts/page-282.webp (404)",
+        "/52weeks/charts/page-283.webp (404)",
+        "/52weeks/charts/page-284.webp (404)",
+        "/52weeks/charts/page-285.webp (404)",
+        "/52weeks/charts/page-289.webp (404)",
+        "/52weeks/charts/page-291.webp (404)",
+        "/52weeks/charts/page-292.webp (404)",
+        "/52weeks/charts/page-300.webp (404)",
+        "/52weeks/charts/page-302.webp (404)",
+        "/52weeks/charts/page-303.webp (404)"
+      ]
+    },
+    "52weeks/layouts.html": {
+      "desktop": {
+        "consoleErrors": [
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /52weeks/property-maps/*.jpg",
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /52weeks/published-plans/*.jpg"
+        ]
+      },
+      "phone": {
+        "consoleErrors": [
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /52weeks/property-maps/*.jpg",
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /52weeks/published-plans/*.jpg"
+        ]
+      }
+    },
+    "52weeks/ledger.html": {
+      "desktop": {
+        "consoleErrors": [
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /api/ledger"
+        ]
+      },
+      "phone": {
+        "consoleErrors": [
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /api/ledger"
+        ]
+      }
+    },
+    "52weeks/planner.html": {
+      "desktop": {
+        "axe": {
+          "color-contrast": 8
+        },
+        "consoleErrors": [
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /52weeks/resort-photos/*.webp"
+        ]
+      },
+      "phone": {
+        "axe": {
+          "color-contrast": 8
+        },
+        "consoleErrors": [
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /52weeks/resort-photos/*.webp"
+        ]
+      }
+    },
+    "52weeks/resorts.html": {
+      "brokenLinks": [
+        "/52weeks/charts/page-021.webp (404)",
+        "/52weeks/charts/page-022.webp (404)",
+        "/52weeks/charts/page-024.webp (404)",
+        "/52weeks/charts/page-025.webp (404)",
+        "/52weeks/charts/page-026.webp (404)",
+        "/52weeks/charts/page-027.webp (404)",
+        "/52weeks/charts/page-029.webp (404)",
+        "/52weeks/charts/page-031.webp (404)",
+        "/52weeks/charts/page-032.webp (404)",
+        "/52weeks/charts/page-033.webp (404)",
+        "/52weeks/charts/page-034.webp (404)",
+        "/52weeks/charts/page-035.webp (404)",
+        "/52weeks/charts/page-036.webp (404)",
+        "/52weeks/charts/page-037.webp (404)",
+        "/52weeks/charts/page-038.webp (404)",
+        "/52weeks/charts/page-039.webp (404)",
+        "/52weeks/charts/page-040.webp (404)",
+        "/52weeks/charts/page-041.webp (404)",
+        "/52weeks/charts/page-042.webp (404)",
+        "/52weeks/charts/page-043.webp (404)",
+        "/52weeks/charts/page-044.webp (404)",
+        "/52weeks/charts/page-045.webp (404)",
+        "/52weeks/charts/page-046.webp (404)",
+        "/52weeks/charts/page-047.webp (404)",
+        "/52weeks/charts/page-048.webp (404)",
+        "/52weeks/charts/page-051.webp (404)",
+        "/52weeks/charts/page-053.webp (404)",
+        "/52weeks/charts/page-054.webp (404)",
+        "/52weeks/charts/page-057.webp (404)",
+        "/52weeks/charts/page-058.webp (404)",
+        "/52weeks/charts/page-059.webp (404)",
+        "/52weeks/charts/page-060.webp (404)",
+        "/52weeks/charts/page-061.webp (404)",
+        "/52weeks/charts/page-063.webp (404)",
+        "/52weeks/charts/page-064.webp (404)",
+        "/52weeks/charts/page-067.webp (404)",
+        "/52weeks/charts/page-070.webp (404)",
+        "/52weeks/charts/page-071.webp (404)",
+        "/52weeks/charts/page-072.webp (404)",
+        "/52weeks/charts/page-075.webp (404)",
+        "/52weeks/charts/page-076.webp (404)",
+        "/52weeks/charts/page-079.webp (404)",
+        "/52weeks/charts/page-080.webp (404)",
+        "/52weeks/charts/page-081.webp (404)",
+        "/52weeks/charts/page-083.webp (404)",
+        "/52weeks/charts/page-087.webp (404)",
+        "/52weeks/charts/page-089.webp (404)",
+        "/52weeks/charts/page-090.webp (404)",
+        "/52weeks/charts/page-091.webp (404)",
+        "/52weeks/charts/page-092.webp (404)",
+        "/52weeks/charts/page-093.webp (404)",
+        "/52weeks/charts/page-094.webp (404)",
+        "/52weeks/charts/page-095.webp (404)",
+        "/52weeks/charts/page-096.webp (404)",
+        "/52weeks/charts/page-097.webp (404)",
+        "/52weeks/charts/page-099.webp (404)",
+        "/52weeks/charts/page-100.webp (404)",
+        "/52weeks/charts/page-101.webp (404)",
+        "/52weeks/charts/page-102.webp (404)",
+        "/52weeks/charts/page-103.webp (404)",
+        "/52weeks/charts/page-105.webp (404)",
+        "/52weeks/charts/page-107.webp (404)",
+        "/52weeks/charts/page-111.webp (404)",
+        "/52weeks/charts/page-112.webp (404)",
+        "/52weeks/charts/page-113.webp (404)",
+        "/52weeks/charts/page-115.webp (404)",
+        "/52weeks/charts/page-117.webp (404)",
+        "/52weeks/charts/page-119.webp (404)",
+        "/52weeks/charts/page-121.webp (404)",
+        "/52weeks/charts/page-122.webp (404)",
+        "/52weeks/charts/page-123.webp (404)",
+        "/52weeks/charts/page-125.webp (404)",
+        "/52weeks/charts/page-127.webp (404)",
+        "/52weeks/charts/page-128.webp (404)",
+        "/52weeks/charts/page-129.webp (404)",
+        "/52weeks/charts/page-131.webp (404)",
+        "/52weeks/charts/page-133.webp (404)",
+        "/52weeks/charts/page-134.webp (404)",
+        "/52weeks/charts/page-135.webp (404)",
+        "/52weeks/charts/page-136.webp (404)",
+        "/52weeks/charts/page-138.webp (404)",
+        "/52weeks/charts/page-139.webp (404)",
+        "/52weeks/charts/page-140.webp (404)",
+        "/52weeks/charts/page-141.webp (404)",
+        "/52weeks/charts/page-142.webp (404)",
+        "/52weeks/charts/page-143.webp (404)",
+        "/52weeks/charts/page-144.webp (404)",
+        "/52weeks/charts/page-145.webp (404)",
+        "/52weeks/charts/page-146.webp (404)",
+        "/52weeks/charts/page-148.webp (404)",
+        "/52weeks/charts/page-149.webp (404)",
+        "/52weeks/charts/page-151.webp (404)",
+        "/52weeks/charts/page-153.webp (404)",
+        "/52weeks/charts/page-156.webp (404)",
+        "/52weeks/charts/page-158.webp (404)",
+        "/52weeks/charts/page-160.webp (404)",
+        "/52weeks/charts/page-162.webp (404)",
+        "/52weeks/charts/page-163.webp (404)",
+        "/52weeks/charts/page-165.webp (404)",
+        "/52weeks/charts/page-167.webp (404)",
+        "/52weeks/charts/page-169.webp (404)",
+        "/52weeks/charts/page-173.webp (404)",
+        "/52weeks/charts/page-175.webp (404)",
+        "/52weeks/charts/page-177.webp (404)",
+        "/52weeks/charts/page-179.webp (404)",
+        "/52weeks/charts/page-181.webp (404)",
+        "/52weeks/charts/page-182.webp (404)",
+        "/52weeks/charts/page-185.webp (404)",
+        "/52weeks/charts/page-187.webp (404)",
+        "/52weeks/charts/page-188.webp (404)",
+        "/52weeks/charts/page-189.webp (404)",
+        "/52weeks/charts/page-190.webp (404)",
+        "/52weeks/charts/page-191.webp (404)",
+        "/52weeks/charts/page-192.webp (404)",
+        "/52weeks/charts/page-195.webp (404)",
+        "/52weeks/charts/page-198.webp (404)",
+        "/52weeks/charts/page-199.webp (404)",
+        "/52weeks/charts/page-200.webp (404)",
+        "/52weeks/charts/page-202.webp (404)",
+        "/52weeks/charts/page-203.webp (404)",
+        "/52weeks/charts/page-206.webp (404)",
+        "/52weeks/charts/page-207.webp (404)",
+        "/52weeks/charts/page-208.webp (404)",
+        "/52weeks/charts/page-209.webp (404)",
+        "/52weeks/charts/page-212.webp (404)",
+        "/52weeks/charts/page-213.webp (404)",
+        "/52weeks/charts/page-214.webp (404)",
+        "/52weeks/charts/page-215.webp (404)",
+        "/52weeks/charts/page-216.webp (404)",
+        "/52weeks/charts/page-217.webp (404)",
+        "/52weeks/charts/page-218.webp (404)",
+        "/52weeks/charts/page-219.webp (404)",
+        "/52weeks/charts/page-220.webp (404)",
+        "/52weeks/charts/page-221.webp (404)",
+        "/52weeks/charts/page-222.webp (404)",
+        "/52weeks/charts/page-223.webp (404)",
+        "/52weeks/charts/page-224.webp (404)",
+        "/52weeks/charts/page-225.webp (404)",
+        "/52weeks/charts/page-226.webp (404)",
+        "/52weeks/charts/page-227.webp (404)",
+        "/52weeks/charts/page-228.webp (404)",
+        "/52weeks/charts/page-229.webp (404)",
+        "/52weeks/charts/page-230.webp (404)",
+        "/52weeks/charts/page-231.webp (404)",
+        "/52weeks/charts/page-232.webp (404)",
+        "/52weeks/charts/page-233.webp (404)",
+        "/52weeks/charts/page-234.webp (404)",
+        "/52weeks/charts/page-235.webp (404)",
+        "/52weeks/charts/page-236.webp (404)",
+        "/52weeks/charts/page-237.webp (404)",
+        "/52weeks/charts/page-238.webp (404)",
+        "/52weeks/charts/page-239.webp (404)",
+        "/52weeks/charts/page-240.webp (404)",
+        "/52weeks/charts/page-241.webp (404)",
+        "/52weeks/charts/page-242.webp (404)",
+        "/52weeks/charts/page-243.webp (404)",
+        "/52weeks/charts/page-245.webp (404)",
+        "/52weeks/charts/page-249.webp (404)",
+        "/52weeks/charts/page-251.webp (404)",
+        "/52weeks/charts/page-253.webp (404)",
+        "/52weeks/charts/page-255.webp (404)",
+        "/52weeks/charts/page-257.webp (404)",
+        "/52weeks/property-maps/r009-1.jpg (404)",
+        "/52weeks/property-maps/r010-1.jpg (404)",
+        "/52weeks/property-maps/r013-1.jpg (404)",
+        "/52weeks/property-maps/r013-2.jpg (404)",
+        "/52weeks/property-maps/r015-1.jpg (404)",
+        "/52weeks/property-maps/r023-1.jpg (404)",
+        "/52weeks/property-maps/r026-1.jpg (404)",
+        "/52weeks/property-maps/r026-2.jpg (404)",
+        "/52weeks/property-maps/r030-1.jpg (404)",
+        "/52weeks/property-maps/r034-1.jpg (404)",
+        "/52weeks/property-maps/r036-1.jpg (404)",
+        "/52weeks/property-maps/r037-1.jpg (404)",
+        "/52weeks/property-maps/r038-1.jpg (404)",
+        "/52weeks/property-maps/r039-1.jpg (404)",
+        "/52weeks/property-maps/r045-1.jpg (404)",
+        "/52weeks/property-maps/r048-1.jpg (404)",
+        "/52weeks/property-maps/r056-1.jpg (404)",
+        "/52weeks/property-maps/r057-1.jpg (404)",
+        "/52weeks/property-maps/r058-1.jpg (404)",
+        "/52weeks/property-maps/r062-1.jpg (404)",
+        "/52weeks/property-maps/r068-1.jpg (404)",
+        "/52weeks/property-maps/r069-1.jpg (404)",
+        "/52weeks/property-maps/r071-1.jpg (404)",
+        "/52weeks/property-maps/r071-2.jpg (404)",
+        "/52weeks/property-maps/r072-1.jpg (404)",
+        "/52weeks/property-maps/r099-1.jpg (404)",
+        "/52weeks/property-maps/r100-1.jpg (404)",
+        "/52weeks/property-maps/r101-1.jpg (404)",
+        "/52weeks/property-maps/r108-1.jpg (404)",
+        "/52weeks/property-maps/r109-1.jpg (404)",
+        "/52weeks/property-maps/r113-1.jpg (404)",
+        "/52weeks/property-maps/r114-1.jpg (404)",
+        "/52weeks/property-maps/r232-1.jpg (404)"
+      ],
+      "desktop": {
+        "consoleErrors": [
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /52weeks/resort-photos/*.webp"
+        ]
+      },
+      "phone": {
+        "consoleErrors": [
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /52weeks/resort-photos/*.webp"
+        ]
+      }
+    },
+    "52weeks/rooms.html": {
+      "desktop": {
+        "consoleErrors": [
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /52weeks/room-maps/*.png"
+        ]
+      },
+      "phone": {
+        "consoleErrors": [
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /52weeks/room-maps/*.png"
+        ]
+      }
+    },
+    "52weeks/seasons-v2.html": {
+      "desktop": {
+        "axe": {
+          "color-contrast": 1871
+        }
+      },
+      "phone": {
+        "axe": {
+          "color-contrast": 1221
+        }
+      }
+    },
+    "52weeks/seasons.html": {
+      "desktop": {
+        "axe": {
+          "color-contrast": 1
+        }
+      },
+      "phone": {
+        "axe": {
+          "color-contrast": 1
+        }
+      }
+    },
+    "52weeks/stays.html": {
+      "desktop": {
+        "consoleErrors": [
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /api/ledger",
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /api/plans"
+        ]
+      },
+      "phone": {
+        "consoleErrors": [
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /api/ledger",
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /api/plans"
+        ]
+      }
+    },
+    "52weeks/vip.html": {
+      "brokenLinks": [
+        "/52weeks/charts/page-272.webp (404)",
+        "/52weeks/charts/page-273.webp (404)",
+        "/52weeks/charts/page-274.webp (404)"
+      ]
+    },
+    "52weeks/windows.html": {
+      "brokenLinks": [
+        "/52weeks/charts/page-265.webp (404)",
+        "/52weeks/charts/page-266.webp (404)",
+        "/52weeks/charts/page-268.webp (404)",
+        "/52weeks/charts/page-269.webp (404)",
+        "/52weeks/charts/page-272.webp (404)",
+        "/52weeks/charts/page-276.webp (404)",
+        "/52weeks/charts/page-277.webp (404)",
+        "/52weeks/charts/page-279.webp (404)",
+        "/52weeks/charts/page-280.webp (404)",
+        "/52weeks/charts/page-281.webp (404)",
+        "/52weeks/charts/page-282.webp (404)",
+        "/52weeks/charts/page-285.webp (404)",
+        "/52weeks/charts/page-290.webp (404)",
+        "/52weeks/charts/page-292.webp (404)",
+        "/52weeks/charts/page-295.webp (404)",
+        "/52weeks/charts/page-308.webp (404)"
+      ]
+    },
+    "starburst/calculator.html": {
+      "phone": {
+        "axe": {
+          "scrollable-region-focusable": 1
+        }
+      }
+    },
+    "starburst/errors.html": {
+      "phone": {
+        "axe": {
+          "scrollable-region-focusable": 1
+        }
+      }
+    },
+    "starburst/fees.html": {
+      "phone": {
+        "axe": {
+          "scrollable-region-focusable": 7
+        }
+      }
+    }
+  }
+}
