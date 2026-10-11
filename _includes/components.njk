@@ -13,10 +13,16 @@
   Tag tones: "" (neutral), "success", "caution", "danger".
 #}
 
-{# ---------- Logo: the name over the 52-week band (part of SiteHeader) ---------- #}
+{# ---------- Logo (variant 5D): the four-square icon beside the name, the 52-week band under the name (part of SiteHeader) ---------- #}
 {# The only place the logo markup is written: change it here and every page follows. #}
 {% macro logo(site) -%}
-<a class="ytg-logo" href="{{ site.home }}"><span class="ytg-logo__name">{{ site.name }}</span><img class="ytg-logo__band" src="{{ site.logoBand }}" alt="" width="156" height="3"></a>
+<a class="ytg-logo" href="{{ site.home }}">
+  <img class="ytg-logo__icon" src="{{ site.icon }}" alt="" width="36" height="36">
+  <span class="ytg-logo__text">
+    <span class="ytg-logo__name">{{ site.name }}</span>
+    <img class="ytg-logo__band" src="{{ site.logoBand }}" alt="" width="156" height="3">
+  </span>
+</a>
 {%- endmacro %}
 
 {# ---------- SiteHeader: skip link, logo and main menu ---------- #}
@@ -41,7 +47,7 @@
 <footer class="ytg-footer">
   <div class="ytg-container ytg-footer__inner">
     <p><strong>{{ site.name }}</strong> is an independent site run by a Club Wyndham owner. It is not affiliated with, endorsed by, or sponsored by Club Wyndham, Wyndham Destinations, or Travel + Leisure Co. "Club Wyndham" and related names are trademarks of their owners.</p>
-    <p>Information here comes from official Club Wyndham publications and is provided to help owners. It is not legal or financial advice. Rules and fees change; always confirm with Club Wyndham (800-251-8736) before you book or decide.</p>
+    <p>Information here comes from official Club Wyndham publications and is provided to help owners. It is not legal or financial advice. Rules and fees change; always confirm with Club Wyndham (<span class="ytg-nowrap">800-251-8736</span>) before you book or decide.</p>
   </div>
 </footer>
 {%- endmacro %}
@@ -197,6 +203,16 @@
 {% macro tableWrap(label) -%}
 <div class="ytg-table-wrap" tabindex="0" role="region" aria-label="{{ label }}">
   {{ caller() }}
+</div>
+{%- endmacro %}
+
+{# ---------- Progress: the 52-week band as a loading indicator ---------- #}
+{# label: what is loading, in plain words ("Loading the season chart"). Starts hidden; drive it with
+   /assets/js/ytg.js: const p = YTG.progress(el); const done = YTG.showAfter(el); p.wait() or p.set(0.45); done(). #}
+{% macro progress(label, id) -%}
+<div class="ytg-progress"{% if id %} id="{{ id }}"{% endif %} role="status" aria-live="polite" hidden>
+  <p class="ytg-progress__label"><span class="ytg-progress__text">{{ label }}</span><span class="ytg-progress__value"></span></p>
+  <div class="ytg-progress__track" role="progressbar" aria-label="{{ label }}" aria-valuemin="0" aria-valuemax="100"></div>
 </div>
 {%- endmacro %}
 

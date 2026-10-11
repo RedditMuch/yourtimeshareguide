@@ -66,7 +66,7 @@ export function tokensCss(t, fontPrefix = FONT_URL_PREFIX) {
     if (theme === "dark") {
       lines.push("", "@media (prefers-color-scheme: dark) {", '  :root:not([data-theme="light"]) {', ...decls.map((d) => "  " + d), "  }", "}");
     }
-    lines.push("", `:root[data-theme="${theme}"] {`, ...decls, "}");
+    lines.push("", `[data-theme="${theme}"] {`, ...decls, "}");
   }
 
   return lines.join("\n") + "\n";

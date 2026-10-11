@@ -1,7 +1,7 @@
 // Checks the built site (_site/) after `eleventy` runs:
 // - every file in the site folders and every published root file is in _site/
 //   (so a new file type is never silently left off the live site);
-// - the files generated from the design system (tokens.css, components.css) are there;
+// - the files generated from the design system (tokens.css, components.css, ytg.js) are there;
 // - no .njk page shares its name with an .html file (Eleventy would silently
 //   publish only one of them).
 //

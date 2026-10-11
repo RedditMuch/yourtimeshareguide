@@ -12,8 +12,9 @@
 //
 // The design system (design-system/, copied from Claude Design) is not
 // published itself. Each build turns design-system/tokens.json into
-// assets/css/tokens.css and copies design-system/components.css to
-// assets/css/components.css; the layout loads both.
+// assets/css/tokens.css, copies design-system/components.css to
+// assets/css/components.css and design-system/ytg.js (the components that
+// need a script, such as Progress) to assets/js/ytg.js; the layout loads all three.
 //
 // Only the site folders and root files listed in scripts/site-files.mjs are
 // published, so repository files such as README.md and CLAUDE.md never reach
@@ -32,11 +33,12 @@ export default function (eleventyConfig) {
   }
 
   // Design system: tokens.css is generated before every build (and every
-  // rebuild while previewing); components.css is copied as it is.
+  // rebuild while previewing); components.css and ytg.js are copied as they are.
   eleventyConfig.on("eleventy.before", ({ directories }) => {
     buildTokens(TOKENS_SOURCE, join(directories.output, TOKENS_OUTPUT));
   });
   eleventyConfig.addPassthroughCopy({ "design-system/components.css": "assets/css/components.css" });
+  eleventyConfig.addPassthroughCopy({ "design-system/ytg.js": "assets/js/ytg.js" });
   eleventyConfig.addWatchTarget("design-system/");
 
   // Dates for LastChecked. Front matter may give "2026-10-11" as text or as a
