@@ -9,9 +9,13 @@
   "scripts": {
     "build": "eleventy",
     "start": "eleventy --serve --port=8080",
-    "check:protected": "node scripts/check-protected.mjs"
+    "check:protected": "node scripts/check-protected.mjs",
+    "test": "npm run build && playwright test",
+    "test:update-baseline": "npm run build && node scripts/update-baseline.mjs"
   },
   "devDependencies": {
-    "@11ty/eleventy": "3.1.6"
+    "@11ty/eleventy": "3.1.6",
+    "@axe-core/playwright": "4.13.0",
+    "@playwright/test": "1.64.0"
   }
 }
