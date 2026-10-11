@@ -1,7 +1,8 @@
 // Checks the built site (_site/) after `eleventy` runs:
 // - every file in the site folders and every published root file is in _site/
 //   (so a new file type is never silently left off the live site);
-// - the files generated from the design system (tokens.css, components.css, ytg.js) are there;
+// - the files generated from the design system (tokens.css, components.css, ytg.js) are there,
+//   and no source file sits at the same path;
 // - no .njk page shares its name with an .html file (Eleventy would silently
 //   publish only one of them).
 //
@@ -44,6 +45,8 @@ for (const file of sources) {
 }
 
 for (const file of GENERATED_FILES) {
+  // A source file at the same path would be copied over the generated one (or the other way round).
+  if (existsSync(file)) problems.push(`${file} is made by the build from design-system/; remove the copy in the source, or change design-system/ instead`);
   if (!existsSync(join("_site", file))) problems.push(`_site/${file} was not generated from design-system/ (see eleventy.config.js)`);
 }
 
