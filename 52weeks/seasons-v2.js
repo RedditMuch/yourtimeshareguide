@@ -77,7 +77,9 @@
   const typeParts = p => { const t = p.roomType || (classOf.get(p.category) || {}).label || '', i = t.indexOf(': ');
     return i > 0 ? { type: br(t.slice(i + 2)), bldg: t.slice(0, i) } : { type: br(t), bldg: '' }; };
   const typeLabel = p => { const x = typeParts(p); return x.type + (x.bldg ? ' · ' + x.bldg : ''); };
-  const typeHtml = r => { const x = typeParts(r.p); return esc(x.type) + (x.bldg ? ' <span class="bldg">· ' + esc(x.bldg) + '</span>' : '') + (r.twice ? ' <span class="bldg" title="The directory prints this room type twice, with the same points.">(listed twice)</span>' : ''); };
+  const typeHtml = r => esc(typeParts(r.p).type) + (r.twice ? ' <span class="bldg" title="The directory prints this room type twice, with the same points.">(listed twice)</span>' : '');
+  /* Building or building group for a row: from the room type name ("Mountain Laurels: ..."), or from the chart it belongs to */
+  const bldgOf = r => !r.p ? (r.s.multiple ? r.s.schedule : '') : (typeParts(r.p).bldg || (r.p.multiple ? r.p.schedule : '') || (r.s.multiple ? r.s.schedule : ''));
   const cwaCount = new Set(D.rows.filter(s => refOf(s).club_wyndham_access === 'Yes').map(resortKey)).size;
 
   /* Season and points for one week of a row. Week 53 follows WEEK53, or else is gray and priced like week 1. */
@@ -127,12 +129,12 @@
     $('radius').innerHTML = RADII.map(r => '<option value="' + r + '">' + r.toLocaleString('en-US') + ' miles</option>').join('');
     $('collectionChecks').innerHTML = collections.map(c => {
       const label = COLLECTION_LABEL[c] || c, dot = c === 'Affiliate' ? '<i class="dot aff"></i>' : c === 'Associate' ? '<i class="dot assoc"></i>' : '';
-      const m = label.match(/^(\S+)( \(.*\))$/), name = c === 'Associate' && m ? esc(m[1]) + dot + ' ' + esc(m[2].trim()) : esc(label) + dot;
+      const m = label.match(/^(\S+) \((.*)\)$/), name = c === 'Associate' && m ? esc(m[1]) + dot + '<span class="sub">' + esc(m[2]) + '</span>' : esc(label) + dot;
       const soon = D.rows.some(s => s.collection === c && hasChart(s)) ? '' : '<span class="hint soon">Points coming soon</span>';
       return '<label class="check"><input type="checkbox" value="' + esc(c) + '"><span class="lbl">' + name + soon + '</span></label>';
     }).join('');
     $('placeChecks').innerHTML = PLACES.map(([v, label]) => '<label class="check"><input type="checkbox" value="' + v + '"> ' + esc(label) + '</label>').join('');
-    $('cwaCount').textContent = '(' + cwaCount + ')';
+
     $('spanButtons').innerHTML = SPANS.map(n => '<button type="button" data-span="' + n + '">' + (n < 0 ? 'All' : n === 0 ? 'None' : n) + '</button>').join('');
     const firstDay = iso(WEEKS.find(x => x.y === startYear).start), lastDay = iso(WEEKS[WEEKS.length - 1].start + 6 * DAY);
     for (const id of ['startDate', 'endDate']) { $(id).min = firstDay; $(id).max = lastDay; }
@@ -160,6 +162,8 @@
     for (const i of $('collectionChecks').querySelectorAll('input')) i.checked = state.collections.has(i.value);
     for (const i of $('placeChecks').querySelectorAll('input')) i.checked = state.places.has(i.value);
     $('cwaOnly').checked = state.cwaOnly;
+    const ch = !state.collections.size ? 'No collections are checked, so every collection is shown.' : !state.places.size ? 'No locations are checked, so every location is shown.' : '';
+    $('collectionHint').hidden = !ch; $('collectionHint').textContent = ch;
     for (const b of $('spanButtons').querySelectorAll('button')) b.setAttribute('aria-pressed', String(Number(b.dataset.span) === state.span));
     if (document.activeElement !== $('startDate')) $('startDate').value = state.start ? iso(state.start) : '';
     if (document.activeElement !== $('endDate')) $('endDate').value = state.end ? iso(state.end) : '';
@@ -194,9 +198,9 @@
       // Drop exact repeats (same room type, same points), e.g. a suite printed twice as part of two lockoffs
       const seen = new Map(), ticked = [];
       for (const p of all.filter(p => state.types.has(p.category))) {
-        const key = typeLabel(p) + '|' + JSON.stringify(p.weeklyPoints);
+        const row = { s, p, gap: '' }, key = bldgOf(row) + '|' + typeLabel(p) + '|' + JSON.stringify(p.weeklyPoints);
         if (seen.has(key)) { seen.get(key).twice = true; continue; }
-        const row = { s, p, gap: '' }; seen.set(key, row); ticked.push(row);
+        seen.set(key, row); ticked.push(row);
       }
       if (ticked.length) rows.push(...ticked);
       else rows.push({ s, p: null, gap: all.some(p => groups.includes(groupOfType(p.category))) ? 'pick' : 'size' });
@@ -220,12 +224,13 @@
   function trip() {
     if (state.mode !== 'dates' || state.start == null || state.end == null) return null;
     const nights = Math.round((state.end - state.start) / DAY);
+    if (nights === 0) return { pending: true };
     if (nights < 1 || nights + 1 > MAX_DAYS) return { bad: true, nights };
     return { a: state.start, b: state.end, nights, days: nights + 1 };
   }
   function columns(t) {
     const sel = WEEKS[state.idx];
-    if (t && !t.bad) {
+    if (t && !t.bad && !t.pending) {
       const first = weekOf(t.a), last = weekOf(t.b - DAY);
       return WEEKS.slice(first, last + 1).map(c => {
         const nights = []; for (let d = Math.max(t.a, c.start); d < Math.min(t.b, c.start + 7 * DAY); d += DAY) nights.push(d);
@@ -257,7 +262,7 @@
 
     const cols = columns(t);
     const totals = new Map();
-    if (t && !t.bad && pointsOn()) for (const r of rows) {
+    if (t && !t.bad && !t.pending && pointsOn()) for (const r of rows) {
       if (r.gap) continue; let sum = 0, ok = true;
       for (const c of cols) for (const d of c.nights) { const n = nightly(r, c.w, isWeekend(d)); if (n == null) ok = false; else sum += n; }
       totals.set(r, ok ? sum : null);
@@ -290,29 +295,26 @@
   }
 
   function renderTripNote(t) {
-    const note = $('tripNote'); note.className = 'trip-note'; $('dateAlert').hidden = true;
+    const note = $('tripNote'); note.className = 'trip-note'; note.removeAttribute('title'); $('dateAlert').hidden = true;
     if (state.mode !== 'dates') return;
-    if (state.start == null || state.end == null) { note.innerHTML = 'Choose a start date and an end date.<small>Up to ' + MAX_DAYS + ' days. The shortest stay you can book is 3 days, 2 nights.</small>'; return; }
-    if (t.bad) {
-      note.classList.add('warn');
-      note.textContent = t.nights < 1 ? 'The end date must be after the start date.' : 'That’s ' + (t.nights + 1) + ' days. Choose up to ' + MAX_DAYS + ' days.';
-      return;
-    }
-    const range = fmt(t.a, { weekday: 'short', month: 'short', day: 'numeric' }) + ' to ' + fmt(t.b, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
-    const wkend = Array.from({ length: t.nights }, (_, i) => t.a + i * DAY).filter(isWeekend).length;
-    note.innerHTML = t.days + ' days, ' + t.nights + (t.nights === 1 ? ' night' : ' nights') + '<small>' + range + ' · ' + wkend + ' weekend (Fri–Sat) and ' + (t.nights - wkend) + ' weeknight (Sun–Thur)</small>';
-    if (t.nights === 1) { note.classList.add('warn'); note.innerHTML += '<small style="color:#b3261e">One night can’t be booked; shown for comparison only.</small>'; }
+    if (state.start == null) { note.textContent = ''; return; }
+    if (!t || t.pending) { note.textContent = 'Choose an end date'; return; }
+    if (t.bad) { note.classList.add('warn'); note.textContent = t.nights < 1 ? 'End date is before the start date' : (t.nights + 1) + ' days: choose up to ' + MAX_DAYS; return; }
+    note.textContent = t.days + ' days, ' + t.nights + (t.nights === 1 ? ' night' : ' nights');
+    if (t.nights === 1) { note.classList.add('warn'); note.title = 'One night can’t be booked. Shown for comparison only.'; }
     $('dateAlert').hidden = false;
     $('dateAlert').innerHTML = '<strong>Trip totals are almost here.</strong> They need each resort’s separate weekend and weeknight points, which are being added from the directory. For now the chart shows which weeks your nights fall in.';
   }
 
   function renderGrid(rows, cols, t, totals) {
     if (!rows.length) { $('grid').innerHTML = '<tbody><tr><td class="empty">No resorts match these filters. <button type="button" class="reset" id="emptyReset">Reset filters</button></td></tr></tbody>'; $('emptyReset').onclick = reset; $('week53Note').hidden = true; return; }
-    const sel = WEEKS[state.idx], showType = pointsOn(), tripMode = t && !t.bad, groups = relevantGroups();
+    const sel = WEEKS[state.idx], showType = pointsOn(), tripMode = t && !t.bad && !t.pending, groups = relevantGroups();
+    const showBld = showType && rows.some(r => bldgOf(r));
     const arrow = key => state.sort.key === key ? (state.sort.dir > 0 ? '▲' : '▼') : '▲▼';
     const sortBtn = (key, label) => '<button type="button" class="sort" data-sort="' + key + '" aria-pressed="' + (state.sort.key === key) + '">' + label + ' <span class="arrow">' + arrow(key) + '</span></button>';
     let head = '<thead><tr><th class="res" scope="col"><div class="col-head">' + sortBtn('resort', 'Resort') +
       (showType ? '<label class="show-all"><input type="checkbox" id="showAll"' + (state.showAll ? ' checked' : '') + '> Show all resorts</label>' : '') + '</div></th>' +
+      (showBld ? '<th class="bld" scope="col">Building</th>' : '') +
       (showType ? '<th class="typ" scope="col">' + sortBtn('type', 'Room type') + '</th>' : '');
     let prevYear = null;
     for (const c of cols) {
@@ -327,17 +329,18 @@
 
     let body = '<tbody>', any53 = false;
     rows.forEach((r, i) => {
-      const s = r.s, ref = refOf(s), first = i === 0 || rows[i - 1].s !== s;
-      let span = 1; if (first) while (i + span < rows.length && rows[i + span].s === s) span++;
+      const s = r.s, ref = refOf(s), first = i === 0 || resortKey(rows[i - 1].s) !== resortKey(s);
+      let span = 1; if (first) while (i + span < rows.length && resortKey(rows[i + span].s) === resortKey(s)) span++;
       body += '<tr' + (r.gap ? ' class="gray"' : '') + '>';
       if (first) {
         const vip = ref.vip_benefits === 'Yes' ? crownSvg('') : ref.vip_benefits === 'Conditional' ? crownSvg('half') : '';
         const dot = s.collection === 'Affiliate' ? '<i class="dot aff" title="Affiliate resort"></i>' : s.collection === 'Associate' ? '<i class="dot assoc" title="Associate resort"></i>' : '';
-        const bldg = s.multiple ? '<span class="res-bldg">' + esc(s.schedule) + '</span>' : '';
+        const bldg = '';
         const extra = !showType && r.gap === 'chart' ? '<span class="res-loc gap">Points chart coming soon</span>' : '';
         body += '<th class="res" scope="row"' + (span > 1 ? ' rowspan="' + span + '"' : '') + '><button type="button" class="res-name" data-row="' + i + '">' + esc(shortName(s.name)) + '</button>' + vip + dot + (NOTICES[s.name] ? '<span class="notice" title="' + esc(NOTICE_TEXT) + '">⚠</span>' : '') +
           '<span class="res-loc">' + esc(s.location || [s.city, s.state].filter(Boolean).join(', ')) + '</span>' + bldg + extra + '</th>';
       }
+      if (showBld) body += '<td class="bld">' + esc(bldgOf(r)) + '</td>';
       if (showType) body += r.gap === 'pick' ? '<td class="typ pick">Select a valid room type for this resort</td>'
         : r.gap === 'size' ? '<td class="typ gap">' + (groups.length === 1 ? esc(sizeWords(groups[0])) + ' ' + NONE_LABEL : 'These room types ' + NONE_LABEL) + '</td>'
         : r.gap === 'chart' ? '<td class="typ gap">Points chart coming soon</td>' : '<td class="typ">' + typeHtml(r) + '</td>';
@@ -359,13 +362,14 @@
       body += '</tr>';
     });
     $('grid').innerHTML = head + body + '</tbody>';
+    $('grid').classList.toggle('has-bld', showBld);
     $('grid').__rows = rows;
 
     $('week53Note').hidden = !any53;
     if (any53) $('week53Note').innerHTML = '<strong>Week 53</strong> (striped gray) isn’t listed in most resorts’ charts. It’s shown at week 1 points as a guide only; confirm with Club Wyndham before you book. Paniolo Greens and Little Sweden print week 53 as Prime, so theirs are colored.';
 
     const th = $('grid').querySelector('thead .wk.sel');
-    if (th) { const wrap = $('gridWrap'), fixed = $('grid').querySelector('thead .res').offsetWidth + (showType ? $('grid').querySelector('thead .typ').offsetWidth : 0);
+    if (th) { const wrap = $('gridWrap'), fixed = [...$('grid').querySelectorAll('thead .res, thead .bld, thead .typ')].reduce((n, c) => n + c.offsetWidth, 0);
       wrap.scrollLeft = Math.max(0, th.offsetLeft - fixed - (wrap.clientWidth - fixed - th.offsetWidth) / 2); }
   }
 
@@ -434,14 +438,19 @@
       render(); });
     $('cwaOnly').addEventListener('change', e => { state.cwaOnly = e.target.checked; render(); });
     $('spanButtons').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { state.span = Number(b.dataset.span); render(); } });
-    const dateChange = () => {
-      state.start = parseDate($('startDate').value); state.end = parseDate($('endDate').value);
-      if (state.start != null && state.end == null) state.end = state.start + 7 * DAY; // a sensible first guess: one week
-      if (state.start != null) { const i = weekOf(state.start); if (i >= 0) state.idx = i; }
+    const openPicker = e => { try { e.target.showPicker(); } catch (_) {} };
+    $('startDate').addEventListener('click', openPicker);
+    $('endDate').addEventListener('click', openPicker);
+    $('startDate').addEventListener('focus', () => { if (!$('startDate').value) $('startDate').value = iso(todayUTC); });
+    $('startDate').addEventListener('change', () => {
+      state.start = parseDate($('startDate').value);
+      if (state.start == null) { state.end = null; render(); return; }
+      if (state.end == null || state.end <= state.start) state.end = state.start; // the end date starts at the start date, like clubwyndham.com
+      const i = weekOf(state.start); if (i >= 0) state.idx = i;
+      $('endDate').min = iso(state.start + DAY); $('endDate').max = iso(state.start + (MAX_DAYS - 1) * DAY);
       render();
-    };
-    $('startDate').addEventListener('change', dateChange);
-    $('endDate').addEventListener('change', dateChange);
+    });
+    $('endDate').addEventListener('change', () => { state.end = parseDate($('endDate').value); render(); });
     $('clearDates').addEventListener('click', () => { state.start = state.end = null; if (state.sort.key === 'total') state.sort = { key: 'resort', dir: 1 }; render(); });
     $('reset').addEventListener('click', reset);
     $('grid').addEventListener('click', e => {

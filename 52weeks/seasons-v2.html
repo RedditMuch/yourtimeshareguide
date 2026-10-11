@@ -55,7 +55,8 @@
             <div class="checks" id="collectionChecks"></div>
             <p class="subhead">Other</p>
             <div class="checks" id="placeChecks"></div>
-            <label class="check"><input type="checkbox" id="cwaOnly"> Club Wyndham Access (CWA) <span class="hint" id="cwaCount"></span></label>
+            <label class="check"><input type="checkbox" id="cwaOnly"> Club Wyndham Access (CWA)</label>
+            <p class="hint" id="collectionHint" hidden></p>
           </div>
         </details>
 
@@ -110,8 +111,7 @@
           <div class="field"><label for="startDate">Start date</label><input type="date" id="startDate"></div>
           <div class="field"><label for="endDate">End date</label><input type="date" id="endDate"></div>
         </div>
-        <p class="trip-note" id="tripNote" aria-live="polite"></p>
-        <button type="button" class="link" id="clearDates">Clear dates</button>
+        <div class="date-foot"><button type="button" class="link" id="clearDates">Clear dates</button><p class="trip-note" id="tripNote" aria-live="polite"></p></div>
       </div>
       </section>
       <div class="today" id="today"></div>
