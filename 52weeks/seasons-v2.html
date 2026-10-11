@@ -42,7 +42,7 @@
           <select id="week"></select>
         </div>
         <div class="field">
-          <span class="label">Weeks shown (before / after)</span>
+          <span class="label small-label">Weeks shown (before / after)</span>
           <div class="segmented small" id="spanButtons" role="group" aria-label="Weeks shown before and after"></div>
         </div>
       </div>
@@ -68,19 +68,11 @@
           <select id="bedrooms"></select>
         </div>
 
-        <details class="sub fold" id="typeBox">
-          <summary>Room types <span class="hint" id="typeSummary"></span></summary>
-          <div class="indent">
-            <p class="quick"><button type="button" class="link" data-types="all">Select all</button> · <button type="button" class="link" data-types="none">Clear</button></p>
-            <div id="typeTree"></div>
-          </div>
-        </details>
-
         <hr class="sep">
 
         <div class="field">
-          <label for="search">Resort or destination</label>
-          <input id="search" type="search" list="places" placeholder="A city, state or resort" autocomplete="off">
+          <label for="search">State, Resort or City/State</label>
+          <input id="search" type="search" list="places" placeholder="e.g. Arizona, Cypress Palms, Orlando, FL" autocomplete="off">
           <datalist id="places"></datalist>
         </div>
         <div class="field">
@@ -92,14 +84,23 @@
         <hr class="sep">
 
         <details class="sub fold" id="collectionBox">
-          <summary>Collections <span class="hint" id="collectionSummary"></span></summary>
+          <summary>Collections</summary>
           <div class="indent">
             <p class="quick"><button type="button" class="link" data-coll="all">Select all</button> · <button type="button" class="link" data-coll="none">Clear</button></p>
             <div class="checks" id="collectionChecks"></div>
             <p class="subhead">Other</p>
             <div class="checks" id="placeChecks"></div>
-            <label class="check"><input type="checkbox" id="cwaOnly"> Only Club Wyndham Access (CWA) <span class="hint" id="cwaCount"></span></label>
-            <label class="check"><input type="checkbox" id="includeMissing"> Show resorts without a points chart</label>
+            <label class="check"><input type="checkbox" id="cwaOnly"> Club Wyndham Access (CWA) <span class="hint" id="cwaCount"></span></label>
+          </div>
+        </details>
+
+        <hr class="sep">
+
+        <details class="sub fold" id="typeBox">
+          <summary>Room types <span class="hint" id="typeSummary"></span></summary>
+          <div class="indent">
+            <p class="quick"><button type="button" class="link" data-types="all">Select all</button> · <button type="button" class="link" data-types="none">Clear</button></p>
+            <div id="typeTree"></div>
           </div>
         </details>
 

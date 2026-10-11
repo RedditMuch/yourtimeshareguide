@@ -18,10 +18,10 @@
   const COLLECTION_LABEL = { 'Club Pass': 'WorldMark (Club Pass $99)', 'Associate': 'Associate (Australia & New Zealand)' };
   const COLLECTION_ORDER = ['Club Wyndham', 'Margaritaville Vacation Club', 'Club Pass', 'Affiliate', 'Associate'];
   const COLLECTION_OFF = ['Club Pass', 'Associate'];
-  const PLACES = [['us', 'United States'], ['ca', 'Canada'], ['mx', 'Mexico'], ['isl', 'Puerto Rico, U.S. Virgin Islands & Fiji']];
+  const PLACES = [['us', 'United States'], ['ca', 'Canada'], ['mx', 'Mexico'], ['isl', 'PR, USVI & Fiji']];
   const PLACE_OFF = ['mx', 'isl'];
   const placeOf = s => ({ 'United States': 'us', 'Canada': 'ca', 'Mexico': 'mx', 'Puerto Rico': 'isl', 'U.S. Virgin Islands': 'isl', 'Fiji': 'isl' })[s.country] || 'other';
-  const GROUPS = ['Studio', '1 Bedroom', '2 Bedroom', '3 Bedroom', '4 Bedroom', '5 Bedroom', 'Hotel'];
+  const GROUPS = ['Hotel', 'Studio', '1 Bedroom', '2 Bedroom', '3 Bedroom', '4 Bedroom', '5 Bedroom']; // smallest first
   const SPANS = [5, 10, 15, 0]; // weeks before and after the chosen week; 0 = the whole year
   const RADII = [10, 25, 35, 50, 75, 100, 150, 200, 250, 350, 500, 750, 1000];
   const MAX_DAYS = 14;
@@ -67,7 +67,11 @@
   const regionOf = s => s.country === 'United States' ? s.state : s.country;
   const regions = [...new Set(D.rows.map(regionOf).filter(Boolean))].sort();
   const regionByName = new Map(regions.map(r => [norm(r), r]));
-  const typeLabel = p => br(p.roomType || (classOf.get(p.category) || {}).label);
+  /* Room type first, then any building name: "Mountain Laurels: 1 Bedroom Deluxe" becomes "1 BR Deluxe · Mountain Laurels" */
+  const typeParts = p => { const t = p.roomType || (classOf.get(p.category) || {}).label || '', i = t.indexOf(': ');
+    return i > 0 ? { type: br(t.slice(i + 2)), bldg: t.slice(0, i) } : { type: br(t), bldg: '' }; };
+  const typeLabel = p => { const x = typeParts(p); return x.type + (x.bldg ? ' · ' + x.bldg : ''); };
+  const typeHtml = r => { const x = typeParts(r.p); return esc(x.type) + (x.bldg ? ' <span class="bldg">· ' + esc(x.bldg) + '</span>' : '') + (r.twice ? ' <span class="bldg" title="The directory prints this room type twice, with the same points.">(listed twice)</span>' : ''); };
   const cwaCount = new Set(D.rows.filter(s => refOf(s).club_wyndham_access === 'Yes').map(resortKey)).size;
 
   /* Season and points for one week of a row. Week 53 follows WEEK53, or else is gray and priced like week 1. */
@@ -93,7 +97,7 @@
     mode: 'week', idx: todayIdx >= 0 ? todayIdx : WEEKS.findIndex(x => x.y === startYear), span: 10, start: null, end: null,
     season: '', colorsOnly: false, types: typeSet('1 Bedroom'), lastGroup: '1 Bedroom',
     query: '', radius: 35, collections: new Set(collections.filter(c => !COLLECTION_OFF.includes(c))), places: new Set(PLACES.map(p => p[0]).filter(p => !PLACE_OFF.includes(p))),
-    cwaOnly: false, includeMissing: false, showAll: true, sort: { key: 'resort', dir: 1 }
+    cwaOnly: false, showAll: true, sort: { key: 'resort', dir: 1 }
   });
   let state = DEFAULTS();
   const groupsTicked = () => [...new Set([...state.types].map(groupOfType))].filter(Boolean).sort((a, b) => GROUPS.indexOf(a) - GROUPS.indexOf(b));
@@ -109,7 +113,7 @@
       html += '<option value="' + i + '">' + esc(weekLabel(x)) + (i === todayIdx ? ' (this week)' : '') + '</option>';
     });
     $('week').innerHTML = html + '</optgroup>';
-    if (todayIdx >= 0) $('today').innerHTML = '<span class="d">' + esc(fmt(todayUTC, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })) + '</span><span class="w">Week ' + WEEKS[todayIdx].w + '</span>';
+    if (todayIdx >= 0) $('today').innerHTML = '<span class="t">Today:</span><span class="d">' + esc(fmt(todayUTC, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })) + '</span><span class="w">Week ' + WEEKS[todayIdx].w + '</span>';
     $('bedrooms').innerHTML = '<option value="">None (season colors only)</option>' + GROUPS.filter(g => typesInGroup(g).length).map(g => '<option value="' + g + '">' + groupLabel(g) + '</option>').join('') +
       '<option value="mixed" disabled>Mixed sizes (see Room types)</option>';
     $('typeTree').innerHTML = GROUPS.filter(g => typesInGroup(g).length).map(g => '<div class="tree-group"><label class="check"><input type="checkbox" data-group="' + g + '"> ' + groupLabel(g) + '</label><div class="checks">' +
@@ -146,9 +150,7 @@
     $('radius').value = String(state.radius);
     for (const i of $('collectionChecks').querySelectorAll('input')) i.checked = state.collections.has(i.value);
     for (const i of $('placeChecks').querySelectorAll('input')) i.checked = state.places.has(i.value);
-    $('cwaOnly').checked = state.cwaOnly; $('includeMissing').checked = state.includeMissing;
-    const allOn = state.collections.size === collections.length && state.places.size === PLACES.length;
-    $('collectionSummary').textContent = allOn ? '(all)' : '(' + state.collections.size + ' of ' + collections.length + ')';
+    $('cwaOnly').checked = state.cwaOnly;
     for (const b of $('spanButtons').querySelectorAll('button')) b.setAttribute('aria-pressed', String(Number(b.dataset.span) === state.span));
     if (document.activeElement !== $('startDate')) $('startDate').value = state.start ? iso(state.start) : '';
     if (document.activeElement !== $('endDate')) $('endDate').value = state.end ? iso(state.end) : '';
@@ -159,7 +161,8 @@
     const q = state.query;
     if (!q) return { test: () => true, hint: 'The radius applies when you pick a city from the list.' };
     const region = regionByName.get(norm(q));
-    if (region) return { test: s => regionOf(s) === region, hint: 'Resorts in ' + region + '.' };
+    if (region) return { test: s => regionOf(s) === region, region: true,
+      hint: 'Showing resorts in ' + region + '. The radius works from a city: to include nearby states, type a city, such as Phoenix, Arizona.' };
     const center = GEO ? GEO.resolve(q) : null;
     if (center) return { test: s => GEO.match({ resort_id: s.resort_id, name: s.name, city: s.city, state: s.state, country: s.country, schedule: s.schedule }, q, state.radius),
       hint: 'Within ' + state.radius.toLocaleString('en-US') + ' miles of ' + center.label + ', in a straight line.' };
@@ -171,15 +174,22 @@
   function candidateRows(place) {
     const rows = [], groups = relevantGroups();
     for (const s of D.rows) {
-      if (!hasChart(s) && !state.includeMissing) continue;
-      if (!state.collections.has(s.collection) || !place.test(s)) continue;
-      const pl = placeOf(s); if (pl !== 'other' && !state.places.has(pl)) continue;
+      // Collections and locations each narrow the list only when something is ticked, so they can't cancel each other out
+      if (state.collections.size && !state.collections.has(s.collection)) continue;
+      if (!place.test(s)) continue;
+      const pl = placeOf(s); if (state.places.size && pl !== 'other' && !state.places.has(pl)) continue;
       if (state.cwaOnly && refOf(s).club_wyndham_access !== 'Yes') continue;
       if (!pointsOn()) { rows.push({ s, p: null, gap: hasChart(s) ? '' : 'chart' }); continue; }
       if (!hasChart(s)) { rows.push({ s, p: null, gap: 'chart' }); continue; }
       const all = pointsBySchedule.get(s.id) || [];
-      const ticked = all.filter(p => state.types.has(p.category));
-      if (ticked.length) for (const p of ticked) rows.push({ s, p, gap: '' });
+      // Drop exact repeats (same room type, same points), e.g. a suite printed twice as part of two lockoffs
+      const seen = new Map(), ticked = [];
+      for (const p of all.filter(p => state.types.has(p.category))) {
+        const key = typeLabel(p) + '|' + JSON.stringify(p.weeklyPoints);
+        if (seen.has(key)) { seen.get(key).twice = true; continue; }
+        const row = { s, p, gap: '' }; seen.set(key, row); ticked.push(row);
+      }
+      if (ticked.length) rows.push(...ticked);
       else rows.push({ s, p: null, gap: all.some(p => groups.includes(groupOfType(p.category))) ? 'pick' : 'size' });
     }
     return rows;
@@ -222,6 +232,7 @@
     syncControls();
     const wk = WEEKS[state.idx].w, place = placeFilter(), t = trip();
     $('searchHint').textContent = place.hint;
+    $('radius').disabled = !!place.region;
 
     const cand = candidateRows(place);
     const bySeason = { '': new Set(), none: new Set() }; SEASONS.forEach(x => bySeason[x] = new Set());
@@ -257,7 +268,6 @@
 
     const picks = new Set(cand.filter(r => r.gap === 'pick').map(r => resortKey(r.s))).size;
     if (pointsOn() && state.types.size === 0) { $('typeAlert').hidden = false; $('typeAlert').innerHTML = '<strong>No room types are selected.</strong> Open “Room types” in the filters and tick at least one to see points.'; }
-    else if (pointsOn() && picks) { $('typeAlert').hidden = false; $('typeAlert').innerHTML = '<strong>' + picks + (picks === 1 ? ' resort has ' : ' resorts have ') + esc(sizesOr) + ', but not of the room types you ticked.</strong> They say “Select a room type”.'; }
     else $('typeAlert').hidden = true;
 
     renderTripNote(t);
@@ -315,13 +325,13 @@
         const vip = ref.vip_benefits === 'Yes' ? crownSvg('') : ref.vip_benefits === 'Conditional' ? crownSvg('half') : '';
         const dot = s.collection === 'Affiliate' ? '<i class="dot aff" title="Affiliate resort"></i>' : s.collection === 'Associate' ? '<i class="dot assoc" title="Associate resort"></i>' : '';
         const bldg = s.multiple ? '<span class="res-bldg">' + esc(s.schedule) + '</span>' : '';
-        const extra = !showType && r.gap === 'chart' ? '<span class="res-loc gap">No points chart</span>' : '';
+        const extra = !showType && r.gap === 'chart' ? '<span class="res-loc gap">Points chart coming soon</span>' : '';
         body += '<th class="res" scope="row"' + (span > 1 ? ' rowspan="' + span + '"' : '') + '><button type="button" class="res-name" data-row="' + i + '">' + esc(shortName(s.name)) + '</button>' + vip + dot +
           '<span class="res-loc">' + esc(s.location || [s.city, s.state].filter(Boolean).join(', ')) + '</span>' + bldg + extra + '</th>';
       }
-      if (showType) body += r.gap === 'pick' ? '<td class="typ pick">Select a room type</td>'
+      if (showType) body += r.gap === 'pick' ? '<td class="typ pick">Select a valid room type for this resort</td>'
         : r.gap === 'size' ? '<td class="typ gap">' + (groups.length === 1 ? esc(sizeWords(groups[0])) + ' ' + NONE_LABEL : 'These room types ' + NONE_LABEL) + '</td>'
-        : r.gap === 'chart' ? '<td class="typ gap">No points chart</td>' : '<td class="typ">' + esc(typeLabel(r.p)) + '</td>';
+        : r.gap === 'chart' ? '<td class="typ gap">Points chart coming soon</td>' : '<td class="typ">' + typeHtml(r) + '</td>';
       for (const c of cols) {
         const info = r.gap ? { season: null, points: null } : weekInfo(r, c.w);
         if (info.w53 === 'assumed') any53 = true;
@@ -373,7 +383,7 @@
       h += '</tbody></table>';
       const notes = [...new Set(ps.map(p => p.note).concat(ps.map(p => p.derivedNote)).filter(Boolean))];
       if (notes.length) h += '<p class="hint">' + notes.map(esc).join(' ') + '</p>';
-    } else h += '<p>The Club Wyndham directory has no points chart for this resort.' + (s.collection === 'Club Pass' ? ' WorldMark (Club Pass) points charts are on clubwyndham.com and are being added here.' : '') + '</p>';
+    } else h += '<p>The directory doesn’t print a points chart for this resort; it’s on clubwyndham.com and is being added here.' + '</p>';
     if (s.note) h += '<p class="hint">' + esc(s.note) + '</p>';
     if (WEEK53[s.name]) h += '<p class="hint">This resort’s chart lists week 53 as ' + WEEK53[s.name] + '.</p>';
     $('detailBody').innerHTML = h;
@@ -410,10 +420,9 @@
     $('collectionChecks').addEventListener('change', e => { e.target.checked ? state.collections.add(e.target.value) : state.collections.delete(e.target.value); render(); });
     $('placeChecks').addEventListener('change', e => { e.target.checked ? state.places.add(e.target.value) : state.places.delete(e.target.value); render(); });
     $('collectionBox').addEventListener('click', e => { const b = e.target.closest('[data-coll]'); if (!b) return;
-      if (b.dataset.coll === 'all') { state.collections = new Set(collections); state.places = new Set(PLACES.map(p => p[0])); } else { state.collections = new Set(); state.places = new Set(); }
+      if (b.dataset.coll === 'all') { state.collections = new Set(collections); state.places = new Set(PLACES.map(p => p[0])); } else state.collections = new Set();
       render(); });
     $('cwaOnly').addEventListener('change', e => { state.cwaOnly = e.target.checked; render(); });
-    $('includeMissing').addEventListener('change', e => { state.includeMissing = e.target.checked; render(); });
     $('spanButtons').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { state.span = Number(b.dataset.span); render(); } });
     const dateChange = () => {
       state.start = parseDate($('startDate').value); state.end = parseDate($('endDate').value);
