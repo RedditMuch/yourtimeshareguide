@@ -7,7 +7,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { test, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
-import { discoverPages, slug, baselineFor, writeFinding, UPDATE } from "./lib.mjs";
+import { discoverPages, slug, baselineFor, writeFinding, errorKind, HEAVY_PAGES, UPDATE } from "./lib.mjs";
 
 const pages = discoverPages();
 const AXE_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];
@@ -15,6 +15,7 @@ const AXE_TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];
 test.describe("pages", () => {
   for (const page of pages) {
     test(page, async ({ page: browserPage, baseURL }, testInfo) => {
+      test.slow(HEAVY_PAGES.has(page)); // 3x timeout for heavy pages only
       const project = testInfo.project.name;
       const origin = new URL(baseURL).origin;
       const pageErrors = [];
@@ -25,21 +26,31 @@ test.describe("pages", () => {
         // Ignore failures to load things from other websites (fonts etc.); they depend on the network, not on our code.
         const url = msg.location().url || "";
         if (url && !url.startsWith(origin)) return;
-        consoleErrors.push(msg.text());
+        consoleErrors.push(errorKind(msg.text(), url));
       });
 
       const response = await browserPage.goto(`/${page}`, { waitUntil: "load" });
       await browserPage.waitForTimeout(400); // let deferred scripts draw
+      // Scroll through the page so lazy-loaded images are requested every time; otherwise which ones fail depends on timing.
+      await browserPage.evaluate(async () => {
+        for (let y = 0; y < document.documentElement.scrollHeight; y += window.innerHeight) {
+          window.scrollTo(0, y);
+          await new Promise(r => setTimeout(r, 30));
+        }
+        window.scrollTo(0, 0);
+      });
+      await browserPage.waitForTimeout(500);
 
-      const dom = await browserPage.evaluate(() => ({
-        overflow: document.documentElement.scrollWidth > window.innerWidth + 1,
+      const deviceWidth = testInfo.project.use.viewport.width; // not window.innerWidth: on a phone it grows to fit wide content
+      const dom = await browserPage.evaluate(deviceWidth => ({
+        overflow: document.documentElement.scrollWidth > deviceWidth + 1,
         scrollWidth: document.documentElement.scrollWidth,
-        innerWidth: window.innerWidth,
+        innerWidth: deviceWidth,
         title: document.title.trim(),
         hasTitleTag: !!document.querySelector("head > title"),
         robots: [...document.querySelectorAll('meta[name="robots"]')].map(m => m.content.trim().toLowerCase()),
         h1Count: document.querySelectorAll("h1").length,
-      }));
+      }), deviceWidth);
 
       const axe = await new AxeBuilder({ page: browserPage }).withTags(AXE_TAGS).analyze();
       const axeRules = [...new Set(axe.violations.map(v => v.id))].sort();
@@ -53,7 +64,7 @@ test.describe("pages", () => {
       const found = {
         ...(status !== 200 && { status }),
         ...(pageErrors.length && { pageErrors: true }),
-        ...(consoleErrors.length && { consoleErrors: true }),
+        ...(consoleErrors.length && { consoleErrors: [...new Set(consoleErrors)].sort() }),
         ...(dom.overflow && { overflow: true }),
         ...(!dom.hasTitleTag || !dom.title ? { noTitle: true } : {}),
         ...(!dom.robots.includes("noindex, nofollow") && { noRobots: true }),
@@ -67,7 +78,8 @@ test.describe("pages", () => {
       const label = `${page} (${project})`;
       expect.soft(status, `${label}: page should return 200`).toBe(200);
       expect.soft(base.pageErrors ? [] : pageErrors, `${label}: uncaught page errors`).toEqual([]);
-      expect.soft(base.consoleErrors ? [] : consoleErrors, `${label}: console errors`).toEqual([]);
+      const newKinds = [...new Set(consoleErrors)].filter(k => !(base.consoleErrors ?? []).includes(k));
+      expect.soft(newKinds, `${label}: new kinds of console error`).toEqual([]);
       expect
         .soft(!dom.overflow || !!base.overflow, `${label}: sideways scrolling (page is ${dom.scrollWidth}px wide, screen is ${dom.innerWidth}px)`)
         .toBe(true);

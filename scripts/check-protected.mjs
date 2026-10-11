@@ -24,6 +24,11 @@ function fingerprint(file) {
   return createHash("sha256").update(Buffer.from(text, "latin1")).digest("hex");
 }
 
+if (entries.length === 0) {
+  console.error("Season chart v2 protection check FAILED: scripts/protected-files.sha256 lists no files.");
+  process.exit(1);
+}
+
 const roots = ["."];
 if (existsSync("_site")) roots.push("_site");
 

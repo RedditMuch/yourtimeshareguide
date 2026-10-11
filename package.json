@@ -7,7 +7,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "eleventy",
+    "build": "eleventy && node scripts/check-build.mjs",
     "start": "eleventy --serve --port=8080",
     "check:protected": "node scripts/check-protected.mjs",
     "test": "npm run build && playwright test",

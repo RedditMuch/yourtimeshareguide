@@ -10,7 +10,7 @@ While the site is under construction, the repository holds two complete versions
 |---|---|
 | `index.html` (root) | A "coming soon" page, with no links to either version |
 | `starburst/` | The owner's site: six pages and `style.css` |
-| `52weeks/` | An alternative version built with ChatGPT ("Owner Atlas"), 15 pages |
+| `52weeks/` | The version being built out: the Owner Atlas pages built with ChatGPT (15 pages) plus season chart v2. `index.html` is the main page |
 
 Each folder is self-contained: it uses only relative links and shares no files with the other, so either can be moved to the root unchanged.
 

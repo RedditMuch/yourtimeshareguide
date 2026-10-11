@@ -3,10 +3,16 @@
   "pages": {
     "52weeks/briefing.html": {
       "desktop": {
-        "consoleErrors": true
+        "consoleErrors": [
+          "Failed to load resource: the server responded with a status of N (Not Found) /api/ledger",
+          "Failed to load resource: the server responded with a status of N (Not Found) /api/plans"
+        ]
       },
       "phone": {
-        "consoleErrors": true
+        "consoleErrors": [
+          "Failed to load resource: the server responded with a status of N (Not Found) /api/ledger",
+          "Failed to load resource: the server responded with a status of N (Not Found) /api/plans"
+        ]
       }
     },
     "52weeks/compare.html": {
@@ -14,13 +20,17 @@
         "axe": [
           "color-contrast"
         ],
-        "consoleErrors": true
+        "consoleErrors": [
+          "Failed to load resource: the server responded with a status of N (Not Found) /api/plans"
+        ]
       },
       "phone": {
         "axe": [
           "color-contrast"
         ],
-        "consoleErrors": true
+        "consoleErrors": [
+          "Failed to load resource: the server responded with a status of N (Not Found) /api/plans"
+        ]
       }
     },
     "52weeks/fees.html": {
@@ -42,18 +52,28 @@
     },
     "52weeks/layouts.html": {
       "desktop": {
-        "consoleErrors": true
+        "consoleErrors": [
+          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/property-maps/*.jpg",
+          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/published-plans/*.jpg"
+        ]
       },
       "phone": {
-        "consoleErrors": true
+        "consoleErrors": [
+          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/property-maps/*.jpg",
+          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/published-plans/*.jpg"
+        ]
       }
     },
     "52weeks/ledger.html": {
       "desktop": {
-        "consoleErrors": true
+        "consoleErrors": [
+          "Failed to load resource: the server responded with a status of N (Not Found) /api/ledger"
+        ]
       },
       "phone": {
-        "consoleErrors": true
+        "consoleErrors": [
+          "Failed to load resource: the server responded with a status of N (Not Found) /api/ledger"
+        ]
       }
     },
     "52weeks/planner.html": {
@@ -61,13 +81,17 @@
         "axe": [
           "color-contrast"
         ],
-        "consoleErrors": true
+        "consoleErrors": [
+          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/resort-photos/*.webp"
+        ]
       },
       "phone": {
         "axe": [
           "color-contrast"
         ],
-        "consoleErrors": true
+        "consoleErrors": [
+          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/resort-photos/*.webp"
+        ]
       }
     },
     "52weeks/resorts.html": {
@@ -269,15 +293,26 @@
         "/52weeks/property-maps/r232-1.jpg (404)"
       ],
       "desktop": {
-        "consoleErrors": true
+        "consoleErrors": [
+          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/resort-photos/*.webp"
+        ]
+      },
+      "phone": {
+        "consoleErrors": [
+          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/resort-photos/*.webp"
+        ]
       }
     },
     "52weeks/rooms.html": {
       "desktop": {
-        "consoleErrors": true
+        "consoleErrors": [
+          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/room-maps/*.png"
+        ]
       },
       "phone": {
-        "consoleErrors": true
+        "consoleErrors": [
+          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/room-maps/*.png"
+        ]
       }
     },
     "52weeks/seasons-v2.html": {
@@ -306,10 +341,16 @@
     },
     "52weeks/stays.html": {
       "desktop": {
-        "consoleErrors": true
+        "consoleErrors": [
+          "Failed to load resource: the server responded with a status of N (Not Found) /api/ledger",
+          "Failed to load resource: the server responded with a status of N (Not Found) /api/plans"
+        ]
       },
       "phone": {
-        "consoleErrors": true
+        "consoleErrors": [
+          "Failed to load resource: the server responded with a status of N (Not Found) /api/ledger",
+          "Failed to load resource: the server responded with a status of N (Not Found) /api/plans"
+        ]
       }
     },
     "52weeks/vip.html": {

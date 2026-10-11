@@ -12,11 +12,17 @@ if errorlevel 1 (
   exit /b 1
 )
 
-if not exist node_modules (
+if not exist "node_modules\.bin\eleventy.cmd" (
   echo First run: installing Eleventy. This takes a minute...
   call npm ci
+  if errorlevel 1 (
+    echo.
+    echo Installing failed. Check the internet connection, then double-click preview.cmd again.
+    pause
+    exit /b 1
+  )
 )
 
 start "" "http://localhost:8080/52weeks/index.html"
-call npx eleventy --serve --port=8080
+call npm start
 pause
