@@ -47,7 +47,7 @@ From a terminal: `npm ci` once, then `npm start` to preview or `npm run build` t
 
 Double-click **`share.cmd`** to get a private, temporary link a friend can open to look at the site and give feedback. (To choose how long it lasts, run `share.cmd 4` for 4 hours. The default is 2 hours and the most is 24.)
 
-- It builds the site, then prints a short message with a link, a password and the time the link stops working. The message is also copied, so you can paste it into an email or text.
+- It builds the site, then prints a short message with a link, a password and the time the link stops working. The message (without the password) is also copied, so you can paste it into an email or text. The password appears on screen only: send it in a separate message. If someone tries a wrong password 20 times, sharing stops by itself.
 - The link and password are **new every time**. Anyone who has both can view the site until the link expires, so send them only to people you trust. The user name can be anything.
 - It works **only while this computer is on and the window is open**. Closing the window, pressing Ctrl+C or reaching the end time stops it completely.
 - The window shows when pages are opened (no names or addresses), so you can see when your friend is looking.

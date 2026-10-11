@@ -19,14 +19,41 @@ import { createServer } from "./serve.mjs";
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 process.chdir(repo);
 
-const WORDS = ["maple", "river", "sunny", "cedar", "lemon", "tiger", "piano", "olive", "coral", "eagle",
-  "grape", "happy", "ivory", "jolly", "koala", "lunar", "mango", "novel", "ocean", "peach",
-  "quiet", "robin", "sandy", "tulip", "umber", "vivid", "wheat", "amber", "birch", "daisy",
-  "ember", "fern", "green", "honey", "lilac", "mint", "north", "pearl", "rusty", "smile"];
+// 255 short, common words. Three words plus two digits is about 30 bits,
+// and sharing stops after MAX_WRONG wrong tries, so guessing is not practical.
+const WORDS = [
+  "apple", "amber", "anchor", "angel", "apron", "arrow", "aspen", "atlas", "autumn", "badge",
+  "baker", "banjo", "barn", "basil", "beach", "bean", "bear", "beaver", "bell", "berry",
+  "birch", "bird", "bison", "blue", "boat", "bone", "book", "boots", "bread", "brick",
+  "bridge", "brook", "broom", "bubble", "bucket", "bunny", "butter", "cabin", "cake", "camel",
+  "candle", "canoe", "canyon", "cape", "card", "carrot", "castle", "cedar", "chair", "cherry",
+  "chess", "chick", "cider", "circle", "clay", "cliff", "clock", "cloud", "clover", "coast",
+  "cocoa", "coral", "cotton", "cow", "crab", "crane", "creek", "crown", "daisy", "dance",
+  "delta", "denim", "desert", "dove", "dragon", "dream", "drum", "duck", "eagle", "earth",
+  "echo", "elbow", "elm", "ember", "engine", "fable", "falcon", "farm", "feather", "fern",
+  "ferry", "field", "finch", "fire", "fish", "flag", "flame", "flute", "fog", "forest",
+  "fox", "frog", "garden", "garlic", "ginger", "glove", "goat", "gold", "goose", "grape",
+  "grass", "green", "guitar", "hammer", "harbor", "hat", "hawk", "hazel", "heart", "hedge",
+  "heron", "hill", "honey", "horse", "hotel", "house", "igloo", "iron", "island", "ivory",
+  "jacket", "jelly", "jewel", "juice", "jungle", "kayak", "kettle", "kite", "kitten", "koala",
+  "ladder", "lake", "lamp", "lantern", "lemon", "lily", "lime", "lion", "lizard", "lunar",
+  "magnet", "mango", "maple", "marble", "meadow", "melon", "mint", "mirror", "moon", "moose",
+  "mouse", "music", "nest", "night", "north", "nutmeg", "oak", "oasis", "ocean", "olive",
+  "onion", "orange", "otter", "owl", "paddle", "panda", "paper", "parrot", "peach", "pear",
+  "pearl", "pebble", "pepper", "piano", "pie", "pillow", "pine", "pizza", "planet", "plum",
+  "pond", "poppy", "puppy", "quail", "queen", "quilt", "rabbit", "radio", "rain", "raven",
+  "river", "robin", "rocket", "rose", "ruby", "sail", "salad", "salmon", "sand", "scarf",
+  "seal", "shell", "silver", "sketch", "sled", "smile", "snow", "soap", "spoon", "spring",
+  "squid", "star", "stone", "storm", "sugar", "summer", "sun", "swan", "table", "tea",
+  "tent", "tiger", "toast", "tomato", "towel", "tower", "train", "tree", "tulip", "turtle",
+  "valley", "velvet", "violet", "walnut", "water", "whale", "wheat", "willow", "wind", "winter",
+  "wolf", "wool", "yellow", "yogurt", "zebra",
+];
+const MAX_WRONG = 20;
 
 function makePassword() {
   const w = () => WORDS[crypto.randomInt(WORDS.length)];
-  return `${w()}-${w()}-${crypto.randomInt(100, 1000)}`;
+  return `${w()}-${w()}-${w()}-${crypto.randomInt(10, 100)}`;
 }
 
 const { values } = parseArgs({
@@ -93,8 +120,9 @@ if (!cloudflared) {
 }
 
 console.log("Building the site...");
-const build = spawnSync("npx eleventy", { shell: true, stdio: "inherit" });
-if (build.status !== 0) {
+fs.rmSync("_site", { recursive: true, force: true });
+const build = spawnSync("npm run build", { shell: true, stdio: "inherit" });
+if (build.status !== 0 || !fs.existsSync("_site")) {
   console.error("The site could not be built, so nothing was shared.");
   process.exit(1);
 }
@@ -107,7 +135,9 @@ server.on("request", (req, res) => {
   res.on("finish", () => {
     if (res.statusCode === 401) {
       // Browsers first ask without a password; only count real wrong tries.
-      if (req.headers.authorization) wrongPasswords++;
+      if (req.headers.authorization && ++wrongPasswords >= MAX_WRONG) {
+        setImmediate(() => stop(`Sharing was stopped because the wrong password was tried ${MAX_WRONG} times. Run share.cmd again for a new link and password.`, 0));
+      }
       return;
     }
     if (res.statusCode !== 200 || req.method !== "GET") return;
@@ -125,6 +155,8 @@ await new Promise((resolve, reject) => {
 
 const expiresAt = new Date(Date.now() + minutes * 60_000);
 timer = setTimeout(() => stop("Time is up.", 0), minutes * 60_000);
+// Also check the clock, because a sleeping computer can make a timer run late.
+setInterval(() => { if (Date.now() >= expiresAt.getTime()) stop("Time is up.", 0); }, 30_000);
 
 console.log("Starting the private link (this takes a few seconds)...");
 tunnel = spawn(cloudflared, ["tunnel", "--no-autoupdate", "--url", `http://127.0.0.1:${port}`], {
@@ -169,7 +201,7 @@ const message = [
   "",
   `Link: ${link}`,
   "User name: anything (type any word)",
-  `Password: ${password}`,
+  "Password: (I will send it in a separate message)",
   "",
   `The link stops working at ${whenText(expiresAt)}.`,
 ].join("\n");
@@ -177,17 +209,21 @@ const message = [
 console.log("\n==================== SEND THIS TO YOUR FRIEND ====================\n");
 console.log(message);
 console.log("\n==================================================================");
+console.log("\nPASSWORD (send it in a separate message):  " + password);
 const clip = spawnSync("clip", { input: message, shell: true });
-console.log(clip.status === 0 ? "\n(This message is already copied. Just paste it into an email or text.)" : "\n(Copy the message above.)");
+console.log(clip.status === 0
+  ? "\nThe message above is copied (without the password). Paste it into an email or text, then send the password in a separate message."
+  : "\nCopy the message above, and send the password in a separate message.");
 console.log("\nKeep this window open. The link works only while this window is open and the computer is on.");
 console.log("Press Ctrl+C or close this window to stop sharing early.");
 console.log("Page views will appear below.\n");
 
 if (process.platform === "win32") spawn("cmd", ["/c", "start", "", link], { stdio: "ignore", detached: true }).unref();
 
+let reported = 0;
 setInterval(() => {
-  if (wrongPasswords) {
-    console.log(`${new Date().toLocaleTimeString()}  ${wrongPasswords} wrong password attempt(s)`);
-    wrongPasswords = 0;
+  if (wrongPasswords > reported) {
+    console.log(`${new Date().toLocaleTimeString()}  ${wrongPasswords} wrong password attempt(s) so far`);
+    reported = wrongPasswords;
   }
-}, 60_000).unref();
+}, 30_000).unref();
