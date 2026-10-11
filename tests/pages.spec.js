@@ -20,7 +20,7 @@ test.describe("pages", () => {
       const origin = new URL(baseURL).origin;
       const pageErrors = [];
       const consoleErrors = [];
-      browserPage.on("pageerror", e => pageErrors.push(String(e.message ?? e)));
+      browserPage.on("pageerror", e => pageErrors.push(errorKind(String(e.message ?? e))));
       browserPage.on("console", msg => {
         if (msg.type() !== "error") return;
         // Ignore failures to load things from other websites (fonts etc.); they depend on the network, not on our code.
@@ -43,8 +43,9 @@ test.describe("pages", () => {
 
       const deviceWidth = testInfo.project.use.viewport.width; // not window.innerWidth: on a phone it grows to fit wide content
       const dom = await browserPage.evaluate(deviceWidth => ({
-        overflow: document.documentElement.scrollWidth > deviceWidth + 1,
-        scrollWidth: document.documentElement.scrollWidth,
+        // innerWidth is included because on a phone it grows when something sticks out to the right.
+        overflow: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth, window.innerWidth) > deviceWidth + 1,
+        scrollWidth: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth, window.innerWidth),
         innerWidth: deviceWidth,
         title: document.title.trim(),
         hasTitleTag: !!document.querySelector("head > title"),
@@ -53,7 +54,9 @@ test.describe("pages", () => {
       }), deviceWidth);
 
       const axe = await new AxeBuilder({ page: browserPage }).withTags(AXE_TAGS).analyze();
-      const axeRules = [...new Set(axe.violations.map(v => v.id))].sort();
+      // rule id -> number of elements with that problem
+      const axeRules = {};
+      for (const v of axe.violations) axeRules[v.id] = v.nodes.length;
 
       const screenshotFile = path.join("test-results", "screenshots", project, `${slug(page)}.png`);
       fs.mkdirSync(path.dirname(screenshotFile), { recursive: true });
@@ -63,13 +66,13 @@ test.describe("pages", () => {
       const status = response.status();
       const found = {
         ...(status !== 200 && { status }),
-        ...(pageErrors.length && { pageErrors: true }),
+        ...(pageErrors.length && { pageErrors: [...new Set(pageErrors)].sort() }),
         ...(consoleErrors.length && { consoleErrors: [...new Set(consoleErrors)].sort() }),
         ...(dom.overflow && { overflow: true }),
         ...(!dom.hasTitleTag || !dom.title ? { noTitle: true } : {}),
         ...(!dom.robots.includes("noindex, nofollow") && { noRobots: true }),
         ...(dom.h1Count !== 1 && { h1: dom.h1Count }),
-        ...(axeRules.length && { axe: axeRules }),
+        ...(Object.keys(axeRules).length && { axe: axeRules }),
       };
       writeFinding("page", project, page, found);
       if (UPDATE) return;
@@ -77,7 +80,8 @@ test.describe("pages", () => {
       const base = baselineFor(page)[project] ?? {};
       const label = `${page} (${project})`;
       expect.soft(status, `${label}: page should return 200`).toBe(200);
-      expect.soft(base.pageErrors ? [] : pageErrors, `${label}: uncaught page errors`).toEqual([]);
+      const newPageErrors = [...new Set(pageErrors)].filter(k => !(base.pageErrors ?? []).includes(k));
+      expect.soft(newPageErrors, `${label}: new uncaught page errors`).toEqual([]);
       const newKinds = [...new Set(consoleErrors)].filter(k => !(base.consoleErrors ?? []).includes(k));
       expect.soft(newKinds, `${label}: new kinds of console error`).toEqual([]);
       expect
@@ -86,8 +90,11 @@ test.describe("pages", () => {
       expect.soft(!found.noTitle || !!base.noTitle, `${label}: missing <title>`).toBe(true);
       expect.soft(!found.noRobots || !!base.noRobots, `${label}: missing <meta name="robots" content="noindex, nofollow">`).toBe(true);
       expect.soft(dom.h1Count === 1 || base.h1 === dom.h1Count, `${label}: expected exactly one <h1>, found ${dom.h1Count}`).toBe(true);
-      const newAxe = axeRules.filter(id => !(base.axe ?? []).includes(id));
-      expect.soft(newAxe, `${label}: new accessibility problems (axe rule ids)`).toEqual([]);
+      // A rule fails if it is new, or affects more elements than the baseline allows (fewer is fine).
+      const worseAxe = Object.entries(axeRules)
+        .filter(([id, count]) => count > (base.axe?.[id] ?? 0))
+        .map(([id, count]) => `${id}: ${count} elements (baseline allows ${base.axe?.[id] ?? 0})`);
+      expect.soft(worseAxe, `${label}: new or increased accessibility problems (axe)`).toEqual([]);
     });
   }
 });

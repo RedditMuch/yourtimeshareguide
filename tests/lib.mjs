@@ -53,14 +53,15 @@ export const HEAVY_PAGES = new Set([
 
 /**
  * Reduces a console error to its "kind", so the baseline does not depend on timing or counts:
- * web addresses become <url>, numbers become N, and failed loads are named by file path
- * (so 196 missing charts/page-NNN.webp images are one kind).
+ * web addresses become <url>, line:column numbers become L:C, and failed loads are named by
+ * their path without query string, with the file name replaced by * (so 196 missing
+ * charts/page-NNN.webp images are one kind).
  */
 export function errorKind(text, url = "") {
-  const clean = s => s.replace(/https?:\/\/[^\s)]+/g, "<url>").replace(/\d+/g, "N").slice(0, 200);
+  const clean = s => s.replace(/https?:\/\/[^\s)]+/g, "<url>").replace(/:\d+:\d+/g, ":L:C").slice(0, 200);
   let kind = clean(text);
   if (/^Failed to load resource/.test(text) && url) {
-    try { kind += ` ${new URL(url).pathname.replace(/[^/]+(\.\w+)$/, "*$1").replace(/\d+/g, "N")}`; } catch { /* keep text only */ }
+    try { kind += ` ${new URL(url).pathname.replace(/[^/]+(\.\w+)$/, "*$1")}`; } catch { /* keep text only */ }
   }
   return kind;
 }

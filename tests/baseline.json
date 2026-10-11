@@ -4,32 +4,32 @@
     "52weeks/briefing.html": {
       "desktop": {
         "consoleErrors": [
-          "Failed to load resource: the server responded with a status of N (Not Found) /api/ledger",
-          "Failed to load resource: the server responded with a status of N (Not Found) /api/plans"
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /api/ledger",
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /api/plans"
         ]
       },
       "phone": {
         "consoleErrors": [
-          "Failed to load resource: the server responded with a status of N (Not Found) /api/ledger",
-          "Failed to load resource: the server responded with a status of N (Not Found) /api/plans"
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /api/ledger",
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /api/plans"
         ]
       }
     },
     "52weeks/compare.html": {
       "desktop": {
-        "axe": [
-          "color-contrast"
-        ],
+        "axe": {
+          "color-contrast": 1
+        },
         "consoleErrors": [
-          "Failed to load resource: the server responded with a status of N (Not Found) /api/plans"
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /api/plans"
         ]
       },
       "phone": {
-        "axe": [
-          "color-contrast"
-        ],
+        "axe": {
+          "color-contrast": 1
+        },
         "consoleErrors": [
-          "Failed to load resource: the server responded with a status of N (Not Found) /api/plans"
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /api/plans"
         ]
       }
     },
@@ -53,44 +53,44 @@
     "52weeks/layouts.html": {
       "desktop": {
         "consoleErrors": [
-          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/property-maps/*.jpg",
-          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/published-plans/*.jpg"
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /52weeks/property-maps/*.jpg",
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /52weeks/published-plans/*.jpg"
         ]
       },
       "phone": {
         "consoleErrors": [
-          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/property-maps/*.jpg",
-          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/published-plans/*.jpg"
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /52weeks/property-maps/*.jpg",
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /52weeks/published-plans/*.jpg"
         ]
       }
     },
     "52weeks/ledger.html": {
       "desktop": {
         "consoleErrors": [
-          "Failed to load resource: the server responded with a status of N (Not Found) /api/ledger"
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /api/ledger"
         ]
       },
       "phone": {
         "consoleErrors": [
-          "Failed to load resource: the server responded with a status of N (Not Found) /api/ledger"
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /api/ledger"
         ]
       }
     },
     "52weeks/planner.html": {
       "desktop": {
-        "axe": [
-          "color-contrast"
-        ],
+        "axe": {
+          "color-contrast": 8
+        },
         "consoleErrors": [
-          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/resort-photos/*.webp"
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /52weeks/resort-photos/*.webp"
         ]
       },
       "phone": {
-        "axe": [
-          "color-contrast"
-        ],
+        "axe": {
+          "color-contrast": 8
+        },
         "consoleErrors": [
-          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/resort-photos/*.webp"
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /52weeks/resort-photos/*.webp"
         ]
       }
     },
@@ -294,62 +294,62 @@
       ],
       "desktop": {
         "consoleErrors": [
-          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/resort-photos/*.webp"
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /52weeks/resort-photos/*.webp"
         ]
       },
       "phone": {
         "consoleErrors": [
-          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/resort-photos/*.webp"
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /52weeks/resort-photos/*.webp"
         ]
       }
     },
     "52weeks/rooms.html": {
       "desktop": {
         "consoleErrors": [
-          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/room-maps/*.png"
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /52weeks/room-maps/*.png"
         ]
       },
       "phone": {
         "consoleErrors": [
-          "Failed to load resource: the server responded with a status of N (Not Found) /Nweeks/room-maps/*.png"
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /52weeks/room-maps/*.png"
         ]
       }
     },
     "52weeks/seasons-v2.html": {
       "desktop": {
-        "axe": [
-          "color-contrast"
-        ]
+        "axe": {
+          "color-contrast": 1871
+        }
       },
       "phone": {
-        "axe": [
-          "color-contrast"
-        ]
+        "axe": {
+          "color-contrast": 1221
+        }
       }
     },
     "52weeks/seasons.html": {
       "desktop": {
-        "axe": [
-          "color-contrast"
-        ]
+        "axe": {
+          "color-contrast": 1
+        }
       },
       "phone": {
-        "axe": [
-          "color-contrast"
-        ]
+        "axe": {
+          "color-contrast": 1
+        }
       }
     },
     "52weeks/stays.html": {
       "desktop": {
         "consoleErrors": [
-          "Failed to load resource: the server responded with a status of N (Not Found) /api/ledger",
-          "Failed to load resource: the server responded with a status of N (Not Found) /api/plans"
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /api/ledger",
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /api/plans"
         ]
       },
       "phone": {
         "consoleErrors": [
-          "Failed to load resource: the server responded with a status of N (Not Found) /api/ledger",
-          "Failed to load resource: the server responded with a status of N (Not Found) /api/plans"
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /api/ledger",
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /api/plans"
         ]
       }
     },
@@ -382,23 +382,23 @@
     },
     "starburst/calculator.html": {
       "phone": {
-        "axe": [
-          "scrollable-region-focusable"
-        ]
+        "axe": {
+          "scrollable-region-focusable": 1
+        }
       }
     },
     "starburst/errors.html": {
       "phone": {
-        "axe": [
-          "scrollable-region-focusable"
-        ]
+        "axe": {
+          "scrollable-region-focusable": 1
+        }
       }
     },
     "starburst/fees.html": {
       "phone": {
-        "axe": [
-          "scrollable-region-focusable"
-        ]
+        "axe": {
+          "scrollable-region-focusable": 7
+        }
       }
     }
   }

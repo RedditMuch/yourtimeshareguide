@@ -330,7 +330,7 @@
     $('count').innerHTML = rows.length ? count : 'No resorts match these filters';
 
     const picks = new Set(cand.filter(r => r.gap === 'pick').map(r => resortKey(r.s))).size;
-    if (pointsOn() && state.types.size === 0) { $('typeAlert').hidden = false; $('typeAlert').innerHTML = '<strong>No room types are selected.</strong> Open “Room types” in the filters and check at least one to see points.'; }
+    if (pointsOn() && state.types.size === 0) { $('typeAlert').hidden = false; $('typeAlert').innerHTML = '<strong>No room types are selected.</strong> Open “Room types” in the filters and select at least one to see points.'; }
     else $('typeAlert').hidden = true;
 
     renderTripNote(t);
