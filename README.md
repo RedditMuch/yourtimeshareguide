@@ -31,7 +31,7 @@ Shared styles are in `style.css`. The Season Finder keeps its color palette and 
 
 - **[Eleventy](https://www.11ty.dev/)** builds the site into `_site/`, and a GitHub Actions workflow (`.github/workflows/site.yml`) publishes it to **GitHub Pages** whenever `main` changes. Every pull request is built and checked too.
 - Existing `.html` pages are **copied exactly as they are**. New pages are `.njk` files that use the shared layout and components in `_includes/` (see "Design system" below).
-- Only the site folders (`52weeks/`, `starburst/`, `assets/`), the root `index.html` and `CNAME` are published, plus `assets/css/tokens.css` and `assets/css/components.css`, which the build makes from `design-system/`. Repository files such as this README are not.
+- Only the site folders (`52weeks/`, `starburst/`, `assets/`), the root `index.html` and `CNAME` are published, plus `assets/css/tokens.css`, `assets/css/components.css` and `assets/js/ytg.js`, which the build makes from `design-system/`. Repository files such as this README are not.
 - **Season chart v2 is protected:** the build checks that it and the files it loads match `scripts/protected-files.sha256`, and fails if they don't.
 - `starburst/`: plain HTML and CSS, with a little JavaScript on the calculator and Season Finder.
 - `52weeks/`: HTML pages with more JavaScript and eight stylesheets. Its saved stays, saved plans and points ledger needed a server in their original home, so they don't work here.
@@ -59,8 +59,8 @@ The site's look (colors, fonts, spacing and components such as the header, link 
 
 | Where | What |
 |---|---|
-| `design-system/` | `tokens.json` and `components.css`, copied unchanged from Claude Design. Not published |
-| `scripts/build-tokens.mjs` | Turns `tokens.json` into `assets/css/tokens.css` on every build (fonts, light and dark colors) |
+| `design-system/` | `tokens.json`, `components.css` and `ytg.js`, copied unchanged from Claude Design. Not published |
+| `scripts/build-tokens.mjs` | Turns `tokens.json` into `assets/css/tokens.css` on every build (fonts, light and dark colors). `components.css` and `ytg.js` are copied to `assets/css/` and `assets/js/` |
 | `assets/fonts/` | The four font files (Bricolage Grotesque, Atkinson Hyperlegible Next and Mono) and their SIL Open Font License texts. Nothing loads from Google |
 | `_includes/layouts/base.njk` | The page frame: head, skip link, header and menu, page heading, footer |
 | `_includes/components.njk` | One macro per component, writing exactly the design system's markup |
@@ -85,7 +85,7 @@ checked: 2026-10-11
 
 `title` is the page's main heading and its tab title ("Fees · Your Timeshare Guide"). `checked` adds the "Last checked" date. `scripts` lists JavaScript files to load. Pages add **no styles of their own**: if a page needs something the design system doesn't have, it is designed in Claude Design first.
 
-**Updating from Claude Design.** Copy the new `tokens.json` and `components/bundle.css` into `design-system/` (as `tokens.json` and `components.css`), update any changed macro in `_includes/components.njk`, then run `npm test` and look at the pages in light and dark. Details are in `design-system/README.md`.
+**Updating from Claude Design.** Copy the new `tokens.json`, `components/bundle.css` and `components/bundle.js` into `design-system/` (as `tokens.json`, `components.css` and `ytg.js`), update any changed macro in `_includes/components.njk`, then run `npm test` and look at the pages in light and dark. Details are in `design-system/README.md`.
 
 ## Checks
 
