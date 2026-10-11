@@ -33,4 +33,12 @@ This repository is the public source of **yourtimeshareguide.com**. Every merge 
 - Each folder is self-contained: relative links only and no files shared between them, so either can be moved to the root unchanged. Keep it that way. **One exception (planning #28, owner's request):** `52weeks/index.html` is the main page and links every page of both versions, so it links to `../starburst/`. If 52weeks moves to the root, change those links to `starburst/`.
 - **Season chart v2 is protected** (owner, 2026-10-11): it's the core of the project and the version that continues to be built out. Never change `52weeks/seasons-v2.html`, `.css`, `.js`, `club-pass-points.js`, or the files v2 loads (`data.js`, `geo-data.js`, `geo.js`, `points-data.js`, `reference-data.js`, `logo-band.svg`, `logo-icon.svg`) unless the owner asks for that change in the current session. A snapshot is kept as the tag `season-chart-v2-2026-10-11`, which can't be moved or deleted. To check nothing changed: `git diff --stat season-chart-v2-2026-10-11 -- <those files>` (no output means unchanged).
 - Every page keeps `noindex, nofollow` until launch (#17).
-- To preview, open the `.html` file in a browser. Check phone width (about 400 px) as well as desktop.
+
+## How the site is built (since planning #29)
+
+- **Eleventy** builds `_site/`; `.github/workflows/site.yml` builds every pull request and publishes `main` to GitHub Pages. Only `52weeks/`, `starburst/`, `assets/`, the root `index.html` and `CNAME` are published (`eleventy.config.js`).
+- **Existing `.html` files are copied byte-for-byte, never run through a template engine.** `.html` is deliberately not a template format. New pages are `.njk` files using the shared layouts and components in `_includes/`; a page converted to `.njk` replaces its `.html` file (same output name).
+- **Reuse components, don't remake them per page.** New components and page designs are designed in the Claude Design design system first (planning #31), then built once in `_includes/` and `assets/`.
+- `npm run check:protected` fails if season chart v2 or any file it loads differs from `scripts/protected-files.sha256` (line endings ignored). It runs on every pull request.
+- Preview: `preview.cmd` (double-click) or `npm start`, at http://localhost:8080/. The preview server adds a live-reload `<script>` to pages it serves; the built files don't have it. Check phone width (about 400 px) as well as desktop.
+- Windows: Git converts line endings to CRLF on checkout; the repository stores LF. Compare files with line endings normalized.
