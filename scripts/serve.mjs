@@ -44,7 +44,7 @@ function passwordMatches(header, password) {
 
 export function createServer({ root, password }) {
   const rootDir = path.resolve(root);
-  return http.createServer((req, res) => {
+  const server = http.createServer((req, res) => {
     const send = (status, body, headers = {}) => {
       res.writeHead(status, { "Content-Type": "text/plain; charset=utf-8", ...headers });
       res.end(req.method === "HEAD" ? undefined : body);
@@ -69,6 +69,11 @@ export function createServer({ root, password }) {
 
     fs.stat(file, (err, stat) => {
       if (!err && stat.isDirectory()) {
+        // Like GitHub Pages: /folder becomes /folder/, so relative links inside it work.
+        if (!pathname.endsWith("/")) {
+          const url = new URL(req.url, "http://localhost");
+          return send(301, "Moved", { Location: `${url.pathname}/${url.search}` });
+        }
         file = path.join(file, "index.html");
         fs.stat(file, (err2, stat2) => (err2 ? send(404, "Not found") : sendFile(file, stat2)));
       } else if (err || !stat.isFile()) {
@@ -88,6 +93,9 @@ export function createServer({ root, password }) {
       fs.createReadStream(filePath).on("error", () => res.destroy()).pipe(res);
     }
   });
+  // Keep idle connections open longer than clients expect (Node closes after 5 s), which avoids "socket hang up" races.
+  server.keepAliveTimeout = 65_000;
+  return server;
 }
 
 if (import.meta.url === new URL(process.argv[1], "file:///").href || process.argv[1]?.endsWith("serve.mjs")) {
