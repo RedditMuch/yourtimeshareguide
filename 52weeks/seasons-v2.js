@@ -194,7 +194,7 @@
     for (const i of $('collectionChecks').querySelectorAll('input')) i.checked = state.collections.has(i.value);
     for (const i of $('placeChecks').querySelectorAll('input')) i.checked = state.places.has(i.value);
     $('cwaOnly').checked = state.cwaOnly;
-    const ch = !state.collections.size ? 'No collections are checked, so every collection is shown.' : !state.places.size ? 'No locations are checked, so every location is shown.' : '';
+    const ch = !state.collections.size && !state.cwaOnly ? 'No collections are checked. Check at least one to see resorts.' : !state.places.size ? 'No locations are checked, so every location is shown.' : '';
     $('collectionHint').hidden = !ch; $('collectionHint').textContent = ch;
     for (const b of $('spanButtons').querySelectorAll('button')) b.setAttribute('aria-pressed', String(Number(b.dataset.span) === state.span));
     if (document.activeElement !== $('startDate')) $('startDate').value = state.start ? iso(state.start) : '';
@@ -220,10 +220,11 @@
     const rows = [], groups = relevantGroups();
     for (const s of D.rows) {
       // Collections and locations each narrow the list only when something is checked, so they can't cancel each other out
-      if (state.collections.size && !state.collections.has(s.collection)) continue;
+      // A resort shows if its collection is checked, or if Club Wyndham Access is checked and the resort is in the CWA Trust
+      const isCwa = refOf(s).club_wyndham_access === 'Yes';
+      if (!state.collections.has(s.collection) && !(state.cwaOnly && isCwa)) continue;
       if (!place.test(s)) continue;
       const pl = placeOf(s); if (state.places.size && pl !== 'other' && !state.places.has(pl)) continue;
-      if (state.cwaOnly && refOf(s).club_wyndham_access !== 'Yes') continue;
       if (!pointsOn()) { rows.push({ s, p: null, gap: hasChart(s) ? '' : 'chart' }); continue; }
       if (!hasChart(s)) { rows.push({ s, p: null, gap: 'chart' }); continue; }
       const all = pointsBySchedule.get(s.id) || [];
@@ -369,7 +370,7 @@
         const dot = s.collection === 'Affiliate' ? '<i class="dot aff" title="Affiliate resort"></i>' : s.collection === 'Associate' ? '<i class="dot assoc" title="Associate resort"></i>' : '';
         const bldg = '';
         const extra = !showType && r.gap === 'chart' ? '<span class="res-loc gap">Points chart coming soon</span>' : '';
-        body += '<th class="res" scope="row"' + (span > 1 ? ' rowspan="' + span + '"' : '') + '><button type="button" class="res-name" data-row="' + i + '">' + esc(shortName(s.name)) + '</button>' + vip + dot + (NOTICES[s.name] ? '<span class="notice" title="' + esc(NOTICE_TEXT) + '">⚠</span>' : '') +
+        body += '<th class="res" scope="row"' + (span > 1 ? ' rowspan="' + span + '"' : '') + '><button type="button" class="res-name" data-row="' + i + '">' + esc(shortName(s.name)) + '</button>' + vip + dot + (ref.club_wyndham_access === 'Yes' ? '<span class="cwa" title="Club Wyndham Access: one of the resorts in the Club Wyndham Access Trust">CWA</span>' : '') + (NOTICES[s.name] ? '<span class="notice" title="' + esc(NOTICE_TEXT) + '">⚠</span>' : '') +
           '<span class="res-loc">' + esc(s.location || [s.city, s.state].filter(Boolean).join(', ')) + '</span>' + bldg + extra + '</th>';
       }
       if (showBld) body += '<td class="bld">' + esc(bldgOf(r)) + '</td>';
@@ -479,7 +480,7 @@
     $('collectionChecks').addEventListener('change', e => { e.target.checked ? state.collections.add(e.target.value) : state.collections.delete(e.target.value); render(); });
     $('placeChecks').addEventListener('change', e => { e.target.checked ? state.places.add(e.target.value) : state.places.delete(e.target.value); render(); });
     $('collectionBox').addEventListener('click', e => { const b = e.target.closest('[data-coll]'); if (!b) return;
-      if (b.dataset.coll === 'all') { state.collections = new Set(collections); state.places = new Set(PLACES.map(p => p[0])); } else { state.collections = new Set(); state.places = new Set(); }
+      if (b.dataset.coll === 'all') { state.collections = new Set(collections); state.places = new Set(PLACES.map(p => p[0])); state.cwaOnly = true; } else { state.collections = new Set(); state.places = new Set(); state.cwaOnly = false; }
       render(); });
     $('cwaOnly').addEventListener('change', e => { state.cwaOnly = e.target.checked; render(); });
     $('spanButtons').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { state.span = Number(b.dataset.span); render(); } });

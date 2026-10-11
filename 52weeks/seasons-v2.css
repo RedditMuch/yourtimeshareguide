@@ -243,3 +243,10 @@ select:disabled{background:#f0f3f5;color:var(--muted)}
 .keys .sw{width:14px;height:14px;border-radius:3px}
 
 .segmented.small{grid-template-columns:repeat(5,1fr)}
+
+/* Round 7 (#24): CWA tag; keep the header from overlapping at mid widths */
+.cwa{display:inline-block;margin-left:5px;padding:0 4px;border:1px solid var(--teal);border-radius:4px;font-size:10px;font-weight:700;line-height:14px;color:var(--teal);vertical-align:1px}
+.chart-head{flex-wrap:wrap}
+.timebox{flex:1 1 560px;min-width:0}
+.today{flex:0 0 auto;margin-left:auto}
+@media (max-width:1500px){.timebox .mode-body{grid-template-columns:minmax(260px,1.4fr) minmax(170px,1fr)}}
