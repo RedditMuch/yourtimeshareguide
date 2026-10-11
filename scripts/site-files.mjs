@@ -17,3 +17,9 @@ export const ASSET_EXTENSIONS = [
 
 // Files in site folders that are never published and need no check.
 export const IGNORED_NAMES = [".DS_Store", "Thumbs.db", "desktop.ini"];
+
+// Files the build makes from the design system (design-system/, which is not
+// itself published). scripts/check-build.mjs checks each one is in _site/.
+// - tokens.css is generated from design-system/tokens.json by scripts/build-tokens.mjs;
+// - components.css is design-system/components.css, copied as it is.
+export const GENERATED_FILES = ["assets/css/tokens.css", "assets/css/components.css"];
