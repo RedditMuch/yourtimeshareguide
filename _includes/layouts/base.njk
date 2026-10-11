@@ -1,0 +1,48 @@
+{#-
+  The shared page layout: head, skip link, SiteHeader, main (with the page
+  heading), SiteFooter. Every .njk page uses it:
+
+    ---
+    layout: layouts/base.njk
+    title: Owner directory              (h1 and <title>: "Owner directory · Your Timeshare Guide")
+    description: One sentence for search results and link previews.
+    lead: The sentence under the title. (optional)
+    checked: 2026-10-11                 (optional LastChecked date, for fact pages)
+    scripts: [portal.js]                (optional; loaded with defer, relative to the page)
+    ---
+
+  The page's own content goes inside main, after the heading, in the
+  ytg-container column. Pages use the components in components.njk and add no
+  styles of their own.
+-#}
+{%- import "components.njk" as ui -%}
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>{{ title }} · {{ site.name }}</title>
+{%- if description %}
+<meta name="description" content="{{ description }}">
+{%- endif %}
+<link rel="icon" type="image/svg+xml" href="{{ site.icon }}">
+<link rel="preload" href="/assets/fonts/atkinson-hyperlegible-next-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/fonts/bricolage-grotesque-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/css/tokens.css">
+<link rel="stylesheet" href="/assets/css/components.css">
+{%- for src in scripts %}
+<script defer src="{{ src }}"></script>
+{%- endfor %}
+</head>
+<body>
+{{ ui.siteHeader(site, page.url) }}
+<main id="main" class="ytg-main">
+<div class="ytg-container">
+{{ ui.pageHead(heading or title, lead, checked) }}
+{{ content | safe }}
+</div>
+</main>
+{{ ui.siteFooter(site) }}
+</body>
+</html>
