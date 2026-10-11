@@ -8,10 +8,10 @@ export default defineConfig({
   testDir: "tests",
   outputDir: "test-results",
   fullyParallel: true,
-  workers: process.env.CI ? 2 : 4, // pages are heavy (full-page screenshots, axe); more workers make them time out
+  workers: 2, // pages are heavy (full-page screenshots, axe); more workers make them time out
   timeout: 60_000,
   forbidOnly: !!process.env.CI,
-  retries: 0,
+  retries: 1, // a retry fixes a one-off slow page; a real problem fails twice
   reporter: [["list"], ["html", { open: "never", outputFolder: "playwright-report" }]],
   globalTeardown: "./tests/global-teardown.mjs",
   use: {
@@ -39,6 +39,6 @@ export default defineConfig({
   webServer: {
     command: `node scripts/serve.mjs --port ${PORT}`,
     url: `http://127.0.0.1:${PORT}/`,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false, // never test against a stale server left over from an earlier run
   },
 });

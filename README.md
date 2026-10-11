@@ -58,7 +58,7 @@ Screenshots of every page at both sizes are saved with each run (in the pull req
 
 **Run them yourself:** `npm ci` once, `npx playwright install chromium` once, then `npm test`. It builds the site and runs the checks (about a minute). Screenshots land in `test-results/screenshots/`, and the full report is `playwright-report/index.html`.
 
-**Known problems (the baseline).** Some pages already had problems when the checks were added (mostly in `52weeks/`: low-contrast text, missing directory-scan images, pages that need a server). They are listed page by page in `tests/baseline.json`. The checks fail only on **new** problems, and print a short summary of the known ones. Fixing a known problem and then running `npm run test:update-baseline` removes it from the list.
+**Known problems (the baseline).** Some pages already had problems when the checks were added (mostly in `52weeks/`: low-contrast text, missing directory-scan images, pages that need a server). They are listed page by page in `tests/baseline.json`. The checks fail only on **new** problems (including more instances of a known accessibility problem on the same page), and print a short summary of the known ones. Fixing a known problem and then running `npm run test:update-baseline` removes it from the list.
 
 **Updating the baseline** is acceptable only to record fixes (the list gets shorter), or when the owner has decided a new problem is acceptable. Never update it just to make a failing check go green: look at the failure first. Review the change to `tests/baseline.json` in the pull request.
 

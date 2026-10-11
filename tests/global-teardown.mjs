@@ -45,7 +45,7 @@ export default async function () {
         const knownValue = known[project]?.[key];
         if (knownValue === undefined) continue;
         if (key === "axe") {
-          for (const id of value.filter(id => knownValue.includes(id))) {
+          for (const id of Object.keys(value).filter(id => id in knownValue)) {
             bump(counts, "axe");
             bump(axeCounts, id);
             affected.add(page);
