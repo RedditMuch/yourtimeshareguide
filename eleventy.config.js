@@ -5,23 +5,29 @@
 //   template engine. Season chart v2 is one of these and must stay that way
 //   (see CLAUDE.md, "Season chart v2 is protected").
 // - New pages are .njk files that use the shared layouts and components in
-//   _includes/. Each builds to the .html file of the same name.
+//   _includes/. 52weeks/booking.njk builds to 52weeks/booking.html (not to
+//   52weeks/booking/index.html), so addresses and relative links stay the same.
+//   A .njk page must not share its name with an .html file;
+//   scripts/check-build.mjs fails the build if one does.
 //
-// Only the folders listed below are published, so repository files such as
-// README.md and CLAUDE.md never reach the live site.
+// Only the site folders and root files listed in scripts/site-files.mjs are
+// published, so repository files such as README.md and CLAUDE.md never reach
+// the live site.
 
-const SITE_FOLDERS = ["52weeks", "starburst", "assets"];
-const ASSET_TYPES = "html,css,js,mjs,svg,png,jpg,jpeg,gif,webp,avif,ico,woff2,xlsx,pdf,txt,json";
+import { ASSET_EXTENSIONS, ROOT_FILES, SITE_FOLDERS } from "./scripts/site-files.mjs";
 
 export default function (eleventyConfig) {
   for (const folder of SITE_FOLDERS) {
-    eleventyConfig.addPassthroughCopy(`${folder}/**/*.{${ASSET_TYPES}}`);
+    eleventyConfig.addPassthroughCopy(`${folder}/**/*.{${ASSET_EXTENSIONS.join(",")}}`);
   }
-  eleventyConfig.addPassthroughCopy("index.html");
-  eleventyConfig.addPassthroughCopy("CNAME");
+  for (const file of ROOT_FILES) {
+    eleventyConfig.addPassthroughCopy(file);
+  }
 
-  // Only these folders hold templates; everything else (tests, scripts,
-  // node_modules) is ignored.
+  // Every .njk page builds to the .html file of the same name. A page can
+  // still set its own permalink in its front matter.
+  eleventyConfig.addGlobalData("permalink", "{{ page.filePathStem }}.html");
+
   eleventyConfig.ignores.add("node_modules/**");
   eleventyConfig.ignores.add("scripts/**");
   eleventyConfig.ignores.add("tests/**");
