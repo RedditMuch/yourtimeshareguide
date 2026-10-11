@@ -1,6 +1,7 @@
 # Builds the site with Eleventy on every pull request and every change to main.
 # Changes to main are then published to GitHub Pages (yourtimeshareguide.com).
 # Only the built site (_site/) is published, never the repository files.
+# Browser checks (tests/) run on every pull request; publishing waits for them.
 
 name: Build and publish
 
@@ -44,10 +45,42 @@ jobs:
         with:
           path: _site
 
+  test:
+    name: Browser checks
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Install the test browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Run the browser checks
+        run: npm test
+
+      # Reports and screenshots of every page, kept for 14 days (also when a check fails).
+      - name: Save the reports and screenshots
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: browser-check-results
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
+
   publish:
     name: Publish to GitHub Pages
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-    needs: build
+    # Publishing waits for the browser checks, so a broken page never goes live.
+    needs: [build, test]
     runs-on: ubuntu-latest
     permissions:
       pages: write
