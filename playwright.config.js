@@ -8,7 +8,7 @@ export default defineConfig({
   testDir: "tests",
   outputDir: "test-results",
   fullyParallel: true,
-  workers: 4, // pages are heavy (full-page screenshots, axe); more workers make them time out
+  workers: process.env.CI ? 2 : 4, // pages are heavy (full-page screenshots, axe); more workers make them time out
   timeout: 60_000,
   forbidOnly: !!process.env.CI,
   retries: 0,
