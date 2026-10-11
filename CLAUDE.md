@@ -26,6 +26,10 @@ This repository is the public source of **yourtimeshareguide.com**. Every merge 
 
 ## Site facts
 
-- Plain HTML and CSS with no build step. `style.css` is shared; `seasons.html` carries its own inline styles and data.
-- The header, menu and footer are repeated in all six pages, so change all of them together.
+- Since 2026-10-11 (planning issue #18) the repository holds two versions for comparison, and the owner will keep one at launch:
+  - `starburst/`: the owner's site, six pages. Plain HTML and CSS with no build step. `style.css` is shared within the folder; `seasons.html` carries its own inline styles and data. The header, menu and footer are repeated in all six pages, so change all of them together.
+  - `52weeks/`: "Owner Atlas", the friend's ChatGPT-built site (15 pages), copied from the zip's `site/public/` with only `noindex` added. Directory scans and photos were left out by the owner's decision, so those images are blank. Saved stays, saved plans and the points ledger need a server and don't work here.
+  - The root `index.html` is a standalone "coming soon" page with no links to either folder.
+- Each folder is self-contained: relative links only and no files shared between them, so either can be moved to the root unchanged. Keep it that way.
+- Every page keeps `noindex, nofollow` until launch (#17).
 - To preview, open the `.html` file in a browser. Check phone width (about 400 px) as well as desktop.

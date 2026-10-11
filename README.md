@@ -2,7 +2,19 @@
 
 Source for [yourtimeshareguide.com](https://yourtimeshareguide.com), an independent, plain-English guide for Club Wyndham owners, written by an owner.
 
-## Pages
+## Two versions, side by side
+
+While the site is under construction, the repository holds two complete versions so they can be compared. One will move to the root at launch.
+
+| Folder | What it is |
+|---|---|
+| `index.html` (root) | A "coming soon" page, with no links to either version |
+| `starburst/` | The owner's site: six pages and `style.css` |
+| `52weeks/` | An alternative version built with ChatGPT ("Owner Atlas"), 15 pages |
+
+Each folder is self-contained: it uses only relative links and shares no files with the other, so either can be moved to the root unchanged.
+
+## Pages in `starburst/`
 
 | Page | File | What it does |
 |---|---|---|
@@ -17,7 +29,8 @@ Shared styles are in `style.css`. The Season Finder keeps its color palette and 
 
 ## How the site is built
 
-- Plain HTML and CSS, with a little JavaScript on the calculator and Season Finder. There's no build step or framework.
+- `starburst/`: plain HTML and CSS, with a little JavaScript on the calculator and Season Finder. There's no build step or framework.
+- `52weeks/`: HTML pages with more JavaScript and eight stylesheets. Its saved stays, saved plans and points ledger needed a server in their original home, so they don't work here.
 - Hosted on **GitHub Pages** from the `main` branch, at the repository root.
 - `CNAME` sets the custom domain. `.nojekyll` tells GitHub Pages to serve the files exactly as they are.
 
@@ -32,7 +45,7 @@ Shared styles are in `style.css`. The Season Finder keeps its color palette and 
 
 Work is planned in a separate private repository. Agents should read [CLAUDE.md](CLAUDE.md) first.
 
-Every page repeats the same header, menu and footer, so a menu change must be made on all six pages.
+In `starburst/`, every page repeats the same header, menu and footer, so a menu change must be made on all six pages.
 
 ## Content rules
 
