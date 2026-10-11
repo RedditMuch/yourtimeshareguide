@@ -237,3 +237,9 @@ select:disabled{background:#f0f3f5;color:var(--muted)}
 .timebox{height:112px;align-items:center}
 .timebox .mode-body{height:92px;min-height:0;align-content:center}
 @media (max-width:1100px){.timebox{height:auto}.timebox .mode-body{height:auto}}
+
+/* WorldMark (Club Pass) week groups: three shades of purple, most to fewest points */
+.w-h{background:#8a6bb8}.w-m{background:#b7a2d6}.w-l{background:#e0d6ee}
+.keys .sw{width:14px;height:14px;border-radius:3px}
+
+.segmented.small{grid-template-columns:repeat(5,1fr)}

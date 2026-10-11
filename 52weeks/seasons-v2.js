@@ -10,7 +10,10 @@
   const cite = n => '<a href="' + DIRECTORY_URL + '#p=' + n + '" target="_blank" rel="noopener">Page ' + (n - PAGE_OFFSET) + ' (CW search bar page ' + n + ')</a>';
 
   const SEASONS = ['Prime', 'High', 'Value', 'Quiet'];
-  const CLS = { Prime: 's-p', High: 's-h', Value: 's-v', Quiet: 's-q' };
+  const CLS = { Prime: 's-p', High: 's-h', Value: 's-v', Quiet: 's-q', 'WorldMark High': 'w-h', 'WorldMark Medium': 'w-m', 'WorldMark Low': 'w-l' };
+  /* WorldMark (Club Pass) charts don't name seasons; their week groups are ranked by points into three shades of purple */
+  const WM_SEASONS = ['WorldMark High', 'WorldMark Medium', 'WorldMark Low'];
+  const LETTER = { Prime: 'P', High: 'H', Value: 'V', Quiet: 'Q', 'WorldMark High': 'H', 'WorldMark Medium': 'M', 'WorldMark Low': 'L' };
   const NONE_LABEL = 'Not Offered';
   /* Charts that print week 53 themselves (2026/2027): Page 91 (CW search bar page 95) and Page 184 (CW search bar page 188).
      Every other resort's week 53 is gray, priced like week 1, until Club Wyndham confirms. */
@@ -63,6 +66,32 @@
   const classOf = new Map(P.classifications.map((c, i) => [c.id, Object.assign({ order: i }, c)]));
   const pointsBySchedule = new Map();
   for (const p of P.rows) { if (!pointsBySchedule.has(p.scheduleId)) pointsBySchedule.set(p.scheduleId, []); pointsBySchedule.get(p.scheduleId).push(p); }
+  /* Club Pass (WorldMark) and affiliate points, read from Club Wyndham's own chart PDFs (club-pass-points.js).
+     Each chart column becomes a room-type row with its season, full-week points and nightly points for every week. */
+  const CP = (window.CLUB_PASS_POINTS && window.CLUB_PASS_POINTS.resorts) || {};
+  function typeIdFor(label) {
+    const l = label.toLowerCase(), m = l.match(/(\d)\s*(br|bedroom)/);
+    const g = /hotel/.test(l) ? 'Hotel' : /studio/.test(l) ? 'Studio' : m ? m[1] + ' Bedroom' : null;
+    if (!g) return null;
+    const cands = P.classifications.filter(c => c.group === g && P.rows.some(p => p.category === c.id));
+    const words = c => c.label.toLowerCase().replace(/bedroom/g, 'br').split(/\s+/).filter(w => !/^(\d|br|studio|hotel|room)$/.test(w));
+    let best = cands.find(c => !words(c).length) || cands[0];
+    for (const c of cands) { const ws = words(c); if (ws.length && ws.every(w => l.includes(w)) && ws.length > words(best).length) best = c; }
+    return best ? best.id : null;
+  }
+  for (const s of D.rows) {
+    const c = CP[s.name]; if (!c) continue;
+    s.cp = c;
+    const rows = [];
+    for (const t of c.tables) for (const col of t.columns) {
+      const weeks = Array(53).fill(null), pts = Array(53).fill(null), nights = Array(53).fill(null);
+      for (const b of t.bands) { const r = b.rates[col], season = b.season || 'WorldMark ' + b.tier;
+        for (const w of b.weeks) { if (w < 1 || w > 53) continue; weeks[w - 1] = season; pts[w - 1] = r ? r[2] : null; nights[w - 1] = r ? [r[0], r[1]] : null; } }
+      rows.push({ scheduleId: s.id, roomType: col, category: typeIdFor(col), weeks, weeklyPoints: pts, nightlyByWeek: nights, multiple: !!t.building, schedule: t.building, pages: [], bands: [], cpChart: true });
+    }
+    pointsBySchedule.set(s.id, rows);
+    if (!(s.weeks || []).some(x => CLS[x]) && rows[0]) s.weeks = rows[0].weeks.slice(0, 52); // season colors for "None"
+  }
   const refByName = new Map(REF.map(r => [r.name, r])), refById = new Map(REF.filter(r => r.resort_id).map(r => [r.resort_id, r]));
   const refOf = s => refByName.get(s.name) || refById.get(s.resort_id) || {};
   const hasChart = s => (s.weeks || []).some(x => CLS[x]);
@@ -86,17 +115,20 @@
   function weekInfo(row, w) {
     const weeks = (row.p && row.p.weeks) || row.s.weeks || [], pts = row.p ? row.p.weeklyPoints : null;
     if (w <= 52) return { season: CLS[weeks[w - 1]] ? weeks[w - 1] : null, points: pts ? pts[w - 1] : null };
+    if (row.p && row.p.cpChart && row.p.weeks[52]) return { season: row.p.weeks[52], points: pts ? pts[52] : null, w53: 'chart' };
     const fixed = WEEK53[row.s.name];
     if (fixed) { const i = weeks.indexOf(fixed); return { season: fixed, points: pts && i >= 0 ? pts[i] : null, w53: 'chart' }; }
     return { season: null, points: pts ? pts[0] : null, w53: 'assumed' };
   }
   /* Nightly points (Fri–Sat and Sun–Thur) for a row in a given week. Not in the data yet: returns null until it's added (#24, Phase 2). */
   function nightly(row, w, weekend) {
+    if (row.p && row.p.nightlyByWeek) { const x = row.p.nightlyByWeek[w - 1] || (w === 53 ? row.p.nightlyByWeek[0] : null); return x ? (weekend ? x[0] : x[1]) : null; }
     const n = row.p && row.p.nightly; if (!n) return null;
     const season = weekInfo(row, w).season; const band = season && n[season];
     return band ? (weekend ? band.friSat : band.sunThu) : null;
   }
   const short = n => n == null ? '—' : (n % 1000 === 0 ? n / 1000 : (n / 1000).toFixed(1)) + 'k';
+  const compactWeeks = ws => { const out = []; let a = null, p = null; for (const w of ws.slice().sort((x, y) => x - y)) { if (a === null) { a = p = w; continue } if (w === p + 1) { p = w; continue } out.push(a === p ? a : a + '–' + p); a = p = w; } if (a !== null) out.push(a === p ? a : a + '–' + p); return 'Weeks ' + out.join(', '); };
   const full = n => n == null ? 'points not printed' : n.toLocaleString('en-US') + ' points';
 
   /* ---- State ---- */
@@ -249,7 +281,7 @@
     $('radius').disabled = !place.city;
 
     const cand = candidateRows(place);
-    const bySeason = { '': new Set(), none: new Set() }; SEASONS.forEach(x => bySeason[x] = new Set());
+    const bySeason = { '': new Set(), none: new Set() }; SEASONS.concat(WM_SEASONS).forEach(x => bySeason[x] = new Set());
     const keysWithSeason = new Set();
     for (const r of cand) { const k = resortKey(r.s); bySeason[''].add(k); const x = seasonOfRow(r, wk); if (x) { bySeason[x].add(k); keysWithSeason.add(k); } }
     for (const k of bySeason['']) if (!keysWithSeason.has(k)) bySeason.none.add(k);
@@ -289,7 +321,7 @@
   }
 
   function renderSeasonList(bySeason) {
-    const opts = [['', 'All seasons', 'all'], ...SEASONS.map(x => [x, x, CLS[x]]), ['none', NONE_LABEL, 'na']];
+    const opts = [['', 'All seasons', 'all'], ...SEASONS.map(x => [x, x, CLS[x]]), ...WM_SEASONS.filter(x => bySeason[x].size).map(x => [x, x, CLS[x]]), ['none', NONE_LABEL, 'na']];
     $('seasonList').innerHTML = opts.map(([v, label, cls]) => '<button type="button" class="season-opt" data-season="' + v + '" aria-pressed="' + (state.season === v) + '">' +
       '<span class="sw ' + cls + '"></span><span>' + label + '</span><span class="n">' + bySeason[v].size + '</span></button>').join('');
   }
@@ -303,7 +335,7 @@
     note.textContent = t.days + ' days, ' + t.nights + (t.nights === 1 ? ' night' : ' nights');
     if (t.nights === 1) { note.classList.add('warn'); note.title = 'One night can’t be booked. Shown for comparison only.'; }
     $('dateAlert').hidden = false;
-    $('dateAlert').innerHTML = '<strong>Trip totals are almost here.</strong> They need each resort’s separate weekend and weeknight points, which are being added from the directory. For now the chart shows which weeks your nights fall in.';
+    $('dateAlert').innerHTML = '<strong>Trip totals are ready for WorldMark and affiliate resorts.</strong> Club Wyndham resorts show “…” until their separate weekend and weeknight points are added from the directory.';
   }
 
   function renderGrid(rows, cols, t, totals) {
@@ -350,7 +382,7 @@
         const cls = 'c ' + (info.season ? CLS[info.season] : 'na') + (info.w53 === 'assumed' ? ' w53' : '') + (!tripMode && c === sel ? ' sel' : '');
         let text, tip;
         if (r.gap) { text = ''; tip = NONE_LABEL; }
-        else if (!showType) { text = info.season ? info.season[0] : '–'; tip = info.season || NONE_LABEL; }
+        else if (!showType) { text = info.season ? LETTER[info.season] || info.season[0] : '–'; tip = info.season || NONE_LABEL; }
         else if (tripMode) {
           let sum = 0, ok = true; for (const d of c.nights) { const n = nightly(r, c.w, isWeekend(d)); if (n == null) ok = false; else sum += n; }
           text = ok ? short(sum) : '…'; tip = (info.season || NONE_LABEL) + ' · ' + c.nights.length + ' night(s) · ' + (ok ? full(sum) : 'nightly points coming soon');
@@ -386,7 +418,20 @@
     const pages = [...new Set([].concat(s.pages || [], ...ps.map(p => p.pages || [])))].sort((a, b) => a - b);
     if (pages.length) h += '<dt>Directory</dt><dd>' + pages.map(cite).join('<br>') + '</dd>';
     h += '</dl>';
-    if (ps.length) {
+    if (s.cp) {
+      for (const t of s.cp.tables) {
+        h += '<h3>Points by week group</h3><div style="overflow-x:auto"><table class="pts"><thead><tr><th>Weeks</th><th></th>' + t.columns.map(c => '<th>' + esc(br(c)) + '</th>').join('') + '</tr></thead><tbody>';
+        for (const b of t.bands) {
+          const label = (b.season || 'WorldMark ' + b.tier) + '<br><span class="hint">' + esc(compactWeeks(b.weeks)) + '</span>';
+          h += ['Fri–Sat night', 'Sun–Thur night', 'Full week'].map((n, k) => '<tr>' + (k ? '' : '<td rowspan="3">' + label + '</td>') + '<td>' + n + '</td>' +
+            t.columns.map(c => '<td>' + (b.rates[c] && b.rates[c][k] != null ? b.rates[c][k].toLocaleString('en-US') : '—') + '</td>').join('') + '</tr>').join('');
+        }
+        h += '</tbody></table></div>';
+      }
+      h += '<p class="hint">From Club Wyndham’s own chart: <a href="' + esc(s.cp.pdf) + '" target="_blank" rel="noopener">points chart (PDF)</a>, read on ' + esc(window.CLUB_PASS_POINTS.checked) + '.' +
+        (s.collection === 'Club Pass' ? ' WorldMark charts don’t name seasons, so the week groups are shaded by points: darkest is the most expensive.' : '') + '</p>';
+      if (s.cp.notes.length) h += '<p class="alert">' + s.cp.notes.map(n => esc(n.replace(/×/g, '×'))).join('<br>') + '</p>';
+    } else if (ps.length) {
       const sorted = ps.slice().sort((a, b) => classOf.get(a.category).order - classOf.get(b.category).order);
       h += '<h3>Points for a full week, by season</h3><table class="pts"><thead><tr><th>Room type</th>' + SEASONS.map(x => '<th>' + x + '</th>').join('') + '</tr></thead><tbody>';
       for (const p of sorted) {
