@@ -1,10 +1,10 @@
 # Season chart v2 and the files it loads: SHA-256 of each file with line endings
-# normalized to LF. Matches the newest protected snapshot tag, season-chart-v2-2026-10-11-select
-# (owner-approved wording change: "select" instead of "check"; planning #35).
+# normalized to LF. Matches the newest protected snapshot tag, season-chart-v2-2026-10-11-colors
+# (owner-approved changes: "select" wording, #35; softer season colors, #37).
 # Change this list only when the owner asks for a change to season chart v2,
 # in the same pull request as that change.
-65d3d868909299e964826ee2a4827b98bea1708dbc4381bd383dde8c82037ff9  52weeks/seasons-v2.html
-9d42109d46a2fd6e16688eead89c1128d69b0084e1bdb5b59973930267035883  52weeks/seasons-v2.css
+2d1c4dde72504aeb8b529a30e6602e3cd8f5891dc82f205ec8374a30d347b48f  52weeks/seasons-v2.html
+6929489b8361906247f68dcec6a95ae9d03a2c05b9f2ffeff62e9f747b4ded88  52weeks/seasons-v2.css
 3bd610cc8591744547f7d3e023ab341cda1d425a546a0285bc2bf475996149fb  52weeks/seasons-v2.js
 81789ed43dc282916c5a2fe98003fd0ae2357ca2ecf22e37f5f3fc553f4189ee  52weeks/club-pass-points.js
 6021285dd8824c76780b15c9f7934ea4c6d8e241195a816316673f064a3d750d  52weeks/data.js

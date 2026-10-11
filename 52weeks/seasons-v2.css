@@ -1,7 +1,7 @@
 /* 52-week season chart, version 2 (#24). Its own small stylesheet, so it doesn't depend on the eight layered stylesheets of seasons.html. */
 :root{
   --ink:#122f42; --muted:#5b6f7c; --line:#d3dde3; --paper:#ffffff; --bg:#f4f7f8; --navy:#102d40; --accent:#1f5f86; --teal:#176c7b;
-  --prime:#df6a60; --high:#efa449; --value:#efce66; --quiet:#7fbf92; --na:#d9dee1; --cell-ink:#1b2a33;
+  --prime:#e57f76; --high:#ef9c4c; --value:#f7e297; --quiet:#8ccfb0; --na:#e0e4e7; --cell-ink:#1b2a33;
   --body:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
   --brand:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
   --sidebar:280px; --resort-col:240px; --type-col:170px; --cell:48px; --row:34px;
@@ -239,7 +239,7 @@ select:disabled{background:#f0f3f5;color:var(--muted)}
 @media (max-width:1100px){.timebox{height:auto}.timebox .mode-body{height:auto}}
 
 /* WorldMark (Club Pass) week groups: three shades of purple, most to fewest points */
-.w-h{background:#8a6bb8}.w-m{background:#b7a2d6}.w-l{background:#e0d6ee}
+.w-h{background:#9f86cc}.w-m{background:#c4b3e3}.w-l{background:#e7e0f4}
 .keys .sw{width:14px;height:14px;border-radius:3px}
 
 .segmented.small{grid-template-columns:repeat(5,1fr)}
