@@ -21,58 +21,55 @@
 
 <div class="layout">
   <aside class="filters" aria-label="Filters">
-    <details id="filterBox" open>
-      <summary>Filters</summary>
-      <div class="filter-body">
 
-        <div class="field">
-          <label for="week">Vacation week</label>
-          <select id="week"></select>
-          <p class="hint" id="todayHint"></p>
-        </div>
+    <section class="group">
+      <h2 class="group-title">Seasons in week <span id="seasonWeek"></span></h2>
+      <div class="season-list" id="seasonList" role="group" aria-label="Show resorts by their season in the chosen week"></div>
+    </section>
 
-        <fieldset class="field">
-          <legend>Season in week <span id="seasonWeek"></span></legend>
-          <div class="chips" id="seasonChips"></div>
-        </fieldset>
+    <hr class="sep">
+
+    <details class="group fold" id="filterBox" open>
+      <summary class="group-title">Filters</summary>
+      <div class="fold-body">
 
         <div class="field">
           <label for="bedrooms">Bedrooms</label>
           <select id="bedrooms"></select>
         </div>
 
-        <fieldset class="field" id="typeBox">
-          <legend>Room types</legend>
-          <div class="checks" id="typeChecks"></div>
-          <label class="check"><input type="checkbox" id="typeColumn"> Show a room type column</label>
-        </fieldset>
+        <details class="sub fold" id="typeBox">
+          <summary>Room types <span class="hint" id="typeSummary"></span></summary>
+          <div class="checks indent" id="typeChecks"></div>
+        </details>
+
+        <hr class="sep">
 
         <div class="field">
           <label for="search">Resort or destination</label>
-          <input id="search" type="search" list="places" placeholder="Try Orlando, Hawaii…" autocomplete="off">
+          <input id="search" type="search" list="places" placeholder="A city, state or resort" autocomplete="off">
           <datalist id="places"></datalist>
+          <p class="hint" id="searchHint"></p>
         </div>
 
-        <div class="field">
+        <div class="field" id="radiusField">
           <label for="radius">Search radius</label>
           <select id="radius"></select>
-          <p class="hint" id="nearbyHint"></p>
         </div>
+
+        <hr class="sep">
+
+        <details class="sub fold">
+          <summary>Collections <span class="hint" id="collectionSummary"></span></summary>
+          <div class="checks indent" id="collectionChecks"></div>
+        </details>
+
+        <hr class="sep">
 
         <div class="field">
-          <label for="region">State / region</label>
-          <select id="region"></select>
+          <span class="label">Weeks shown</span>
+          <div class="segmented" id="spanButtons" role="group" aria-label="Weeks shown"></div>
         </div>
-
-        <fieldset class="field">
-          <legend>Collections</legend>
-          <div class="checks" id="collectionChecks"></div>
-        </fieldset>
-
-        <fieldset class="field">
-          <legend>Weeks shown</legend>
-          <div class="segmented" id="spanButtons"></div>
-        </fieldset>
 
         <label class="check"><input type="checkbox" id="includeMissing"> Show resorts without a points chart</label>
 
@@ -83,22 +80,36 @@
 
   <main class="main" id="chart">
     <div class="chart-head">
-      <h1>52-week season chart</h1>
-      <ul class="legend" aria-label="Season colors">
-        <li><span class="sw s-p">P</span>Prime</li>
-        <li><span class="sw s-h">H</span>High</li>
-        <li><span class="sw s-v">V</span>Value</li>
-        <li><span class="sw s-q">Q</span>Quiet</li>
-        <li><span class="sw na">–</span>Not provided</li>
-      </ul>
+      <div class="head-left">
+        <h1>52-week season chart</h1>
+        <p class="count" id="count" aria-live="polite"></p>
+      </div>
+      <div class="head-mid field">
+        <label for="week">Vacation week</label>
+        <select id="week"></select>
+        <p class="hint" id="todayHint"></p>
+      </div>
+      <div class="head-right">
+        <div class="field">
+          <label for="startDate">Start date</label>
+          <input type="date" id="startDate">
+        </div>
+        <div class="field">
+          <label for="days">Number of days</label>
+          <select id="days"></select>
+        </div>
+        <p class="hint span-2" id="tripHint">Pick dates to mark them on the chart. Trip totals are coming next.</p>
+      </div>
     </div>
-    <p class="count" id="count" aria-live="polite"></p>
+
+    <p class="alert" id="typeAlert" hidden></p>
     <p class="note" id="grayNote" hidden></p>
+
     <div class="grid-wrap" id="gridWrap" tabindex="0" aria-label="Season chart, scrolls sideways and down">
       <table class="grid" id="grid"></table>
     </div>
     <p class="note" id="week53Note" hidden></p>
-    <p class="source">Points are for a full 7-night week, Friday to Friday, from the <i>Club Wyndham Member's Directory 2026/2027</i>. Week dates follow RCI's vacation ownership calendar: week 1 starts on the first Friday of January. Always confirm with Club Wyndham (800-251-8736) before you book.</p>
+    <p class="source">Points are for a full 7-night week, Friday to Friday, from the <i>Club Wyndham Member's Directory 2026/2027</i>. Week dates follow RCI's vacation ownership calendar: week 1 starts on the first Friday of January. The shortest stay you can book is 3 days and 2 nights; there are no one-night stays. Always confirm with Club Wyndham (800-251-8736) before you book.</p>
   </main>
 </div>
 
