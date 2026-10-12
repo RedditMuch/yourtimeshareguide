@@ -71,8 +71,11 @@ test.describe("season chart v2 names (planning #38)", () => {
 
   test("item 6: each building on its own right-justified line", async ({ page }) => {
     const fl = of(rows, "Flagstaff").map(r => r.buildings);
-    expect(fl).toContainEqual(["Tanglewood I & II", "Ridgewood I", "Ridgewood II Buildings 1A-15A"]);
+    expect(fl).toContainEqual(["Tanglewood I & II", "Ridgewood I", "Ridgewood II - Buildings 1A-15A"]);
+    expect(fl).toContainEqual(["Ridgewood II - Buildings 16A-24A"]);
     expect(of(rows, "Palm-Aire").map(r => r.buildings)).toContainEqual(["Fountain Palm", "Sabal Palm"]);
+    // SeaWatch: "Towers & North Tower" named from the resort map (owner, 2026-10-11)
+    expect(of(rows, "SeaWatch Resort").map(r => r.buildings)).toContainEqual(["South Tower 1", "South Tower 2", "North Tower"]);
     const style = await page.locator(".res-bldg").first().evaluate(e => { const c = getComputedStyle(e); return [c.display, c.textAlign]; });
     expect(style).toEqual(["block", "right"]);
   });
