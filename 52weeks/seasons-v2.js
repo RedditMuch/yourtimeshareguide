@@ -1,8 +1,15 @@
 'use strict';
 /* 52-week season chart, version 2 (#24). Reads the same data files as seasons.html (data.js, points-data.js, reference-data.js, geo-data.js, geo.js). */
 (() => {
-  const D = window.DIRECTORY, P = window.WEEKLY_POINTS, GEO = window.ResortGeo, REF = (window.REFERENCE && window.REFERENCE.resorts) || [];
+  const D = window.DIRECTORY, P = window.WEEKLY_POINTS, REF = (window.REFERENCE && window.REFERENCE.resorts) || [];
   const $ = id => document.getElementById(id);
+  /* Cities and their map positions (geo-data.js, the largest download) load only when a place search needs them,
+     and fill the search suggestions when the search box is first used (planning #36) */
+  let GEO = window.ResortGeo || null, geoLoad = null, geoFailed = false;
+  const loadScript = src => new Promise((ok, fail) => { const e = document.createElement('script'); e.src = src; e.onload = ok; e.onerror = fail; document.head.appendChild(e); });
+  const loadGeo = () => geoLoad || (geoLoad = GEO ? Promise.resolve() : loadScript('geo-data.js').then(() => loadScript('geo.js')).then(() => {
+    GEO = window.ResortGeo; $('places').insertAdjacentHTML('beforeend', GEO.options());
+  }, () => { geoFailed = true; })); // without it, a search matches names as text, as before
 
   /* Official directory: the 2026/2027 edition, where CW search bar page = book page + 4 */
   const DIRECTORY_URL = 'https://media.travelandleisure.com/WD/email/2025/0625-2025/cw-directory/index.html';
@@ -94,7 +101,10 @@
   const DAY = 864e5;
   const firstFriday = y => { const d = new Date(Date.UTC(y, 0, 1)).getUTCDay(); return Date.UTC(y, 0, 1 + ((5 - d + 7) % 7)); };
   const weeksIn = y => new Date(Date.UTC(y, 11, 31)).getUTCDay() === 5 ? 53 : 52;
-  const fmt = (t, o) => new Date(t).toLocaleDateString('en-US', Object.assign({ timeZone: 'UTC' }, o));
+  /* One date formatter per format, made once (planning #36: formatting every cell from scratch was most of each redraw) */
+  const MD = { month: 'short', day: 'numeric' }, MDY = { month: 'short', day: 'numeric', year: 'numeric' }, LONG = { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' };
+  const formatters = new Map();
+  const fmt = (t, o) => { let f = formatters.get(o); if (!f) formatters.set(o, f = new Intl.DateTimeFormat('en-US', Object.assign({ timeZone: 'UTC' }, o))); return f.format(t); };
   const iso = t => new Date(t).toISOString().slice(0, 10);
   const now = new Date(), todayUTC = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
   const startYear = now.getFullYear();
@@ -102,11 +112,12 @@
   for (let y = startYear - 1; y <= startYear + 3; y++) for (let w = 1; w <= weeksIn(y); w++) WEEKS.push({ y, w, start: firstFriday(y) + (w - 1) * 7 * DAY });
   const weekOf = t => WEEKS.findIndex(x => x.start <= t && t < x.start + 7 * DAY);
   const todayIdx = weekOf(todayUTC);
-  const weekLabel = x => {
+  const makeWeekLabel = x => {
     const end = x.start + 7 * DAY, sameYear = new Date(end).getUTCFullYear() === x.y;
-    return 'Week ' + x.w + ' · ' + fmt(x.start, { month: 'short', day: 'numeric' }) + (sameYear ? '' : ', ' + x.y) +
-      ' – ' + fmt(end, { month: 'short', day: 'numeric', year: 'numeric' });
+    return 'Week ' + x.w + ' · ' + fmt(x.start, MD) + (sameYear ? '' : ', ' + x.y) + ' – ' + fmt(end, MDY);
   };
+  const weekLabels = new Map(); // by the week's start, so a trip's part-week columns share their week's label
+  const weekLabel = x => { let l = weekLabels.get(x.start); if (l === undefined) weekLabels.set(x.start, l = makeWeekLabel(x)); return l; };
   const isWeekend = t => { const d = new Date(t).getUTCDay(); return d === 5 || d === 6; }; // Friday and Saturday nights
 
   /* ---- Data ---- */
@@ -192,7 +203,8 @@
   }
   const short = n => n == null ? '—' : (n % 1000 === 0 ? n / 1000 : (n / 1000).toFixed(1)) + 'k';
   const compactWeeks = ws => { const out = []; let a = null, p = null; for (const w of ws.slice().sort((x, y) => x - y)) { if (a === null) { a = p = w; continue } if (w === p + 1) { p = w; continue } out.push(a === p ? a : a + '–' + p); a = p = w; } if (a !== null) out.push(a === p ? a : a + '–' + p); return 'Weeks ' + out.join(', '); };
-  const full = n => n == null ? 'points not printed' : n.toLocaleString('en-US') + ' points';
+  const NUM = new Intl.NumberFormat('en-US');
+  const full = n => n == null ? 'points not printed' : NUM.format(n) + ' points';
 
   /* ---- State ---- */
   const typeSet = g => new Set(typesInGroup(g).map(c => c.id));
@@ -226,7 +238,7 @@
       html += '<option value="' + i + '">' + esc(weekLabel(x)) + (i === todayIdx ? ' (this week)' : '') + '</option>';
     });
     $('week').innerHTML = html + '</optgroup>';
-    if (todayIdx >= 0) $('today').innerHTML = '<span class="t">Today:</span><span class="d">' + esc(fmt(todayUTC, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })) + '</span><span class="w">Week ' + WEEKS[todayIdx].w + '</span>';
+    if (todayIdx >= 0) $('today').innerHTML = '<span class="t">Today:</span><span class="d">' + esc(fmt(todayUTC, LONG)) + '</span><span class="w">Week ' + WEEKS[todayIdx].w + '</span>';
     $('bedrooms').innerHTML = '<option value="">None (season colors only)</option>' + GROUPS.filter(g => typesInGroup(g).length).map(g => '<option value="' + g + '">' + groupLabel(g) + '</option>').join('') +
       '<option value="mixed" disabled>Mixed sizes (see Room types)</option>';
     $('typeTree').innerHTML = GROUPS.filter(g => typesInGroup(g).length).map(g => '<div class="tree-group"><label class="check"><input type="checkbox" data-group="' + g + '"> ' + groupLabel(g) + '</label><div class="checks">' +
@@ -276,6 +288,7 @@
   }
 
   /* ---- Which rows to show ---- */
+  const needsGeo = () => !GEO && !geoFailed && !!state.query && !regionByName.get(norm(state.query));
   function placeFilter() {
     const q = state.query;
     if (!q) return { test: () => true, hint: 'The search radius needs a city and state, such as Orlando, Florida.' };
@@ -353,19 +366,73 @@
     return WEEKS.slice(a, b + 1);
   }
 
+  /* ---- Drawing, and the loading indicator (planning #36) ----
+     render() is called after every change. Most redraws are quick and happen at once. One expected to take longer than
+     ~150 ms (judged from the last redraw's time per cell) first dims the chart and shows "Updating the chart", then
+     draws in the next frame. A place search that needs geo-data.js waits for it, dimmed, and never shows another result. */
+  const status = $('chartStatus'), wrap = $('gridWrap'), Y = window.YTG;
+  const bar = Y ? Y.progress(status) : null;
+  let msPerCell = 0, drawQueued = false, hideStatus = null;
+  const setLabel = text => { if (bar) bar.label(text); status.querySelector('[role=progressbar]').setAttribute('aria-label', text); };
+  function busy(delay) {
+    if (Y) Y.busy(wrap, true); else wrap.setAttribute('aria-busy', 'true');
+    if (hideStatus || !status.dataset.ready) return; // already showing, or still the first load
+    setLabel('Updating the chart'); if (bar) bar.wait();
+    hideStatus = Y ? Y.showAfter(status, delay) : () => { status.hidden = true; };
+    if (!delay) status.hidden = false; // a redraw known to be slow: show it in the same frame as the dimming
+  }
+  function idle() {
+    if (Y) Y.busy(wrap, false); else wrap.setAttribute('aria-busy', 'false');
+    if (hideStatus) { hideStatus(); hideStatus = null; }
+    if (!status.dataset.ready) { status.dataset.ready = '1'; status.hidden = true; } // first load done
+  }
   function render() {
+    if (needsGeo()) { syncControls(); busy(150); loadGeo().then(render, render); return; }
+    const m = model(), cells = m.rows.length * (m.cols.length + 2);
+    if (drawQueued) return;
+    if (!msPerCell || msPerCell * cells < 150) { draw(m); return; }
+    syncControls(); busy(0); drawQueued = true;
+    requestAnimationFrame(() => setTimeout(() => { drawQueued = false; if (needsGeo()) render(); else draw(model()); }));
+  }
+  function draw(m) {
+    const t0 = performance.now();
     syncControls();
     saveState();
-    const wk = WEEKS[state.idx].w, place = placeFilter(), t = trip();
+    const { wk, place, t, cand, bySeason, rows, cols, totals } = m;
     $('searchHint').textContent = place.hint;
     $('radius').disabled = !place.city;
+    renderSeasonList(bySeason);
 
+    // Count line and messages
+    const groups = relevantGroups(), g1 = groups[0];
+    const sz = groups.length > 1 ? 'the selected room types' : g1 === 'Studio' ? 'studios' : g1 === 'Hotel' ? 'hotel rooms' : br(g1) + ' units';
+    const total = bySeason[''].size, have = new Set(cand.filter(r => !r.gap).map(r => resortKey(r.s))).size;
+    const shown = new Set(rows.map(r => resortKey(r.s))).size;
+    let count = !pointsOn() ? '<b>' + total + '</b> resorts' : '<b>' + have + ' / ' + total + '</b> resorts have ' + esc(sz);
+    if (state.season) count += ' · showing <b>' + shown + '</b> ' + (state.season === 'none' ? NONE_LABEL : 'in ' + state.season) + ' in week ' + wk;
+    else if (!state.showAll && pointsOn()) count += ' · showing those ' + have;
+    $('count').innerHTML = rows.length ? count : 'No resorts match these filters';
+
+    if (pointsOn() && state.types.size === 0) { $('typeAlert').hidden = false; $('typeAlert').innerHTML = '<strong>No room types are selected.</strong> Open “Room types” in the filters and select at least one to see points.'; }
+    else $('typeAlert').hidden = true;
+
+    renderTripNote(t);
+    // The new table is laid out in the next frame. Time that too (this runs before the frame's other work), then learn
+    // the cost per cell for the next redraw.
+    let js = 0; const cells = Math.max(1, rows.length * (cols.length + 2));
+    requestAnimationFrame(() => { const t1 = performance.now(); void wrap.scrollWidth; msPerCell = (js + performance.now() - t1) / cells; });
+    renderGrid(rows, cols, t, totals);
+    js = performance.now() - t0;
+    idle();
+  }
+
+  function model() {
+    const wk = WEEKS[state.idx].w, place = placeFilter(), t = trip();
     const cand = candidateRows(place);
     const bySeason = { '': new Set(), none: new Set() }; SEASONS.concat(WM_SEASONS).forEach(x => bySeason[x] = new Set());
     const keysWithSeason = new Set();
     for (const r of cand) { const k = resortKey(r.s); bySeason[''].add(k); const x = seasonOfRow(r, wk); if (x) { bySeason[x].add(k); keysWithSeason.add(k); } }
     for (const k of bySeason['']) if (!keysWithSeason.has(k)) bySeason.none.add(k);
-    renderSeasonList(bySeason);
 
     let rows = cand;
     if (!state.showAll) rows = rows.filter(r => !r.gap);
@@ -381,23 +448,7 @@
     }
     sortRows(rows, totals);
 
-    // Count line and messages
-    const groups = relevantGroups(), g1 = groups[0];
-    const sizesOr = groups.map(g => g === 'Studio' ? 'studios' : g === 'Hotel' ? 'hotel rooms' : br(g)).join(' or ') + (groups.some(g => /Bedroom/.test(g)) ? ' units' : '');
-    const sz = groups.length > 1 ? 'the checked room types' : g1 === 'Studio' ? 'studios' : g1 === 'Hotel' ? 'hotel rooms' : br(g1) + ' units';
-    const total = bySeason[''].size, have = new Set(cand.filter(r => !r.gap).map(r => resortKey(r.s))).size;
-    const shown = new Set(rows.map(r => resortKey(r.s))).size;
-    let count = !pointsOn() ? '<b>' + total + '</b> resorts' : '<b>' + have + ' / ' + total + '</b> resorts have ' + esc(sz);
-    if (state.season) count += ' · showing <b>' + shown + '</b> ' + (state.season === 'none' ? NONE_LABEL : 'in ' + state.season) + ' in week ' + wk;
-    else if (!state.showAll && pointsOn()) count += ' · showing those ' + have;
-    $('count').innerHTML = rows.length ? count : 'No resorts match these filters';
-
-    const picks = new Set(cand.filter(r => r.gap === 'pick').map(r => resortKey(r.s))).size;
-    if (pointsOn() && state.types.size === 0) { $('typeAlert').hidden = false; $('typeAlert').innerHTML = '<strong>No room types are selected.</strong> Open “Room types” in the filters and select at least one to see points.'; }
-    else $('typeAlert').hidden = true;
-
-    renderTripNote(t);
-    renderGrid(rows, cols, t, totals);
+    return { wk, place, t, cand, bySeason, rows, cols, totals };
   }
 
   function renderSeasonList(bySeason) {
@@ -431,14 +482,15 @@
     let prevYear = null;
     for (const c of cols) {
       const cls = 'wk' + (!tripMode && c === sel ? ' sel' : '') + (WEEKS.indexOf(c) === todayIdx || (c.start <= todayUTC && todayUTC < c.start + 7 * DAY) ? ' today' : '') + (tripMode ? ' part' : '');
-      const sub = tripMode ? '<small>' + fmt(c.nights[0], { month: 'short', day: 'numeric' }) + '</small><small class="n">' + c.nights.length + (c.nights.length === 1 ? ' night' : ' nights') + '</small>'
-        : '<small>' + fmt(c.start, { month: 'short', day: 'numeric' }) + '</small>';
+      const sub = tripMode ? '<small>' + fmt(c.nights[0], MD) + '</small><small class="n">' + c.nights.length + (c.nights.length === 1 ? ' night' : ' nights') + '</small>'
+        : '<small>' + fmt(c.start, MD) + '</small>';
       head += '<th class="' + cls + '" scope="col" title="' + esc(weekLabel(c)) + '">' + (c.y !== prevYear ? '<span class="yr">' + c.y + '</span>' : '') + '<b>' + c.w + '</b>' + sub + '</th>';
       prevYear = c.y;
     }
     if (tripMode && showType) head += '<th class="tot" scope="col">' + sortBtn('total', 'Total') + '</th>';
     head += '</tr></thead>';
 
+    const view = { rows, cols, sel, showType, tripMode, tot: tripMode && showType };
     let body = '<tbody>', any53 = false;
     rows.forEach((r, i) => {
       const s = r.s, ref = refOf(s), gk = x => resortKey(x.s) + '|' + bldgOf(x), first = i === 0 || gk(rows[i - 1]) !== gk(r);
@@ -457,18 +509,9 @@
         : r.gap === 'size' ? '<td class="typ gap">' + (groups.length === 1 ? esc(sizeWords(groups[0])) + ' ' + NONE_LABEL : 'These room types ' + NONE_LABEL) + '</td>'
         : r.gap === 'chart' ? '<td class="typ gap">Points chart coming soon</td>' : '<td class="typ">' + typeHtml(r) + '</td>';
       for (const c of cols) {
-        const info = r.gap ? { season: null, points: null } : weekInfo(r, c.w);
-        if (info.w53 === 'assumed') any53 = true;
-        const cls = 'c ' + (info.season ? CLS[info.season] : 'na') + (info.w53 === 'assumed' ? ' w53' : '') + (!tripMode && c === sel ? ' sel' : '');
-        let text, tip;
-        if (r.gap) { text = ''; tip = NONE_LABEL; }
-        else if (!showType) { text = info.season ? LETTER[info.season] || info.season[0] : '–'; tip = info.season || NONE_LABEL; }
-        else if (tripMode) {
-          let sum = 0, ok = true; for (const d of c.nights) { const n = nightly(r, c.w, isWeekend(d)); if (n == null) ok = false; else sum += n; }
-          text = ok ? short(sum) : '…'; tip = (info.season || NONE_LABEL) + ' · ' + c.nights.length + ' night(s) · ' + (ok ? full(sum) : 'nightly points coming soon');
-        } else { text = short(info.points); tip = (info.season || NONE_LABEL) + ' · ' + full(info.points); }
-        if (info.w53 === 'assumed') tip += ' · Week 53 isn’t in this resort’s chart; shown at week 1 points. Confirm with Club Wyndham.';
-        body += '<td class="' + cls + '" title="' + esc(weekLabel(c) + ' · ' + tip) + '">' + text + '</td>';
+        const x = cell(r, c, view, false);
+        if (x.w53) any53 = true;
+        body += '<td class="' + x.cls + '">' + x.text + '</td>';
       }
       if (tripMode && showType) { const v = totals.get(r); body += '<td class="tot">' + (r.gap ? '' : v == null ? '…' : short(v)) + '</td>'; }
       body += '</tr>';
@@ -476,13 +519,91 @@
     $('grid').innerHTML = head + body + '</tbody>';
     $('grid').classList.toggle('has-bld', showBld);
     $('grid').__rows = rows;
+    $('grid').__view = view;
+    hideTip(); focusCell = null;
+    const firstCell = $('grid').querySelector('tbody td.c.sel') || $('grid').querySelector('tbody td.c');
+    if (firstCell) setFocusCell(firstCell);
 
     $('week53Note').hidden = !any53;
     if (any53) $('week53Note').innerHTML = '<strong>Week 53</strong> (striped gray) isn’t listed in most resorts’ charts. It’s shown at week 1 points as a guide only; confirm with Club Wyndham before you book. Paniolo Greens and Little Sweden print week 53 as Prime, so theirs are colored.';
 
-    const th = $('grid').querySelector('thead .wk.sel');
-    if (th) { const wrap = $('gridWrap'), fixed = [...$('grid').querySelectorAll('thead .res, thead .bld, thead .typ')].reduce((n, c) => n + c.offsetWidth, 0);
-      wrap.scrollLeft = Math.max(0, th.offsetLeft - fixed - (wrap.clientWidth - fixed - th.offsetWidth) / 2); }
+    // Center the chosen week. Its position is read in the next frame, when the browser lays the new table out anyway,
+    // instead of forcing a second layout right here (planning #36).
+    cancelAnimationFrame(centerFrame);
+    centerFrame = requestAnimationFrame(() => {
+      const th = $('grid').querySelector('thead .wk.sel');
+      if (th) { const wrap = $('gridWrap'), fixed = [...$('grid').querySelectorAll('thead .res, thead .bld, thead .typ')].reduce((n, c) => n + c.offsetWidth, 0);
+        wrap.scrollLeft = Math.max(0, th.offsetLeft - fixed - (wrap.clientWidth - fixed - th.offsetWidth) / 2); }
+    });
+  }
+  let centerFrame = 0;
+
+  /* One week cell: its classes, its text, and (only when asked, for the tooltip) its description */
+  function cell(r, c, v, withTip) {
+    const info = r.gap ? { season: null, points: null } : weekInfo(r, c.w);
+    const cls = 'c ' + (info.season ? CLS[info.season] : 'na') + (info.w53 === 'assumed' ? ' w53' : '') + (!v.tripMode && c === v.sel ? ' sel' : '');
+    let text, tip;
+    if (r.gap) { text = ''; tip = NONE_LABEL; }
+    else if (!v.showType) { text = info.season ? LETTER[info.season] || info.season[0] : '–'; tip = info.season || NONE_LABEL; }
+    else if (v.tripMode) {
+      let sum = 0, ok = true; for (const d of c.nights) { const n = nightly(r, c.w, isWeekend(d)); if (n == null) ok = false; else sum += n; }
+      text = ok ? short(sum) : '…'; if (withTip) tip = (info.season || NONE_LABEL) + ' · ' + c.nights.length + ' night(s) · ' + (ok ? full(sum) : 'nightly points coming soon');
+    } else { text = short(info.points); if (withTip) tip = (info.season || NONE_LABEL) + ' · ' + full(info.points); }
+    if (withTip && info.w53 === 'assumed') tip += ' · Week 53 isn’t in this resort’s chart; shown at week 1 points. Confirm with Club Wyndham.';
+    return { cls, text, w53: info.w53 === 'assumed', tip: withTip ? weekLabel(c) + ' · ' + tip : '' };
+  }
+
+  /* ---- One shared tooltip for the week cells (planning #36), instead of a title on each of thousands of cells:
+     hover on a computer, tap on a phone, and the keyboard (Tab reaches the chosen week's first cell, then the arrow keys,
+     Home and End move). The focused cell is described by the tooltip, so screen readers read the same text. ---- */
+  const tip = $('cellTip');
+  let tipCell = null, tipTimer = 0, focusCell = null;
+  const cellAt = td => { // the row and column a week cell stands for
+    const v = $('grid').__view, tr = td.parentNode; if (!v || !tr || !td.classList.contains('c')) return null;
+    const first = tr.cells.length - v.cols.length - (v.tot ? 1 : 0), r = v.rows[tr.sectionRowIndex], c = v.cols[td.cellIndex - first];
+    return r && c ? { r, c, v } : null;
+  };
+  const tipText = td => { const a = cellAt(td); return a ? cell(a.r, a.c, a.v, true).tip : ''; };
+  $('grid').__tipText = tipText;
+  function showTip(td) {
+    clearTimeout(tipTimer);
+    const text = tipText(td); if (!text) { hideTip(); return; }
+    tipCell = td; tip.textContent = text; tip.hidden = false;
+    const b = td.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight, vw = document.documentElement.clientWidth;
+    tip.style.left = Math.max(8, Math.min(vw - w - 8, b.left + b.width / 2 - w / 2)) + 'px';
+    tip.style.top = (b.top - h - 6 >= 8 ? b.top - h - 6 : b.bottom + 6) + 'px';
+  }
+  function hideTip() { clearTimeout(tipTimer); tipCell = null; tip.hidden = true; }
+  function setFocusCell(td) {
+    if (focusCell && focusCell !== td) { focusCell.removeAttribute('tabindex'); focusCell.removeAttribute('aria-describedby'); }
+    focusCell = td; if (td) td.tabIndex = 0;
+  }
+  function wireTip() {
+    const g = $('grid'), canHover = window.matchMedia('(hover: hover)').matches;
+    g.addEventListener('mouseover', e => { if (!canHover) return; const td = e.target.closest('td.c');
+      if (!td) { clearTimeout(tipTimer); if (tipCell && tipCell !== document.activeElement) hideTip(); return; }
+      if (td !== tipCell) { clearTimeout(tipTimer); tipTimer = setTimeout(() => showTip(td), tipCell ? 0 : 250); } });
+    g.addEventListener('mouseleave', () => { clearTimeout(tipTimer); if (tipCell && tipCell !== document.activeElement) hideTip(); });
+    // A tap shows the cell's tooltip; a second tap on the same cell hides it (focus, which comes first, doesn't count)
+    let shownBefore = null;
+    g.addEventListener('pointerdown', e => { shownBefore = tipCell; });
+    g.addEventListener('click', e => { const td = e.target.closest('td.c'); if (td) { if (td === shownBefore && !canHover) hideTip(); else showTip(td); } shownBefore = null; });
+    document.addEventListener('click', e => { if (tipCell && !e.target.closest('#grid td.c')) hideTip(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && tipCell) hideTip(); });
+    $('gridWrap').addEventListener('scroll', () => { if (tipCell) { if (tipCell === document.activeElement) showTip(tipCell); else hideTip(); } }, { passive: true });
+    window.addEventListener('scroll', () => { if (tipCell) hideTip(); }, { passive: true });
+    g.addEventListener('focusin', e => { const td = e.target.closest('td.c'); if (!td) return; setFocusCell(td); td.setAttribute('aria-describedby', 'cellTip'); showTip(td); });
+    g.addEventListener('focusout', e => { const td = e.target.closest('td.c'); if (td) { td.removeAttribute('aria-describedby'); if (tipCell === td) hideTip(); } });
+    g.addEventListener('keydown', e => {
+      const td = e.target.closest('td.c'); if (!td) return;
+      const tr = td.parentNode, cs = [...tr.querySelectorAll('td.c')], i = cs.indexOf(td);
+      let next;
+      if (e.key === 'ArrowLeft') next = cs[i - 1]; else if (e.key === 'ArrowRight') next = cs[i + 1];
+      else if (e.key === 'Home') next = cs[0]; else if (e.key === 'End') next = cs[cs.length - 1];
+      else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') { const row = e.key === 'ArrowUp' ? tr.previousElementSibling : tr.nextElementSibling; if (row) next = row.querySelectorAll('td.c')[i]; }
+      else return;
+      e.preventDefault(); if (next) { setFocusCell(next); next.focus(); }
+    });
   }
 
   /* ---- Resort details ---- */
@@ -554,6 +675,7 @@
     });
     $('typeBox').addEventListener('click', e => { const b = e.target.closest('[data-types]'); if (!b) return;
       state.types = b.dataset.types === 'all' ? new Set($('typeTree').querySelectorAll('input[value]').length ? [...$('typeTree').querySelectorAll('input[value]')].map(x => x.value) : []) : new Set(); render(); });
+    $('search').addEventListener('focus', loadGeo);
     let t; $('search').addEventListener('input', e => { clearTimeout(t); t = setTimeout(() => { state.query = e.target.value.trim(); render(); }, 250); });
     $('radius').addEventListener('change', e => { state.radius = Number(e.target.value); render(); });
     $('collectionChecks').addEventListener('change', e => { e.target.checked ? state.collections.add(e.target.value) : state.collections.delete(e.target.value); render(); });
@@ -591,5 +713,6 @@
 
   buildControls();
   wire();
+  wireTip();
   render();
 })();
