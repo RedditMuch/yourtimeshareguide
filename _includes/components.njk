@@ -216,9 +216,17 @@
 </div>
 {%- endmacro %}
 
-{# ---------- ResortBadges ---------- #}
-{# kind: vip, cwa, affiliate, associate, closing #}
-{% macro badge(kind) -%}
-{%- set badgeText = { vip: "♛ VIP", cwa: "CWA", affiliate: "Affiliate", associate: "Associate", closing: "⚠ Closing" } -%}
-<span class="ytg-badge ytg-badge--{{ kind }}">{{ badgeText[kind] }}</span>
+{# ---------- ResortCell ---------- #}
+{# ResortCell: the season chart's Resort column, the owner's design (design system ResortCell).
+   r = { name, location, unavailable: bool, buildings: [..], vip: "yes" | "half" | "",
+         collection: "Affiliate" | "Associate" | "", cwa: bool, notice: "" } #}
+{% macro resortCell(r) -%}
+<th class="ytg-resort" scope="row"><button type="button" class="ytg-resort__name">{{ r.name }}</button>
+{%- if r.vip %}<svg class="ytg-crown{% if r.vip == 'half' %} ytg-crown--half{% endif %}" viewBox="0 0 16 12" aria-hidden="true"><path d="M1 10 2 3l4 3 2-5 2 5 4-3 1 7z"/></svg>{% endif -%}
+{%- if r.collection == "Affiliate" %}<i class="ytg-dot ytg-dot--affiliate" title="Affiliate resort"></i>{% elif r.collection == "Associate" %}<i class="ytg-dot ytg-dot--associate" title="Associate resort"></i>{% endif -%}
+{%- if r.cwa %}<span class="ytg-cwa" title="Club Wyndham Access">CWA</span>{% endif -%}
+{%- if r.notice %}<span class="ytg-notice" title="{{ r.notice }}">⚠</span>{% endif -%}
+<span class="ytg-resort__loc{% if r.unavailable %} ytg-resort__loc--unavailable{% endif %}">{{ r.location }}</span>
+{%- for b in r.buildings or [] %}<span class="ytg-resort__bldg">{{ b }}</span>{% endfor -%}
+</th>
 {%- endmacro %}
