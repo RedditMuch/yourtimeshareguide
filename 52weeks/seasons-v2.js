@@ -25,11 +25,11 @@
     'Club Wyndham Pagosa': { url: 'https://omniagentsolutions.com/Pagosa', site: 'The Pagosa Associations' }
   };
   const NOTICE_TEXT = 'Some associations at this resort voted to close, so its inventory is being consolidated.';
-  const COLLECTION_ORDER = ['Club Wyndham', 'Margaritaville Vacation Club', 'Club Pass', 'Affiliate', 'Associate'];
+  const COLLECTION_ORDER = ['Club Wyndham', 'Club Pass', 'Margaritaville Vacation Club', 'Affiliate', 'Associate']; // owner's order (planning #39)
   const COLLECTION_OFF = ['Club Pass', 'Associate'];
-  const PLACES = [['us', 'United States'], ['ca', 'Canada'], ['mx', 'Mexico'], ['isl', 'PR, USVI & Fiji'], ['anz', 'Australia & New Zealand']];
-  const PLACE_OFF = ['mx', 'isl', 'anz'];
-  const placeOf = s => ({ 'United States': 'us', 'Canada': 'ca', 'Mexico': 'mx', 'Puerto Rico': 'isl', 'U.S. Virgin Islands': 'isl', 'Fiji': 'isl', 'Australia': 'anz', 'New Zealand': 'anz' })[s.country] || 'other';
+  const PLACES = [['us', 'United States'], ['ca', 'Canada'], ['mx', 'Mexico'], ['isl', 'PR, USVI & Fiji']];
+  const PLACE_OFF = ['mx', 'isl'];
+  const placeOf = s => ({ 'United States': 'us', 'Canada': 'ca', 'Mexico': 'mx', 'Puerto Rico': 'isl', 'U.S. Virgin Islands': 'isl', 'Fiji': 'isl' })[s.country] || 'other';
   const GROUPS = ['Hotel', 'Studio', '1 Bedroom', '2 Bedroom', '3 Bedroom', '4 Bedroom', '5 Bedroom']; // smallest first
   const SPANS = [0, 5, 10, 15, -1]; // weeks before and after the chosen week; 0 = just that week, -1 = the whole year
   const RADII = [10, 25, 35, 50, 75, 100, 150, 200, 250, 350, 500, 750, 1000];
@@ -173,7 +173,6 @@
   const bldgOf = r => !r.p ? chartBldg(r.s.name, r.s) : (typeParts(r.p).bldg || chartBldg(r.s.name, r.p) || chartBldg(r.s.name, r.s));
   /* Each building on its own line: split lists at ";", ",", " / ", " and " and "&" (but not "Tanglewood I & II") */
   const bldgLines = b => BUILDING_LINES[b] || b.split(/;\s*|,\s*|\s+\/\s+|\s+and\s+|\s+&\s+(?![IVX]+\b|\d)/).map(x => x.trim()).filter(Boolean);
-  const cwaCount = new Set(D.rows.filter(s => refOf(s).club_wyndham_access === 'Yes').map(resortKey)).size;
 
   /* Season and points for one week of a row. Week 53 follows WEEK53, or else is gray and priced like week 1. */
   function weekInfo(row, w) {
@@ -236,7 +235,7 @@
     $('collectionChecks').innerHTML = collections.map(c => {
       const label = COLLECTION_LABEL[c] || c, dot = c === 'Affiliate' ? '<i class="dot aff"></i>' : c === 'Associate' ? '<i class="dot assoc"></i>' : '';
       const m = label.match(/^(\S+) \((.*)\)$/), name = c === 'Associate' && m ? esc(m[1]) + dot + '<span class="sub">' + esc(m[2]) + '</span>' : esc(label) + dot;
-      const soon = D.rows.some(s => s.collection === c && hasChart(s)) ? '' : '<span class="hint soon">Points coming soon</span>';
+      const soon = c === 'Associate' || D.rows.some(s => s.collection === c && hasChart(s)) ? '' : '<span class="hint soon">Points coming soon</span>';
       return '<label class="check"><input type="checkbox" value="' + esc(c) + '"><span class="lbl">' + name + soon + '</span></label>';
     }).join('');
     $('placeChecks').innerHTML = PLACES.map(([v, label]) => '<label class="check"><input type="checkbox" value="' + v + '"> ' + esc(label) + '</label>').join('');
@@ -268,7 +267,8 @@
     for (const i of $('collectionChecks').querySelectorAll('input')) i.checked = state.collections.has(i.value);
     for (const i of $('placeChecks').querySelectorAll('input')) i.checked = state.places.has(i.value);
     $('cwaOnly').checked = state.cwaOnly;
-    const ch = !state.collections.size && !state.cwaOnly ? 'No collections are checked, so all collections are shown.' : '';
+    // Shown only when no box in the whole Collections section is selected
+    const ch = !state.collections.size && !state.cwaOnly && !state.places.size ? 'No collections are selected, so all collections are shown.' : '';
     $('collectionHint').hidden = !ch; $('collectionHint').textContent = ch;
     for (const b of $('spanButtons').querySelectorAll('button')) b.setAttribute('aria-pressed', String(Number(b.dataset.span) === state.span));
     if (document.activeElement !== $('startDate')) $('startDate').value = state.start ? iso(state.start) : '';
@@ -293,10 +293,10 @@
   function candidateRows(place) {
     const rows = [], groups = relevantGroups();
     for (const s of D.rows) {
-      // Collections and locations each narrow the list only when something is checked, so they can't cancel each other out
-      // A resort shows if its collection is checked, or if Club Wyndham Access is checked and the resort is in the CWA Trust
-      const isCwa = refOf(s).club_wyndham_access === 'Yes';
-      if ((state.collections.size || state.cwaOnly) && !state.collections.has(s.collection) && !(state.cwaOnly && isCwa)) continue;
+      // Each group of the Collections section narrows the list only when something in it is selected, and the groups combine with AND
+      // (planning #39): resort types (any selected type), the CWA Trust (only its resorts), locations (any selected location).
+      if (state.collections.size && !state.collections.has(s.collection)) continue;
+      if (state.cwaOnly && refOf(s).club_wyndham_access !== 'Yes') continue;
       if (!place.test(s)) continue;
       const pl = placeOf(s); if (state.places.size && !state.places.has(pl)) continue; // applies to every collection (planning #38)
       if (!pointsOn()) { rows.push({ s, p: null, gap: hasChart(s) ? '' : 'chart' }); continue; }
@@ -559,7 +559,7 @@
     $('collectionChecks').addEventListener('change', e => { e.target.checked ? state.collections.add(e.target.value) : state.collections.delete(e.target.value); render(); });
     $('placeChecks').addEventListener('change', e => { e.target.checked ? state.places.add(e.target.value) : state.places.delete(e.target.value); render(); });
     $('collectionBox').addEventListener('click', e => { const b = e.target.closest('[data-coll]'); if (!b) return;
-      if (b.dataset.coll === 'all') { state.collections = new Set(collections); state.places = new Set(PLACES.map(p => p[0])); state.cwaOnly = true; } else { state.collections = new Set(); state.places = new Set(); state.cwaOnly = false; }
+      if (b.dataset.coll === 'all') { state.collections = new Set(collections); state.places = new Set(); state.cwaOnly = false; } else { state.collections = new Set(); state.places = new Set(); state.cwaOnly = false; }
       render(); });
     $('cwaOnly').addEventListener('change', e => { state.cwaOnly = e.target.checked; render(); });
     $('spanButtons').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { state.span = Number(b.dataset.span); render(); } });
