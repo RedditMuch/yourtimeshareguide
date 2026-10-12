@@ -1,11 +1,12 @@
 # Season chart v2 and the files it loads: SHA-256 of each file with line endings
-# normalized to LF. Matches the newest protected snapshot tag, season-chart-v2-2026-10-11-colors
-# (owner-approved changes: "select" wording, #35; softer season colors, #37).
+# normalized to LF. Matches the next protected snapshot tag, season-chart-v2-2026-10-11-names
+# (owner-approved changes: "select" wording, #35; softer season colors, #37;
+# resort, building and room-type names, planning #38).
 # Change this list only when the owner asks for a change to season chart v2,
 # in the same pull request as that change.
 2d1c4dde72504aeb8b529a30e6602e3cd8f5891dc82f205ec8374a30d347b48f  52weeks/seasons-v2.html
-6929489b8361906247f68dcec6a95ae9d03a2c05b9f2ffeff62e9f747b4ded88  52weeks/seasons-v2.css
-3bd610cc8591744547f7d3e023ab341cda1d425a546a0285bc2bf475996149fb  52weeks/seasons-v2.js
+3bd1b4edf4a380f4b01a02eb8be4242a5c78af65c9d0cecb6a7a0c8842939d06  52weeks/seasons-v2.css
+e4fb5d9b93a0104bdfe15ccb811922fa825fbe1cb66fbb790f790dd24e0ca61f  52weeks/seasons-v2.js
 81789ed43dc282916c5a2fe98003fd0ae2357ca2ecf22e37f5f3fc553f4189ee  52weeks/club-pass-points.js
 6021285dd8824c76780b15c9f7934ea4c6d8e241195a816316673f064a3d750d  52weeks/data.js
 7cbcafc2b825a3238dd17423acb22d971acb43f3660d7a69a970acf7b0f52ac0  52weeks/geo-data.js
