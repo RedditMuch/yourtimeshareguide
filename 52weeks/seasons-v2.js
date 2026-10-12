@@ -72,8 +72,12 @@
   };
   const BUILDING_LINES = {
     /* Directory Page 18 (CW search bar page 22) and Page 19 (CW search bar page 23), in the owner's wording (planning #38, item 6) */
-    'Tanglewood I & II; Ridgewood I; Ridgewood II buildings 1A–15A': ['Tanglewood I & II', 'Ridgewood I', 'Ridgewood II Buildings 1A-15A'],
-    'Ridgewood II buildings 16A–24A': ['Ridgewood II Buildings 16A-24A'],
+    'Tanglewood I & II; Ridgewood I; Ridgewood II buildings 1A–15A': ['Tanglewood I & II', 'Ridgewood I', 'Ridgewood II - Buildings 1A-15A'],
+    'Ridgewood II buildings 16A–24A': ['Ridgewood II - Buildings 16A-24A'],
+    /* SeaWatch: the directory prints "Towers & North Tower" (Page 154, CW search bar page 158); the resort map names the towers
+       (https://clubwyndham.wyndhamdestinations.com/us/en/resorts/wyndham-hotels-resorts/united-states-of-america/south-carolina/myrtle-beach/club-wyndham-seawatch-resort).
+       Owner's wording, 2026-10-11 (planning #38). The "Villas" chart stays as the directory prints it. */
+    'Towers & North Tower': ['South Tower 1', 'South Tower 2', 'North Tower'],
     /* Directory Page 44 (CW search bar page 48): "Eagle’s Loft, Ptarmigan Townhomes" */
     "Eagle's Loft, Ptarmigan Townhomes": ['Eagle’s Loft', 'Ptarmigan Townhomes']
   };
