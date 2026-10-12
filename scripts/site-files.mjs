@@ -21,5 +21,7 @@ export const IGNORED_NAMES = [".DS_Store", "Thumbs.db", "desktop.ini"];
 // Files the build makes from the design system (design-system/, which is not
 // itself published). scripts/check-build.mjs checks each one is in _site/.
 // - tokens.css is generated from design-system/tokens.json by scripts/build-tokens.mjs;
+// - tokens-no-fonts.css is tokens.css without its @font-face rules (eleventy.config.js; season chart v2, planning #36);
 // - components.css and ytg.js are design-system/components.css and ytg.js, copied as they are.
-export const GENERATED_FILES = ["assets/css/tokens.css", "assets/css/components.css", "assets/js/ytg.js"];
+export const TOKENS_NO_FONTS_OUTPUT = "assets/css/tokens-no-fonts.css";
+export const GENERATED_FILES = ["assets/css/tokens.css", TOKENS_NO_FONTS_OUTPUT, "assets/css/components.css", "assets/js/ytg.js"];
