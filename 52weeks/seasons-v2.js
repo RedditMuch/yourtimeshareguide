@@ -27,13 +27,60 @@
   const NOTICE_TEXT = 'Some associations at this resort voted to close, so its inventory is being consolidated.';
   const COLLECTION_ORDER = ['Club Wyndham', 'Margaritaville Vacation Club', 'Club Pass', 'Affiliate', 'Associate'];
   const COLLECTION_OFF = ['Club Pass', 'Associate'];
-  const PLACES = [['us', 'United States'], ['ca', 'Canada'], ['mx', 'Mexico'], ['isl', 'PR, USVI & Fiji']];
-  const PLACE_OFF = ['mx', 'isl'];
-  const placeOf = s => ({ 'United States': 'us', 'Canada': 'ca', 'Mexico': 'mx', 'Puerto Rico': 'isl', 'U.S. Virgin Islands': 'isl', 'Fiji': 'isl' })[s.country] || 'other';
+  const PLACES = [['us', 'United States'], ['ca', 'Canada'], ['mx', 'Mexico'], ['isl', 'PR, USVI & Fiji'], ['anz', 'Australia & New Zealand']];
+  const PLACE_OFF = ['mx', 'isl', 'anz'];
+  const placeOf = s => ({ 'United States': 'us', 'Canada': 'ca', 'Mexico': 'mx', 'Puerto Rico': 'isl', 'U.S. Virgin Islands': 'isl', 'Fiji': 'isl', 'Australia': 'anz', 'New Zealand': 'anz' })[s.country] || 'other';
   const GROUPS = ['Hotel', 'Studio', '1 Bedroom', '2 Bedroom', '3 Bedroom', '4 Bedroom', '5 Bedroom']; // smallest first
   const SPANS = [0, 5, 10, 15, -1]; // weeks before and after the chosen week; 0 = just that week, -1 = the whole year
   const RADII = [10, 25, 35, 50, 75, 100, 150, 200, 250, 350, 500, 750, 1000];
   const MAX_DAYS = 14;
+
+  /* ---- Name corrections (planning #38, owner's list of 2026-10-11) ----
+     Per resort: "types" maps a raw room type (as in points-data.js or the chart PDF column) to the room type and building to show,
+     with "rank" to order room types of the same size the way the chart prints them (left to right, lowest to highest points);
+     "charts" maps a raw chart name to the building it stands for ('' = none). BUILDING_LINES gives a building's lines where the
+     general split would be wrong. Directory = Club Wyndham Member's Directory 2026/2027. */
+  const NAME_FIX = {
+    /* Chart: cw-club-pass-santa-fe-pc.pdf columns "Hotel Room, Compact Studio, 1 BR Compact, 1 BR". "Compact" is part of the room type, not a building. */
+    'WorldMark Santa Fe': { types: {
+      'Hotel Room': { type: 'Hotel Room', bldg: '', rank: 1 }, 'Compact Studio': { type: 'Compact Studio', bldg: '', rank: 2 },
+      '1 BR Compact': { type: '1 BR Compact', bldg: '', rank: 3 }, '1 BR': { type: '1 BR', bldg: '', rank: 4 } } },
+    /* Chart: cw-club-pass-scottsdale-pc.pdf, columns left to right (lowest to highest points within each size): Studio Hotel, 1 BR Suite, 1 BR Deluxe, 1 BR Penthouse, 2 BR, 3 BR, 1 BR Presidential, 2 BR Presidential, 4 BR Presidential */
+    'WorldMark Scottsdale': { types: Object.fromEntries(['Studio Hotel', '1 BR Suite', '1 BR Deluxe', '1 BR Penthouse', '2 BR', '3 BR', '1 BR Presidential', '2 BR Presidential', '4 BR Presidential']
+      .map((t, i) => [t, { type: t, bldg: '', rank: i + 1 }])) },
+    /* Chart: cw-angel-fire-cabin-share-pc.pdf (its own resort page, "Angel Fire Resort - Cabin Share I"): the name already says Cabin Share I */
+    'Angel Fire Resort - Cabin Share I': { types: { 'Cabin Share I 3 BR': { type: '3 BR', bldg: '' } } },
+    /* Directory Page 18 (CW search bar page 22): the 2 BR Lockoff belongs to the "Tanglewood I & II, Ridgewood I, Ridgewood II – buildings 1A-15A" chart */
+    'Club Wyndham Flagstaff': { types: {
+      '2 Bedroom Lockoff — Tanglewood I & II, Ridgewood I, Ridgewood II buildings 1A–15A': { type: '2 BR Lockoff', bldg: 'Tanglewood I & II; Ridgewood I; Ridgewood II buildings 1A–15A' } } },
+    /* Directory Page 45 (CW search bar page 49): columns "Teal Landing" and "Peregrine"; its notes call them "Teal Landing" and "Peregrine Townhomes" */
+    'Club Wyndham Pagosa': { types: Object.fromEntries([
+      ['Teal Landing', '1 Bedroom Suite'], ['Teal Landing', '1 Bedroom Deluxe'], ['Teal Landing', '2 Bedroom Deluxe'], ['Teal Landing', '3 Bedroom Deluxe'],
+      ['Teal Landing', '4 Bedroom Presidential'], ['Teal Landing', '2 Bedroom Lockoff'], ['Peregrine', '1 Bedroom'], ['Peregrine', '1 Bedroom Deluxe'], ['Peregrine', '2 Bedroom Lockoff']
+    ].map(([b, t]) => [b + ' — ' + t, { type: t.replace('Bedroom', 'BR'), bldg: b === 'Peregrine' ? 'Peregrine Townhomes' : b }])) },
+    /* Directory Page 132 (CW search bar page 136) "Fairway Forest & Foxhunt" and Page 133 (CW search bar page 137) "Mountain Laurel" */
+    'Club Wyndham Resort at Fairfield Sapphire Valley': { charts: { 'Chart 1': 'Mountain Laurel' } },
+    /* Directory Page 98 (CW search bar page 102) and Page 99 (CW search bar page 103): one chart each, no building named */
+    'Makai Club': { charts: { 'All listed suites': '' } },
+    'Makai Club Cottages': { charts: { 'All listed suites': '' } },
+    /* Directory Page 107 (CW search bar page 111): the column is "Studio-J (Asian Inspired)"; the parentheses are part of the room type, not a building */
+    'Club Wyndham Royal Garden at Waikiki': { types: { 'Studio-J (Asian Inspired)': { type: 'Studio-J (Asian Inspired)', bldg: '' } } },
+    /* Directory Page 156 (CW search bar page 160): "Oceanview" and "Oceanfront", one word, no hyphen */
+    'Club Wyndham Towers on the Grove': { types: {
+      'Studio Ocean-view': { type: 'Studio Oceanview', bldg: '' }, '1 Bedroom Ocean-view': { type: '1 BR Oceanview', bldg: '' },
+      '1 Bedroom Ocean-front': { type: '1 BR Oceanfront', bldg: '' }, '2 Bedroom Ocean-front': { type: '2 BR Oceanfront', bldg: '' } } }
+  };
+  const BUILDING_LINES = {
+    /* Directory Page 18 (CW search bar page 22) and Page 19 (CW search bar page 23), in the owner's wording (planning #38, item 6) */
+    'Tanglewood I & II; Ridgewood I; Ridgewood II buildings 1A–15A': ['Tanglewood I & II', 'Ridgewood I', 'Ridgewood II - Buildings 1A-15A'],
+    'Ridgewood II buildings 16A–24A': ['Ridgewood II - Buildings 16A-24A'],
+    /* SeaWatch: the directory prints "Towers & North Tower" (Page 154, CW search bar page 158); the resort map names the towers
+       (https://clubwyndham.wyndhamdestinations.com/us/en/resorts/wyndham-hotels-resorts/united-states-of-america/south-carolina/myrtle-beach/club-wyndham-seawatch-resort).
+       Owner's wording, 2026-10-11 (planning #38). The "Villas" chart stays as the directory prints it. */
+    'Towers & North Tower': ['South Tower 1', 'South Tower 2', 'North Tower'],
+    /* Directory Page 44 (CW search bar page 48): "Eagle’s Loft, Ptarmigan Townhomes" */
+    "Eagle's Loft, Ptarmigan Townhomes": ['Eagle’s Loft', 'Ptarmigan Townhomes']
+  };
 
   const br = s => String(s || '').replace(/\bBedroom\b/g, 'BR');
   const groupLabel = g => g === 'Hotel' ? 'Hotel room' : br(g);
@@ -103,17 +150,29 @@
   const regions = [...new Set(D.rows.map(regionOf).filter(Boolean))].sort();
   const regionByName = new Map(regions.map(r => [norm(r), r]));
   /* Room type first, then any building name: "Mountain Laurels: 1 Bedroom Deluxe" becomes "1 BR Deluxe · Mountain Laurels" */
-  /* Building names can come three ways: "Mountain Laurels: 1 Bedroom Deluxe", "Studio Deluxe (Ocean View)",
-     or, on Club Wyndham's own charts, before the room type ("Cabin Share II 3 BR Deluxe") */
-  const typeParts = p => { const t = p.roomType || (classOf.get(p.category) || {}).label || '', i = t.indexOf(': ');
+  /* Building names can come four ways: "Mountain Laurels: 1 Bedroom Deluxe", "Studio Deluxe (Ocean View)", "2 Bedroom Lockoff — Mountain Laurel"
+     (either side of the dash), or, on Club Wyndham's own charts, before the room type ("Cabin Share II 3 BR Deluxe").
+     NAME_FIX overrides those rules where they read a name wrong. */
+  const scheduleName = new Map(D.rows.map(s => [s.id, s.name]));
+  const SIZE_WORD = /^(Hotel|Studio|\d\s*(BR|Bedroom)\b)/i;
+  const typeParts = p => { const t = p.roomType || (classOf.get(p.category) || {}).label || '';
+    const fix = ((NAME_FIX[scheduleName.get(p.scheduleId)] || {}).types || {})[t];
+    if (fix) return { type: fix.type, bldg: fix.bldg, rank: fix.rank };
+    const i = t.indexOf(': ');
     if (i > 0) return { type: br(t.slice(i + 2)), bldg: t.slice(0, i) };
+    const d = t.split(' — '); if (d.length === 2) { const [a, b] = SIZE_WORD.test(d[0]) ? d : [d[1], d[0]];
+      return { type: br(a), bldg: p.multiple && norm(b) === norm(p.schedule) ? p.schedule : b }; } // "— the whole chart" stays with its chart
     const m = t.match(/^(.*?)\s*\(([^)]+)\)\s*$/); if (m) return { type: br(m[1]), bldg: m[2] };
     if (p.cpChart) { const k = t.search(/\b(Hotel|Studio|\d\s*BR|\d\s*Bedroom|I BR)\b/i); if (k > 0) return { type: br(t.slice(k)), bldg: t.slice(0, k).trim() }; }
     return { type: br(t), bldg: '' }; };
   const typeLabel = p => { const x = typeParts(p); return x.type + (x.bldg ? ' · ' + x.bldg : ''); };
-  const typeHtml = r => esc(typeParts(r.p).type) + (r.twice ? ' <span class="bldg" title="The directory prints this room type twice, with the same points.">(listed twice)</span>' : '');
-  /* Building or building group for a row: from the room type name ("Mountain Laurels: ..."), or from the chart it belongs to */
-  const bldgOf = r => !r.p ? (r.s.multiple ? r.s.schedule : '') : (typeParts(r.p).bldg || (r.p.multiple ? r.p.schedule : '') || (r.s.multiple ? r.s.schedule : ''));
+  const typeHtml = r => esc(typeParts(r.p).type);
+  /* Building or building group for a row: from the room type name ("Mountain Laurels: ..."), or from the chart it belongs to.
+     A chart's name counts as a building only when it isn't a placeholder ("Chart 1", "All listed suites"). */
+  const chartBldg = (name, x) => { const f = (NAME_FIX[name] || {}).charts || {}; return x.schedule in f ? f[x.schedule] : x.multiple && !/^All listed suites$/i.test(x.schedule) ? x.schedule : ''; };
+  const bldgOf = r => !r.p ? chartBldg(r.s.name, r.s) : (typeParts(r.p).bldg || chartBldg(r.s.name, r.p) || chartBldg(r.s.name, r.s));
+  /* Each building on its own line: split lists at ";", ",", " / ", " and " and "&" (but not "Tanglewood I & II") */
+  const bldgLines = b => BUILDING_LINES[b] || b.split(/;\s*|,\s*|\s+\/\s+|\s+and\s+|\s+&\s+(?![IVX]+\b|\d)/).map(x => x.trim()).filter(Boolean);
   const cwaCount = new Set(D.rows.filter(s => refOf(s).club_wyndham_access === 'Yes').map(resortKey)).size;
 
   /* Season and points for one week of a row. Week 53 follows WEEK53, or else is gray and priced like week 1. */
@@ -239,15 +298,15 @@
       const isCwa = refOf(s).club_wyndham_access === 'Yes';
       if ((state.collections.size || state.cwaOnly) && !state.collections.has(s.collection) && !(state.cwaOnly && isCwa)) continue;
       if (!place.test(s)) continue;
-      const pl = placeOf(s); if (state.places.size && pl !== 'other' && !state.places.has(pl)) continue;
+      const pl = placeOf(s); if (state.places.size && !state.places.has(pl)) continue; // applies to every collection (planning #38)
       if (!pointsOn()) { rows.push({ s, p: null, gap: hasChart(s) ? '' : 'chart' }); continue; }
       if (!hasChart(s)) { rows.push({ s, p: null, gap: 'chart' }); continue; }
       const all = pointsBySchedule.get(s.id) || [];
-      // Drop exact repeats (same room type, same points), e.g. a suite printed twice as part of two lockoffs
+      // Show exact repeats (same room type, same points) once: the directory prints a suite again for each lockoff it is part of
       const seen = new Map(), ticked = [];
       for (const p of all.filter(p => state.types.has(p.category))) {
         const row = { s, p, gap: '' }, key = bldgOf(row) + '|' + typeLabel(p) + '|' + JSON.stringify(p.weeklyPoints);
-        if (seen.has(key)) { seen.get(key).twice = true; continue; }
+        if (seen.has(key)) continue;
         seen.set(key, row); ticked.push(row);
       }
       if (ticked.length) rows.push(...ticked);
@@ -261,8 +320,12 @@
   function sortRows(rows, totals) {
     const d = state.sort.dir;
     const byResort = (a, b) => shortName(a.s.name).localeCompare(shortName(b.s.name)) || a.s.schedule.localeCompare(b.s.schedule) || bldgOf(a).localeCompare(bldgOf(b));
+    // Smallest unit first (hotel room, studio, 1 BR, ...), then the chart's own order where NAME_FIX gives one (planning #38), then the room type order
+    const sizeOrder = r => r.p ? GROUPS.indexOf(groupOfType(r.p.category)) : 99;
+    const rankOf = r => (r.p && typeParts(r.p).rank) || 0;
     const typeOrder = r => r.p ? classOf.get(r.p.category).order : 9999;
-    const byType = (a, b) => typeOrder(a) - typeOrder(b) || (a.p && b.p ? typeLabel(a.p).localeCompare(typeLabel(b.p)) : 0);
+    const byChart = (a, b) => a.s === b.s && rankOf(a) && rankOf(b) ? rankOf(a) - rankOf(b) : 0;
+    const byType = (a, b) => sizeOrder(a) - sizeOrder(b) || byChart(a, b) || typeOrder(a) - typeOrder(b) || (a.p && b.p ? typeLabel(a.p).localeCompare(typeLabel(b.p)) : 0);
     if (state.sort.key === 'type') return rows.sort((a, b) => d * byType(a, b) || byResort(a, b));
     if (state.sort.key === 'total') return rows.sort((a, b) => { const x = totals.get(a), y = totals.get(b); return (x == null) - (y == null) || d * ((x || 0) - (y || 0)) || byResort(a, b); });
     return rows.sort((a, b) => d * byResort(a, b) || byType(a, b));
@@ -384,7 +447,7 @@
       if (first) {
         const vip = ref.vip_benefits === 'Yes' ? crownSvg('') : ref.vip_benefits === 'Conditional' ? crownSvg('half') : '';
         const dot = s.collection === 'Affiliate' ? '<i class="dot aff" title="Affiliate resort"></i>' : s.collection === 'Associate' ? '<i class="dot assoc" title="Associate resort"></i>' : '';
-        const bldg = bldgOf(r) ? '<span class="res-bldg">' + esc(bldgOf(r)) + '</span>' : '';
+        const bldg = bldgOf(r) ? bldgLines(bldgOf(r)).map(b => '<span class="res-bldg">' + esc(b) + '</span>').join('') : ''; // one line per building
         const extra = !showType && r.gap === 'chart' ? '<span class="res-loc gap">Points chart coming soon</span>' : '';
         body += '<th class="res" scope="row"' + (span > 1 ? ' rowspan="' + span + '"' : '') + '><button type="button" class="res-name" data-row="' + i + '">' + esc(shortName(s.name)) + '</button>' + vip + dot + (ref.club_wyndham_access === 'Yes' ? '<span class="cwa" title="Club Wyndham Access: one of the resorts in the Club Wyndham Access Trust">CWA</span>' : '') + (NOTICES[s.name] ? '<span class="notice" title="' + esc(NOTICE_TEXT) + '">⚠</span>' : '') +
           '<span class="res-loc">' + esc(s.location || [s.city, s.state].filter(Boolean).join(', ')) + '</span>' + bldg + extra + '</th>';
