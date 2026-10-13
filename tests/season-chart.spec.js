@@ -31,8 +31,8 @@ const ALL_COLLECTIONS = ["Club Wyndham", "Margaritaville Vacation Club", "Club P
 
 // Opens the chart with saved filters (the chart reads them from localStorage), optionally selects every room type or one size,
 // and returns every row: resort name, building lines, room type, whether it's gray.
-async function chartRows(page, { collections = ALL_COLLECTIONS, query = "", cwa = false, size = "all" } = {}) {
-  const state = { collections: { set: collections }, cwaOnly: cwa, query, span: 0 };
+async function chartRows(page, { collections = ALL_COLLECTIONS, query = "", cwa = false, size = "all", showAll = true } = {}) {
+  const state = { collections: { set: collections }, cwaOnly: cwa, query, span: 0, showAll };
   await page.addInitScript(s => localStorage.setItem("ytg-season-chart-v2", s), JSON.stringify(state));
   await page.goto("/52weeks/seasons-v2.html");
   await expect(page.locator("#grid tbody tr").first()).toBeVisible();
@@ -317,5 +317,97 @@ test.describe("season chart v2 filters round (2026-10-12)", () => {
     expect(await page.locator("#countryList button").allTextContents()).toEqual(["Australia", "Canada", "Fiji", "Mexico", "New Zealand", "Puerto Rico", "United States", "US Virgin Islands"]);
     await page.locator("#countryList button", { hasText: "Fiji" }).click();
     await expect(page.locator("#search")).toHaveValue("Fiji");
+  });
+});
+
+// ---- Owner, 2026-10-12: "To see more resorts" chips, and the country message ----
+test.describe("season chart v2 To see more resorts (2026-10-12)", () => {
+  const more = page => page.locator("#more");
+  const chip = (page, act) => page.locator(`#more .more-chip[data-act="${act}"]`);
+  const checked = page => page.locator("#collectionChecks input:checked").evaluateAll(els => els.map(e => e.value));
+  const search = async (page, q) => { await page.evaluate(q => { const s = document.querySelector("#search"); s.value = q; s.dispatchEvent(new Event("input")); }, q); await page.waitForTimeout(400); await settled(page); };
+
+  test("nothing hidden: says you are seeing every matching resort", async ({ page }) => {
+    await chartRows(page, { size: "all" });
+    await expect(more(page)).toHaveAttribute("aria-live", "polite");
+    await expect(more(page)).toContainText("You’re seeing every resort that matches.");
+    await expect(page.locator("#more .more-chip")).toHaveCount(0);
+  });
+
+  test("Collections chip adds the collections needed", async ({ page }) => {
+    await chartRows(page, { collections: ["Club Wyndham"], size: "1 Bedroom" });
+    await expect(chip(page, "collections")).toContainText(/\+\d+ resorts? in other collections/);
+    await expect(chip(page, "collections")).toContainText("Add them");
+    await chip(page, "collections").focus(); await page.keyboard.press("Enter"); await settled(page);
+    expect((await checked(page)).length).toBeGreaterThan(1);
+    await expect(chip(page, "collections")).toHaveCount(0);
+    await expect(more(page)).toContainText("every resort that matches");
+  });
+
+  test("Collections chip also shows when nothing matches", async ({ page }) => {
+    await chartRows(page, { collections: ["Club Wyndham"], size: "1 Bedroom", query: "Fiji" });
+    await expect(page.locator("#grid td.empty")).toHaveCount(1);
+    await expect(chip(page, "collections")).toBeVisible();
+    await chip(page, "collections").click(); await settled(page);
+    await expect(page.locator("#grid td.empty")).toHaveCount(0);
+  });
+
+  test("Seasons chip: other seasons this week", async ({ page }) => {
+    await chartRows(page, { size: "1 Bedroom" });
+    await page.locator("#seasonList .season-opt[data-season]:not([data-season=''])").evaluateAll(els => { const b = els.find(e => !e.disabled); b.click(); });
+    await settled(page);
+    await expect(chip(page, "seasons")).toContainText(/\+\d+ resorts? in other seasons this week/);
+    await chip(page, "seasons").click(); await settled(page);
+    await expect(page.locator("#seasonList .season-opt[aria-pressed=true]")).toHaveText(/All/);
+    await expect(chip(page, "seasons")).toHaveCount(0);
+  });
+
+  test("Sizes chip: resorts without the selected size", async ({ page }) => {
+    // The "show all resorts" box is gone from the grid; only an older saved state can still hide resorts without the size
+    await chartRows(page, { size: "Studio", showAll: false });
+    await expect(chip(page, "sizes")).toContainText(/\+\d+ resorts? without studios/);
+    await chip(page, "sizes").click(); await settled(page);
+    await expect(page.locator("#bedrooms")).toHaveValue("all");
+    await expect(chip(page, "sizes")).toHaveCount(0);
+  });
+
+  test("Search chip clears a narrowing search", async ({ page }) => {
+    await chartRows(page, { size: "all" });
+    await search(page, "Arizona");
+    await expect(chip(page, "search")).toContainText(/\+\d+ resorts?/);
+    await chip(page, "search").click(); await settled(page);
+    await expect(page.locator("#search")).toHaveValue("");
+    await expect(chip(page, "search")).toHaveCount(0);
+  });
+
+  test("Reset still returns to the defaults", async ({ page }) => {
+    await chartRows(page, { collections: ["Club Wyndham"], size: "1 Bedroom" });
+    await chip(page, "collections").click(); await settled(page);
+    await tick(page, "#reset");
+    expect(await checked(page)).toEqual(["Club Wyndham", "Affiliate"]);
+  });
+
+  test("choosing Fiji in the countries list selects its collections and shows the message", async ({ page }) => {
+    await chartRows(page, { collections: ["Club Wyndham"], size: "1 Bedroom" });
+    await page.locator("#countryTipBtn").focus(); await page.keyboard.press("Enter");
+    await page.locator("#countryList button", { hasText: "Fiji" }).click(); await settled(page);
+    expect(await checked(page)).toContain("Club Pass");
+    await expect(page.locator("#grid td.empty")).toHaveCount(0);
+    await expect(more(page).locator(".note")).toContainText("Showing Fiji resorts. For the most resorts:");
+    await expect(chip(page, "allcoll")).toHaveText("All collections");
+    await expect(chip(page, "allseasons")).toHaveText("All seasons");
+  });
+
+  test("typing a country never changes Collections, but shows the chips", async ({ page }) => {
+    await chartRows(page, { collections: ["Club Wyndham", "Affiliate"], size: "1 Bedroom" });
+    for (const q of ["Fiji", "PR", "NZ", "USVI", "US", "USA", "United States"]) {
+      await search(page, q);
+      expect(await checked(page)).toEqual(["Club Wyndham", "Affiliate"]);
+      await expect(more(page).locator(".note")).toContainText("resorts. For the most resorts:");
+    }
+    await search(page, "Fiji");
+    await chip(page, "allcoll").click(); await settled(page);
+    expect(await checked(page)).toContain("Club Pass");
+    await expect(page.locator("#grid td.empty")).toHaveCount(0);
   });
 });

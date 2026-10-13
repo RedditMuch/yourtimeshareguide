@@ -455,6 +455,58 @@
     renderGrid(rows, cols, t, totals);
     js = performance.now() - t0;
     idle();
+    scheduleMore(m, sz);
+  }
+
+  /* ---- "To see more resorts" (owner, 2026-10-12) ----
+     Runs after the chart is drawn, never inside it. For each filter that may hide resorts, the same candidateRows()/season logic
+     is run once with that one restriction relaxed; the difference in resorts is the chip's count. */
+  let moreTimer = 0;
+  const scheduleMore = (m, sz) => { clearTimeout(moreTimer); moreTimer = setTimeout(() => renderMore(m, sz)); };
+  const keysOf = (cand, season, wk) => {
+    const out = new Map();
+    for (const r of cand) {
+      if (!state.showAll && r.gap) continue;
+      if (season === 'none' ? seasonOfRow(r, wk) : season && seasonOfRow(r, wk) !== season) continue;
+      out.set(resortKey(r.s), r.s.collection);
+    }
+    return out;
+  };
+  const withState = (patch, fn) => { const old = {}; for (const k in patch) { old[k] = state[k]; state[k] = patch[k]; } try { return fn(); } finally { Object.assign(state, old); } };
+  const extra = (relaxed, now) => { const x = []; for (const [k, c] of relaxed) if (!now.has(k)) x.push(c); return x; };
+  const allCollectionsOn = () => !state.cwaOnly && !state.collections.size || collections.every(c => state.collections.has(c));
+  const plural = n => n + ' resort' + (n === 1 ? '' : 's');
+  function renderMore(m, sz) {
+    const wk = m.wk, now = keysOf(m.cand, state.season, wk), chips = [];
+    if (state.collections.size || state.cwaOnly) {
+      const x = withState({ collections: new Set(), cwaOnly: false }, () => extra(keysOf(candidateRows(m.place), state.season, wk), now));
+      if (x.length) chips.push({ act: 'collections', need: [...new Set(x)], n: x.length, text: 'in other collections', go: 'Add them' });
+    }
+    if (state.season) {
+      const x = extra(keysOf(m.cand, '', wk), now);
+      if (x.length) chips.push({ act: 'seasons', n: x.length, text: 'in other seasons this week', go: 'All seasons' });
+    }
+    if (pointsOn() && !state.showAll) {
+      const x = withState({ types: new Set(allTypeIds()) }, () => extra(keysOf(candidateRows(m.place), state.season, wk), now));
+      if (x.length) chips.push({ act: 'sizes', n: x.length, text: 'without ' + sz, go: 'Show all sizes' });
+    }
+    if (state.query) {
+      const x = withState({ query: '' }, () => extra(keysOf(candidateRows(placeFilter()), state.season, wk), now));
+      if (x.length) chips.push({ act: 'search', n: x.length, text: 'outside this search', go: 'Clear search' });
+    }
+    let h = '';
+    const country = countryOfQuery(state.query);
+    if (country) {
+      const label = (COUNTRIES.find(c => c[1] === country) || [country])[0], noColl = allCollectionsOn(), noSeason = !state.season;
+      h += '<p class="note">Showing ' + esc(label) + ' resorts. For the most resorts: <span class="more-line" style="display:inline-flex">'
+        + '<button type="button" class="more-chip" data-act="allcoll"' + (noColl ? ' disabled' : '') + '>All collections</button>'
+        + '<button type="button" class="more-chip" data-act="allseasons"' + (noSeason ? ' disabled' : '') + '>All seasons</button></span></p>';
+    }
+    h += chips.length
+      ? '<p class="more-line"><span class="more-t">To see more resorts</span>' + chips.map(c => '<button type="button" class="more-chip" data-act="' + c.act + '"'
+          + (c.need ? ' data-need="' + esc(c.need.join('|')) + '"' : '') + '><b>+' + plural(c.n) + '</b> ' + esc(c.text) + ' <span class="go">' + esc(c.go) + '</span></button>').join('') + '</p>'
+      : '<p class="more-line more-ok">You’re seeing every resort that matches.</p>';
+    const box = $('more'); if (box.__h !== h) { box.__h = h; box.innerHTML = h; }
   }
 
   function model() {
@@ -742,7 +794,21 @@
     tipWrap.addEventListener('focusout', e => { if (!tipWrap.contains(e.relatedTarget)) showTip(false); });
     tipWrap.addEventListener('keydown', e => { if (e.key === 'Escape') { showTip(false); tipBtn.focus(); } });
     document.addEventListener('click', e => { if (!tipWrap.contains(e.target)) showTip(false); });
-    tip.addEventListener('click', e => { const b = e.target.closest('[data-country]'); if (!b) return; state.query = b.dataset.country; $('search').value = state.query; showTip(false); render(); });
+    tip.addEventListener('click', e => { const b = e.target.closest('[data-country]'); if (!b) return; state.query = b.dataset.country; $('search').value = state.query;
+      // Choosing a country also selects the collections its resorts need (never removes any), so results show
+      const c = countryOfQuery(state.query); if (c && (state.collections.size || state.cwaOnly)) for (const s of D.rows) if (s.country === c) state.collections.add(s.collection);
+      showTip(false); render(); });
+    /* "To see more resorts" chips act like the user changing the filter */
+    $('more').addEventListener('click', e => {
+      const b = e.target.closest('[data-act]'); if (!b || b.disabled) return;
+      const a = b.dataset.act;
+      if (a === 'collections') for (const c of b.dataset.need.split('|')) state.collections.add(c);
+      else if (a === 'allcoll') { for (const c of collections) state.collections.add(c); }
+      else if (a === 'seasons' || a === 'allseasons') state.season = '';
+      else if (a === 'sizes') { state.types = new Set(allTypeIds()); }
+      else if (a === 'search') { state.query = ''; $('search').value = ''; clearTimeout(t); }
+      $('more').focus(); render();
+    });
     $('grid').addEventListener('click', e => {
       const sb = e.target.closest('.sort');
       if (sb) { const k = sb.dataset.sort; state.sort = state.sort.key === k ? { key: k, dir: -state.sort.dir } : { key: k, dir: 1 }; render(); return; }
