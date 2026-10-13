@@ -283,7 +283,7 @@
     $('spanButtons').innerHTML = SPANS.map(n => '<button type="button" data-span="' + n + '">' + (n < 0 ? 'All' : n === 0 ? 'Selected' : n) + '</button>').join('');
     const firstDay = iso(WEEKS.find(x => x.y === startYear).start), lastDay = iso(WEEKS[WEEKS.length - 1].start + 6 * DAY);
     for (const id of ['startDate', 'endDate']) { $(id).min = firstDay; $(id).max = lastDay; }
-    const names = [...new Set(D.rows.map(s => shortName(s.name)).concat(D.rows.map(s => s.name)))].sort();
+    const names = [...new Set(D.rows.map(s => s.name))].sort(); // official names only; a short form would just repeat each one (owner, 2026-10-12)
     $('places').innerHTML = regions.concat(COUNTRIES.map(c => c[0])).filter((r, i, a) => a.indexOf(r) === i && r !== 'U.S. Virgin Islands').map(r => '<option value="' + esc(r) + '"></option>').join('') + names.map(n => '<option value="' + esc(n) + '"></option>').join('') + (GEO ? GEO.options() : '');
   }
 
