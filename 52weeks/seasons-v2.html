@@ -63,14 +63,16 @@
                 <button type="button" class="link" id="countryTipBtn" aria-label="Explore Wyndham timeshare locations: countries and territories" aria-expanded="false" aria-controls="countryTip">Explore</button>
                 <div class="country-tip" id="countryTip" role="group" aria-label="Wyndham Timeshare Locations (Countries &amp; Territories)" hidden>
                   <p class="tip-title">Wyndham Timeshare Locations (Countries &amp; Territories)</p>
+                  <p class="tip-choose">Choose From:</p>
                   <ul id="countryList"></ul>
                 </div>
               </span>
+              <span class="dot-sep" aria-hidden="true">·</span>
               <button type="button" class="link" id="clearSearch">Clear</button>
             </span>
           </div>
-          <label for="search" class="sub-label">Resort Name, State, Country, or City &amp; State</label>
-          <input id="search" type="search" list="places" placeholder="e.g. Arizona, Canada, Cypress Palms, Orlando, FL" autocomplete="off">
+          <label for="search" class="sub-label">City &amp; State, Resort Name, State or Country</label>
+          <input id="search" type="search" list="places" placeholder="e.g. Bay Club, Maine, Canada" autocomplete="off">
           <datalist id="places"></datalist>
         </div>
         <div class="field">
@@ -106,6 +108,7 @@
         </div>
       </div>
       <section class="timebox" aria-label="Choose the weeks or dates to show">
+      <button type="button" class="link" id="clearDates">Clear Dates</button>
       <div class="mode" role="radiogroup" aria-label="Choose By Week or By Dates">
         <label class="mode-opt"><input type="radio" name="mode" value="week" checked> By Week</label>
         <label class="mode-opt"><input type="radio" name="mode" value="dates"> By Dates</label>
@@ -127,7 +130,6 @@
           <div class="field"><label for="startDate">Start Date</label><input type="date" id="startDate"></div>
           <div class="field"><label for="endDate">End Date</label><input type="date" id="endDate"></div>
         </div>
-        <button type="button" class="link" id="clearDates">Clear Dates</button>
         <p class="trip-note" id="tripNote" aria-live="polite"></p>
       </div>
       </section>

@@ -343,3 +343,25 @@ select:disabled{background:#f0f3f5;color:var(--muted)}
 .label-row{justify-content:flex-start;gap:10px}
 .label-row>.field-title{font-weight:700;font-size:14px}
 .field label.sub-label{display:block;font-size:12px;font-weight:400;color:#5b6770;margin:2px 0 4px}
+
+/* Polish round 2 (owner, 2026-10-12): smaller week box, inputs on one line in both modes, Clear Dates above the By Dates button,
+   Location subheader closer, Explore popup centred and condensed with a Choose From list */
+.timebox{padding:5px 10px 6px;grid-template-rows:18px auto;gap:0 14px;align-items:start}
+.timebox #weekBox,.timebox #dateBox{grid-area:1/2/3/3;align-self:start;align-content:start;align-items:start}
+.timebox #clearDates{position:static;grid-area:1/1;justify-self:end;width:50%;text-align:center;height:18px;padding:0}
+.timebox .mode{grid-area:2/1;align-self:start;margin-top:4px}
+@media (max-width:1100px){
+  .timebox{grid-template-rows:auto auto auto;gap:4px}
+  .timebox #clearDates{min-height:36px;height:auto;display:inline-flex;align-items:center;justify-content:center}
+  .timebox .mode{margin-top:0}
+  .timebox #weekBox,.timebox #dateBox{grid-area:3/1}
+}
+.dot-sep{color:#5b6770;margin:0 -2px}
+.label-row{gap:8px;align-items:center}
+.label-tools{gap:8px}
+.field label.sub-label{margin:-4px 0 3px;line-height:1.25}
+.country-tip{padding:6px 10px}
+.country-tip .tip-title{text-align:center;margin:0 0 1px;line-height:1.2}
+.country-tip .tip-choose{text-align:center;font-size:12.5px;font-weight:600;margin:0 0 3px;line-height:1.2}
+.country-tip ul{gap:0;padding-left:22px}
+.country-tip .link{font-size:13.5px;line-height:1.3}
