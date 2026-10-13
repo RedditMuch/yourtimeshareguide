@@ -234,11 +234,11 @@ test.describe("season chart v2 Collections filters (2026-10-12)", () => {
     await expect(page.locator("#grid tbody .dot.assoc")).toHaveCount(7);
   });
 
-  test("no Select all / Clear links and no Locations buttons; resort types are in the owner's order", async ({ page }) => {
+  test("no Locations buttons; resort types are in the owner's order", async ({ page }) => {
     await chartRows(page, { size: null });
-    await expect(page.locator("[data-coll], [data-types], #placeChecks")).toHaveCount(0);
+    await expect(page.locator("#placeChecks")).toHaveCount(0);
     const labels = await page.locator("#collectionChecks .lbl").allTextContents();
-    expect(labels.map(l => l.replace(/Points coming soon|\(Australia & New Zealand\)|Australia & New Zealand/, "").trim())).toEqual(["Club Wyndham", "Affiliate", "WorldMark / Club Pass ($99)", "Margaritaville", "Associate"]);
+    expect(labels.map(l => l.replace(/Points coming soon|\(Australia & New Zealand\)|Australia & New Zealand/, "").trim())).toEqual(["Club Wyndham", "Affiliate", "WorldMark / Club Pass", "Margaritaville", "Associate"]);
     await expect(page.locator("#collectionChecks .coll-sep")).toHaveCount(1);
   });
 
@@ -356,9 +356,9 @@ test.describe("season chart v2 filters round (2026-10-12)", () => {
     await chartRows(page, { size: null });
     const isPhone = (page.viewportSize()?.width ?? 1280) < 600;
     await page.evaluate(() => { document.getElementById("filterBox").open = true; });
-    await expect(page.locator("label.sub-label")).toHaveText("City & State, Resort Name, State or Country");
+    await expect(page.locator("label.sub-label[for=search]")).toHaveText("City & State, Resort Name, State or Country");
     await expect(page.locator("#search")).toHaveAttribute("placeholder", "e.g. Bay Club, Maine, Canada");
-    const gap = await page.evaluate(() => document.querySelector("label.sub-label").getBoundingClientRect().top - document.querySelector("#locationTitle").getBoundingClientRect().bottom);
+    const gap = await page.evaluate(() => document.querySelector("label.sub-label[for=search]").getBoundingClientRect().top - document.querySelector("#locationTitle").getBoundingClientRect().bottom);
     expect(gap).toBeLessThanOrEqual(4);
     const dot = await page.evaluate(() => { const r = s => document.querySelector(s).getBoundingClientRect(), d = document.querySelector(".label-tools .dot-sep"); return { txt: d.textContent, aria: d.getAttribute("aria-hidden"), l: r(".label-tools .dot-sep").left - r("#countryTipBtn").right, rt: r("#clearSearch").left - r(".label-tools .dot-sep").right }; });
     expect(dot.txt).toBe("·"); expect(dot.aria).toBe("true");
@@ -372,7 +372,7 @@ test.describe("season chart v2 filters round (2026-10-12)", () => {
     expect(tip.ct).toBe("Choose From:"); expect(tip.ta).toBe("center"); expect(tip.tc).toBe("center");
     expect(Math.abs(tip.title)).toBeLessThan(3); expect(Math.abs(tip.choose)).toBeLessThan(3);
     expect(tip.indent).toBeGreaterThan(24);
-    expect(tip.h).toBeLessThan(isPhone ? 260 : 240);
+    expect(tip.h).toBeLessThan(isPhone ? 290 : 270); // includes the blank line under the last country (owner, 2026-10-13)
     await page.keyboard.press("Escape");
     await expect(page.locator("#countryTip")).toBeHidden();
     await page.locator("#countryTipBtn").focus(); await page.keyboard.press("Enter");
@@ -482,5 +482,30 @@ test.describe("season chart v2 To see more resorts (2026-10-12)", () => {
     await chip(page, "allcoll").click(); await settled(page);
     expect(await checked(page)).toContain("Club Pass");
     await expect(page.locator("#grid td.empty")).toHaveCount(0);
+  });
+});
+
+// ---- Owner, 2026-10-13: Collections Select All / Clear, filter order ----
+test.describe("season chart v2 round 5 (2026-10-13)", () => {
+  test("Select All skips CWA, Clear clears everything including CWA; Bedrooms and Room Types sit below Collections", async ({ page }) => {
+    await chartRows(page, { size: null });
+    await page.evaluate(() => { document.getElementById("filterBox").open = true; });
+    await expect(page.locator("#collAll")).toHaveText("Select All");
+    await expect(page.locator("#collClear")).toHaveText("Clear");
+    await page.evaluate(() => document.getElementById("cwaOnly").click());
+    await page.locator("#collAll").click();
+    await settled(page);
+    const on = await page.locator("#collectionChecks input").evaluateAll(els => els.map(e => e.checked));
+    expect(on.length).toBeGreaterThan(0); expect(on.every(Boolean)).toBe(true);
+    await expect(page.locator("#cwaOnly")).toBeChecked(); // Select All leaves CWA as it was
+    await page.evaluate(() => document.getElementById("cwaOnly").click());
+    await page.locator("#collAll").click(); await settled(page);
+    await expect(page.locator("#cwaOnly")).not.toBeChecked(); // and never turns it on
+    await page.evaluate(() => document.getElementById("cwaOnly").click());
+    await page.locator("#collClear").click(); await settled(page);
+    expect(await page.locator("#collectionChecks input:checked").count()).toBe(0);
+    await expect(page.locator("#cwaOnly")).not.toBeChecked();
+    const order = await page.evaluate(() => { const y = id => document.getElementById(id).getBoundingClientRect().top; return [y("collectionBox"), y("bedrooms"), y("typeBox")]; });
+    expect(order[0]).toBeLessThan(order[1]); expect(order[1]).toBeLessThan(order[2]);
   });
 });

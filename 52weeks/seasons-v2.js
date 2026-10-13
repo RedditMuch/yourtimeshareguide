@@ -25,7 +25,7 @@
   /* Charts that print week 53 themselves (2026/2027): Page 91 (CW search bar page 95) and Page 184 (CW search bar page 188).
      Every other resort's week 53 is gray, priced like week 1, until Club Wyndham confirms. */
   const WEEK53 = { 'Club Wyndham Paniolo Greens': 'Prime', 'Little Sweden': 'Prime' };
-  const COLLECTION_LABEL = { 'Club Pass': 'WorldMark / Club Pass ($99)', 'Margaritaville Vacation Club': 'Margaritaville', 'Associate': 'Associate (Australia & New Zealand)' };
+  const COLLECTION_LABEL = { 'Club Pass': 'WorldMark / Club Pass', 'Margaritaville Vacation Club': 'Margaritaville', 'Associate': 'Associate (Australia & New Zealand)' };
   /* Resorts where some associations voted to close (Club Wyndham, "Your Resort Portfolio Is Getting A Refresh", 2025; bankruptcy tracking sites from Owner Services) */
   const NOTICES = {
     'Club Wyndham Star Island': { url: 'https://cases.omniagentsolutions.com/?clientId=3756', site: 'Star Island Vacation Ownership Association, Inc.' },
@@ -769,6 +769,9 @@
     $('radius').addEventListener('change', e => { state.radius = Number(e.target.value); render(); });
     $('collectionChecks').addEventListener('change', e => { e.target.checked ? state.collections.add(e.target.value) : state.collections.delete(e.target.value); render(); });
     $('cwaOnly').addEventListener('change', e => { state.cwaOnly = e.target.checked; render(); });
+    // Select All turns on every Collections box except CWA; Clear turns them all off, CWA included (owner, 2026-10-13)
+    $('collAll').addEventListener('click', () => { state.collections = new Set(collections); render(); });
+    $('collClear').addEventListener('click', () => { state.collections = new Set(); state.cwaOnly = false; render(); });
     $('spanButtons').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { state.span = Number(b.dataset.span); render(); } });
     const openPicker = e => { try { e.target.showPicker(); } catch (_) {} };
     $('startDate').addEventListener('click', openPicker);

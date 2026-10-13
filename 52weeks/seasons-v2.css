@@ -365,3 +365,12 @@ select:disabled{background:#f0f3f5;color:var(--muted)}
 .country-tip .tip-choose{text-align:center;font-size:12.5px;font-weight:600;margin:0 0 3px;line-height:1.2}
 .country-tip ul{gap:0;padding-left:22px}
 .country-tip .link{font-size:13.5px;line-height:1.3}
+/* Round 5 (owner, 2026-10-13): Select All / Clear for Collections, shorter drop-downs, tighter option lists, space under the last country */
+.coll-tools{margin:2px 0 4px;display:flex;align-items:center;gap:8px;font-size:13px}
+.coll-tools .link{font-size:13px}
+.field label.sub-label + select{margin-top:0}
+select,input[type=date]{min-height:32px;padding-top:3px;padding-bottom:3px}
+.timebox select,.timebox input[type=date],.timebox .segmented.small,.timebox .segmented.small button{height:32px;min-height:32px}
+#radius,#bedrooms{max-width:170px}
+select option{padding:1px 8px;min-height:0;line-height:1.2;font-size:13.5px}
+.country-tip ul{padding-bottom:1.3em}
