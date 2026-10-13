@@ -308,7 +308,7 @@ test.describe("season chart v2 filters round (2026-10-12)", () => {
     expect(await page.locator("#spanButtons button").allTextContents()).toEqual(["Selected", "1", "2", "5", "10", "15", "All"]);
   });
 
-  test("By Week / By Dates box: Title Case labels, same size in both modes, equal control heights, Clear Dates above the inputs", async ({ page }) => {
+  test("By Week / By Dates box: Title Case labels, same size in both modes, equal control heights", async ({ page }) => {
     await chartRows(page, { size: null });
     const box = () => page.locator(".timebox").boundingBox();
     const week = await box();
@@ -323,11 +323,62 @@ test.describe("season chart v2 filters round (2026-10-12)", () => {
     await expect(page.locator("label[for=startDate]")).toHaveText("Start Date");
     await expect(page.locator("label[for=endDate]")).toHaveText("End Date");
     await expect(page.locator("#clearDates")).toHaveText("Clear Dates");
-    const g = await page.evaluate(() => { const r = s => document.querySelector(s).getBoundingClientRect(); return { clearBottom: r("#clearDates").bottom, inputTop: r("#endDate").top, sh: r("#startDate").height, eh: r("#endDate").height }; });
-    expect(g.clearBottom).toBeLessThanOrEqual(g.inputTop);
-    expect(g.sh).toBe(g.eh);
+    expect((await page.locator("#startDate").boundingBox()).height).toBe((await page.locator("#endDate").boundingBox()).height);
     await page.locator(".mode-opt", { hasText: "By Week" }).click();
     expect((await box()).height).toBe(week.height);
+  });
+
+  test("polish 2: date inputs share a line with the week controls; Clear Dates sits right above the By Dates button; box stays compact", async ({ page }) => {
+    await chartRows(page, { size: null });
+    const isPhone = (page.viewportSize()?.width ?? 1280) < 600;
+    const rect = s => page.evaluate(s => { const r = document.querySelector(s).getBoundingClientRect(), t = document.querySelector(".timebox").getBoundingClientRect(); return { x: r.x, y: r.y - t.y, w: r.width, h: r.height, b: r.bottom - t.y }; }, s);
+    const wk = await rect("#week");
+    const week = await page.locator(".timebox").boundingBox();
+    await expect(page.locator("#clearDates")).toBeHidden();
+    await page.locator(".mode-opt", { hasText: "By Dates" }).click();
+    await expect(page.locator("#clearDates")).toBeVisible();
+    const ds = await rect("#startDate"), de = await rect("#endDate"), clr = await rect("#clearDates");
+    const btn = await page.locator(".mode-opt", { hasText: "By Dates" }).evaluate(e => { const r = e.getBoundingClientRect(); return { x: r.x, y: r.y - document.querySelector(".timebox").getBoundingClientRect().y, w: r.width }; });
+    expect(ds.y).toBe(wk.y); expect(ds.h).toBe(wk.h);
+    expect(de.y).toBe(ds.y); expect(de.h).toBe(ds.h);
+    expect(clr.b).toBeLessThanOrEqual(btn.y);
+    expect(btn.y - clr.b).toBeLessThan(12);
+    expect(Math.abs((clr.x + clr.w / 2) - (btn.x + btn.w / 2))).toBeLessThan(3);
+    expect((await page.locator(".timebox").boundingBox()).height).toBe(week.height);
+    expect(week.height).toBeLessThan(isPhone ? 220 : 110);
+    if (isPhone) expect(clr.h).toBeGreaterThanOrEqual(32);
+    await page.locator(".mode-opt", { hasText: "By Week" }).click();
+    await expect(page.locator("#clearDates")).toBeHidden();
+    expect((await rect("#week")).y).toBe(wk.y);
+  });
+
+  test("polish 2: Location header, placeholder, dot, and the Explore popup opens only on click or key", async ({ page }) => {
+    await chartRows(page, { size: null });
+    const isPhone = (page.viewportSize()?.width ?? 1280) < 600;
+    await page.evaluate(() => { document.getElementById("filterBox").open = true; });
+    await expect(page.locator("label.sub-label")).toHaveText("City & State, Resort Name, State or Country");
+    await expect(page.locator("#search")).toHaveAttribute("placeholder", "e.g. Bay Club, Maine, Canada");
+    const gap = await page.evaluate(() => document.querySelector("label.sub-label").getBoundingClientRect().top - document.querySelector("#locationTitle").getBoundingClientRect().bottom);
+    expect(gap).toBeLessThanOrEqual(4);
+    const dot = await page.evaluate(() => { const r = s => document.querySelector(s).getBoundingClientRect(), d = document.querySelector(".label-tools .dot-sep"); return { txt: d.textContent, aria: d.getAttribute("aria-hidden"), l: r(".label-tools .dot-sep").left - r("#countryTipBtn").right, rt: r("#clearSearch").left - r(".label-tools .dot-sep").right }; });
+    expect(dot.txt).toBe("·"); expect(dot.aria).toBe("true");
+    expect(Math.abs(dot.l - dot.rt)).toBeLessThan(2);
+    if (!isPhone) { await page.locator("#countryTipBtn").hover(); await page.waitForTimeout(300); await expect(page.locator("#countryTip")).toBeHidden(); }
+    await expect(page.locator("#countryTipBtn")).toHaveAttribute("aria-expanded", "false");
+    await page.locator("#countryTipBtn").click();
+    await expect(page.locator("#countryTip")).toBeVisible();
+    await expect(page.locator("#countryTipBtn")).toHaveAttribute("aria-expanded", "true");
+    const tip = await page.evaluate(() => { const p = document.querySelector("#countryTip"), c = p.getBoundingClientRect(), mid = c.left + c.width / 2, m = s => { const r = p.querySelector(s).getBoundingClientRect(); return r.left + r.width / 2; }; return { title: m(".tip-title") - mid, choose: m(".tip-choose") - mid, ct: p.querySelector(".tip-choose").textContent, ta: getComputedStyle(p.querySelector(".tip-title")).textAlign, tc: getComputedStyle(p.querySelector(".tip-choose")).textAlign, indent: p.querySelector("#countryList button").getBoundingClientRect().left - c.left, h: c.height }; });
+    expect(tip.ct).toBe("Choose From:"); expect(tip.ta).toBe("center"); expect(tip.tc).toBe("center");
+    expect(Math.abs(tip.title)).toBeLessThan(3); expect(Math.abs(tip.choose)).toBeLessThan(3);
+    expect(tip.indent).toBeGreaterThan(24);
+    expect(tip.h).toBeLessThan(isPhone ? 260 : 240);
+    await page.keyboard.press("Escape");
+    await expect(page.locator("#countryTip")).toBeHidden();
+    await page.locator("#countryTipBtn").focus(); await page.keyboard.press("Enter");
+    await expect(page.locator("#countryTip")).toBeVisible();
+    await page.locator("h1").click();
+    await expect(page.locator("#countryTip")).toBeHidden();
   });
 
   test("countries info lists the eight places and fills the search", async ({ page }) => {

@@ -786,11 +786,9 @@
     $('clearDates').addEventListener('click', () => { state.start = state.end = null; if (state.sort.key === 'total') state.sort = { key: 'resort', dir: 1 }; render(); });
     $('reset').addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); reset(); });
     $('clearSearch').addEventListener('click', () => { state.query = ''; $('search').value = ''; clearTimeout(t); render(); $('search').focus(); });
-    /* Countries info: hover or keyboard focus on desktop, tap on a phone; choosing a country fills the search */
+    /* Countries info: opens only on click, tap, Enter or Space (never on hover); choosing a country fills the search */
     const tipWrap = $('countryTipWrap'), tipBtn = $('countryTipBtn'), tip = $('countryTip');
     const showTip = on => { tip.hidden = !on; tipBtn.setAttribute('aria-expanded', String(on)); };
-    tipWrap.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') showTip(true); });
-    tipWrap.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse' && !tipWrap.contains(document.activeElement)) showTip(false); });
     tipBtn.addEventListener('click', () => showTip(tip.hidden));
     tipWrap.addEventListener('focusout', e => { if (!tipWrap.contains(e.relatedTarget)) showTip(false); });
     tipWrap.addEventListener('keydown', e => { if (e.key === 'Escape') { showTip(false); tipBtn.focus(); } });
