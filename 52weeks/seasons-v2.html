@@ -42,20 +42,6 @@
       <div class="fold-body">
 
         <div class="field">
-          <label for="bedrooms">Bedrooms</label>
-          <select id="bedrooms"></select>
-        </div>
-
-        <details class="sub fold" id="typeBox">
-          <summary>Room Types <span class="hint" id="typeSummary"></span></summary>
-          <div class="indent">
-            <div id="typeTree"></div>
-          </div>
-        </details>
-
-        <hr class="sep">
-
-        <div class="field">
           <div class="label-row">
             <span class="field-title" id="locationTitle">Location</span>
             <span class="label-tools">
@@ -76,7 +62,8 @@
           <datalist id="places"></datalist>
         </div>
         <div class="field">
-          <label for="radius">Search Radius <span class="hint">(Requires City &amp; State)</span></label>
+          <label for="radius">Search Radius</label>
+          <label for="radius" class="sub-label">Requires City &amp; State</label>
           <select id="radius"></select>
           <p class="hint" id="searchHint">The search radius needs a city and state, such as Orlando, Florida.</p>
         </div>
@@ -86,6 +73,7 @@
         <details class="sub fold" id="collectionBox" open>
           <summary>Collections</summary>
           <div class="indent">
+            <p class="coll-tools"><button type="button" class="link" id="collAll">Select All</button><span class="dot-sep" aria-hidden="true">·</span><button type="button" class="link" id="collClear">Clear</button></p>
             <p class="subhead">Resort type</p>
             <div class="checks" id="collectionChecks"></div>
             <p class="subhead">Trust</p>
@@ -93,6 +81,20 @@
           </div>
         </details>
         <p class="coll-msg" id="collectionHint" role="status" hidden></p>
+
+        <hr class="sep">
+
+        <div class="field">
+          <label for="bedrooms">Bedrooms</label>
+          <select id="bedrooms"></select>
+        </div>
+
+        <details class="sub fold" id="typeBox">
+          <summary>Room Types <span class="hint" id="typeSummary"></span></summary>
+          <div class="indent">
+            <div id="typeTree"></div>
+          </div>
+        </details>
       </div>
     </details>
     </div>
