@@ -81,6 +81,7 @@
   const BUILDING_LINES = {
     /* Directory Page 18 (CW search bar page 22) and Page 19 (CW search bar page 23), in the owner's wording (planning #38, item 6) */
     'Tanglewood I & II; Ridgewood I; Ridgewood II buildings 1A–15A': ['Tanglewood I & II', 'Ridgewood I', 'Ridgewood II - Buildings 1A-15A'],
+    'Lake Tara Gardens; Lake Tara Townhouses; Lake Tara Townhouses II; Tara Cove': ['Lake Tara Gardens', 'Lake Tara Townhouses', 'Lake Tara Townhouses II', 'Tara Cove'],
     'Ridgewood II buildings 16A–24A': ['Ridgewood II - Buildings 16A-24A'],
     /* SeaWatch: the directory prints "Towers & North Tower" (Page 154, CW search bar page 158); the resort map names the towers
        (https://clubwyndham.wyndhamdestinations.com/us/en/resorts/wyndham-hotels-resorts/united-states-of-america/south-carolina/myrtle-beach/club-wyndham-seawatch-resort).
@@ -169,7 +170,7 @@
     if (!(s.weeks || []).some(x => CLS[x]) && rows[0]) s.weeks = rows[0].weeks.slice(0, 52); // season colors for "None"
   }
   /* Villas at Fairfield (owner, 2026-10-12): one points chart by unit type, for these buildings (Lake Tara Townhouses III has only 2 BR units) */
-  const VILLAS = { 'Club Wyndham Villas at Fairfield': [['Lake Tara Gardens'], ['Lake Tara Townhouses'], ['Lake Tara Townhouses II'], ['Tara Cove'], ['Lake Tara Townhouses III', ['2 Bedroom']]] };
+  const VILLAS = { 'Club Wyndham Villas at Fairfield': [['Lake Tara Gardens; Lake Tara Townhouses; Lake Tara Townhouses II; Tara Cove', ['Studio', '1 Bedroom', '2 Bedroom', '2 Bedroom Loft']], ['Lake Tara Townhouses III', ['2 Bedroom']]] };
   for (const s of D.rows) { const b = VILLAS[s.name], rows = pointsBySchedule.get(s.id); if (!b || !rows) continue;
     pointsBySchedule.set(s.id, b.flatMap(([name, only]) => rows.filter(p => !only || only.includes(p.roomType)).map(p => Object.assign({}, p, { multiple: true, schedule: name })))); }
   const refByName = new Map(REF.map(r => [r.name, r])), refById = new Map(REF.filter(r => r.resort_id).map(r => [r.resort_id, r]));
@@ -289,7 +290,7 @@
 
   function syncControls() {
     for (const r of document.querySelectorAll('input[name=mode]')) r.checked = r.value === state.mode;
-    $('weekBox').hidden = state.mode !== 'week'; $('dateBox').hidden = state.mode !== 'dates';
+    $('weekBox').hidden = state.mode !== 'week'; $('dateBox').hidden = state.mode !== 'dates'; $('clearDates').hidden = state.mode !== 'dates';
     $('week').value = String(state.idx);
     $('seasonWeek').textContent = WEEKS[state.idx].w;
     state.colorsOnly = state.types.size === 0; // Bedrooms = None is the same as no room types ticked
