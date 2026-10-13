@@ -25,20 +25,23 @@
   /* Charts that print week 53 themselves (2026/2027): Page 91 (CW search bar page 95) and Page 184 (CW search bar page 188).
      Every other resort's week 53 is gray, priced like week 1, until Club Wyndham confirms. */
   const WEEK53 = { 'Club Wyndham Paniolo Greens': 'Prime', 'Little Sweden': 'Prime' };
-  const COLLECTION_LABEL = { 'Club Pass': 'WorldMark ($99)', 'Margaritaville Vacation Club': 'Margaritaville', 'Associate': 'Associate (Australia & New Zealand)' };
+  const COLLECTION_LABEL = { 'Club Pass': 'WorldMark / Club Pass ($99)', 'Margaritaville Vacation Club': 'Margaritaville', 'Associate': 'Associate (Australia & New Zealand)' };
   /* Resorts where some associations voted to close (Club Wyndham, "Your Resort Portfolio Is Getting A Refresh", 2025; bankruptcy tracking sites from Owner Services) */
   const NOTICES = {
     'Club Wyndham Star Island': { url: 'https://cases.omniagentsolutions.com/?clientId=3756', site: 'Star Island Vacation Ownership Association, Inc.' },
     'Club Wyndham Pagosa': { url: 'https://omniagentsolutions.com/Pagosa', site: 'The Pagosa Associations' }
   };
   const NOTICE_TEXT = 'Some associations at this resort voted to close, so its inventory is being consolidated.';
-  const COLLECTION_ORDER = ['Club Wyndham', 'Club Pass', 'Margaritaville Vacation Club', 'Affiliate', 'Associate']; // owner's order (planning #39)
+  const COLLECTION_ORDER = ['Club Wyndham', 'Affiliate', 'Club Pass', 'Margaritaville Vacation Club', 'Associate']; // owner's order (2026-10-12): Club Wyndham, Affiliate, a separator, then the rest
+  const COLLECTION_AFTER_SEPARATOR = 'Club Pass';
+  const RESET_COLLECTIONS = ['Club Wyndham', 'Affiliate'];
   const COLLECTION_OFF = ['Club Pass', 'Associate'];
-  const PLACES = [['us', 'United States'], ['ca', 'Canada'], ['mx', 'Mexico'], ['isl', 'PR, USVI & Fiji']];
-  const PLACE_OFF = ['mx', 'isl'];
-  const placeOf = s => ({ 'United States': 'us', 'Canada': 'ca', 'Mexico': 'mx', 'Puerto Rico': 'isl', 'U.S. Virgin Islands': 'isl', 'Fiji': 'isl' })[s.country] || 'other';
+  /* Countries and territories for search (owner, 2026-10-12): label shown, the country name used in the data; aliases are what people type */
+  const COUNTRIES = [['Australia', 'Australia'], ['Canada', 'Canada'], ['Fiji', 'Fiji'], ['Mexico', 'Mexico'], ['New Zealand', 'New Zealand'], ['Puerto Rico', 'Puerto Rico'], ['United States', 'United States'], ['US Virgin Islands', 'U.S. Virgin Islands']];
+  const COUNTRY_ALIASES = { 'pr': 'Puerto Rico', 'nz': 'New Zealand', 'usvi': 'U.S. Virgin Islands', 'us virgin islands': 'U.S. Virgin Islands', 'u s virgin islands': 'U.S. Virgin Islands', 'virgin islands': 'U.S. Virgin Islands',
+    'us': 'United States', 'usa': 'United States', 'u s a': 'United States', 'united states': 'United States', 'united states of america': 'United States' };
   const GROUPS = ['Hotel', 'Studio', '1 Bedroom', '2 Bedroom', '3 Bedroom', '4 Bedroom', '5 Bedroom']; // smallest first
-  const SPANS = [0, 5, 10, 15, -1]; // weeks before and after the chosen week; 0 = just that week, -1 = the whole year
+  const SPANS = [0, 1, 2, 5, 10, 15, -1]; // weeks before and after the chosen week; 0 = just that week, -1 = the whole year
   const RADII = [10, 25, 35, 50, 75, 100, 150, 200, 250, 350, 500, 750, 1000];
   const MAX_DAYS = 14;
 
@@ -160,6 +163,7 @@
   const regionOf = s => s.country === 'United States' ? s.state : s.country;
   const regions = [...new Set(D.rows.map(regionOf).filter(Boolean))].sort();
   const regionByName = new Map(regions.map(r => [norm(r), r]));
+  const countryOfQuery = q => COUNTRY_ALIASES[norm(q)] || (COUNTRIES.find(c => norm(c[0]) === norm(q)) || [])[1] || null;
   /* Room type first, then any building name: "Mountain Laurels: 1 Bedroom Deluxe" becomes "1 BR Deluxe · Mountain Laurels" */
   /* Building names can come four ways: "Mountain Laurels: 1 Bedroom Deluxe", "Studio Deluxe (Ocean View)", "2 Bedroom Lockoff — Mountain Laurel"
      (either side of the dash), or, on Club Wyndham's own charts, before the room type ("Cabin Share II 3 BR Deluxe").
@@ -211,7 +215,7 @@
   const DEFAULTS = () => ({
     mode: 'week', idx: todayIdx >= 0 ? todayIdx : WEEKS.findIndex(x => x.y === startYear), span: 10, start: null, end: null,
     season: '', colorsOnly: false, types: typeSet('1 Bedroom'), lastGroup: '1 Bedroom',
-    query: '', radius: 35, collections: new Set(collections.filter(c => !COLLECTION_OFF.includes(c))), places: new Set(PLACES.map(p => p[0]).filter(p => !PLACE_OFF.includes(p))),
+    query: '', radius: 35, collections: new Set(collections.filter(c => !COLLECTION_OFF.includes(c))),
     cwaOnly: false, showAll: true, sort: { key: 'resort', dir: 1 }
   });
   /* Remember the reader's filters in this browser (localStorage), so a refresh or a later visit keeps them */
@@ -221,6 +225,7 @@
     try { const raw = localStorage.getItem(STORE); if (!raw) return null;
       const o = JSON.parse(raw, (k, v) => v && typeof v === 'object' && Array.isArray(v.set) ? new Set(v.set) : v), d = DEFAULTS();
       for (const k of Object.keys(d)) if (k in o && typeof o[k] === typeof d[k]) d[k] = o[k];
+      if (o.colorsOnly === true) d.types = new Set(); // saved before "None" meant no room types
       if (!(d.idx >= 0 && d.idx < WEEKS.length)) d.idx = DEFAULTS().idx;
       return d; } catch (_) { return null; }
   }
@@ -230,6 +235,9 @@
   const pointsOn = () => !state.colorsOnly;
 
   /* ---- Controls ---- */
+  const presidentialIds = () => P.classifications.filter(c => /presidential/i.test(c.label) && P.rows.some(p => p.category === c.id)).map(c => c.id);
+  const allTypeIds = () => P.classifications.filter(c => P.rows.some(p => p.category === c.id)).map(c => c.id);
+  const sameSet = (set, ids) => set.size === ids.length && ids.every(id => set.has(id));
   function buildControls() {
     let html = '', y = null;
     WEEKS.forEach((x, i) => {
@@ -240,7 +248,8 @@
     $('week').innerHTML = html + '</optgroup>';
     if (todayIdx >= 0) $('today').innerHTML = '<span class="t">Today:</span><span class="d">' + esc(fmt(todayUTC, LONG)) + '</span><span class="w">Week ' + WEEKS[todayIdx].w + '</span>';
     $('bedrooms').innerHTML = '<option value="">None (season colors only)</option>' + GROUPS.filter(g => typesInGroup(g).length).map(g => '<option value="' + g + '">' + groupLabel(g) + '</option>').join('') +
-      '<option value="mixed" disabled>Mixed sizes (see Room types)</option>';
+      (presidentialIds().length ? '<option value="presidential">Presidential</option>' : '') + '<option value="all">ALL</option>' +
+      '<option value="mixed" disabled>Mixed sizes (see Room Types)</option>';
     $('typeTree').innerHTML = GROUPS.filter(g => typesInGroup(g).length).map(g => '<div class="tree-group"><label class="check"><input type="checkbox" data-group="' + g + '"> ' + groupLabel(g) + '</label><div class="checks">' +
       typesInGroup(g).map(c => '<label class="check"><input type="checkbox" value="' + c.id + '"> ' + esc(br(c.label)) + '</label>').join('') + '</div></div>').join('');
     $('radius').innerHTML = RADII.map(r => '<option value="' + r + '">' + r.toLocaleString('en-US') + ' miles</option>').join('');
@@ -248,15 +257,15 @@
       const label = COLLECTION_LABEL[c] || c, dot = c === 'Affiliate' ? '<i class="dot aff"></i>' : c === 'Associate' ? '<i class="dot assoc"></i>' : '';
       const m = label.match(/^(\S+) \((.*)\)$/), name = c === 'Associate' && m ? esc(m[1]) + dot + '<span class="sub">' + esc(m[2]) + '</span>' : esc(label) + dot;
       const soon = c === 'Associate' || D.rows.some(s => s.collection === c && hasChart(s)) ? '' : '<span class="hint soon">Points coming soon</span>';
-      return '<label class="check"><input type="checkbox" value="' + esc(c) + '"><span class="lbl">' + name + soon + '</span></label>';
+      return (c === COLLECTION_AFTER_SEPARATOR ? '<hr class="sep coll-sep">' : '') + '<label class="check"><input type="checkbox" value="' + esc(c) + '"><span class="lbl">' + name + soon + '</span></label>';
     }).join('');
-    $('placeChecks').innerHTML = PLACES.map(([v, label]) => '<label class="check"><input type="checkbox" value="' + v + '"> ' + esc(label) + '</label>').join('');
+    $('countryList').innerHTML = COUNTRIES.map(c => '<li><button type="button" class="link" data-country="' + esc(c[0]) + '">' + esc(c[0]) + '</button></li>').join('');
 
-    $('spanButtons').innerHTML = SPANS.map(n => '<button type="button" data-span="' + n + '">' + (n < 0 ? 'All' : n === 0 ? 'None' : n) + '</button>').join('');
+    $('spanButtons').innerHTML = SPANS.map(n => '<button type="button" data-span="' + n + '">' + (n < 0 ? 'All' : n === 0 ? 'Selected' : n) + '</button>').join('');
     const firstDay = iso(WEEKS.find(x => x.y === startYear).start), lastDay = iso(WEEKS[WEEKS.length - 1].start + 6 * DAY);
     for (const id of ['startDate', 'endDate']) { $(id).min = firstDay; $(id).max = lastDay; }
     const names = [...new Set(D.rows.map(s => shortName(s.name)).concat(D.rows.map(s => s.name)))].sort();
-    $('places').innerHTML = regions.map(r => '<option value="' + esc(r) + '"></option>').join('') + names.map(n => '<option value="' + esc(n) + '"></option>').join('') + (GEO ? GEO.options() : '');
+    $('places').innerHTML = regions.concat(COUNTRIES.map(c => c[0])).filter((r, i, a) => a.indexOf(r) === i && r !== 'U.S. Virgin Islands').map(r => '<option value="' + esc(r) + '"></option>').join('') + names.map(n => '<option value="' + esc(n) + '"></option>').join('') + (GEO ? GEO.options() : '');
   }
 
   function syncControls() {
@@ -264,9 +273,9 @@
     $('weekBox').hidden = state.mode !== 'week'; $('dateBox').hidden = state.mode !== 'dates';
     $('week').value = String(state.idx);
     $('seasonWeek').textContent = WEEKS[state.idx].w;
+    state.colorsOnly = state.types.size === 0; // Bedrooms = None is the same as no room types ticked
     const ticked = groupsTicked();
-    $('bedrooms').value = state.colorsOnly ? '' : ticked.length > 1 ? 'mixed' : (ticked[0] || state.lastGroup);
-    $('typeBox').hidden = state.colorsOnly;
+    $('bedrooms').value = state.colorsOnly ? '' : sameSet(state.types, allTypeIds()) ? 'all' : sameSet(state.types, presidentialIds()) ? 'presidential' : ticked.length > 1 ? 'mixed' : (ticked[0] || state.lastGroup);
     for (const i of $('typeTree').querySelectorAll('input[value]')) i.checked = state.types.has(i.value);
     for (const i of $('typeTree').querySelectorAll('input[data-group]')) {
       const ids = typesInGroup(i.dataset.group).map(c => c.id), n = ids.filter(id => state.types.has(id)).length;
@@ -277,10 +286,9 @@
     if (document.activeElement !== $('search')) $('search').value = state.query;
     $('radius').value = String(state.radius);
     for (const i of $('collectionChecks').querySelectorAll('input')) i.checked = state.collections.has(i.value);
-    for (const i of $('placeChecks').querySelectorAll('input')) i.checked = state.places.has(i.value);
     $('cwaOnly').checked = state.cwaOnly;
-    // Shown only when no box in the whole Collections section is selected
-    const ch = !state.collections.size && !state.cwaOnly && !state.places.size ? 'No collections are selected, so all collections are shown.' : '';
+    // Shown only when no box in the whole Collections section is selected; it sits below the section, so it stays visible when Collections is folded
+    const ch = !state.collections.size && !state.cwaOnly ? 'No collections are selected, so all collections are shown.' : '';
     $('collectionHint').hidden = !ch; $('collectionHint').textContent = ch;
     for (const b of $('spanButtons').querySelectorAll('button')) b.setAttribute('aria-pressed', String(Number(b.dataset.span) === state.span));
     if (document.activeElement !== $('startDate')) $('startDate').value = state.start ? iso(state.start) : '';
@@ -288,10 +296,13 @@
   }
 
   /* ---- Which rows to show ---- */
-  const needsGeo = () => !GEO && !geoFailed && !!state.query && !regionByName.get(norm(state.query));
+  const needsGeo = () => !GEO && !geoFailed && !!state.query && !regionByName.get(norm(state.query)) && !countryOfQuery(state.query);
   function placeFilter() {
     const q = state.query;
     if (!q) return { test: () => true, hint: 'The search radius needs a city and state, such as Orlando, Florida.' };
+    const country = countryOfQuery(q);
+    if (country) return { test: s => s.country === country, region: true,
+      hint: 'Showing resorts in ' + (COUNTRIES.find(c => c[1] === country) || [country])[0] + '. The radius works from a city, such as Orlando, Florida.' };
     const region = regionByName.get(norm(q));
     if (region) return { test: s => regionOf(s) === region, region: true,
       hint: 'Showing resorts in ' + region + '. The radius works from a city: to include nearby states, type a city, such as Phoenix, Arizona.' };
@@ -306,12 +317,13 @@
   function candidateRows(place) {
     const rows = [], groups = relevantGroups();
     for (const s of D.rows) {
-      // Each group of the Collections section narrows the list only when something in it is selected, and the groups combine with AND
-      // (planning #39): resort types (any selected type), the CWA Trust (only its resorts), locations (any selected location).
-      if (state.collections.size && !state.collections.has(s.collection)) continue;
-      if (state.cwaOnly && refOf(s).club_wyndham_access !== 'Yes') continue;
+      // Collections (2026-10-12): the resort types and the CWA Trust are boxes of one list, so a resort shows when ANY ticked box includes it
+      // (before, CWA was a separate AND filter and a ticked CWA hid every non-CWA resort, whatever else was ticked). Nothing ticked = all.
+      if (state.collections.size || state.cwaOnly) {
+        const byType = state.collections.has(s.collection), byTrust = state.cwaOnly && refOf(s).club_wyndham_access === 'Yes';
+        if (!byType && !byTrust) continue;
+      }
       if (!place.test(s)) continue;
-      const pl = placeOf(s); if (state.places.size && !state.places.has(pl)) continue; // applies to every collection (planning #38)
       if (!pointsOn()) { rows.push({ s, p: null, gap: hasChart(s) ? '' : 'chart' }); continue; }
       if (!hasChart(s)) { rows.push({ s, p: null, gap: 'chart' }); continue; }
       const all = pointsBySchedule.get(s.id) || [];
@@ -413,7 +425,7 @@
     else if (!state.showAll && pointsOn()) count += ' · showing those ' + have;
     $('count').innerHTML = rows.length ? count : 'No resorts match these filters';
 
-    if (pointsOn() && state.types.size === 0) { $('typeAlert').hidden = false; $('typeAlert').innerHTML = '<strong>No room types are selected.</strong> Open “Room types” in the filters and select at least one to see points.'; }
+    if (pointsOn() && state.types.size === 0) { $('typeAlert').hidden = false; $('typeAlert').innerHTML = '<strong>No room types are selected.</strong> Open “Room Types” in the filters and select at least one to see points.'; }
     else $('typeAlert').hidden = true;
 
     renderTripNote(t);
@@ -650,7 +662,10 @@
     $('detail').showModal();
   }
 
-  function reset() { state = DEFAULTS(); try { localStorage.removeItem(STORE); } catch (_) {} render(); }
+  /* "Reset" next to the Filters heading (owner, 2026-10-12): Club Wyndham + Affiliate, All seasons, search cleared, Bedrooms = 1 BR. Week and dates stay. */
+  function reset() { const d = DEFAULTS();
+    Object.assign(state, { collections: new Set(RESET_COLLECTIONS.filter(c => collections.includes(c))), cwaOnly: false, season: '', query: '', types: d.types, lastGroup: d.lastGroup, colorsOnly: false });
+    $('search').value = ''; render(); }
   const parseDate = v => v ? Date.parse(v + 'T00:00:00Z') : null;
 
   /* ---- Events ---- */
@@ -662,8 +677,11 @@
     $('seasonList').addEventListener('click', e => { const b = e.target.closest('.season-opt'); if (b) { state.season = state.season === b.dataset.season ? '' : b.dataset.season; render(); } });
     $('bedrooms').addEventListener('change', e => {
       const g = e.target.value;
-      if (!g) { state.colorsOnly = true; if (state.sort.key !== 'resort') state.sort = { key: 'resort', dir: 1 }; }
-      else { state.colorsOnly = false; state.lastGroup = g; state.types = typeSet(g); }
+      if (g === 'all') state.types = new Set(allTypeIds());
+      else if (g === 'presidential') state.types = new Set(presidentialIds());
+      else if (!g) state.types = new Set();
+      else { state.lastGroup = g; state.types = typeSet(g); }
+      if (!state.types.size && state.sort.key !== 'resort') state.sort = { key: 'resort', dir: 1 };
       render();
     });
     $('typeTree').addEventListener('change', e => {
@@ -671,18 +689,13 @@
       if (i.dataset.group) { for (const id of typeSet(i.dataset.group)) i.checked ? state.types.add(id) : state.types.delete(id); }
       else i.checked ? state.types.add(i.value) : state.types.delete(i.value);
       const g = groupsTicked(); if (g.length === 1) state.lastGroup = g[0];
+      if (!state.types.size && state.sort.key !== 'resort') state.sort = { key: 'resort', dir: 1 };
       render();
     });
-    $('typeBox').addEventListener('click', e => { const b = e.target.closest('[data-types]'); if (!b) return;
-      state.types = b.dataset.types === 'all' ? new Set($('typeTree').querySelectorAll('input[value]').length ? [...$('typeTree').querySelectorAll('input[value]')].map(x => x.value) : []) : new Set(); render(); });
     $('search').addEventListener('focus', loadGeo);
     let t; $('search').addEventListener('input', e => { clearTimeout(t); t = setTimeout(() => { state.query = e.target.value.trim(); render(); }, 250); });
     $('radius').addEventListener('change', e => { state.radius = Number(e.target.value); render(); });
     $('collectionChecks').addEventListener('change', e => { e.target.checked ? state.collections.add(e.target.value) : state.collections.delete(e.target.value); render(); });
-    $('placeChecks').addEventListener('change', e => { e.target.checked ? state.places.add(e.target.value) : state.places.delete(e.target.value); render(); });
-    $('collectionBox').addEventListener('click', e => { const b = e.target.closest('[data-coll]'); if (!b) return;
-      if (b.dataset.coll === 'all') { state.collections = new Set(collections); state.places = new Set(); state.cwaOnly = false; } else { state.collections = new Set(); state.places = new Set(); state.cwaOnly = false; }
-      render(); });
     $('cwaOnly').addEventListener('change', e => { state.cwaOnly = e.target.checked; render(); });
     $('spanButtons').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { state.span = Number(b.dataset.span); render(); } });
     const openPicker = e => { try { e.target.showPicker(); } catch (_) {} };
@@ -699,7 +712,18 @@
     });
     $('endDate').addEventListener('change', () => { state.end = parseDate($('endDate').value); render(); });
     $('clearDates').addEventListener('click', () => { state.start = state.end = null; if (state.sort.key === 'total') state.sort = { key: 'resort', dir: 1 }; render(); });
-    $('reset').addEventListener('click', reset);
+    $('reset').addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); reset(); });
+    $('clearSearch').addEventListener('click', () => { state.query = ''; $('search').value = ''; clearTimeout(t); render(); $('search').focus(); });
+    /* Countries info: hover or keyboard focus on desktop, tap on a phone; choosing a country fills the search */
+    const tipWrap = $('countryTipWrap'), tipBtn = $('countryTipBtn'), tip = $('countryTip');
+    const showTip = on => { tip.hidden = !on; tipBtn.setAttribute('aria-expanded', String(on)); };
+    tipWrap.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') showTip(true); });
+    tipWrap.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse' && !tipWrap.contains(document.activeElement)) showTip(false); });
+    tipBtn.addEventListener('click', () => showTip(tip.hidden));
+    tipWrap.addEventListener('focusout', e => { if (!tipWrap.contains(e.relatedTarget)) showTip(false); });
+    tipWrap.addEventListener('keydown', e => { if (e.key === 'Escape') { showTip(false); tipBtn.focus(); } });
+    document.addEventListener('click', e => { if (!tipWrap.contains(e.target)) showTip(false); });
+    tip.addEventListener('click', e => { const b = e.target.closest('[data-country]'); if (!b) return; state.query = b.dataset.country; $('search').value = state.query; showTip(false); render(); });
     $('grid').addEventListener('click', e => {
       const sb = e.target.closest('.sort');
       if (sb) { const k = sb.dataset.sort; state.sort = state.sort.key === k ? { key: k, dir: -state.sort.dir } : { key: k, dir: 1 }; render(); return; }
