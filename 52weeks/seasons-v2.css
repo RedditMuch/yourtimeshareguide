@@ -338,3 +338,8 @@ select:disabled{background:#f0f3f5;color:var(--muted)}
 .timebox{max-width:820px}
 .timebox .mode-body,.timebox #weekBox{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
 @media (max-width:600px){.timebox #weekBox{grid-template-columns:minmax(0,1fr)}}
+
+/* Location header (owner, 2026-10-12): title with Explore and Clear links after it, the long name as a subheader */
+.label-row{justify-content:flex-start;gap:10px}
+.label-row>.field-title{font-weight:700;font-size:14px}
+.field label.sub-label{display:block;font-size:12px;font-weight:400;color:#5b6770;margin:2px 0 4px}

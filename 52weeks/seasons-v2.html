@@ -57,10 +57,10 @@
 
         <div class="field">
           <div class="label-row">
-            <label for="search">Resort Name, State, Country, or City &amp; State</label>
+            <span class="field-title" id="locationTitle">Location</span>
             <span class="label-tools">
               <span class="tip-wrap" id="countryTipWrap">
-                <button type="button" class="info-btn" id="countryTipBtn" aria-label="Wyndham timeshare locations: countries and territories" aria-expanded="false" aria-controls="countryTip">i</button>
+                <button type="button" class="link" id="countryTipBtn" aria-label="Explore Wyndham timeshare locations: countries and territories" aria-expanded="false" aria-controls="countryTip">Explore</button>
                 <div class="country-tip" id="countryTip" role="group" aria-label="Wyndham Timeshare Locations (Countries &amp; Territories)" hidden>
                   <p class="tip-title">Wyndham Timeshare Locations (Countries &amp; Territories)</p>
                   <ul id="countryList"></ul>
@@ -69,6 +69,7 @@
               <button type="button" class="link" id="clearSearch">Clear</button>
             </span>
           </div>
+          <label for="search" class="sub-label">Resort Name, State, Country, or City &amp; State</label>
           <input id="search" type="search" list="places" placeholder="e.g. Arizona, Canada, Cypress Palms, Orlando, FL" autocomplete="off">
           <datalist id="places"></datalist>
         </div>
