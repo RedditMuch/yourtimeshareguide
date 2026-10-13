@@ -5,9 +5,9 @@
 # faster chart with a loading indicator, planning #36; filters round, owner 2026-10-12; affiliate dot, Angel Fire, Villas at Fairfield, owner 2026-10-12).
 # Change this list only when the owner asks for a change to season chart v2,
 # in the same pull request as that change.
-64338d685553031a131c1a880fcae2731a3078e1b13738b33b6afab6ecc934f2  52weeks/seasons-v2.html
-b4b2588d3708905c6ecee1afe4a5d2cfe432dd02620d50276cddae79d04534db  52weeks/seasons-v2.css
-09287e754b5ce22c4fbbef0dd3b7018fc3cc621d69eecf2cc4349d4f1afc175e  52weeks/seasons-v2.js
+700ca50ae1fe05d72434ef88300a77f8356b3a102fe27b79a0d9888a6a704b62  52weeks/seasons-v2.html
+f61fc65ce6dba83f94658f001112f126c177140187e9d8e80164902800e94dc9  52weeks/seasons-v2.css
+c3b4b8b93dabd8fdcecfc2542bd9b13d9d9c4e808e8be9480af7fa0c0e5ea5e6  52weeks/seasons-v2.js
 81789ed43dc282916c5a2fe98003fd0ae2357ca2ecf22e37f5f3fc553f4189ee  52weeks/club-pass-points.js
 6021285dd8824c76780b15c9f7934ea4c6d8e241195a816316673f064a3d750d  52weeks/data.js
 7cbcafc2b825a3238dd17423acb22d971acb43f3660d7a69a970acf7b0f52ac0  52weeks/geo-data.js

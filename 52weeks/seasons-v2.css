@@ -71,6 +71,20 @@ h1{font-size:24px;line-height:1.2;margin:0}
 .count b{font-weight:800}
 .alert{margin:4px 0 6px;padding:8px 12px;background:#fdecea;border:1px solid #e8a39b;border-radius:10px;font-size:14.5px;color:#7a1f16;max-width:70rem}
 .note{margin:4px 0 6px;padding:7px 12px;background:#fff8e1;border:1px solid #e9d38c;border-radius:10px;font-size:14px;max-width:70rem}
+/* "To see more resorts": one-click chips for the filter that hides matches (owner, 2026-10-12) */
+.more{margin:0 0 6px;display:grid;gap:4px;font-size:14px;max-width:70rem}
+.more:focus{outline:none}
+.more:empty{display:none}
+.more .note{margin:0}
+.more-line{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin:0}
+.more-t{font-weight:700}
+.more-ok{color:var(--muted)}
+.more-chip{font:inherit;font-size:13.5px;min-height:34px;padding:3px 12px;border:1px solid #a9b8c1;border-radius:999px;background:#fff;color:var(--ink);cursor:pointer}
+.more-chip:hover{background:#f3f7f9}
+.more-chip:focus-visible{outline:2px solid var(--navy);outline-offset:2px}
+.more-chip[disabled]{cursor:default;color:var(--muted);background:#f3f7f9}
+.more-chip b{font-weight:800}
+.more-chip .go{font-weight:700;text-decoration:underline;margin-left:4px}
 .source{font-size:12.5px;color:var(--muted);max-width:70rem}
 
 /* The grid: tight rows, sticky resort column and week header, big scroll bars */
