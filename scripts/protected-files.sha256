@@ -2,12 +2,12 @@
 # normalized to LF. Matches the next protected snapshot tag, season-chart-v2-2026-10-11-speed
 # (owner-approved changes: "select" wording, #35; softer season colors, #37;
 # resort, building and room-type names, planning #38; Collections filters, planning #39;
-# faster chart with a loading indicator, planning #36).
+# faster chart with a loading indicator, planning #36; filters round, owner 2026-10-12).
 # Change this list only when the owner asks for a change to season chart v2,
 # in the same pull request as that change.
-ef03623abe81bad6525c284aa3a33580497f413ad790e3fa855bfb868e70cd5d  52weeks/seasons-v2.html
-91b7d39e623d1a3c7a5d2e3dc4adb87d83675af5df4f86393e75430a70b9cc07  52weeks/seasons-v2.css
-ddf44bae644a7f4af7f1eef9f3b6054769f90fcc149784ac222b11d1ef2850d8  52weeks/seasons-v2.js
+64338d685553031a131c1a880fcae2731a3078e1b13738b33b6afab6ecc934f2  52weeks/seasons-v2.html
+0f3f00c9fd0254ccda6b59c9838612d4794565354255f36a9f3b37ebd9ac9973  52weeks/seasons-v2.css
+e525b3cb4e5de50486cdaa181417793f4b6c45603c4949b7604ba0d4c2470692  52weeks/seasons-v2.js
 81789ed43dc282916c5a2fe98003fd0ae2357ca2ecf22e37f5f3fc553f4189ee  52weeks/club-pass-points.js
 6021285dd8824c76780b15c9f7934ea4c6d8e241195a816316673f064a3d750d  52weeks/data.js
 7cbcafc2b825a3238dd17423acb22d971acb43f3660d7a69a970acf7b0f52ac0  52weeks/geo-data.js

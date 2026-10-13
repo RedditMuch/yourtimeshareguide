@@ -35,14 +35,41 @@
 
     <hr class="sep">
 
+    <div class="filters-wrap">
+    <button type="button" class="link reset-link" id="reset">Reset</button>
     <details class="group fold" id="filterBox" open>
       <summary class="group-title">Filters</summary>
       <div class="fold-body">
 
+        <div class="field">
+          <label for="bedrooms">Bedrooms</label>
+          <select id="bedrooms"></select>
+        </div>
+
+        <details class="sub fold" id="typeBox">
+          <summary>Room Types <span class="hint" id="typeSummary"></span></summary>
+          <div class="indent">
+            <div id="typeTree"></div>
+          </div>
+        </details>
+
+        <hr class="sep">
 
         <div class="field">
-          <label for="search">State, Resort or City/State</label>
-          <input id="search" type="search" list="places" placeholder="e.g. Arizona, Cypress Palms, Orlando, FL" autocomplete="off">
+          <div class="label-row">
+            <label for="search">Resort Name, State, Country, or City &amp; State</label>
+            <span class="label-tools">
+              <span class="tip-wrap" id="countryTipWrap">
+                <button type="button" class="info-btn" id="countryTipBtn" aria-label="Wyndham timeshare locations: countries and territories" aria-expanded="false" aria-controls="countryTip">i</button>
+                <div class="country-tip" id="countryTip" role="group" aria-label="Wyndham Timeshare Locations (Countries &amp; Territories)" hidden>
+                  <p class="tip-title">Wyndham Timeshare Locations (Countries &amp; Territories)</p>
+                  <ul id="countryList"></ul>
+                </div>
+              </span>
+              <button type="button" class="link" id="clearSearch">Clear</button>
+            </span>
+          </div>
+          <input id="search" type="search" list="places" placeholder="e.g. Arizona, Canada, Cypress Palms, Orlando, FL" autocomplete="off">
           <datalist id="places"></datalist>
         </div>
         <div class="field">
@@ -56,35 +83,16 @@
         <details class="sub fold" id="collectionBox" open>
           <summary>Collections</summary>
           <div class="indent">
-            <p class="coll-msg" id="collectionHint" role="status" hidden></p>
-            <p class="quick"><button type="button" class="link" data-coll="all">Select all</button> · <button type="button" class="link" data-coll="none">Clear</button></p>
             <p class="subhead">Resort type</p>
             <div class="checks" id="collectionChecks"></div>
             <p class="subhead">Trust</p>
             <div class="checks"><label class="check"><input type="checkbox" id="cwaOnly"><span class="lbl">Club Wyndham Access (CWA)</span></label></div>
-            <p class="subhead">Locations</p>
-            <div class="checks" id="placeChecks"></div>
           </div>
         </details>
-
-        <hr class="sep">
-
-        <div class="field">
-          <label for="bedrooms">Bedrooms</label>
-          <select id="bedrooms"></select>
-        </div>
-
-        <details class="sub fold" id="typeBox">
-          <summary>Room types <span class="hint" id="typeSummary"></span></summary>
-          <div class="indent">
-            <p class="quick"><button type="button" class="link" data-types="all">Select all</button> · <button type="button" class="link" data-types="none">Clear</button></p>
-            <div id="typeTree"></div>
-          </div>
-        </details>
-
-        <button type="button" class="reset" id="reset">Reset filters</button>
+        <p class="coll-msg" id="collectionHint" role="status" hidden></p>
       </div>
     </details>
+    </div>
   </aside>
 
   <main class="main" id="chart">
@@ -141,7 +149,6 @@
       <p class="keys"><span><svg class="crown" viewBox="0 0 16 12" aria-hidden="true"><path d="M1 10 2 3l4 3 2-5 2 5 4-3 1 7z"/></svg> VIP benefits apply</span>
         <span><svg class="crown half" viewBox="0 0 16 12" aria-hidden="true"><path d="M1 10 2 3l4 3 2-5 2 5 4-3 1 7z"/></svg> VIP benefits apply in some cases (see the resort's details)</span>
         <span><span class="sw w-h"></span><span class="sw w-m"></span><span class="sw w-l"></span> WorldMark weeks, most to fewest points</span>
-        <span><span class="cwa">CWA</span> Club Wyndham Access: in the Club Wyndham Access Trust</span>
         <span><i class="dot aff"></i> Affiliate resort: not managed by Club Wyndham</span>
         <span><i class="dot assoc"></i> Associate resort: Australia and New Zealand</span>
         <span><span class="notice">⚠</span> Some associations at this resort voted to close</span></p>

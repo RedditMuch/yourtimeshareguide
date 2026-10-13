@@ -28,17 +28,16 @@ const settled = page => page.waitForFunction(() => document.getElementById("grid
 
 // ---- Planning #38: the owner's list of name and filter fixes. One check per item; rows are found by resort name. ----
 const ALL_COLLECTIONS = ["Club Wyndham", "Margaritaville Vacation Club", "Club Pass", "Affiliate", "Associate"];
-const ALL_PLACES = []; // no location selected = every location
 
 // Opens the chart with saved filters (the chart reads them from localStorage), optionally selects every room type or one size,
 // and returns every row: resort name, building lines, room type, whether it's gray.
-async function chartRows(page, { collections = ALL_COLLECTIONS, places = ALL_PLACES, cwa = false, size = "all" } = {}) {
-  const state = { collections: { set: collections }, places: { set: places }, cwaOnly: cwa, span: 0 };
+async function chartRows(page, { collections = ALL_COLLECTIONS, query = "", cwa = false, size = "all" } = {}) {
+  const state = { collections: { set: collections }, cwaOnly: cwa, query, span: 0 };
   await page.addInitScript(s => localStorage.setItem("ytg-season-chart-v2", s), JSON.stringify(state));
   await page.goto("/52weeks/seasons-v2.html");
   await expect(page.locator("#grid tbody tr").first()).toBeVisible();
   await page.evaluate(() => { document.getElementById("filterBox").open = true; }); // folded on a phone
-  if (size === "all") { await page.evaluate(() => document.querySelector("[data-types=all]").click()); await settled(page); }
+  if (size === "all") { await page.evaluate(() => { const s = document.querySelector("#bedrooms"); s.value = "all"; s.dispatchEvent(new Event("change")); }); await settled(page); }
   else if (size) await page.evaluate(g => { const s = document.querySelector("#bedrooms"); s.value = g; s.dispatchEvent(new Event("change")); }, size); await settled(page); // the filters are folded on a phone
   return page.evaluate(() => { let cur = null;
     return [...document.querySelectorAll("#grid tbody tr")].map(tr => { const th = tr.querySelector("th.res");
@@ -148,73 +147,145 @@ test("item 1: every resort name is ink and bold, including gray rows", async ({ 
   expect(Number(looks[0].split(" ").pop())).toBeGreaterThanOrEqual(600);
 });
 
-test("item 2: United States only shows no Associate resorts", async ({ page }) => {
-  const rows = await chartRows(page, { places: ["us"], size: null });
+test("item 2: searching United States shows no Associate resorts", async ({ page }) => {
+  const rows = await chartRows(page, { query: "United States", size: null });
   await expect(page.locator("#grid tbody .dot.assoc")).toHaveCount(0);
   for (const name of ["Cairns", "Sydney", "Wanaka"]) expect(of(rows, name)).toHaveLength(0);
   expect(of(rows, "Angel Fire Resort").length).toBeGreaterThan(0); // US affiliates still show
 });
 
-// ---- Planning #39: the Collections section (resort type, trust, locations). Groups combine with AND; an empty group means "all". ----
+// ---- Owner, 2026-10-12: the Collections section (resort types and the CWA Trust). Ticked boxes combine with OR; nothing ticked means all. ----
 const resortTotal = async page => Number((await page.locator("#count").textContent()).match(/\/\s*(\d+)/)[1]); // "have / total resorts"
 const names = rows => [...new Set(rows.map(r => r.resort))];
+const tick = (page, sel) => page.evaluate(s => document.querySelector(s).click(), sel).then(() => settled(page));
 
-test.describe("season chart v2 Collections filters (planning #39)", () => {
-  test("the message shows only when nothing in the section is selected", async ({ page }) => {
+test.describe("season chart v2 Collections filters (2026-10-12)", () => {
+  test("the message shows only when nothing is selected, and stays visible when Collections is folded", async ({ page }) => {
     await chartRows(page, { size: null, collections: ["Club Wyndham"] });
     const msg = page.locator("#collectionHint");
     await expect(msg).toBeHidden();
-    await page.evaluate(() => document.querySelector("[data-coll=none]").click()); await settled(page);
+    await tick(page, '#collectionChecks input[value="Club Wyndham"]');
     await expect(msg).toBeVisible();
     await expect(msg).toHaveText("No collections are selected, so all collections are shown.");
-    await page.evaluate(() => document.querySelector('#placeChecks input[value="us"]').click()); await settled(page);
-    await expect(msg).toBeHidden(); // a location counts as a selection
+    await page.evaluate(() => { document.getElementById("collectionBox").open = false; });
+    await expect(msg).toBeVisible();
+    await tick(page, "#cwaOnly");
+    await expect(msg).toBeHidden(); // the CWA box counts as a selection
   });
 
-  test("Club Wyndham Access only shows exactly the 79 CWA resorts", async ({ page }) => {
+  test("Club Wyndham Access alone shows exactly the 79 CWA resorts", async ({ page }) => {
     const rows = await chartRows(page, { size: null, collections: [], cwa: true });
     expect(await resortTotal(page)).toBe(79);
     expect(names(rows)).toContain("Royal Vista"); // in the directory's CWA data; not on Club Wyndham's own CWA page (planning #25)
     expect(names(rows)).not.toContain("WorldMark Scottsdale");
   });
 
-  test("CWA + United States drops the CWA resorts outside the US", async ({ page }) => {
-    const rows = await chartRows(page, { size: null, collections: [], places: ["us"], cwa: true });
-    expect(await resortTotal(page)).toBe(77);
-    expect(names(rows)).not.toContain("Limetree Beach Resort by Club Wyndham");
-    expect(names(rows)).not.toContain("Margaritaville · Rio Mar");
+  test("CWA is one more box in the list: with every collection ticked, ticking or unticking it changes nothing", async ({ page }) => {
+    // Root cause of the 79 / 79 vs 220 / 225 report: CWA used to be a separate AND filter, so a ticked CWA hid every non-CWA resort
+    // even with all collections ticked.
+    await chartRows(page, { size: "all", cwa: true });
+    const withCwa = await resortTotal(page);
+    await tick(page, "#cwaOnly");
+    const without = await resortTotal(page);
+    expect(withCwa).toBe(without);
+    expect(without).toBeGreaterThan(200);
   });
 
-  test("Associate + United States shows nothing; Associate alone shows the 7 ANZ resorts", async ({ page }) => {
-    await chartRows(page, { size: null, collections: ["Associate"], places: ["us"] });
-    await expect(page.locator("#grid td.empty")).toHaveCount(1);
-    await page.evaluate(() => document.querySelector('#placeChecks input[value="us"]').click()); await settled(page);
-    await expect(page.locator("#grid td.empty")).toHaveCount(0);
+  test("CWA adds its resorts to the ticked resort types (Affiliate + CWA > Affiliate alone)", async ({ page }) => {
+    await chartRows(page, { size: null, collections: ["Affiliate"] });
+    const affiliate = await resortTotal(page);
+    await tick(page, "#cwaOnly");
+    expect(await resortTotal(page)).toBeGreaterThan(affiliate);
+  });
+
+  test("Associate alone shows the 7 ANZ resorts", async ({ page }) => {
+    await chartRows(page, { size: null, collections: ["Associate"] });
     expect(await resortTotal(page)).toBe(7);
     await expect(page.locator("#grid tbody .dot.assoc")).toHaveCount(7);
   });
 
-  test("Select all selects every resort type; Clear clears the whole section", async ({ page }) => {
-    await chartRows(page, { size: null, collections: ["Club Wyndham"], places: ["us"], cwa: true });
-    await page.evaluate(() => document.querySelector("[data-coll=all]").click()); await settled(page);
-    const checked = sel => page.locator(sel).evaluateAll(els => els.map(e => e.checked));
-    expect(await checked("#collectionChecks input")).toEqual([true, true, true, true, true]);
-    expect(await checked("#cwaOnly, #placeChecks input")).toEqual([false, false, false, false, false]);
-    await expect(page.locator("#collectionHint")).toBeHidden();
-    const all = await resortTotal(page);
-    await page.evaluate(() => document.querySelector("[data-coll=none]").click()); await settled(page);
-    expect(await checked("#collectionBox input")).toEqual(Array(10).fill(false));
-    await expect(page.locator("#collectionHint")).toBeVisible();
-    expect(await resortTotal(page)).toBe(all); // nothing selected = everything shown
+  test("no Select all / Clear links and no Locations buttons; resort types are in the owner's order", async ({ page }) => {
+    await chartRows(page, { size: null });
+    await expect(page.locator("[data-coll], [data-types], #placeChecks")).toHaveCount(0);
+    const labels = await page.locator("#collectionChecks .lbl").allTextContents();
+    expect(labels.map(l => l.replace(/Points coming soon|\(Australia & New Zealand\)|Australia & New Zealand/, "").trim())).toEqual(["Club Wyndham", "Affiliate", "WorldMark / Club Pass ($99)", "Margaritaville", "Associate"]);
+    await expect(page.locator("#collectionChecks .coll-sep")).toHaveCount(1);
   });
 
   test("Collections rows are evenly spaced with same-size boxes", async ({ page }) => {
     await chartRows(page, { size: null });
     await page.evaluate(() => { document.getElementById("filterBox").open = true; });
     const boxes = await page.locator("#collectionBox input[type=checkbox]").evaluateAll(els => els.map(e => { const r = e.getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)]; }));
-    expect(boxes).toHaveLength(10);
+    expect(boxes).toHaveLength(6);
     for (const b of boxes) expect(b).toEqual(boxes[0]);
-    const gaps = await page.locator("#collectionBox .checks").evaluateAll(els => els.map(e => getComputedStyle(e).rowGap));
-    expect(new Set(gaps).size).toBe(1);
+  });
+});
+
+// ---- Owner, 2026-10-12: Bedrooms / Room Types, search aliases, Reset / Clear, Weeks shown ----
+test.describe("season chart v2 filters round (2026-10-12)", () => {
+  const pick = async (page, v) => { await page.evaluate(v => { const s = document.querySelector("#bedrooms"); s.value = v; s.dispatchEvent(new Event("change")); }, v); await settled(page); };
+  const search = async (page, q) => { await page.evaluate(q => { const s = document.querySelector("#search"); s.value = q; s.dispatchEvent(new Event("input")); }, q); await page.waitForTimeout(400); await settled(page); };
+
+  test("Room Types is always shown; None = (0 of N); ALL and Presidential select the right types", async ({ page }) => {
+    await chartRows(page, { size: null });
+    await page.evaluate(() => { document.getElementById("filterBox").open = true; });
+    const sum = page.locator("#typeSummary");
+    await expect(page.locator("#typeBox > summary")).toContainText("Room Types");
+    await pick(page, "");
+    await expect(page.locator("#typeBox")).toBeVisible();
+    await expect(sum).toHaveText(/^\(0 of \d+\)$/);
+    const total = Number((await sum.textContent()).match(/of (\d+)/)[1]);
+    await pick(page, "all");
+    await expect(sum).toHaveText(`(${total} of ${total})`);
+    await pick(page, "presidential");
+    await expect(sum).toHaveText(`(10 of ${total})`);
+    const ticked = await page.locator("#typeTree input[value]:checked").evaluateAll(els => els.map(e => e.value));
+    expect(ticked.every(v => /presidential/.test(v))).toBe(true);
+    // unticking every type sets Bedrooms to None
+    await pick(page, "1 Bedroom");
+    for (const v of await page.locator("#typeTree input[value]:checked").evaluateAll(els => els.map(e => e.value))) await page.evaluate(v => document.querySelector(`#typeTree input[value="${v}"]`).click(), v);
+    await settled(page);
+    await expect(page.locator("#bedrooms")).toHaveValue("");
+  });
+
+  test("country names and aliases find the right resorts", async ({ page }) => {
+    await chartRows(page, { size: null });
+    const count = async q => { await search(page, q); return (await page.locator("#grid td.empty").count()) ? 0 : await resortTotal(page); };
+    const us = await count("United States");
+    expect(us).toBeGreaterThan(100);
+    expect(await count("US")).toBe(us);
+    expect(await count("USA")).toBe(us);
+    const pr = await count("Puerto Rico");
+    expect(pr).toBeGreaterThan(0);
+    expect(await count("PR")).toBe(pr);
+    const nz = await count("New Zealand");
+    expect(await count("NZ")).toBe(nz);
+  });
+
+  test("Reset and Clear links; Weeks shown options", async ({ page }) => {
+    await chartRows(page, { size: null });
+    await page.evaluate(() => { document.getElementById("filterBox").open = true; });
+    await search(page, "Arizona");
+    await tick(page, "#cwaOnly");
+    await tick(page, "#clearSearch");
+    await expect(page.locator("#search")).toHaveValue("");
+    await pick(page, "all");
+    await tick(page, "#reset");
+    await expect(page.locator("#bedrooms")).toHaveValue("1 Bedroom");
+    expect(await page.locator("#collectionChecks input:checked").evaluateAll(els => els.map(e => e.value))).toEqual(["Club Wyndham", "Affiliate"]);
+    await expect(page.locator("#cwaOnly")).not.toBeChecked();
+    await expect(page.locator("#filterBox .fold-body > button.reset")).toHaveCount(0);
+    expect(await page.locator("#spanButtons button").allTextContents()).toEqual(["Selected", "1", "2", "5", "10", "15", "All"]);
+  });
+
+  test("countries info lists the eight places and fills the search", async ({ page }) => {
+    await chartRows(page, { size: null });
+    await page.evaluate(() => { document.getElementById("filterBox").open = true; });
+    await page.locator("#countryTipBtn").focus();
+    await page.keyboard.press("Enter");
+    await expect(page.locator("#countryTip")).toBeVisible();
+    expect(await page.locator("#countryList button").allTextContents()).toEqual(["Australia", "Canada", "Fiji", "Mexico", "New Zealand", "Puerto Rico", "United States", "US Virgin Islands"]);
+    await page.locator("#countryList button", { hasText: "Fiji" }).click();
+    await expect(page.locator("#search")).toHaveValue("Fiji");
   });
 });
