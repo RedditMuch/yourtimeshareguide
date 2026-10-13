@@ -108,13 +108,13 @@ test.describe("season chart v2 names (planning #38)", () => {
     for (const [lock, sum] of sums) expect(lock).toBe(sum);
   });
 
-  test("Villas at Fairfield: five buildings; Lake Tara Townhouses III has only 2 BR", () => {
+  test("Villas at Fairfield: two listings; the first lists four buildings, Lake Tara Townhouses III has only 2 BR", () => {
     const v = of(rows, "Villas at Fairfield"), by = {};
-    for (const r of v) (by[r.buildings.join()] ||= []).push(r.type);
+    for (const r of v) (by[r.buildings.join(" | ")] ||= []).push(r.type);
     expect(by).toEqual({
-      "Lake Tara Gardens": ["Studio", "1 BR", "2 BR", "2 BR Loft"], "Lake Tara Townhouses": ["Studio", "1 BR", "2 BR", "2 BR Loft"],
-      "Lake Tara Townhouses II": ["Studio", "1 BR", "2 BR", "2 BR Loft"], "Tara Cove": ["Studio", "1 BR", "2 BR", "2 BR Loft"],
+      "Lake Tara Gardens | Lake Tara Townhouses | Lake Tara Townhouses II | Tara Cove": ["Studio", "1 BR", "2 BR", "2 BR Loft"],
       "Lake Tara Townhouses III": ["2 BR"] });
+    expect(v.filter(r => r.first)).toHaveLength(2);
   });
 
   test("an affiliate dot stays on the same line as the end of the resort name", async ({ page }) => {
@@ -306,6 +306,28 @@ test.describe("season chart v2 filters round (2026-10-12)", () => {
     await expect(page.locator("#cwaOnly")).not.toBeChecked();
     await expect(page.locator("#filterBox .fold-body > button.reset")).toHaveCount(0);
     expect(await page.locator("#spanButtons button").allTextContents()).toEqual(["Selected", "1", "2", "5", "10", "15", "All"]);
+  });
+
+  test("By Week / By Dates box: Title Case labels, same size in both modes, equal control heights, Clear Dates above the inputs", async ({ page }) => {
+    await chartRows(page, { size: null });
+    const box = () => page.locator(".timebox").boundingBox();
+    const week = await box();
+    expect((await page.locator(".mode-opt").allTextContents()).map(t => t.trim())).toEqual(["By Week", "By Dates"]);
+    await expect(page.locator("label[for=week]")).toHaveText("Vacation Week");
+    const h = await page.evaluate(() => ["#week", "#spanButtons"].map(s => document.querySelector(s).getBoundingClientRect().height));
+    expect(h[0]).toBe(h[1]);
+    await page.locator(".mode-opt", { hasText: "By Dates" }).click();
+    const dates = await box();
+    expect(dates.height).toBe(week.height);
+    expect(dates.width).toBe(week.width);
+    await expect(page.locator("label[for=startDate]")).toHaveText("Start Date");
+    await expect(page.locator("label[for=endDate]")).toHaveText("End Date");
+    await expect(page.locator("#clearDates")).toHaveText("Clear Dates");
+    const g = await page.evaluate(() => { const r = s => document.querySelector(s).getBoundingClientRect(); return { clearBottom: r("#clearDates").bottom, inputTop: r("#endDate").top, sh: r("#startDate").height, eh: r("#endDate").height }; });
+    expect(g.clearBottom).toBeLessThanOrEqual(g.inputTop);
+    expect(g.sh).toBe(g.eh);
+    await page.locator(".mode-opt", { hasText: "By Week" }).click();
+    expect((await box()).height).toBe(week.height);
   });
 
   test("countries info lists the eight places and fills the search", async ({ page }) => {
