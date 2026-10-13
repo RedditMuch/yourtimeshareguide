@@ -513,7 +513,7 @@
         const dot = s.collection === 'Affiliate' ? '<i class="dot aff" title="Affiliate resort"></i>' : s.collection === 'Associate' ? '<i class="dot assoc" title="Associate resort"></i>' : '';
         const bldg = bldgOf(r) ? bldgLines(bldgOf(r)).map(b => '<span class="res-bldg">' + esc(b) + '</span>').join('') : ''; // one line per building
         const extra = !showType && r.gap === 'chart' ? '<span class="res-loc gap">Points chart coming soon</span>' : '';
-        body += '<th class="res" scope="row"' + (span > 1 ? ' rowspan="' + span + '"' : '') + '><button type="button" class="res-name" data-row="' + i + '">' + esc(shortName(s.name)) + '</button>' + vip + dot + (ref.club_wyndham_access === 'Yes' ? '<span class="cwa" title="Club Wyndham Access: one of the resorts in the Club Wyndham Access Trust">CWA</span>' : '') + (NOTICES[s.name] ? '<span class="notice" title="' + esc(NOTICE_TEXT) + '">⚠</span>' : '') +
+        body += '<th class="res" scope="row"' + (span > 1 ? ' rowspan="' + span + '"' : '') + '><button type="button" class="res-name" data-row="' + i + '">' + esc(shortName(s.name)) + '</button>' + vip + dot + (NOTICES[s.name] ? '<span class="notice" title="' + esc(NOTICE_TEXT) + '">⚠</span>' : '') +
           '<span class="res-loc">' + esc(s.location || [s.city, s.state].filter(Boolean).join(', ')) + '</span>' + bldg + extra + '</th>';
       }
       if (showBld) body += '<td class="bld">' + esc(bldgOf(r)) + '</td>';
