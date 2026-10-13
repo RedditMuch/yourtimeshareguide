@@ -58,8 +58,6 @@
     /* Chart: cw-club-pass-scottsdale-pc.pdf, columns left to right (lowest to highest points within each size): Studio Hotel, 1 BR Suite, 1 BR Deluxe, 1 BR Penthouse, 2 BR, 3 BR, 1 BR Presidential, 2 BR Presidential, 4 BR Presidential */
     'WorldMark Scottsdale': { types: Object.fromEntries(['Studio Hotel', '1 BR Suite', '1 BR Deluxe', '1 BR Penthouse', '2 BR', '3 BR', '1 BR Presidential', '2 BR Presidential', '4 BR Presidential']
       .map((t, i) => [t, { type: t, bldg: '', rank: i + 1 }])) },
-    /* Chart: cw-angel-fire-cabin-share-pc.pdf (its own resort page, "Angel Fire Resort - Cabin Share I"): the name already says Cabin Share I */
-    'Angel Fire Resort - Cabin Share I': { types: { 'Cabin Share I 3 BR': { type: '3 BR', bldg: '' } } },
     /* Directory Page 18 (CW search bar page 22): the 2 BR Lockoff belongs to the "Tanglewood I & II, Ridgewood I, Ridgewood II – buildings 1A-15A" chart */
     'Club Wyndham Flagstaff': { types: {
       '2 Bedroom Lockoff — Tanglewood I & II, Ridgewood I, Ridgewood II buildings 1A–15A': { type: '2 BR Lockoff', bldg: 'Tanglewood I & II; Ridgewood I; Ridgewood II buildings 1A–15A' } } },
@@ -92,6 +90,9 @@
     "Eagle's Loft, Ptarmigan Townhomes": ['Eagle’s Loft', 'Ptarmigan Townhomes']
   };
 
+  /* The last word of a resort name stays on one line with its crown and dot, so a dot never wraps away from the name */
+  const nameHtml = (name, marks) => { const i = name.lastIndexOf(' ');
+    return esc(name.slice(0, i + 1)) + '<span class="nw">' + esc(name.slice(i + 1)) + marks + '</span>'; };
   const br = s => String(s || '').replace(/\bBedroom\b/g, 'BR');
   const groupLabel = g => g === 'Hotel' ? 'Hotel room' : br(g);
   const sizeWords = g => g === 'Hotel' ? 'Hotel rooms' : g === 'Studio' ? 'Studios' : br(g) + ' units';
@@ -140,6 +141,20 @@
     for (const c of cands) { const ws = words(c); if (ws.length && ws.every(w => l.includes(w)) && ws.length > words(best).length) best = c; }
     return best ? best.id : null;
   }
+  /* Angel Fire Resort (owner, 2026-10-12): Cabin Share I is a building of the resort, like Cabin Share II, not part of its name.
+     Its own chart (cw-angel-fire-cabin-share-pc.pdf) joins the resort's chart as one more column. The resort's chart
+     (cw-angel-fire-pc.pdf) states "A Hotel Studio and a Hotel Room Deluxe equals total point value for a 1 BR Deluxe Lockoff",
+     so that room type is the sum of the two Eagle Wing Suites columns (full week and each night type). */
+  const AF = CP['Angel Fire Resort'], AF1 = CP['Angel Fire Resort - Cabin Share I'];
+  if (AF && AF1 && !AF.tables[0].columns.includes('Cabin Share I 3 BR')) {
+    const t = AF.tables[0], cols = t.columns, add = (a, b) => a.map((x, i) => x + b[i]);
+    cols.splice(cols.indexOf('Cabin Share II 3 BR Deluxe'), 0, 'Cabin Share I 3 BR');
+    cols.push('Eagle Wing Suites 1 BR Deluxe Lockoff');
+    t.bands.forEach((b, i) => { b.rates['Cabin Share I 3 BR'] = AF1.tables[0].bands[i].rates['Cabin Share I 3 BR'];
+      b.rates['Eagle Wing Suites 1 BR Deluxe Lockoff'] = add(b.rates['Eagle Wing Suites Hotel Studio'], b.rates['Eagle Wing Suites Hotel Room Deluxe']); });
+    delete CP['Angel Fire Resort - Cabin Share I'];
+    D.rows = D.rows.filter(s => s.name !== 'Angel Fire Resort - Cabin Share I');
+  }
   for (const s of D.rows) {
     const c = CP[s.name]; if (!c) continue;
     s.cp = c;
@@ -153,6 +168,10 @@
     pointsBySchedule.set(s.id, rows);
     if (!(s.weeks || []).some(x => CLS[x]) && rows[0]) s.weeks = rows[0].weeks.slice(0, 52); // season colors for "None"
   }
+  /* Villas at Fairfield (owner, 2026-10-12): one points chart by unit type, for these buildings (Lake Tara Townhouses III has only 2 BR units) */
+  const VILLAS = { 'Club Wyndham Villas at Fairfield': [['Lake Tara Gardens'], ['Lake Tara Townhouses'], ['Lake Tara Townhouses II'], ['Tara Cove'], ['Lake Tara Townhouses III', ['2 Bedroom']]] };
+  for (const s of D.rows) { const b = VILLAS[s.name], rows = pointsBySchedule.get(s.id); if (!b || !rows) continue;
+    pointsBySchedule.set(s.id, b.flatMap(([name, only]) => rows.filter(p => !only || only.includes(p.roomType)).map(p => Object.assign({}, p, { multiple: true, schedule: name })))); }
   const refByName = new Map(REF.map(r => [r.name, r])), refById = new Map(REF.filter(r => r.resort_id).map(r => [r.resort_id, r]));
   const refOf = s => refByName.get(s.name) || refById.get(s.resort_id) || {};
   const hasChart = s => (s.weeks || []).some(x => CLS[x]);
@@ -513,7 +532,7 @@
         const dot = s.collection === 'Affiliate' ? '<i class="dot aff" title="Affiliate resort"></i>' : s.collection === 'Associate' ? '<i class="dot assoc" title="Associate resort"></i>' : '';
         const bldg = bldgOf(r) ? bldgLines(bldgOf(r)).map(b => '<span class="res-bldg">' + esc(b) + '</span>').join('') : ''; // one line per building
         const extra = !showType && r.gap === 'chart' ? '<span class="res-loc gap">Points chart coming soon</span>' : '';
-        body += '<th class="res" scope="row"' + (span > 1 ? ' rowspan="' + span + '"' : '') + '><button type="button" class="res-name" data-row="' + i + '">' + esc(shortName(s.name)) + '</button>' + vip + dot + (NOTICES[s.name] ? '<span class="notice" title="' + esc(NOTICE_TEXT) + '">⚠</span>' : '') +
+        body += '<th class="res" scope="row"' + (span > 1 ? ' rowspan="' + span + '"' : '') + '><button type="button" class="res-name" data-row="' + i + '">' + nameHtml(shortName(s.name), vip + dot) + '</button>' + (NOTICES[s.name] ? '<span class="notice" title="' + esc(NOTICE_TEXT) + '">⚠</span>' : '') +
           '<span class="res-loc">' + esc(s.location || [s.city, s.state].filter(Boolean).join(', ')) + '</span>' + bldg + extra + '</th>';
       }
       if (showBld) body += '<td class="bld">' + esc(bldgOf(r)) + '</td>';
