@@ -21,10 +21,10 @@
 // the live site.
 
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { buildTokens, TOKENS_OUTPUT, TOKENS_SOURCE } from "./scripts/build-tokens.mjs";
-import { ASSET_EXTENSIONS, ROOT_FILES, SITE_FOLDERS } from "./scripts/site-files.mjs";
+import { ASSET_EXTENSIONS, ROOT_FILES, SITE_FOLDERS, TOKENS_NO_FONTS_OUTPUT } from "./scripts/site-files.mjs";
 
 export default function (eleventyConfig) {
   for (const folder of SITE_FOLDERS) {
@@ -43,6 +43,9 @@ export default function (eleventyConfig) {
   const versions = new Map();
   eleventyConfig.on("eleventy.before", ({ directories }) => {
     const tokensFile = buildTokens(TOKENS_SOURCE, join(directories.output, TOKENS_OUTPUT));
+    // The same tokens without the @font-face rules, for a page that brings its own fonts: season chart v2 loads
+    // Bricolage Grotesque from Google Fonts for its logo, and a second face of that family would replace it (planning #36).
+    writeFileSync(join(directories.output, TOKENS_NO_FONTS_OUTPUT), readFileSync(tokensFile, "utf8").replace(/@font-face \{[^}]*\}\n/g, ""));
     // Short content hashes for cache-busting (see the "versioned" filter).
     const hash = (file) => createHash("sha256").update(readFileSync(file)).digest("hex").slice(0, 10);
     versions.set(`/${TOKENS_OUTPUT}`, hash(tokensFile));

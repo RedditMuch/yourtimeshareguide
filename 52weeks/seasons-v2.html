@@ -3,11 +3,14 @@
 <title>52-week season chart · Your Timeshare Guide</title>
 <meta name="description" content="Every Club Wyndham resort's seasons and points, week by week.">
 <link rel="icon" type="image/svg+xml" href="logo-icon.svg">
+<!-- Design system, for the loading indicator (Progress), in a cascade layer so the chart's own styles always win; the second layer
+     undoes the design system's base element styles, so nothing else on this page changes (planning #36). The tokens come without their fonts, so the logo keeps its own Bricolage Grotesque from Google Fonts. -->
+<style>@import url("/assets/css/tokens-no-fonts.css") layer(ytg);@import url("/assets/css/components.css") layer(ytg);
+@layer ytg-off{:where(body,h1,h2,h3,p,a):not(:where(.ytg-progress,.ytg-progress *)){all:revert}:where(table,td,th){font-variant-numeric:revert}:where(html){color-scheme:normal}}</style>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500&display=swap">
 <link rel="stylesheet" href="seasons-v2.css">
-<script defer src="geo-data.js"></script>
-<script defer src="geo.js"></script>
+<script defer src="/assets/js/ytg.js"></script>
 <script defer src="data.js"></script>
 <script defer src="points-data.js"></script>
 <script defer src="reference-data.js"></script>
@@ -123,9 +126,16 @@
     <p class="alert" id="typeAlert" hidden></p>
     <p class="alert" id="dateAlert" hidden></p>
 
-    <div class="grid-wrap" id="gridWrap" tabindex="0" aria-label="Season chart, scrolls sideways and down">
+    <div class="status-slot">
+      <div class="ytg-progress ytg-progress--waiting chart-status" id="chartStatus" role="status" aria-live="polite">
+        <p class="ytg-progress__label"><span class="ytg-progress__text">Loading the season chart</span><span class="ytg-progress__value"></span></p>
+        <div class="ytg-progress__track" role="progressbar" aria-label="Loading the season chart" aria-valuemin="0" aria-valuemax="100"></div>
+      </div>
+    </div>
+    <div class="grid-wrap ytg-region" id="gridWrap" tabindex="0" aria-label="Season chart, scrolls sideways and down" aria-busy="true">
       <table class="grid" id="grid"></table>
     </div>
+    <div class="cell-tip" id="cellTip" role="tooltip" hidden></div>
     <p class="note" id="week53Note" hidden></p>
     <div class="source">
       <p class="keys"><span><svg class="crown" viewBox="0 0 16 12" aria-hidden="true"><path d="M1 10 2 3l4 3 2-5 2 5 4-3 1 7z"/></svg> VIP benefits apply</span>
@@ -149,4 +159,20 @@
   <p><strong>Your Timeshare Guide</strong> is an independent site run by a Club Wyndham owner. It is not affiliated with, endorsed by, or sponsored by Club Wyndham, Wyndham Destinations, or Travel + Leisure Co. "Club Wyndham" and related names are trademarks of their owners.</p>
   <p>It is not legal or financial advice. Rules and points change; always confirm with Club Wyndham before you book or decide.</p>
 </footer>
+<script>
+/* First load (planning #36): the 52-week band fills as each file the chart needs arrives, weighted by its size (KB). */
+(() => {
+  const el = document.getElementById('chartStatus'), files = { 'data.js': 168, 'points-data.js': 915, 'reference-data.js': 330, 'club-pass-points.js': 92, 'seasons-v2.js': 45 };
+  const total = Object.values(files).reduce((a, b) => a + b, 0), seen = new Set();
+  let got = 0;
+  const show = () => { if (window.YTG && got && !el.dataset.ready) YTG.progress(el).set(got / total); };
+  try {
+    new PerformanceObserver(list => {
+      for (const e of list.getEntries()) { const f = e.name.split('?')[0].split('/').pop(); if (files[f] && !seen.has(f)) { seen.add(f); got += files[f]; } }
+      show();
+    }).observe({ type: 'resource', buffered: true });
+  } catch (_) {}
+  const ytg = document.querySelector('script[src$="ytg.js"]'); if (ytg) ytg.addEventListener('load', show);
+})();
+</script>
 </body></html>

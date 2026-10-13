@@ -269,3 +269,10 @@ select:disabled{background:#f0f3f5;color:var(--muted)}
 .timebox .mode-body{grid-template-columns:minmax(0,1.5fr) minmax(150px,1fr)}
 .timebox .mode-body > .field{min-width:0}
 .timebox select{min-width:0;text-overflow:ellipsis}
+
+/* Planning #36: the loading indicator (design system Progress) sits over the top of the chart, in a slot that takes no space (never covering the whole page);
+   one shared tooltip for the week cells */
+.status-slot{display:flex;justify-content:center;align-items:flex-start;height:0}
+.chart-status{position:relative;z-index:6;top:54px;flex:0 1 420px;margin:0 16px;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 14px;box-shadow:0 4px 16px rgba(16,45,64,.12)}
+.cell-tip{position:fixed;z-index:30;max-width:min(340px,calc(100vw - 16px));padding:5px 9px;border-radius:6px;background:var(--navy);color:#fff;font:12.5px/1.35 var(--body);pointer-events:none;box-shadow:0 4px 14px rgba(16,45,64,.25)}
+.grid td.c:focus-visible{outline:3px solid var(--accent);outline-offset:-3px}

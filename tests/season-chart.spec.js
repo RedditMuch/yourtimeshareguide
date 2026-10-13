@@ -23,6 +23,9 @@ test("season chart v2 loads and draws the chart", async ({ page, baseURL }) => {
   expect(errors).toEqual([]);
 });
 
+// A slow redraw finishes in the next frame, with the chart marked busy until then (planning #36): wait for it.
+const settled = page => page.waitForFunction(() => document.getElementById("gridWrap").getAttribute("aria-busy") !== "true");
+
 // ---- Planning #38: the owner's list of name and filter fixes. One check per item; rows are found by resort name. ----
 const ALL_COLLECTIONS = ["Club Wyndham", "Margaritaville Vacation Club", "Club Pass", "Affiliate", "Associate"];
 const ALL_PLACES = []; // no location selected = every location
@@ -35,8 +38,8 @@ async function chartRows(page, { collections = ALL_COLLECTIONS, places = ALL_PLA
   await page.goto("/52weeks/seasons-v2.html");
   await expect(page.locator("#grid tbody tr").first()).toBeVisible();
   await page.evaluate(() => { document.getElementById("filterBox").open = true; }); // folded on a phone
-  if (size === "all") await page.evaluate(() => document.querySelector("[data-types=all]").click());
-  else if (size) await page.evaluate(g => { const s = document.querySelector("#bedrooms"); s.value = g; s.dispatchEvent(new Event("change")); }, size); // the filters are folded on a phone
+  if (size === "all") { await page.evaluate(() => document.querySelector("[data-types=all]").click()); await settled(page); }
+  else if (size) await page.evaluate(g => { const s = document.querySelector("#bedrooms"); s.value = g; s.dispatchEvent(new Event("change")); }, size); await settled(page); // the filters are folded on a phone
   return page.evaluate(() => { let cur = null;
     return [...document.querySelectorAll("#grid tbody tr")].map(tr => { const th = tr.querySelector("th.res");
       if (th) cur = { resort: th.querySelector(".res-name").textContent, buildings: [...th.querySelectorAll(".res-bldg")].map(b => b.textContent) };
@@ -161,10 +164,10 @@ test.describe("season chart v2 Collections filters (planning #39)", () => {
     await chartRows(page, { size: null, collections: ["Club Wyndham"] });
     const msg = page.locator("#collectionHint");
     await expect(msg).toBeHidden();
-    await page.evaluate(() => document.querySelector("[data-coll=none]").click());
+    await page.evaluate(() => document.querySelector("[data-coll=none]").click()); await settled(page);
     await expect(msg).toBeVisible();
     await expect(msg).toHaveText("No collections are selected, so all collections are shown.");
-    await page.evaluate(() => document.querySelector('#placeChecks input[value="us"]').click());
+    await page.evaluate(() => document.querySelector('#placeChecks input[value="us"]').click()); await settled(page);
     await expect(msg).toBeHidden(); // a location counts as a selection
   });
 
@@ -185,7 +188,7 @@ test.describe("season chart v2 Collections filters (planning #39)", () => {
   test("Associate + United States shows nothing; Associate alone shows the 7 ANZ resorts", async ({ page }) => {
     await chartRows(page, { size: null, collections: ["Associate"], places: ["us"] });
     await expect(page.locator("#grid td.empty")).toHaveCount(1);
-    await page.evaluate(() => document.querySelector('#placeChecks input[value="us"]').click());
+    await page.evaluate(() => document.querySelector('#placeChecks input[value="us"]').click()); await settled(page);
     await expect(page.locator("#grid td.empty")).toHaveCount(0);
     expect(await resortTotal(page)).toBe(7);
     await expect(page.locator("#grid tbody .dot.assoc")).toHaveCount(7);
@@ -193,13 +196,13 @@ test.describe("season chart v2 Collections filters (planning #39)", () => {
 
   test("Select all selects every resort type; Clear clears the whole section", async ({ page }) => {
     await chartRows(page, { size: null, collections: ["Club Wyndham"], places: ["us"], cwa: true });
-    await page.evaluate(() => document.querySelector("[data-coll=all]").click());
+    await page.evaluate(() => document.querySelector("[data-coll=all]").click()); await settled(page);
     const checked = sel => page.locator(sel).evaluateAll(els => els.map(e => e.checked));
     expect(await checked("#collectionChecks input")).toEqual([true, true, true, true, true]);
     expect(await checked("#cwaOnly, #placeChecks input")).toEqual([false, false, false, false, false]);
     await expect(page.locator("#collectionHint")).toBeHidden();
     const all = await resortTotal(page);
-    await page.evaluate(() => document.querySelector("[data-coll=none]").click());
+    await page.evaluate(() => document.querySelector("[data-coll=none]").click()); await settled(page);
     expect(await checked("#collectionBox input")).toEqual(Array(10).fill(false));
     await expect(page.locator("#collectionHint")).toBeVisible();
     expect(await resortTotal(page)).toBe(all); // nothing selected = everything shown
