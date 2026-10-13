@@ -90,10 +90,40 @@ test.describe("season chart v2 names (planning #38)", () => {
     }
   });
 
-  test("item 8: Angel Fire Resort - Cabin Share I doesn't repeat Cabin Share I as a building", () => {
-    const af = of(rows, "Angel Fire Resort - Cabin Share I");
-    expect(af.map(r => r.type)).toEqual(["3 BR"]);
-    expect(af[0].buildings).toEqual([]);
+  test("item 8: Cabin Share I is a building of Angel Fire Resort, like Cabin Share II", () => {
+    expect(of(rows, "Angel Fire Resort - Cabin Share I")).toHaveLength(0);
+    const af = of(rows, "Angel Fire Resort");
+    expect(af.filter(r => r.first)).toHaveLength(af.map(r => r.buildings.join()).filter((v, i, a) => a.indexOf(v) === i).length);
+    const by = Object.fromEntries(af.map(r => [r.type, r.buildings]));
+    expect(by["3 BR"]).toEqual(["Cabin Share I"]);
+    expect(by["3 BR Deluxe"]).toEqual(["Cabin Share II"]);
+    expect(by["1 BR Deluxe Lockoff"]).toEqual(["Eagle Wing Suites"]);
+  });
+
+  test("Angel Fire Resort: the 1 BR Deluxe Lockoff costs a Hotel Studio plus a Hotel Room Deluxe", async ({ page }) => {
+    await page.goto("/52weeks/seasons-v2.html"); // chart note: "A Hotel Studio and a Hotel Room Deluxe equals total point value for a 1 BR Deluxe Lockoff"
+    const sums = await page.evaluate(() => { const r = window.CLUB_PASS_POINTS.resorts["Angel Fire Resort"].tables[0];
+      return r.bands.map(b => [b.rates["Eagle Wing Suites 1 BR Deluxe Lockoff"].join(), b.rates["Eagle Wing Suites Hotel Studio"].map((x, i) => x + b.rates["Eagle Wing Suites Hotel Room Deluxe"][i]).join()]); });
+    expect(sums).toHaveLength(4);
+    for (const [lock, sum] of sums) expect(lock).toBe(sum);
+  });
+
+  test("Villas at Fairfield: five buildings; Lake Tara Townhouses III has only 2 BR", () => {
+    const v = of(rows, "Villas at Fairfield"), by = {};
+    for (const r of v) (by[r.buildings.join()] ||= []).push(r.type);
+    expect(by).toEqual({
+      "Lake Tara Gardens": ["Studio", "1 BR", "2 BR", "2 BR Loft"], "Lake Tara Townhouses": ["Studio", "1 BR", "2 BR", "2 BR Loft"],
+      "Lake Tara Townhouses II": ["Studio", "1 BR", "2 BR", "2 BR Loft"], "Tara Cove": ["Studio", "1 BR", "2 BR", "2 BR Loft"],
+      "Lake Tara Townhouses III": ["2 BR"] });
+  });
+
+  test("an affiliate dot stays on the same line as the end of the resort name", async ({ page }) => {
+    const r = await chartRows(page, { query: "Auberge du Lac Morency" });
+    expect(of(r, "Club GeoPremiere at Auberge du Lac Morency").length).toBeGreaterThan(0);
+    const gap = await page.evaluate(() => { const b = document.querySelector("#grid .res-name"), d = b.querySelector(".dot.aff"), rects = [...b.querySelector(".nw").getClientRects()];
+      const dr = d.getBoundingClientRect(), last = rects[rects.length - 1]; return { dotTop: dr.top, dotBottom: dr.bottom, textTop: last.top, textBottom: last.bottom, lines: rects.length }; });
+    expect(gap.dotTop).toBeGreaterThanOrEqual(gap.textTop - 2);
+    expect(gap.dotBottom).toBeLessThanOrEqual(gap.textBottom + 2);
   });
 
   test("items 9 and 11: no \"(listed twice)\" at Cypress Palms or Ocean Walk", () => {
