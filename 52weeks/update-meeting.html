@@ -117,8 +117,6 @@ tr.loanend td{border-bottom:2px solid var(--mute)}
 </div>
 </div>
 
-<div class="card perk" id="perk"></div>
-
 <div class="card">
 <h2>Additional Purchase</h2>
 <div class="grid">
@@ -137,6 +135,8 @@ tr.loanend td{border-bottom:2px solid var(--mute)}
 <div class="box after"><div class="t">New Maintenance Fee</div><div class="n" id="sFee"></div><div class="d" id="sFeeD"></div></div>
 </div>
 </div>
+
+<div class="card perk" id="perk"></div>
 
 <div class="card claim" id="claim"></div>
 
@@ -225,15 +225,16 @@ function render(){
     if(add>0&&T>tgt)return tgt===cur?'This purchase adds no credits':`Buy ${(T-tgt).toLocaleString()} fewer points (${tgt.toLocaleString()} total): same ${plural(cr(T),'credit')}`;
     return add>0?'No points wasted at this total':'';
   };
-  const perkBox=(t,p,r)=>{const k=cr(p),w=p-lastJ(p),v=vip(p),u=nextJ(p);return `<div class="box ${w?'buy':'goodb'}"><div class="t">${t}: ${p.toLocaleString()} pts</div><div class="n">${plural(k,'housekeeping credit')}</div><div class="d">${v?`Includes +${v[1]} for VIP ${v[2]}<br>`:''}${plural(ph(p),'Reservation Transaction')}<br>`+(!p?'':w?`<b class="bad">${w.toLocaleString()} pts earn nothing</b>.${u?` ${(u-p).toLocaleString()} more gets ${plural(cr(u)-k,'more credit')}.`:''}`:'<b class="good">No points wasted</b>')+(r?`<br><b>Recommended: ${r}</b>`:'')+`</div></div>`};
+  const perkBox=(t,p,r)=>{const k=cr(p),w=p-lastJ(p),v=vip(p),u=nextJ(p);return `<div class="box ${w?'buy':'goodb'}"><div class="t">${t}: ${p.toLocaleString()} pts</div><div class="n">${plural(k,'housekeeping credit')}</div><div class="d">${v?`Includes +${v[1]} for VIP ${v[2]}<br>`:''}${plural(ph(p),'Reservation Transaction')}<br>`+(!p?'':w?`<b class="bad">${w.toLocaleString()} pts earn nothing</b>.${u?` ${(u-p).toLocaleString()} more gets ${plural(cr(u)-k,'more credit')}.`:''}`:'<b class="good">No points wasted</b>')+(r?`<br><b>Consider: ${r}</b>`:'')+`</div></div>`};
   const recT=rec(c.curPts,c.addPts);
   $('addH').textContent=recT;
   $('perk').innerHTML='<h2>Get the Most From Your Points: Own in Multiples of 70,000</h2>'+
    '<p class="rule">Every <b>70,000 points</b> = 1 free Housekeeping credit (70K, 140K, 210K, 280K&hellip;).<br>Points left over earn nothing.</p>'+
    (c.curPts?`<div class="live">${perkBox('You own',c.curPts,'')}${c.addPts?perkBox('After buying',c.curPts+c.addPts,recT):''}</div>`:'')+
-   '<ul><li><b>Housekeeping credits cost $185 each</b> once you run out. You need 1 per reservation, with your points, whatever the stay length or suite size. Unused credits expire at the end of your Use Year.</li>'+
+   '<ul><li><b>Housekeeping credits cost $185 each</b> if you run out. You need 1 Housekeeping Credit per reservation (along with applicable points). Unused credits expire at the end of your Use Year.</li>'+
    '<li><b>Reservation Transactions:</b> 1 free per 77,000 points each calendar year. Booking by phone (Vacation Planning Center) without one costs $39; booking on your owner website is free. They are also needed for external exchange deposits and converting points to maintenance dollars.</li>'+
-   '<li><b>VIP milestones add credits too:</b> Bronze 300K +1, Silver 500K +2, Gold 800K +4, Platinum 1.1M +6, Founders 1.4M +8. Buying 285,000 points? A few more reaches Bronze for an extra credit. Owners who joined VIP before Nov. 10, 2020 have unlimited credits. Details from Club Wyndham: <a href="https://clubwyndham.wyndhamdestinations.com/us/en/owner-guide/resources/housekeeping-credits" rel="noopener">Housekeeping Credits</a> &middot; <a href="https://clubwyndham.wyndhamdestinations.com/us/en/owner-guide/resources/reservation-transactions" rel="noopener">Reservation Transactions</a></li></ul>';
+   '<li><b>VIP milestones also add credits:</b> Bronze +1, Silver +2, Gold +4, Platinum +6, Founders +8.</li></ul>'+
+   '<p class="note" style="margin:10px 0 0">Source: Details from Club Wyndham: <a href="https://clubwyndham.wyndhamdestinations.com/us/en/owner-guide/resources/housekeeping-credits" rel="noopener">Housekeeping Credits</a> &middot; <a href="https://clubwyndham.wyndhamdestinations.com/us/en/owner-guide/resources/reservation-transactions" rel="noopener">Reservation Transactions</a></p>';
 
   const feeSaveY=c.curY-c.newY, feeSaveM=feeSaveY/12;
   const buyM=c.newY/12+c.loanM, afterM=c.newY/12;
@@ -248,7 +249,7 @@ function render(){
     <div class="pc"><b>The Catch:</b><div>You are also paying <b class="bad">${money(c.loanM,2)} a month</b> for ${yt} to get that (${money(Math.abs(feeSaveY))} a year) savings.<br>
     That's ${money(c.loanTotal)} total (${money(c.price)} loan + ${money(c.interest)} interest).</div></div>
     <div class="pc"><b></b><div>${feeSaveY>0?`${money(feeSaveY)} saved per year takes <b class="bad">${payback>=100?Math.round(payback).toLocaleString():payback.toFixed(1)} years</b> of "savings" to break even.`:'Your fee does not actually go down at these numbers.'}</div></div>
-    <div class="pc"><b>Watch For:</b><div><b>200,000-point offers.</b> Adding only 10,000 more points gives you an additional Housekeeping Credit.</div></div>`;
+    <div class="pc"><b>Watch For:</b><div>The salespeople won't tell you that adding just 10,000 more points provides an additional Housekeeping Credit.</div></div>`;
   const empty=!c.curM;document.querySelectorAll('.res').forEach(e=>e.style.display=empty?'none':'');
   if(empty||!c.price||!c.addPts)$('claim').innerHTML='<h2 class="ct">The Pitch vs. The Math</h2><p style="text-align:center;margin:0">'+(empty?'Fill in the boxes above and the comparison appears here.':'Now enter the Additional Purchase above to see the comparison.')+'</p>';
   $('sLoan').textContent=money(c.loanTotal);
