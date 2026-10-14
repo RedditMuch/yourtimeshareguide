@@ -232,7 +232,6 @@ function render(){
    '<p class="rule">Every <b>70,000 points</b> = 1 free Housekeeping credit (70K, 140K, 210K, 280K&hellip;).<br>Points left over earn nothing.</p>'+
    (c.curPts?`<div class="live">${perkBox('You own',c.curPts,'')}${c.addPts?perkBox('After buying',c.curPts+c.addPts,recT):''}</div>`:'')+
    '<ul><li><b>Housekeeping credits cost $185 each</b> once you run out. You need 1 per reservation, with your points, whatever the stay length or suite size. Unused credits expire at the end of your Use Year.</li>'+
-   '<li><b>Watch for 200,000-point offers.</b> Adding only 10,000 more points gives you an additional Housekeeping Credit.</li>'+
    '<li><b>Reservation Transactions:</b> 1 free per 77,000 points each calendar year. Booking by phone (Vacation Planning Center) without one costs $39; booking on your owner website is free. They are also needed for external exchange deposits and converting points to maintenance dollars.</li>'+
    '<li><b>VIP milestones add credits too:</b> Bronze 300K +1, Silver 500K +2, Gold 800K +4, Platinum 1.1M +6, Founders 1.4M +8. Buying 285,000 points? A few more reaches Bronze for an extra credit. Owners who joined VIP before Nov. 10, 2020 have unlimited credits. Details from Club Wyndham: <a href="https://clubwyndham.wyndhamdestinations.com/us/en/owner-guide/resources/housekeeping-credits" rel="noopener">Housekeeping Credits</a> &middot; <a href="https://clubwyndham.wyndhamdestinations.com/us/en/owner-guide/resources/reservation-transactions" rel="noopener">Reservation Transactions</a></li></ul>';
 
@@ -248,7 +247,8 @@ function render(){
     That's ${feeSaveM>0?'a savings of':'a change of'} <b class="good">${money(Math.abs(feeSaveM),2)} a month</b> (${money(Math.abs(feeSaveY))} a year).</div></div>
     <div class="pc"><b>The Catch:</b><div>You are also paying <b class="bad">${money(c.loanM,2)} a month</b> for ${yt} to get that (${money(Math.abs(feeSaveY))} a year) savings.<br>
     That's ${money(c.loanTotal)} total (${money(c.price)} loan + ${money(c.interest)} interest).</div></div>
-    <div class="pc"><b></b><div>${feeSaveY>0?`${money(feeSaveY)} saved per year takes <b class="bad">${payback>=100?Math.round(payback).toLocaleString():payback.toFixed(1)} years</b> of "savings" to break even.`:'Your fee does not actually go down at these numbers.'}</div></div>`;
+    <div class="pc"><b></b><div>${feeSaveY>0?`${money(feeSaveY)} saved per year takes <b class="bad">${payback>=100?Math.round(payback).toLocaleString():payback.toFixed(1)} years</b> of "savings" to break even.`:'Your fee does not actually go down at these numbers.'}</div></div>
+    <div class="pc"><b>Watch For:</b><div><b>200,000-point offers.</b> Adding only 10,000 more points gives you an additional Housekeeping Credit.</div></div>`;
   const empty=!c.curM;document.querySelectorAll('.res').forEach(e=>e.style.display=empty?'none':'');
   if(empty||!c.price||!c.addPts)$('claim').innerHTML='<h2 class="ct">The Pitch vs. The Math</h2><p style="text-align:center;margin:0">'+(empty?'Fill in the boxes above and the comparison appears here.':'Now enter the Additional Purchase above to see the comparison.')+'</p>';
   $('sLoan').textContent=money(c.loanTotal);
