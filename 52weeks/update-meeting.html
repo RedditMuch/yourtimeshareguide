@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Update Meeting Calculator</title>
+<meta name="robots" content="noindex, nofollow">
 <style>
 :root{--bg:#f6f7f9;--card:#fff;--ink:#1c2430;--mute:#5d6877;--line:#dde2e8;--stay:#2a6fb0;--buy:#c2410c;--good:#15803d;--bad:#b91c1c;--warn:#fff4e5;--per1k:#7e22ce}
 @media (prefers-color-scheme:dark){:root{--bg:#10151c;--card:#19212b;--ink:#e8edf3;--mute:#9aa6b5;--line:#2c3744;--stay:#6aa9e6;--buy:#fb923c;--good:#4ade80;--bad:#f87171;--warn:#2b2113;--per1k:#c084fc}}
@@ -53,8 +54,8 @@ h2{font-size:1.1rem;margin:0 0 10px}
 .row{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
 .chead{display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:8px;text-align:center}
 .chead h2{margin:0}
-.look{display:flex;align-items:center;gap:12px;font-size:.9rem;white-space:nowrap}
-.look input{width:260px;max-width:60vw;min-width:0;margin:0}
+.look{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px 12px;font-size:.9rem}
+.look input{width:min(260px,100%);min-width:0;margin:0}
 tr.payoff td{text-align:center;font-weight:700;font-size:.78rem;line-height:1.1;padding:2px 8px;background:var(--ink);color:var(--bg);border-bottom:0}
 tr.payoff td span{font-weight:400;opacity:.85}
 .cw{position:relative}
@@ -147,7 +148,7 @@ tr.loanend td{border-bottom:2px solid var(--mute)}
 
 <div class="card res">
 <h2>Financial Outlook Comparison</h2>
-<div class="tw"><table id="tbl"></table></div>
+<div class="tw" tabindex="0" role="region" aria-label="Financial Outlook Comparison table, scrollable"><table id="tbl"></table></div>
 <p class="note">Maintenance fees never end, so the New Contract keeps costing after the loan is gone (the dark bar marks where the loan ends). The extra points do come with you; the loan is what makes the pitch costly.</p>
 </div>
 </div>
