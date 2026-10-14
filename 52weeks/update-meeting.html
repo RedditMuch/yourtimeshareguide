@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Update Meeting Calculator</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--ink:#1c2430;--mute:#5d6877;--line:#dde2e8;--stay:#2a6fb0;--buy:#c2410c;--good:#15803d;--bad:#b91c1c;--warn:#fff4e5;--per1k:#7e22ce}
+@media (prefers-color-scheme:dark){:root{--bg:#10151c;--card:#19212b;--ink:#e8edf3;--mute:#9aa6b5;--line:#2c3744;--stay:#6aa9e6;--buy:#fb923c;--good:#4ade80;--bad:#f87171;--warn:#2b2113;--per1k:#c084fc}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:1000px;margin:0 auto;padding:20px 16px 60px}
+h1{font-size:1.8rem;margin:0 0 6px;text-align:center}
+.tag{text-align:center;font-size:1.15rem;font-style:italic;color:var(--mute);margin:0 0 26px}
+.claim h2.ct{text-align:center;margin-bottom:12px}
+.sub{color:var(--mute);margin:0 0 8px;text-align:center}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px}
+h2{font-size:1.1rem;margin:0 0 10px}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:760px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.cell.div{border-left:1px solid var(--line);padding-left:12px}
+@media (max-width:760px){.cell.div{border-left:0;padding-left:0}}
+.lt{display:flex;align-items:flex-end;min-height:1.4em;font-size:.85rem;color:var(--mute);line-height:1.25}
+.f{display:flex;align-items:center;border:1px solid var(--line);border-radius:8px;margin-top:3px;background:var(--bg);overflow:hidden;height:40px}
+.f span{padding:0 0 0 8px;color:var(--mute)}
+.f input{width:100%;border:0;background:transparent;color:var(--ink);font:inherit;padding:8px 8px;outline:0}
+.f input::placeholder{color:var(--mute);opacity:.55}
+.f:focus-within{border-color:var(--stay)}
+#curPer1k{color:var(--per1k);font-weight:800;font-size:.9rem}
+.hint{font-size:.78rem;color:var(--mute);margin-top:3px;min-height:2.4em}
+.three{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.box{border-radius:10px;padding:14px;border:1px solid var(--line);text-align:center}
+.lt.two{min-height:2.7em}
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.area{padding:0 14px}.area:first-child{padding-left:0}.area:last-child{padding-right:0}
+.area.div{border-left:1px solid var(--line)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.acap{text-align:center;font-weight:600;font-size:.95rem;color:var(--mute);margin-bottom:10px}
+.acap::after{content:"";display:block;width:70%;height:2px;background:var(--line);margin:5px auto 0;border-radius:2px}
+@media (max-width:760px){.duo{grid-template-columns:1fr;gap:18px}.area,.area:first-child,.area:last-child{padding:0}.area.div{border-left:0;border-top:1px solid var(--line);padding-top:14px}}
+.pc{display:grid;grid-template-columns:5.5em 1fr;gap:0 8px;font-size:1.1rem;margin-bottom:12px}.pc:last-child{margin-bottom:0}
+.box .n small.term{font-size:1.2rem;font-weight:700;color:var(--buy)}
+.box .t{font-size:.85rem;color:var(--mute)}
+.box .n{font-size:1.9rem;font-weight:700;line-height:1.2}
+.box .d{font-size:.85rem;color:var(--mute)}
+.box .n small{font-size:.95rem;font-weight:400;color:var(--mute)}
+.goodb{border-top:5px solid var(--good)}
+.stay{border-top:5px solid var(--stay)}.buy{border-top:5px solid var(--buy)}.after{border-top:5px solid var(--mute)}
+.claim{background:var(--warn);border-left:5px solid var(--buy)}
+.claim p{margin:0 0 10px}.claim p:last-child{margin:0}
+.big{font-size:1.1rem}
+.bad{color:var(--bad)}.good{color:var(--good)}
+.row{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.chead{display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:8px;text-align:center}
+.chead h2{margin:0}
+.look{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px 12px;font-size:.9rem}
+.look input{width:min(260px,100%);min-width:0;margin:0}
+tr.payoff td{text-align:center;font-weight:700;font-size:.78rem;line-height:1.1;padding:2px 8px;background:var(--ink);color:var(--bg);border-bottom:0}
+tr.payoff td span{font-weight:400;opacity:.85}
+.cw{position:relative}
+svg{width:100%;height:auto;display:block;touch-action:pan-y}
+.tip{position:absolute;top:8px;pointer-events:none;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:.85rem;box-shadow:0 2px 10px rgba(0,0,0,.18);display:none;white-space:nowrap;z-index:2}
+.tip b{display:block;margin-bottom:2px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:.85rem;margin-top:6px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.tw{overflow:auto;max-height:560px}
+table{border-collapse:separate;border-spacing:0;width:100%;min-width:780px;table-layout:fixed;font-size:.8rem}
+th{text-align:center}
+th,td{padding:5px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
+thead{position:sticky;top:0;z-index:1}
+thead th{font-weight:600;background:var(--card);vertical-align:bottom}
+th.grp{text-align:center;font-size:.9rem;border-bottom:0}
+th.ltr{font-size:.95rem;border-bottom:0;padding-bottom:0}
+th.nm{border-bottom:0;padding-top:0;white-space:normal;line-height:1.2;border-bottom:2px solid var(--line)}
+.hint:empty{min-height:0}
+td{text-align:right;padding-right:16px;font-variant-numeric:tabular-nums}td:first-child{text-align:center;padding-right:6px}
+th.fm{font:400 .72rem/1.2 ui-monospace,Consolas,monospace;color:var(--mute);white-space:normal;max-width:105px;border-bottom:2px solid var(--line)}
+.c th{background:color-mix(in srgb,var(--stay) 18%,var(--card))}
+.n th{background:color-mix(in srgb,var(--buy) 18%,var(--card))}
+.c td{background:color-mix(in srgb,var(--stay) 5%,var(--card))}
+.n td{background:color-mix(in srgb,var(--buy) 5%,var(--card))}
+th.grp.c{border-top:4px solid var(--stay)}th.grp.n{border-top:4px solid var(--buy)}th.grp.yr{border-top:4px solid var(--mute);text-align:center;vertical-align:bottom}th.grp.d{border-top:4px solid var(--mute)}
+.sep{border-left:2px solid var(--line)}
+tr.loanend td{border-bottom:2px solid var(--mute)}
+.note{font-size:.85rem;color:var(--mute)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Update Meeting Calculator</h1>
+<p class="tag">"Buy more points and your maintenance fees go down"</p>
+<p class="sub">Enter your own numbers and see what their pitch really costs.<br><a href="#" id="clr" style="font-size:.8rem;color:var(--mute)">Clear all fields</a></p>
+
+<div class="card">
+<h2>Current Ownership</h2>
+<div class="duo">
+<div class="area"><div class="acap">Maintenance Fees</div><div class="g2">
+<div class="cell"><label><div class="lt">Current # of Points</div><div class="f"><input type="text" inputmode="decimal" id="curPts" value="140,000" placeholder="Points You Own"></div></label><div class="hint"></div></div>
+<div class="cell"><label><div class="lt">Maintenance Fee (per Month)</div><div class="f"><span>$</span><input type="text" inputmode="decimal" id="curMonthly" value="100" placeholder="Per Month"></div></label>
+<div class="hint"><b id="curYearly"></b>: Yearly<br><b id="curPer1k"></b>: per 1,000 pts</div></div>
+</div></div>
+<div class="area div"><div class="acap">Current Loan</div><div class="g2">
+<div class="cell"><label><div class="lt">Loan Payment (per Month)</div><div class="f"><span>$</span><input type="text" inputmode="decimal" id="oldLoanM" placeholder="Per Month"></div></label>
+<div class="hint">Paid Off? Enter 0</div></div>
+<div class="cell"><label><div class="lt">Months Left on Loan</div><div class="f"><input type="text" inputmode="decimal" id="oldLoanN" placeholder="Remaining"></div></label>
+<div class="hint" id="oldLoanH"></div></div>
+</div></div>
+</div>
+</div>
+
+<div class="card">
+<h2>Additional Purchase</h2>
+<div class="grid">
+<div class="cell"><label><div class="lt">Additional Points Purchase</div><div class="f"><input type="text" inputmode="decimal" id="addPts" placeholder="Points Offered"></div></label><div class="hint"></div></div>
+<div class="cell"><label><div class="lt">Asking Price (Often Negotiable)</div><div class="f"><span>$</span><input type="text" inputmode="decimal" id="price" placeholder="Price"></div></label><div class="hint"></div></div>
+<div class="cell"><label><div class="lt">Interest Rate on Loan</div><div class="f"><input type="text" inputmode="decimal" id="apr" placeholder="Interest Rate"></div></label><div class="hint"></div></div>
+<div class="cell"><label><div class="lt">Length of Loan (Years)</div><div class="f"><input type="text" inputmode="decimal" id="term" placeholder="How Long?"></div></label><div class="hint"></div></div>
+<div class="cell"><label><div class="lt two">New Maintenance Fee<br>($ per 1,000 pts per year)</div><div class="f"><span>$</span><input type="text" inputmode="decimal" id="newPer1k" placeholder="Per 1,000 Pts"></div></label>
+<div class="hint"><b>GET THIS IN WRITING!</b></div></div>
+<div class="cell"><label><div class="lt two">Fees Rise Each Year by (%)</div><div class="f"><input type="text" inputmode="decimal" id="inc" placeholder="Increase"></div></label>
+<div class="hint">Guesstimate (Suggest 3-5%)</div></div>
+</div>
+<div class="grid res" style="margin-top:6px">
+<div class="box buy" style="grid-column:span 2"><div class="t">Total Amortized Loan Cost</div><div class="n" id="sLoan"></div><div class="d" id="sLoanD"></div></div>
+<div class="box stay"><div class="t">Combined points after buying</div><div class="n" id="sPts"></div><div class="d" id="sPtsD"></div></div>
+<div class="box after"><div class="t">New Maintenance Fee</div><div class="n" id="sFee"></div><div class="d" id="sFeeD"></div></div>
+</div>
+</div>
+
+<div class="card claim" id="claim"></div>
+
+<div class="card res">
+<h2>Your Monthly Bill</h2>
+<div class="three">
+<div class="box stay"><div class="t">Current Monthly Payment</div><div class="n" id="mStay"></div><div class="d" id="mStayD"></div></div>
+<div class="box buy"><div class="t">New Monthly Payment</div><div class="n" id="mBuy"></div><div class="d" id="mBuyD"></div></div>
+<div class="box after" id="mAfterBox"><div class="t" id="mAfterT"></div><div class="n" id="mAfter"></div><div class="d" id="mAfterD"></div></div>
+</div>
+</div>
+
+<div class="card res">
+<div class="chead"><h2>Total Paid Over Time: Current Status vs. New Contract</h2>
+<label class="look"><span>Look ahead: <b id="yrsLbl"></b> years</span><input type="range" id="yrs" min="1" max="22" value="22"></label></div>
+<div class="cw"><svg id="chart" viewBox="0 0 800 340" role="img" aria-label="Cumulative cost chart"></svg><div class="tip" id="tip"></div></div>
+<div class="legend"><span><i style="background:var(--stay)"></i>Current Status</span><span><i style="background:var(--buy)"></i>New Contract</span></div>
+</div>
+
+<div class="card res">
+<h2>Financial Outlook Comparison</h2>
+<div class="tw" tabindex="0" role="region" aria-label="Financial Outlook Comparison table, scrollable"><table id="tbl"></table></div>
+<p class="note">Maintenance fees never end, so the New Contract keeps costing after the loan is gone (the dark bar marks where the loan ends). The extra points do come with you; the loan is what makes the pitch costly.</p>
+</div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const money=(x,d=0)=>(x<0?'-':'')+'$'+Math.abs(x).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+const num=id=>Math.max(0,parseFloat($(id).value.replace(/,/g,''))||0);
+
+// thousands separators while typing, keeping the caret in place
+function fmtInput(el){
+  const v=el.value, pos=el.selectionStart;
+  const before=v.slice(0,pos).replace(/[^0-9.]/g,'').length;
+  const clean=v.replace(/[^0-9.]/g,'');
+  const i=clean.indexOf('.');
+  const int=(i<0?clean:clean.slice(0,i)).replace(/^0+(?=\d)/,'').replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  const out=i<0?int:int+'.'+clean.slice(i+1).replace(/\./g,'');
+  el.value=out;
+  let n=0,p=0;
+  while(p<out.length&&n<before){if(/[0-9.]/.test(out[p]))n++;p++}
+  el.setSelectionRange(p,p);
+}
+
+function pmt(P,apr,yrs){const n=yrs*12,r=apr/100/12;if(!n)return 0;return r?P*r/(1-Math.pow(1+r,-n)):P/n}
+
+function calc(){
+  const curPts=num('curPts'),curM=num('curMonthly'),addPts=num('addPts'),price=num('price'),apr=num('apr');
+  const term=Math.max(1,Math.round(num('term'))),new1k=num('newPer1k'),g=num('inc')/100,yrs=+$('yrs').value;
+  const noBuy=!addPts&&!price&&!new1k;
+  const curY=curM*12, newY=noBuy?curM*12:(curPts+addPts)/1000*new1k, loanM=pmt(price,apr,term), loanY=loanM*12;
+  const loanTotal=loanM*term*12, interest=loanTotal-price;
+  const oldM=num('oldLoanM'), oldN=Math.round(num('oldLoanN'));
+  const rows=[];let cs=0,cb=0;
+  for(let y=1;y<=100;y++){
+    const f=Math.pow(1+g,y-1);
+    const old=oldM*Math.min(12,Math.max(0,oldN-12*(y-1)));
+    const stayFee=curY*f, stay=stayFee+old, fee=newY*f, loan=y<=term?loanY:0, buy=fee+loan+old;
+    cs+=stay;cb+=buy;
+    rows.push({y,stayFee,stay,fee,loan,old,buy,extra:buy-stay,cs,cb,cum:cb-cs});
+  }
+  return {oldM,oldN,curPts,curM,curY,addPts,price,apr,term,new1k,g,yrs,newY,loanM,loanY,loanTotal,interest,rows};
+}
+
+let chartState=null;
+
+function render(){
+  const c=calc(), r=c.rows;
+  $('curYearly').parentNode.style.visibility=c.curM?'':'hidden';
+  $('curYearly').textContent=money(c.curY,2);
+  $('curPer1k').textContent=c.curPts?money(c.curY/(c.curPts/1000),2):'-';
+  $('yrsLbl').textContent=c.yrs;
+
+  const feeSaveY=c.curY-c.newY, feeSaveM=feeSaveY/12;
+  const buyM=c.newY/12+c.loanM, afterM=c.newY/12;
+  const payback=feeSaveY>0?c.loanTotal/feeSaveY:Infinity;
+  const hasOld=c.oldM>0&&c.oldN>0, oM=hasOld?c.oldM:0;
+  const allPts=(c.curPts+c.addPts).toLocaleString();
+  const termSet=num("term")>0, yt=c.term===1?"1 year":c.term+" years";
+
+  $('claim').innerHTML='<h2 class="ct">The Pitch vs. The Math</h2>'+
+   `<div class="pc"><b>The Pitch:</b><div>Your Maintenance Fee ${feeSaveM>0?'drops':'changes'} from ${money(c.curM,2)} to ${money(afterM,2)} a month.<br>
+    That's ${feeSaveM>0?'a savings of':'a change of'} <b class="good">${money(Math.abs(feeSaveM),2)} a month</b> (${money(Math.abs(feeSaveY))} a year).</div></div>
+    <div class="pc"><b>The Catch:</b><div>You are also paying <b class="bad">${money(c.loanM,2)} a month</b> for ${yt} to get that (${money(Math.abs(feeSaveY))} a year) savings.<br>
+    That's ${money(c.loanTotal)} total (${money(c.price)} loan + ${money(c.interest)} interest).</div></div>
+    <div class="pc"><b></b><div>${feeSaveY>0?`${money(feeSaveY)} saved per year takes <b class="bad">${payback>=100?Math.round(payback).toLocaleString():payback.toFixed(1)} years</b> of "savings" to break even.`:'Your fee does not actually go down at these numbers.'}</div></div>`;
+  const empty=!c.curM;document.querySelectorAll('.res').forEach(e=>e.style.display=empty?'none':'');
+  if(empty||!c.price||!c.addPts)$('claim').innerHTML='<h2 class="ct">The Pitch vs. The Math</h2><p style="text-align:center;margin:0">'+(empty?'Fill in the boxes above and the comparison appears here.':'Now enter the Additional Purchase above to see the comparison.')+'</p>';
+  $('sLoan').textContent=money(c.loanTotal);
+  $('sLoanD').innerHTML=termSet?`${money(c.loanM,2)} per month for ${yt}`:'';
+  $('sPts').textContent=allPts;
+  $('sPtsD').textContent=`${c.curPts.toLocaleString()} now + ${c.addPts.toLocaleString()} new`;
+  $('sFee').innerHTML=`${money(afterM,2)}<span style="font-size:1rem;font-weight:400"> /month</span>`;
+  $('sFeeD').innerHTML=`${money(c.newY,2)} a year<br>${allPts} pts &times; ${money(c.new1k,2)} per 1,000`;
+
+  const oldTxt=hasOld?` + ${money(c.oldM,2)} current loan`:'';
+  const oldEnd=hasOld?`<br>Current loan ends in ${c.oldN.toLocaleString()} months, then this drops by ${money(c.oldM,2)}`:'';
+  $('oldLoanH').textContent=hasOld?`Still owed: about ${money(c.oldM*c.oldN)}`:'';
+  $('mStay').textContent=money(c.curM+oM,2);
+  $('mStayD').innerHTML=hasOld?`${money(c.curM,2)} Maint Fee + ${money(c.oldM,2)} Current Loan${oldEnd}`:'Maint Fee only';
+  $('mBuy').innerHTML=`${money(buyM+oM,2)}${termSet?`<small class="term"> for ${yt}</small>`:''}`;
+  $('mBuyD').innerHTML=`${money(afterM,2)} Maint Fee + ${money(c.loanM,2)} New Loan${hasOld?` + ${money(c.oldM,2)} Current Loan`:''}<br><b class="bad">${money(buyM-c.curM,2)} more per month</b>`;
+  $('mAfter').innerHTML=`${money(afterM,2)}`;
+  $('mAfterT').innerHTML=termSet?`Monthly Payment in <b>${yt}</b>`:'Monthly Payment After Loan Payoff';
+  $('mAfterBox').className='box '+(feeSaveM>0?'goodb':'buy');
+  $('mAfterD').innerHTML=(feeSaveM>0?`<b class="good">${money(feeSaveM,2)} less</b> but still forever`:`<b class="bad">${money(-feeSaveM,2)} more</b>`)+(hasOld&&c.oldN>c.term*12?`<br>(plus your current loan if still running)`:'');
+
+  // chart
+  const n=c.yrs, pts=r.slice(0,n);
+  const W=800,H=340,L=70,R=16,T=14,B=34, maxV=Math.max(pts[n-1].cb,pts[n-1].cs,1);
+  const nice=v=>{const p=Math.pow(10,Math.floor(Math.log10(v)));const m=v/p;return (m<=1?1:m<=2?2:m<=5?5:10)*p};
+  const top=nice(maxV), X=i=>L+(W-L-R)*(i/n), Y=v=>T+(H-T-B)*(1-v/top);
+  let s='';
+  for(let i=0;i<=4;i++){const v=top*i/4;s+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${L-8}" y="${Y(v)+4}" text-anchor="end" font-size="12" fill="var(--mute)">${money(v)}</text>`}
+  const step=n<=10?1:n<=20?2:n<=50?5:10;
+  for(let i=0;i<=n;i+=step)s+=`<text x="${X(i)}" y="${H-18}" text-anchor="middle" font-size="12" fill="var(--mute)">${i}</text>`;
+  s+=`<text x="${(L+W-R)/2}" y="${H-3}" text-anchor="middle" font-size="11" fill="var(--mute)">years from today</text>`;
+  const path=k=>'M'+[`${X(0)},${Y(0)}`].concat(pts.map((p,i)=>`${X(i+1)},${Y(p[k])}`)).join('L');
+  const gap=`${path('cb')}L${[...pts].reverse().map((p,i)=>`${X(n-i)},${Y(p.cs)}`).join('L')}L${X(0)},${Y(0)}Z`;
+  s+=`<path d="${gap}" fill="var(--buy)" opacity=".12"/>`;
+  s+=`<path d="${path('cs')}" fill="none" stroke="var(--stay)" stroke-width="3"/><path d="${path('cb')}" fill="none" stroke="var(--buy)" stroke-width="3"/>`;
+  const ex=X(n), ya=Y(pts[n-1].cs), yb=Y(pts[n-1].cb), ym=(ya+yb)/2;
+  s+=`<line x1="${ex}" x2="${ex}" y1="${yb}" y2="${ya}" stroke="#000" stroke-width="3"/><line x1="${ex-5}" x2="${ex+5}" y1="${yb}" y2="${yb}" stroke="#000" stroke-width="3"/><line x1="${ex-5}" x2="${ex+5}" y1="${ya}" y2="${ya}" stroke="#000" stroke-width="3"/>`;
+  s+=`<text x="${ex-10}" y="${ym+4}" text-anchor="end" font-size="13" font-weight="700" fill="var(--ink)" paint-order="stroke" stroke="var(--card)" stroke-width="4">${money(pts[n-1].cum)} more</text>`;
+  s+=`<g id="hov"></g>`;
+  $('chart').innerHTML=s;
+  chartState={n,pts,X,Y,W,L,R,T,H,B};
+
+  // table
+  const oc=hasOld;
+  const cols=[{k:'yr',g:'',h:'Year',f:'',v:x=>x.y}];
+  cols.push({k:'cFee',g:'c',h:'Maintenance Fees',f:'Monthly fee × 12, plus yearly rise',v:x=>money(x.stayFee),sep:1});
+  if(oc)cols.push({k:'cOld',g:'c',h:'Current Loan',f:'Payment × months left that year',v:x=>x.old?money(x.old):'paid off'});
+  cols.push({k:'cTot',g:'c',h:'Total Payments',f:oc?'{cFee} + {cOld}':'{cFee}',v:x=>money(x.stay)});
+  cols.push({k:'cCum',g:'c',h:'Cumulative Payments',f:'row above + {cTot}',v:x=>money(x.cs)});
+  cols.push({k:'nFee',g:'n',h:'Maintenance Fees',f:'All pts ÷ 1,000 × new fee, plus yearly rise',v:x=>money(x.fee),sep:1});
+  cols.push({k:'nLoan',g:'n',h:'New Loan',f:'Loan pmt × 12 (loan years)',v:x=>x.loan?money(x.loan):'paid off'});
+  if(oc)cols.push({k:'nOld',g:'n',h:'Current Loan',f:'Payment × months left that year',v:x=>x.old?money(x.old):'paid off'});
+  cols.push({k:'nTot',g:'n',h:'Total Payments',f:oc?'{nFee} + {nLoan} + {nOld}':'{nFee} + {nLoan}',v:x=>money(x.buy)});
+  cols.push({k:'nCum',g:'n',h:'Cumulative Payments',f:'row above + {nTot}',v:x=>money(x.cb)});
+  cols.push({k:'dYr',g:'d',h:'Extra Cost This Year',f:'{nTot} − {cTot}',v:x=>`<span class="${x.extra>0?'bad':'good'}">${money(x.extra)}</span>`,sep:1});
+  cols.push({k:'dCum',g:'d',h:'Extra Cost Cumulative',f:'{nCum} − {cCum}',v:x=>`<b class="${x.cum>0?'bad':'good'}">${money(x.cum)}</b>`});
+  const cnt=g=>cols.filter(x=>x.g===g).length;
+  const cls=g=>g==='c'?'c':g==='n'?'n':'';
+  let h=`<colgroup><col style="width:52px">${cols.filter(x=>x.g).map(()=>"<col>").join("")}</colgroup><thead><tr><th class="grp yr" rowspan="2">Year</th><th class="grp c sep" colspan="${cnt('c')}" style="color:var(--stay)">Current Status</th><th class="grp n sep" colspan="${cnt('n')}" style="color:var(--buy)">New Contract</th><th class="grp d sep" colspan="2">Difference</th></tr>`;
+  h+=`<tr>${cols.filter(x=>x.g).map(x=>`<th class="nm ${cls(x.g)}${x.sep?' sep':''}">${x.h}</th>`).join('')}</tr></thead><tbody>`;
+  r.slice(0,50).forEach(x=>{
+    h+=`<tr>${cols.map(col=>`<td class="${cls(col.g)}${col.sep?' sep':''}">${col.v(x)}</td>`).join('')}</tr>`;
+    if(x.y===c.term&&c.term<50)h+=`<tr class="payoff"><td colspan="${cols.length}">&#9650; Loan years above &nbsp;|&nbsp; Loan paid off after year ${c.term} <span>&mdash; below, you pay maintenance fees only</span> &#9660;</td></tr>`;
+  });
+  $('tbl').innerHTML=h+'</tbody>';
+}
+
+// hover: vertical line + totals for both paths
+function hover(ev){
+  const st=chartState; if(!st)return;
+  const svg=$('chart'), rect=svg.getBoundingClientRect(), sc=st.W/rect.width;
+  const xv=(ev.clientX-rect.left)*sc;
+  const i=Math.max(0,Math.min(st.n,Math.round((xv-st.L)/(st.W-st.L-st.R)*st.n)));
+  const p=i?st.pts[i-1]:{cs:0,cb:0,cum:0};
+  const x=st.X(i);
+  $('hov').innerHTML=`<line x1="${x}" x2="${x}" y1="${st.T}" y2="${st.H-st.B}" stroke="var(--mute)" stroke-dasharray="4 3"/>
+   <circle cx="${x}" cy="${st.Y(p.cs)}" r="5" fill="var(--stay)"/><circle cx="${x}" cy="${st.Y(p.cb)}" r="5" fill="var(--buy)"/>`;
+  const tip=$('tip');
+  tip.innerHTML=`<b>Year ${i}</b><span style="color:var(--stay)">&#9632;</span> Current Status: <b style="display:inline">${money(p.cs)}</b><br><span style="color:var(--buy)">&#9632;</span> New Contract: <b style="display:inline">${money(p.cb)}</b><br>Extra: <b style="display:inline" class="bad">${money(p.cum)}</b>`;
+  tip.style.display='block';
+  const px=x/st.W*rect.width;
+  if(i>st.n/2){tip.style.left='';tip.style.right=(rect.width-px+10)+'px'}else{tip.style.right='';tip.style.left=(px+10)+'px'}
+}
+$('chart').addEventListener('pointermove',hover);
+$('chart').addEventListener('pointerleave',()=>{$('tip').style.display='none';const g=$('hov');if(g)g.innerHTML=''});
+
+const KEY='umc-settings-v2';
+function save(){try{const o={};document.querySelectorAll('input').forEach(i=>o[i.id]=i.value);localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}}
+try{const s=JSON.parse(localStorage.getItem(KEY)||'{}');for(const id in s){const el=$(id);if(el)el.value=s[id]}}catch(e){}
+document.querySelectorAll('input[type=text]').forEach(i=>i.addEventListener('input',()=>{fmtInput(i);render();save()}));
+$('clr').addEventListener('click',e=>{e.preventDefault();document.querySelectorAll('input[type=text]').forEach(i=>i.value='');render();save()});
+$('yrs').addEventListener('input',()=>{render();save()});
+render();
+</script>
+</body>
+</html>
