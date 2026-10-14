@@ -211,15 +211,16 @@ function render(){
   $('curPer1k').textContent=c.curPts?money(c.curY/(c.curPts/1000),2):'-';
   $('yrsLbl').textContent=c.yrs;
 
-  // points perks: 1 housekeeping credit per 70,000 pts; 1 phone-booking credit per 77,000 pts
+  // points perks: 1 housekeeping credit per 70,000 pts; 1 Reservation Transaction per 77,000 pts
   const hk=p=>Math.floor(p/70000), ph=p=>Math.floor(p/77000), shy=p=>70000-p%70000;
-  const perkBox=(t,p)=>{const k=hk(p),s=p%70000;return `<div class="box ${s?'buy':'goodb'}"><div class="t">${t}: ${p.toLocaleString()} pts</div><div class="n">${k} housekeeping credit${k===1?'':'s'}</div><div class="d">${ph(p)} phone-booking credit${ph(p)===1?'':'s'}<br>`+(!p?'':s?`<b class="bad">${s.toLocaleString()} pts earn nothing</b>. ${shy(p).toLocaleString()} more gets credit ${k+1}.`:'<b class="good">Perfect multiple of 70,000</b>')+`</div></div>`};
-  $('perk').innerHTML='<h2>Get the Most From Your Points: Own a Multiple of 70,000</h2>'+
-   '<p class="rule">Every <b>70,000 points</b> = 1 free Housekeeping credit (70K, 140K, 210K, 280K&hellip;). Points left over earn nothing.</p>'+
+  const perkBox=(t,p)=>{const k=hk(p),s=p%70000;return `<div class="box ${s?'buy':'goodb'}"><div class="t">${t}: ${p.toLocaleString()} pts</div><div class="n">${k} housekeeping credit${k===1?'':'s'}</div><div class="d">${ph(p)} Reservation Transaction${ph(p)===1?'':'s'}<br>`+(!p?'':s?`<b class="bad">${s.toLocaleString()} pts earn nothing</b>. ${shy(p).toLocaleString()} more gets credit ${k+1}.`:'<b class="good">Perfect multiple of 70,000</b>')+`</div></div>`};
+  $('perk').innerHTML='<h2>Get the Most From Your Points: Own in Multiples of 70,000</h2>'+
+   '<p class="rule">Every <b>70,000 points</b> = 1 free Housekeeping credit (70K, 140K, 210K, 280K&hellip;).<br>Points left over earn nothing.</p>'+
    (c.curPts?`<div class="live">${perkBox('You own',c.curPts)}${c.addPts?perkBox('After buying',c.curPts+c.addPts):''}</div>`:'')+
-   '<ul><li><b>Housekeeping credits are worth $159 each.</b> Out of credits, you must pay $159 for another to use your points at Club Wyndham. Otherwise move them to RCI or roll them over.</li>'+
+   '<ul><li><b>Housekeeping credits cost $185 each</b> once you run out. You need 1 per reservation, with your points, whatever the stay length or suite size. Unused credits expire at the end of your Use Year.</li>'+
    '<li><b>Watch for 200,000-point offers.</b> That is just under 210,000: you lose the third credit.</li>'+
-   '<li><b>Phone bookings:</b> 1 free credit per 77,000 points. Out of credits, a booking through the 800 number costs $39. Booking online is free.</li></ul>';
+   '<li><b>Reservation Transactions:</b> 1 free per 77,000 points each calendar year. Booking by phone (Vacation Planning Center) without one costs $39; booking on your owner website is free. They are also needed for external exchange deposits and converting points to maintenance dollars.</li>'+
+   '<li>VIP owners may get extra or unlimited credits. Details from Club Wyndham: <a href="https://clubwyndham.wyndhamdestinations.com/us/en/owner-guide/resources/housekeeping-credits" rel="noopener">Housekeeping Credits</a> &middot; <a href="https://clubwyndham.wyndhamdestinations.com/us/en/owner-guide/resources/reservation-transactions" rel="noopener">Reservation Transactions</a></li></ul>';
 
   const feeSaveY=c.curY-c.newY, feeSaveM=feeSaveY/12;
   const buyM=c.newY/12+c.loanM, afterM=c.newY/12;
