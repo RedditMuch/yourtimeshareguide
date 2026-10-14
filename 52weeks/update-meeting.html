@@ -235,9 +235,9 @@ function render(){
         why:[`Those ${x} points earn no credit; you keep the same ${plural(cr(T),'Housekeeping Credit')}`,'Fewer points means a smaller loan and lower maintenance fees']}}
     return add>0?{t:'No points wasted at this total',tg:'',why:[]}:null;
   };
-  const perkBox=(t,p)=>{const k=cr(p),w=p-lastJ(p),v=vip(p),u=nextJ(p);return `<div class="box ${w?'buy':'goodb'}"><div class="t">${t}: ${p.toLocaleString()} pts</div><div class="n">${plural(k,'housekeeping credit')}</div><div class="d">${v?`<div style="margin-top:4px">(Includes +${v[1]} for VIP ${v[2]})</div>`:''}${plural(ph(p),'Reservation Transaction')}<br>`+(!p?'':w?`<b class="bad">${w.toLocaleString()} pts earn nothing</b>.${u?` ${(u-p).toLocaleString()} more gets ${plural(cr(u)-k,'more credit')}.`:''}`:'<b class="good">No points wasted</b>')+`</div></div>`};
+  const perkBox=(t,p)=>{const k=cr(p),w=p-lastJ(p),v=vip(p),u=nextJ(p);return `<div class="box ${w?'buy':'goodb'}"><div class="t">${t}: ${p.toLocaleString()} pts</div><div class="n">${plural(k,'housekeeping credit')}</div><div class="d">${v?`<div style="margin-top:4px">(Includes +${v[1]} for VIP ${v[2]})</div>`:''}${plural(ph(p),'Reservation Transaction')}<br>`+(!p?'':w?`<b class="bad">${w.toLocaleString()} pts earn nothing</b>.`:'<b class="good">No points wasted</b>')+`</div></div>`};
   const recT=rec(c.curPts,c.addPts);const consider=recT&&recT.tg?`<div class="consider"><b>Consider This:</b> ${recT.tg}<ul>${recT.why.map(w=>'<li>'+w+'</li>').join('')}</ul></div>`:'';
-  $('addH').textContent=recT?recT.t:'';
+  
   $('perk').innerHTML='<h2>Get the Most From Your Points: Own in Multiples of 70,000</h2>'+
    '<p class="how">Here&rsquo;s How it Works</p>'+
    '<p class="rule">Every <b>70,000 points</b> = 1 free Housekeeping credit (70K, 140K, 210K, 280K&hellip;).<br>Points left over earn nothing.</p>'+
