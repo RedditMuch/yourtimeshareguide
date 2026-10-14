@@ -91,6 +91,7 @@ tr.loanend td{border-bottom:2px solid var(--mute)}
 .perk .live .box{padding:10px}
 .perk .live .n{font-size:1.5rem}
 .perk ul{margin:0;padding-left:20px;font-size:.92rem}
+.buyin .f{background:color-mix(in srgb,var(--buy) 9%,var(--card));border-color:color-mix(in srgb,var(--buy) 40%,var(--line))}
 .perk li{margin-bottom:4px}
 .perk .how{text-align:center;font-weight:600;color:var(--mute);margin:0 0 6px}
 .consider{border:1px solid var(--line);border-left:5px solid var(--buy);border-radius:10px;padding:10px 14px;margin:0 0 12px;background:var(--bg)}
@@ -124,7 +125,7 @@ tr.loanend td{border-bottom:2px solid var(--mute)}
 </div>
 
 <h2 style="margin-top:18px;padding-top:14px;border-top:1px solid var(--line)">Additional Purchase</h2>
-<div class="grid">
+<div class="grid buyin">
 <div class="cell"><label><div class="lt">Additional Points Purchase</div><div class="f"><input type="text" inputmode="decimal" id="addPts" placeholder="Points Offered"></div></label><div class="hint" id="addH"></div></div>
 <div class="cell"><label><div class="lt">Asking Price (Often Negotiable)</div><div class="f"><span>$</span><input type="text" inputmode="decimal" id="price" placeholder="Price"></div></label><div class="hint"></div></div>
 <div class="cell"><label><div class="lt">Interest Rate on Loan</div><div class="f"><input type="text" inputmode="decimal" id="apr" placeholder="Interest Rate"></div></label><div class="hint"></div></div>
@@ -230,21 +231,21 @@ function render(){
         tg:`Buying ${gap.toLocaleString()} more points (${u.toLocaleString()} total)`,
         why:[`Adds ${plural(g,'Housekeeping Credit')}${nv?' and reaches VIP '+nv:''}`,'A Housekeeping Credit costs $185 if you run out and have to buy one']}}
     if(add>0&&T>tgt){const x=(T-tgt).toLocaleString();
-      return tgt===cur?{t:'This purchase adds no credits',tg:'Skipping this purchase',why:[`Your credits stay at ${cr(T)} either way`,'You would pay for points that earn nothing extra']}
+      return tgt===cur?{t:'This purchase adds no credits',tg:'Skipping this purchase',why:[`Your Housekeeping Credits stay at ${cr(T)} either way`,'You would pay for points that earn nothing extra']}
        :{t:`Buy ${x} fewer points (${tgt.toLocaleString()} total): same ${plural(cr(T),'credit')}`,tg:`Buying ${x} fewer points (${tgt.toLocaleString()} total)`,
         why:[`Those ${x} points earn no credit; you keep the same ${plural(cr(T),'Housekeeping Credit')}`,'Fewer points means a smaller loan and lower maintenance fees']}}
     return add>0?{t:'No points wasted at this total',tg:'',why:[]}:null;
   };
-  const perkBox=(t,p)=>{const k=cr(p),w=p-lastJ(p),v=vip(p),u=nextJ(p);return `<div class="box ${w?'buy':'goodb'}"><div class="t">${t}: ${p.toLocaleString()} pts</div><div class="n">${plural(k,'housekeeping credit')}</div><div class="d">${v?`<div style="margin-top:4px">(Includes +${v[1]} for VIP ${v[2]})</div>`:''}${plural(ph(p),'Reservation Transaction')}<br>`+(!p?'':w?`<b class="bad">${w.toLocaleString()} pts earn nothing</b>.`:'<b class="good">No points wasted</b>')+`</div></div>`};
+  const perkBox=(t,p)=>{const k=cr(p),w=p-lastJ(p),v=vip(p),u=nextJ(p);return `<div class="box ${w?'buy':'goodb'}"><div class="t">${t}: ${p.toLocaleString()} pts</div><div class="n">${plural(k,'Housekeeping Credit')}</div><div class="d">${v?`<div style="margin-top:4px">(Includes +${v[1]} for VIP ${v[2]})</div>`:''}${plural(ph(p),'Reservation Transaction')}<br>`+(!p?'':w?`<b class="bad">${w.toLocaleString()} pts earn nothing</b>`:'<b class="good">No points wasted</b>')+`</div></div>`};
   const recT=rec(c.curPts,c.addPts);const consider=recT&&recT.tg?`<div class="consider"><b>Consider This:</b> ${recT.tg}<ul>${recT.why.map(w=>'<li>'+w+'</li>').join('')}</ul></div>`:'';
   
   $('perk').innerHTML='<h2>Get the Most From Your Points: Own in Multiples of 70,000</h2>'+
    '<p class="how">Here&rsquo;s How it Works</p>'+
-   '<p class="rule">Every <b>70,000 points</b> = 1 free Housekeeping credit (70K, 140K, 210K, 280K&hellip;).<br>Points left over earn nothing.</p>'+
+   '<p class="rule">Every <b>70,000 points</b> = 1 free Housekeeping Credit (70K, 140K, 210K, 280K&hellip;).<br>Points left over earn nothing.</p>'+
    (c.curPts?`<div class="live">${perkBox('Current Ownership',c.curPts)}${c.addPts?perkBox('After Purchase',c.curPts+c.addPts):''}</div>${c.addPts?consider:''}`:'')+
-   '<ul><li><b>Housekeeping credits cost $185 each</b> if you run out. You need 1 Housekeeping Credit per reservation (along with applicable points). Unused credits expire at the end of your Use Year.</li>'+
+   '<ul><li><b>Housekeeping Credits cost $185 each</b> if you run out. You need 1 Housekeeping Credit per reservation (along with applicable points). Unused Housekeeping Credits expire at the end of your Use Year.</li>'+
    '<li><b>VIP Milestones also add credits:</b> Bronze +1, Silver +2, Gold +4, Platinum +6, Founders +8.</li>'+
-   '<li><b>Reservation Transactions:</b> 1 free per 77,000 points each calendar year. Booking by phone (Vacation Planning Center) without one costs $39; booking on your owner website is free. They are also needed for external exchange deposits and converting points to maintenance dollars.</li></ul>'+
+   '<li><b>Reservation Transactions:</b> 1 free per 77,000 points each calendar year. Booking by phone (Vacation Planning Center) without one costs $39; booking on your owner website is free.</li></ul>'+
    '<p class="note" style="margin:10px 0 0;text-align:right">Source: Details from Club Wyndham: <a href="https://clubwyndham.wyndhamdestinations.com/us/en/owner-guide/resources/housekeeping-credits" rel="noopener">Housekeeping Credits</a> &middot; <a href="https://clubwyndham.wyndhamdestinations.com/us/en/owner-guide/resources/reservation-transactions" rel="noopener">Reservation Transactions</a></p>';
 
   const feeSaveY=c.curY-c.newY, feeSaveM=feeSaveY/12;
