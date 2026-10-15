@@ -1,0 +1,17 @@
+---
+layout: layouts/base.njk
+title: Your Timeshare Guide
+description: Club Wyndham, explained by an owner. Links to the pages that are live.
+lead: Club Wyndham, explained by an owner.
+---
+{%- import "components.njk" as ui -%}
+{#- Temporary landing page (planning #54). The links are data in _data/welcome.js. -#}
+<div class="ytg-regions">
+  <section aria-labelledby="{{ welcome.live.id }}">
+    <h2 class="ytg-eyebrow" id="{{ welcome.live.id }}">{{ welcome.live.label }}</h2>
+    {%- for link in welcome.live.links %}
+    {{ ui.card(link) }}
+    {%- endfor %}
+  </section>
+  {{ ui.linkList(welcome.more) }}
+</div>
