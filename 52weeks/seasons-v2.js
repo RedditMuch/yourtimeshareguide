@@ -572,9 +572,10 @@
       prevYear = c.y;
     }
     if (tripMode && showType) head += '<th class="tot" scope="col">' + sortBtn('total', 'Total') + '</th>';
+    if (!tripMode && showType) head += '<th class="nt wd" scope="col" title="Points per night for the chosen week. Club Wyndham resorts show … until their nightly points are added.">Weekday<small>Wk ' + sel.w + '</small><small>Sun–Thu</small></th><th class="nt we" scope="col" title="Points per night for the chosen week. Club Wyndham resorts show … until their nightly points are added.">Weekend<small>Wk ' + sel.w + '</small><small>Fri–Sat</small></th>';
     head += '</tr></thead>';
 
-    const view = { rows, cols, sel, showType, tripMode, tot: tripMode && showType };
+    const view = { rows, cols, sel, showType, tripMode, tot: tripMode && showType, end: showType ? (tripMode ? 1 : 2) : 0 }; // end = columns after the week cells
     let body = '<tbody>', any53 = false;
     rows.forEach((r, i) => {
       const s = r.s, ref = refOf(s), gk = x => resortKey(x.s) + '|' + bldgOf(x), first = i === 0 || gk(rows[i - 1]) !== gk(r);
@@ -598,6 +599,7 @@
         body += '<td class="' + x.cls + '">' + x.text + '</td>';
       }
       if (tripMode && showType) { const v = totals.get(r); body += '<td class="tot">' + (r.gap ? '' : v == null ? '…' : short(v)) + '</td>'; }
+      if (!tripMode && showType) for (const weekend of [false, true]) { const n = r.gap ? '' : nightly(r, sel.w, weekend); body += '<td class="nt ' + (weekend ? 'we' : 'wd') + '">' + (r.gap ? '' : n == null ? '…' : short(n)) + '</td>'; }
       body += '</tr>';
     });
     $('grid').innerHTML = head + body + '</tbody>';
@@ -644,7 +646,7 @@
   let tipCell = null, tipTimer = 0, focusCell = null;
   const cellAt = td => { // the row and column a week cell stands for
     const v = $('grid').__view, tr = td.parentNode; if (!v || !tr || !td.classList.contains('c')) return null;
-    const first = tr.cells.length - v.cols.length - (v.tot ? 1 : 0), r = v.rows[tr.sectionRowIndex], c = v.cols[td.cellIndex - first];
+    const first = tr.cells.length - v.cols.length - v.end, r = v.rows[tr.sectionRowIndex], c = v.cols[td.cellIndex - first];
     return r && c ? { r, c, v } : null;
   };
   const tipText = td => { const a = cellAt(td); return a ? cell(a.r, a.c, a.v, true).tip : ''; };
