@@ -563,3 +563,16 @@ test.describe("season chart v2 nightly points for Club Wyndham (planning #52)", 
     expect(r.off).toBe(0);
   });
 });
+
+test.describe("season chart v2 nightly data fallback (planning #52)", () => {
+  test("if nightlydata.js does not load, the page still works and shows ellipses", async ({ page }) => {
+    const errors = [];
+    page.on("pageerror", e => errors.push(e.message));
+    await page.route("**/nightlydata.js", route => route.abort());
+    await page.goto("/52weeks/seasons-v2.html", { waitUntil: "load" });
+    await expect(page.locator("#grid tbody tr").first()).toBeVisible();
+    const cw = await page.locator("#grid tbody td.nt.wd").evaluateAll(tds => tds.filter(t => t.textContent.trim() === "…").length);
+    expect(cw).toBeGreaterThan(50);
+    expect(errors).toEqual([]);
+  });
+});
