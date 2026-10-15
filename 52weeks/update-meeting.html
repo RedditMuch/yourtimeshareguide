@@ -94,8 +94,9 @@ tr.loanend td{border-bottom:2px solid var(--mute)}
 .buyin .f{background:color-mix(in srgb,var(--buy) 9%,var(--card));border-color:color-mix(in srgb,var(--buy) 40%,var(--line))}
 .perk li{margin-bottom:4px}
 .mix{text-align:center;font-size:.9rem;color:var(--mute);margin:0 0 10px}
-.ohead{display:flex;align-items:center;justify-content:space-between;gap:8px 16px;flex-wrap:wrap;margin-bottom:10px}.ohead h2{margin:0}
-.vipsel{font-size:.9rem;color:var(--mute)}.vipsel select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 8px;margin-left:6px}
+.ohead{display:flex;align-items:center;justify-content:flex-start;gap:8px 14px;flex-wrap:wrap;margin-bottom:10px}.ohead h2{margin:0}
+.vipsel select{font:inherit;font-weight:600;color:var(--ink);background:color-mix(in srgb,var(--stay) 16%,var(--card));border:1px solid color-mix(in srgb,var(--stay) 50%,var(--line));border-radius:8px;padding:6px 10px;cursor:pointer}
+.vipsel select:focus{outline:2px solid var(--stay);outline-offset:1px}
 .kn{text-align:center;font-size:1.1rem;margin:16px 0 4px}
 .perk .how{text-align:center;font-weight:600;color:var(--mute);margin:0 0 6px}
 .consider{border:1px solid var(--line);border-left:5px solid var(--buy);border-radius:10px;padding:10px 14px;margin:0 0 12px;background:var(--bg)}
@@ -113,7 +114,7 @@ tr.loanend td{border-bottom:2px solid var(--mute)}
 <p class="sub">Enter your own numbers and see what their pitch really costs.<br><a href="#" id="clr" style="font-size:.8rem;color:var(--mute)">Clear all fields</a></p>
 
 <div class="card">
-<div class="ohead"><h2>Current Ownership</h2><label class="vipsel">VIP Status <select id="vipSt"><option value="non">Non-VIP</option><option value="bronze">Bronze</option><option value="silver">Silver</option><option value="gold">Gold</option><option value="platinum">Platinum</option><option value="founders">Founders</option><option value="gsilver">Grandfathered Silver</option><option value="ggold">Grandfathered Gold</option><option value="gplat">Grandfathered Platinum</option></select></label></div>
+<div class="ohead"><h2>Current Ownership</h2><div class="vipsel"><select id="vipSt" aria-label="VIP Status" title="VIP Status"><option value="non">Non-VIP</option><option value="bronze">VIP Bronze</option><option value="silver">VIP Silver</option><option value="gold">VIP Gold</option><option value="platinum">VIP Platinum</option><option value="founders">VIP Founders</option><option value="gsilver">Grandfathered Silver</option><option value="ggold">Grandfathered Gold</option><option value="gplat">Grandfathered Platinum</option></select></div></div>
 <div class="duo">
 <div class="area"><div class="acap">Maintenance Fees</div><div class="g2">
 <div class="cell"><label><div class="lt">Current # of Points</div><div class="f"><input type="text" inputmode="decimal" id="curPts" value="140,000" placeholder="Points You Own"></div></label><div class="hint"></div></div>
