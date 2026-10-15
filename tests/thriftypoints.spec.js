@@ -16,27 +16,27 @@ async function search(page, { points = "60,000", from, to } = {}) {
 }
 // Columns: 0 Resort, 1 Location, 2 Room Type, 3 In, 4 Out, 5 Nights, 6 Full Price, 7.. discount columns
 const rows = page => page.$$eval("#body tr", trs => trs.map(tr => [...tr.children].map(td => ({ t: td.textContent.trim(), fit: td.dataset.fit, cls: td.className }))));
-const heads = page => page.$$eval("#tbl thead th", ths => ths.map(th => th.textContent.trim()));
-const daysOut = c => { const n = new Date(); return Math.round((dateOf(c[3].t) - Date.UTC(n.getFullYear(), n.getMonth(), n.getDate())) / 864e5); };
+const heads = page => page.$$eval("#tbl thead th", ths => ths.map(th => th.textContent.replace(/[▲▼⇅]/g, "").trim()));
+const daysOut = c => { const n = new Date(); return Math.round((dateOf(c[4].t) - Date.UTC(n.getFullYear(), n.getMonth(), n.getDate())) / 864e5); };
 
 test("thriftypoints: the VIP Level dropdown tailors the columns and re-renders when changed", async ({ page }) => {
   await search(page);
   await expect(page.locator("#vip")).toHaveCount(1);
   const all = await heads(page);
   expect(all.length).toBeGreaterThan(8);
-  const pcts = all.slice(7).map(num);
+  const pcts = all.slice(8).map(num);
   expect(pcts).toEqual([...pcts].sort((a, b) => a - b));
   expect(pcts).toContain(35);
   await page.selectOption("#vip", { label: "Non-VIP" });
-  await expect.poll(async () => (await heads(page)).length).toBe(7);
+  await expect.poll(async () => (await heads(page)).length).toBe(8);
   expect((await rows(page)).length).toBeGreaterThan(0);
   await page.selectOption("#vip", { label: "VIP Gold" });
-  await expect.poll(async () => (await heads(page)).length).toBe(8);
-  expect(num((await heads(page))[7])).toBe(35);
+  await expect.poll(async () => (await heads(page)).length).toBe(9);
+  expect(num((await heads(page))[8])).toBe(35);
   for (const row of await rows(page)) {
-    expect(row.length).toBe(8);
-    expect(row.slice(6).some(c => !isDash(c.t) && num(c.t) <= 60000)).toBe(true);
-    if (daysOut(row) > 60) expect(isDash(row[7].t)).toBe(true);
+    expect(row.length).toBe(9);
+    expect(row.slice(7).some(c => !isDash(c.t) && num(c.t) <= 60000)).toBe(true);
+    if (daysOut(row) > 60) expect(isDash(row[8].t)).toBe(true);
   }
   await page.selectOption("#vip", { label: "Show All Discounts" });
   await expect.poll(async () => (await heads(page)).length).toBe(all.length);
@@ -47,7 +47,7 @@ test("thriftypoints: every row has a price at most 60,000 and highlights match e
   const r = await rows(page);
   expect(r.length).toBeGreaterThan(0);
   for (const row of r) {
-    const prices = row.slice(6);
+    const prices = row.slice(7);
     expect(prices.some(c => !isDash(c.t) && num(c.t) <= 60000)).toBe(true);
     for (const c of prices) {
       const fits = !isDash(c.t) && num(c.t) <= 60000;
@@ -65,8 +65,8 @@ test("thriftypoints: inside the window 35% Off is the rounded-up full price time
   let inside = 0, outside = 0;
   for (const row of await rows(page)) {
     const d = daysOut(row);
-    if (d >= 0 && d <= 60) { inside++; expect(num(row[col].t)).toBe(Math.ceil(num(row[6].t) * 0.65 - 1e-6)); }
-    else if (d > 60) { outside++; for (const c of row.slice(7)) expect(isDash(c.t)).toBe(true); }
+    if (d >= 0 && d <= 60) { inside++; expect(num(row[col].t)).toBe(Math.ceil(num(row[7].t) * 0.65 - 1e-6)); }
+    else if (d > 60) { outside++; for (const c of row.slice(8)) expect(isDash(c.t)).toBe(true); }
   }
   expect(inside).toBeGreaterThan(0);
   expect(outside).toBeGreaterThan(0);
@@ -78,7 +78,7 @@ test("thriftypoints: results stay inside the chosen date range", async ({ page }
   await search(page, { from: iso(start), to: iso(end) });
   const r = await rows(page);
   expect(r.length).toBeGreaterThan(0);
-  for (const c of r) { expect(dateOf(c[3].t)).toBeGreaterThanOrEqual(start); expect(dateOf(c[4].t)).toBeLessThanOrEqual(end); }
+  for (const c of r) { expect(dateOf(c[4].t)).toBeGreaterThanOrEqual(start); expect(dateOf(c[5].t)).toBeLessThanOrEqual(end); }
 });
 
 test("thriftypoints: no console errors and no sideways scrolling; the table sits in a labelled scroll region", async ({ page }) => {
@@ -100,9 +100,9 @@ test("thriftypoints: dates are mm/dd/yy and check-out is after check-in", async 
   const r = await rows(page);
   expect(r.length).toBeGreaterThan(0);
   for (const c of r) {
-    expect(c[3].t).toMatch(/^\d\d\/\d\d\/\d\d$/);
     expect(c[4].t).toMatch(/^\d\d\/\d\d\/\d\d$/);
-    expect(dateOf(c[4].t)).toBeGreaterThan(dateOf(c[3].t));
+    expect(c[5].t).toMatch(/^\d\d\/\d\d\/\d\d$/);
+    expect(dateOf(c[5].t)).toBeGreaterThan(dateOf(c[4].t));
   }
 });
 
@@ -113,27 +113,81 @@ test("thriftypoints: sorting by Check-In, Nights and Reset Order", async ({ page
   const all = await rows(page);
   const col = i => page.locator('#tbl thead button[data-col="' + i + '"]');
   const sortAttr = i => page.locator("#tbl thead th").nth(i).getAttribute("aria-sort");
-  await col(3).click();
-  expect(await sortAttr(3)).toBe("ascending");
-  expect(await sortAttr(4)).toBe("none");
+  await col(4).click();
+  expect(await sortAttr(4)).toBe("ascending");
+  expect(await sortAttr(5)).toBe("none");
   let r = await rows(page);
-  const ins = r.map(c => dateOf(c[3].t));
+  const ins = r.map(c => dateOf(c[4].t));
   expect(ins[0]).toBe(Math.min(...ins));
   expect(ins).toEqual([...ins].sort((a, b) => a - b));
-  await col(3).click();
-  expect(await sortAttr(3)).toBe("descending");
+  await col(4).click();
+  expect(await sortAttr(4)).toBe("descending");
   r = await rows(page);
-  const ins2 = r.map(c => dateOf(c[3].t));
+  const ins2 = r.map(c => dateOf(c[4].t));
   expect(ins2[0]).toBe(Math.max(...ins2));
-  await col(5).click(); await col(5).click();
+  await col(6).click(); await col(6).click();
   r = await rows(page);
-  const nights = r.map(c => num(c[5].t));
+  const nights = r.map(c => num(c[6].t));
   expect(nights[0]).toBe(Math.max(...nights));
-  expect(await sortAttr(5)).toBe("descending");
-  expect(await sortAttr(3)).toBe("none");
+  expect(await sortAttr(6)).toBe("descending");
+  expect(await sortAttr(4)).toBe("none");
   await page.click("#reset");
   r = await rows(page);
   expect(r[0][0].t).toBe(first);
   expect(r.length).toBe(all.length);
-  expect(await sortAttr(5)).toBe("none");
+  expect(await sortAttr(6)).toBe("none");
+});
+
+test("thriftypoints: City and State columns exist, State sorts with equal codes grouped, every heading has an indicator", async ({ page }) => {
+  await search(page, { points: "150,000" });
+  await page.click("#all").catch(() => {});
+  const h = await heads(page);
+  const si = h.indexOf("State"), ci = h.indexOf("City");
+  expect(ci).toBeGreaterThanOrEqual(0);
+  expect(si).toBe(ci + 1);
+  expect(h).not.toContain("Location");
+  expect(await page.locator("#tbl thead th button .arr").count()).toBe(h.length);
+  await page.locator('#tbl thead button[data-col="' + si + '"]').click();
+  const codes = (await rows(page)).map(c => c[si].t);
+  expect(codes.every(c => c.length > 0)).toBe(true);
+  const seen = new Set(); let prev = null;
+  for (const c of codes) { if (c !== prev) { expect(seen.has(c)).toBe(false); seen.add(c); prev = c; } }
+  expect(codes).toEqual([...codes].sort((a, b) => (a.toLowerCase() < b.toLowerCase() ? -1 : a.toLowerCase() > b.toLowerCase() ? 1 : 0)));
+});
+
+test("thriftypoints: the Full Price cell carries its season color, hidden season text and a legend", async ({ page }) => {
+  await search(page, { points: "150,000" });
+  await page.click("#all").catch(() => {});
+  await expect(page.locator("#seasonLegend .chip")).toHaveCount(4);
+  const colors = { Prime: "rgb(229, 127, 118)", High: "rgb(239, 156, 76)", Value: "rgb(247, 226, 151)", Quiet: "rgb(140, 207, 176)" };
+  const cells = await page.$$eval("#body tr td[data-season]", tds => tds.map(td => ({ s: td.dataset.season, bg: getComputedStyle(td).backgroundColor, vh: td.querySelector(".vh") ? td.querySelector(".vh").textContent : "", title: td.title })));
+  expect(cells.length).toBeGreaterThan(0);
+  const seen = new Set();
+  for (const c of cells) {
+    if (!c.s) continue;
+    seen.add(c.s);
+    expect(c.bg).toBe(colors[c.s]);
+    expect(c.vh).toContain(c.s);
+    expect(c.title).toContain(c.s);
+  }
+  expect(seen.has("Prime") || seen.has("High")).toBe(true);
+  expect(seen.has("Value") || seen.has("Quiet")).toBe(true);
+});
+
+test("thriftypoints: Club Wyndham is dropped from resort names but typing it still finds the resort", async ({ page }) => {
+  await search(page, { points: "150,000" });
+  await page.click("#all").catch(() => {});
+  const names = (await rows(page)).map(c => c[0].t);
+  const clubbed = names.filter(n => /^Club Wyndham/.test(n));
+  expect(clubbed.length).toBeLessThan(names.length / 4);
+  await page.fill("#resort", "club wyndham bonnet");
+  await page.click("#go");
+  await expect(page.locator("#body tr").first()).toBeVisible();
+  const a = (await rows(page)).map(c => c[0].t);
+  expect(a.length).toBeGreaterThan(0);
+  expect(a.every(n => /bonnet/i.test(n))).toBe(true);
+  await page.fill("#resort", "bonnet");
+  await page.click("#go");
+  await expect(page.locator("#body tr").first()).toBeVisible();
+  expect((await rows(page)).length).toBe(a.length);
 });
