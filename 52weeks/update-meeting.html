@@ -12,9 +12,10 @@
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,Segoe UI,Roboto,sans-serif}
 .wrap{max-width:1000px;margin:0 auto;padding:20px 16px 60px}
 h1{font-size:1.8rem;margin:0 0 6px;text-align:center}
-.tag{text-align:center;font-size:1.15rem;font-style:italic;color:var(--mute);margin:0 0 26px}
+.tag{text-align:center;font-size:1.15rem;font-weight:600;color:var(--mute);margin:0 0 8px}
 .claim h2.ct{text-align:center;margin-bottom:12px}
-.sub{color:var(--mute);margin:0 0 8px;text-align:center}
+.sub{color:var(--mute);margin:0 auto 10px;text-align:center;max-width:720px}
+.clrrow{margin:0 0 10px;text-align:left}.clrrow a{font-size:.85rem;color:var(--mute)}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px}
 h2{font-size:1.1rem;margin:0 0 10px}
 .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
@@ -102,7 +103,7 @@ tr.loanend td{border-bottom:2px solid var(--mute)}
 .consider{border:1px solid var(--line);border-left:5px solid var(--buy);border-radius:10px;padding:10px 14px;margin:0 0 12px;background:var(--bg)}
 .consider{text-align:center}.consider .cl{color:var(--mute);font-size:.9rem}.consider .cdir{font-size:1.35rem;font-weight:800;letter-spacing:.01em;margin-top:2px}.cdir.less{color:var(--good)}.cdir.more{color:var(--buy)}.consider .cnum{font-size:1.15rem;margin:4px auto 8px;padding-bottom:8px;border-bottom:2px solid var(--line);width:min(300px,80%)}.consider .cnum b{font-size:1.5rem}.consider .cnum span{color:var(--mute);font-size:.9rem;margin:0 4px}.consider .cnum s{color:var(--mute)}.consider .cwhy{font-weight:700;margin-bottom:2px}.consider .cnote{font-size:.85rem;color:var(--mute);margin:8px 0 0}.consider ul{margin:0;padding:0;list-style:none}.consider li{margin:2px 0}
 .sumrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0;margin-top:10px;border-top:1px solid var(--line);padding-top:10px}
-.mini{padding:0 14px;font-size:.85rem;color:var(--mute)}.mini:first-child{padding-left:0}.mini+.mini{border-left:1px solid var(--line)}
+.mini{text-align:center;padding:0 14px;font-size:.85rem;color:var(--mute)}.mini:first-child{padding-left:0}.mini+.mini{border-left:1px solid var(--line)}
 .mini .t{font-size:.8rem}.mini .n{font-size:1.1rem;font-weight:600;color:var(--ink)}.mini .n span{font-size:.85rem!important;color:var(--mute)}
 @media (max-width:760px){.mini,.mini:first-child{padding:6px 0}.mini+.mini{border-left:0;border-top:1px solid var(--line)}}
 </style>
@@ -110,8 +111,9 @@ tr.loanend td{border-bottom:2px solid var(--mute)}
 <body>
 <div class="wrap">
 <h1>Update Meeting Calculator</h1>
-<p class="tag">"Buy more points and your maintenance fees go down"</p>
-<p class="sub">Enter your own numbers and see what their pitch really costs.<br><a href="#" id="clr" style="font-size:.8rem;color:var(--mute)">Clear all fields</a></p>
+<p class="tag">Compare What a Points Purchase Costs With What It Earns</p>
+<p class="sub">Enter your numbers below to compare your current ownership with a proposed purchase: maintenance fees, loan costs, Housekeeping Credits and VIP milestones.</p>
+<p class="clrrow"><a href="#" id="clr">Clear All Fields</a></p>
 
 <div class="card">
 <div class="ohead"><h2>Current Ownership</h2><div class="vipsel"><select id="vipSt" aria-label="VIP Status" title="VIP Status"><option value="non">Non-VIP</option><option value="bronze">VIP Bronze</option><option value="silver">VIP Silver</option><option value="gold">VIP Gold</option><option value="platinum">VIP Platinum</option><option value="founders">VIP Founders</option><option value="gsilver">Grandfathered Silver</option><option value="ggold">Grandfathered Gold</option><option value="gplat">Grandfathered Platinum</option></select></div></div>
@@ -273,9 +275,8 @@ function render(){
    `<div class="pc"><b>The Pitch:</b><div>Your Maintenance Fee ${feeSaveM>0?'drops':'changes'} from ${money(c.curM,2)} to ${money(afterM,2)} a month.<br>
     That's ${feeSaveM>0?'a savings of':'a change of'} <b class="good">${money(Math.abs(feeSaveM),2)} a month</b> (${money(Math.abs(feeSaveY))} a year).</div></div>
     <div class="pc"><b>The Catch:</b><div>You are also paying <b class="bad">${money(c.loanM,2)} a month</b> for ${yt} to get that (${money(Math.abs(feeSaveY))} a year) savings.<br>
-    That's ${money(c.loanTotal)} total (${money(c.price)} loan + ${money(c.interest)} interest).</div></div>
-    <div class="pc"><b></b><div>${feeSaveY>0?`${money(feeSaveY)} saved per year takes <b class="bad">${payback>=100?Math.round(payback).toLocaleString():payback.toFixed(1)} years</b> of "savings" to break even.`:'Your fee does not actually go down at these numbers.'}</div></div>
-    ${eff(c.curPts+c.addPts,true).u?'':`<div class="pc"><b>Watch For:</b><div><b>200,000-point offers.</b> Adding only 10,000 more points gives you an additional Housekeeping Credit.</div></div>`}`;
+    That's ${money(c.loanTotal)} total (${money(c.price)} loan + ${money(c.interest)} interest).<br>${feeSaveY>0?`${money(feeSaveY)} saved per year takes <b class="bad">${payback>=100?Math.round(payback).toLocaleString():payback.toFixed(1)} years</b> of "savings" to break even.`:'Your fee does not actually go down at these numbers.'}</div></div>
+    ${eff(c.curPts+c.addPts,true).u?'':`<div class="pc"><b>Watch For:</b><div><b>200,000-point offers.</b> Remember &mdash; adding 10,000 points to a 200k point package gives you 1 additional Housekeeping Credit.</div></div>`}`;
   const empty=!c.curM;document.querySelectorAll('.res').forEach(e=>e.style.display=empty?'none':'');
   if(empty||!c.price||!c.addPts)$('claim').innerHTML='<h2 class="ct">The Pitch vs. The Math</h2><p style="text-align:center;margin:0">'+(empty?'Fill in the boxes above and the comparison appears here.':'Now enter the Additional Purchase above to see the comparison.')+'</p>';
   $('sLoan').textContent=money(c.loanTotal);
