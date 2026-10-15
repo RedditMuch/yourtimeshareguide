@@ -50,9 +50,9 @@ tbody tr:last-child td{border-bottom:0}
 
 <ol class="tl" id="tl"></ol>
 
-<h2>VIP perks at a glance</h2>
+<h2>VIP Perks at a Glance</h2>
 <div class="tw" tabindex="0" role="region" aria-label="VIP perks by level, scrollable"><table>
-<thead><tr><th>VIP level</th><th>Reciprocal Advance Reservations (11 months)</th><th>Margaritaville booking opens</th><th>Upgrades available</th><th>Points deposit deadline</th></tr></thead>
+<thead><tr><th>VIP Level</th><th>Reciprocal Advance Reservations (11 Months)</th><th>Margaritaville Booking Opens</th><th>Upgrades Available</th><th>Points Deposit Deadline</th></tr></thead>
 <tbody>
 <tr><td><span class="chip c-non">Non-VIP</span></td><td>None</td><td>5 months</td><td>None</td><td>3 months after the Use Year starts</td></tr>
 <tr><td><span class="chip c-bronze">Bronze</span></td><td>1</td><td>6 months</td><td>15 days before</td><td>4 months after the Use Year starts</td></tr>
@@ -67,23 +67,23 @@ tbody tr:last-child td{border-bottom:0}
 </div>
 <script>
 const T=[
-["14 months","",[["Margaritaville owners can book their home resort.","marg"],["PR (Presidential Reserve) owners can book their home resort.","pr"]]],
-["13 to 10 months","",[["Everyone can book their home resorts.","all"],["Club Wyndham Access (CWA) owners can book CWA units in participating resorts.","all"]]],
-["12 months","",[["PR owners can book all PR units.","pr"]]],
-["11 months","",[["Margaritaville owners can book other Margaritaville resorts in the system.","marg"],["VIP members can use Reciprocal Advance Reservation Priority (RARP) at resorts they do not own. Allowed: Bronze 1, Silver 2, Gold 3, Platinum 4, Founders 5. Limited to resorts where VIP benefits apply.","vip"]]],
-["10 months","",[["Everyone can book most Club Wyndham resorts.","all"],["Platinum and Founders VIP members can book Margaritaville resorts.","plat"],["Points deposited from the prior Use Year (Points Deposit Feature) can be used. Banked PR points cannot be used for reserved PR units.","all"],["Reservations can be made with bonus points.","all"],["Waitlist requests can be created.","all"],["Future Use Year deposited points can be used.","all"],["PR Preferred Reserve Period: 75% of unreserved Presidential Reserve suites are held for PR Members.","pr"]]],
-["9 months","",[["Retail owners (not resale) can book WorldMark through Club Pass.","all"]]],
-["8 months","",[["Gold VIP members can book Margaritaville resorts.","gold"]]],
-["6 months","",[["Silver and Bronze VIP members can book Margaritaville resorts.","silver"]]],
-["5 months","",[["Anyone can book Margaritaville resorts.","all"]]],
-["3 months","",[["Reservation minimum stay is reduced to 2 days.","all"],["Points can be borrowed from future years.","all"],["Last day for Non-VIPs to use the points deposit feature.","non"]]],
-["60 days","",[["All VIP members get discounts.","vip"],["Platinum and Founders VIP members get available upgrades.","plat"],["Active waitlist requests are terminated.","all"]]],
-["45 days","",[["Gold VIP members get available upgrades.","gold"]]],
-["30 days","",[["Silver VIP members get available upgrades.","silver"],["PR Preferred Reserve Period ends (units held for PR members are released).","pr"]]],
-["15 days","",[["Bronze VIP members get available upgrades.","bronze"],["Deadline to cancel reservations.","all"],["Deadline to add points protection.","all"],["Deadline to book Club Pass reservations.","all"]]]
+["14 Months","",[["Margaritaville owners can book their home resort.","marg"],["PR (Presidential Reserve) owners can book their home resort.","pr"]]],
+["13 to 10 Months","",[["Everyone can book their home resorts.","all"],["Club Wyndham Access (CWA) owners can book CWA units in participating resorts.","all"]]],
+["12 Months","",[["PR owners can book all PR units.","pr"]]],
+["11 Months","",[["Margaritaville owners can book other Margaritaville resorts in the system.","marg"],["VIP members can use Reciprocal Advance Reservation Priority (RARP) at resorts they do not own. Allowed: Bronze 1, Silver 2, Gold 3, Platinum 4, Founders 5. Limited to resorts where VIP benefits apply.","vip"]]],
+["10 Months","",[["Everyone can book most Club Wyndham resorts.","all"],["Platinum and Founders VIP members can book Margaritaville resorts.","plat"],["Points deposited from the prior Use Year (Points Deposit Feature) can be used. Banked PR points cannot be used for reserved PR units.","all"],["Reservations can be made with bonus points.","all"],["Waitlist requests can be created.","all"],["Future Use Year deposited points can be used.","all"],["PR Preferred Reserve Period: 75% of unreserved Presidential Reserve suites are held for PR Members.","pr"]]],
+["9 Months","",[["Retail owners (not resale) can book WorldMark through Club Pass.","all"]]],
+["8 Months","",[["Gold VIP members can book Margaritaville resorts.","gold"]]],
+["6 Months","",[["Silver and Bronze VIP members can book Margaritaville resorts.","silver"]]],
+["5 Months","",[["Anyone can book Margaritaville resorts.","all"]]],
+["3 Months","",[["Reservation minimum stay is reduced to 2 days.","all"],["Points can be borrowed from future years.","all"],["Last day for Non-VIPs to use the points deposit feature.","non"]]],
+["60 Days","",[["All VIP members get discounts.","vip"],["Platinum and Founders VIP members get available upgrades.","plat"],["Active waitlist requests are terminated.","all"]]],
+["45 Days","",[["Gold VIP members get available upgrades.","gold"]]],
+["30 Days","",[["Silver VIP members get available upgrades.","silver"],["PR Preferred Reserve Period ends (units held for PR members are released).","pr"]]],
+["15 Days","",[["Bronze VIP members get available upgrades.","bronze"],["Deadline to cancel reservations.","all"],["Deadline to add points protection.","all"],["Deadline to book Club Pass reservations.","all"]]]
 ];
 const label={all:"Everyone",non:"Non-VIP",bronze:"Bronze",silver:"Silver",gold:"Gold",plat:"Platinum",found:"Founders",pr:"PR",marg:"Margaritaville",vip:"VIP"};
-document.getElementById('tl').innerHTML=T.map(([w,s,items],i)=>`<li class="m${i>=10?' after':''}"><div class="when">${w}<small>before check-in</small></div><div class="body"><ul>${items.map(([t,c])=>`<li><span class="chip c-${c}">${label[c]}</span> ${t}</li>`).join('')}</ul></div></li>`).join('');
+document.getElementById('tl').innerHTML=T.map(([w,s,items],i)=>`<li class="m${i>=10?' after':''}"><div class="when">${w}<small>Before Check-In</small></div><div class="body"><ul>${items.map(([t,c])=>`<li><span class="chip c-${c}">${label[c]}</span> ${t}</li>`).join('')}</ul></div></li>`).join('');
 </script>
 </body>
 </html>
