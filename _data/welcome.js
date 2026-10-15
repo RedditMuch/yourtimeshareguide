@@ -1,5 +1,5 @@
 // The temporary welcome page's links (52weeks/welcome.njk), as data.
-// Working name: the owner approves the final name and place before it is published.
+// Name approved by the owner. Where the page lives is still the owner's decision.
 
 export default {
   live: {
