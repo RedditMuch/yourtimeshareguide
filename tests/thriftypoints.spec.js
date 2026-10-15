@@ -4,7 +4,7 @@ import { test, expect } from "@playwright/test";
 const URL = "/52weeks/thriftypoints.html";
 const num = t => parseInt(String(t).replace(/[^\d]/g, ""), 10);
 const isDash = t => !/\d/.test(t);
-const dateOf = s => Date.parse(s.replace(/^\w+, /, "") + " UTC");
+const dateOf = s => { const m = /^(\d\d)\/(\d\d)\/(\d\d)$/.exec(s); return Date.UTC(2000 + +m[3], +m[1] - 1, +m[2]); };
 
 async function search(page, { points = "60,000", from, to } = {}) {
   await page.goto(URL);
@@ -93,4 +93,15 @@ test("thriftypoints: no console errors and no sideways scrolling; the table sits
   await expect(reg).toHaveAttribute("tabindex", "0");
   await expect(reg).toHaveAttribute("role", "region");
   await expect(reg).toHaveAttribute("aria-label", /.+/);
+});
+
+test("thriftypoints: dates are mm/dd/yy and check-out is after check-in", async ({ page }) => {
+  await search(page);
+  const r = await rows(page);
+  expect(r.length).toBeGreaterThan(0);
+  for (const c of r) {
+    expect(c[3].t).toMatch(/^\d\d\/\d\d\/\d\d$/);
+    expect(c[4].t).toMatch(/^\d\d\/\d\d\/\d\d$/);
+    expect(dateOf(c[4].t)).toBeGreaterThan(dateOf(c[3].t));
+  }
 });
