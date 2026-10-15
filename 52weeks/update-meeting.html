@@ -227,8 +227,9 @@ function render(){
   const STAT={non:{n:'Non-VIP',b:0},bronze:{n:'Bronze',b:1},silver:{n:'Silver',b:2},gold:{n:'Gold',b:4,r:1},platinum:{n:'Platinum',b:6,r:1},founders:{n:'Founders',b:8,r:1},
     gsilver:{n:'Grandfathered Silver',b:2},ggold:{n:'Grandfathered Gold',b:0,u:1,r:1},gplat:{n:'Grandfathered Platinum',b:0,u:1,r:1}};
   const st=STAT[$('vipSt').value]?$('vipSt').value:'non';
-  // status in effect at p points; a = true when buying more can move you up to the milestone your points reach
-  const eff=(p,a)=>{const s=STAT[st];if(s.u||!a)return s;const t=TIERS.find(t=>p>=t[0]);return t&&t[1]>s.b?STAT[t[2].toLowerCase()]:s};
+  // status in effect at p points; a = true for After Purchase: buying up to a higher milestone than you already reach moves you up
+  const tierAt=p=>TIERS.find(t=>p>=t[0]), curTier=tierAt(c.curPts);
+  const eff=(p,a)=>{const s=STAT[st];if(s.u||!a)return s;const t=tierAt(p);return t&&t[1]>s.b&&(!curTier||t[1]>curTier[1])?STAT[t[2].toLowerCase()]:s};
   const cr=(p,a)=>{const e=eff(p,a);return e.u?Infinity:Math.floor(p/70000)+e.b}, ph=p=>Math.floor(p/77000);
   const isJ=(x,a)=>x>0&&cr(x,a)>cr(x-1,a), JC=a=>TIERS.map(t=>t[0]);
   const nextJ=(p,a)=>Math.min((Math.floor(p/70000)+1)*70000,...JC().filter(x=>x>p&&isJ(x,a))), lastJ=(p,a)=>Math.max(Math.floor(p/70000)*70000,...JC().filter(x=>x<=p&&isJ(x,a)));
