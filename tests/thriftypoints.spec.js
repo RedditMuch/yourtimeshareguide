@@ -105,3 +105,35 @@ test("thriftypoints: dates are mm/dd/yy and check-out is after check-in", async 
     expect(dateOf(c[4].t)).toBeGreaterThan(dateOf(c[3].t));
   }
 });
+
+test("thriftypoints: sorting by Check-In, Nights and Reset Order", async ({ page }) => {
+  await search(page, { points: "150,000" });
+  await page.click("#all").catch(() => {});
+  const first = (await rows(page))[0][0].t;
+  const all = await rows(page);
+  const col = i => page.locator('#tbl thead button[data-col="' + i + '"]');
+  const sortAttr = i => page.locator("#tbl thead th").nth(i).getAttribute("aria-sort");
+  await col(3).click();
+  expect(await sortAttr(3)).toBe("ascending");
+  expect(await sortAttr(4)).toBe("none");
+  let r = await rows(page);
+  const ins = r.map(c => dateOf(c[3].t));
+  expect(ins[0]).toBe(Math.min(...ins));
+  expect(ins).toEqual([...ins].sort((a, b) => a - b));
+  await col(3).click();
+  expect(await sortAttr(3)).toBe("descending");
+  r = await rows(page);
+  const ins2 = r.map(c => dateOf(c[3].t));
+  expect(ins2[0]).toBe(Math.max(...ins2));
+  await col(5).click(); await col(5).click();
+  r = await rows(page);
+  const nights = r.map(c => num(c[5].t));
+  expect(nights[0]).toBe(Math.max(...nights));
+  expect(await sortAttr(5)).toBe("descending");
+  expect(await sortAttr(3)).toBe("none");
+  await page.click("#reset");
+  r = await rows(page);
+  expect(r[0][0].t).toBe(first);
+  expect(r.length).toBe(all.length);
+  expect(await sortAttr(5)).toBe("none");
+});

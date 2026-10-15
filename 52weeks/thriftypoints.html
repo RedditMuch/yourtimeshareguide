@@ -36,6 +36,9 @@ table{border-collapse:collapse;width:100%;min-width:760px;font-size:.92rem}
 th,td{padding:7px 9px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
 th{background:var(--head);font-size:.82rem;white-space:nowrap}
 td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+th button{all:unset;cursor:pointer;font:inherit;font-weight:700;white-space:nowrap}
+th button:focus-visible{outline:2px solid var(--stay);outline-offset:2px;border-radius:3px}
+th .arr{font-size:.75em;margin-left:4px}
 td.fit{background:#d4efe0;font-weight:700;box-shadow:inset 3px 0 0 var(--good)}
 @media (prefers-color-scheme:dark){td.fit{background:#1d4a31}}
 .notes{background:var(--warn)}
@@ -93,10 +96,11 @@ td.fit{background:#d4efe0;font-weight:700;box-shadow:inset 3px 0 0 var(--good)}
 <p class="hint" id="legend">Highlighted prices are at or below your total points. Read down the column for your VIP level. A dash means the discount is not available because check-in is more than 60 days away.</p>
 <p class="hint" id="levels"></p>
 <div class="scroll" id="scroll" tabindex="0" role="region" aria-label="Best stays for your points, scrollable table">
-<table id="tbl"><thead><tr><th>Resort</th><th>Location</th><th>Room Type</th><th>Check-In</th><th>Check-Out</th><th class="n">Nights</th><th class="n">Full Price</th></tr></thead><tbody id="body"></tbody></table>
+<table id="tbl"><thead><tr></tr></thead><tbody id="body"></tbody></table>
 </div>
 <div class="btns noprint">
 <button type="button" class="alt" id="all" hidden>Show All</button>
+<button type="button" class="alt" id="reset" hidden>Reset Order</button>
 <button type="button" id="xlsx">Download Excel</button>
 <button type="button" class="alt" id="pdf">Print or Save as PDF</button>
 </div>
@@ -195,6 +199,7 @@ var nightWeek = new Int16Array(NIGHTS), nightWknd = new Uint8Array(NIGHTS);
 })();
 
 /* ---- Search ---- */
+var sortKey = null, sortDir = 1, BASE_HEAD = ['Resort', 'Location', 'Room Type', 'Check-In', 'Check-Out', 'Nights', 'Full Price'];
 var RATES = [], TIER_OF = {}, TIERS = [], VIS = [], VIS_TIER = null;  /* discounts read from reference-data.js, ascending */
 try { window.REFERENCE.vip.tiers.forEach(function (t) { var d = t.points_discount_within_2_months; if (typeof d === 'number' && d > 0 && d < 1) { if (RATES.indexOf(d) < 0) RATES.push(d); TIERS.push({ tier: t.tier, rate: d }); TIER_OF[d] = (TIER_OF[d] ? TIER_OF[d] + ' and ' : '') + t.tier; } }); } catch (e) { RATES = []; }
 RATES.sort(function (a, b) { return a - b; }); TIERS.sort(function (a, b) { return a.rate - b.rate; });
@@ -202,8 +207,10 @@ TIERS.forEach(function (t) { var o = document.createElement('option'); o.value =
 VIS = RATES.slice();
 var colLabel = function (d) { return pctOf(d) + ' Off' + (VIS_TIER ? ' (' + VIS_TIER + ')' : ''); };
 function setColumns() {
-  var tr = $('tbl').querySelector('thead tr'); while (tr.children.length > 7) tr.removeChild(tr.lastChild);
-  tr.insertAdjacentHTML('beforeend', VIS.map(function (d) { return '<th class="n">' + esc(colLabel(d)) + '</th>'; }).join(''));
+  var tr = $('tbl').querySelector('thead tr'), labels = BASE_HEAD.concat(VIS.map(colLabel));
+  if (sortKey != null && sortKey >= labels.length) sortKey = null;
+  tr.innerHTML = labels.map(function (l, i) { return '<th' + (i >= 5 ? ' class="n"' : '') + '><button type="button" data-col="' + i + '">' + esc(l) + '<span class="arr" aria-hidden="true"></span></button></th>'; }).join('');
+  sortUI();
 }
 var pctOf = function (d) { return Math.round(d * 1000) / 10 + '%'; };
 (function () {
@@ -214,6 +221,33 @@ var pctOf = function (d) { return Math.round(d * 1000) / 10 + '%'; };
 var winEnd = todayUTC + VIP_DAYS * DAY;
 $('win').textContent = 'VIP discount window: stays with a check-in date from ' + fmtDate(todayUTC) + ' through ' + fmtDate(winEnd) + ' (today plus 60 days) show discounted prices. Later stays show the full price only.';
 var results = [], shown = 50, lastInfo = null;
+function sortUI() {
+  var ths = $('tbl').querySelectorAll('thead th');
+  for (var i = 0; i < ths.length; i++) {
+    var on = i === sortKey;
+    ths[i].setAttribute('aria-sort', on ? (sortDir > 0 ? 'ascending' : 'descending') : 'none');
+    ths[i].querySelector('.arr').textContent = on ? (sortDir > 0 ? '\u25B2' : '\u25BC') : '';
+  }
+  $('reset').hidden = sortKey == null;
+}
+function sortVal(x, c) {
+  if (c === 0) return (x.r.name || '').toLowerCase();
+  if (c === 1) return (x.r.location || '').toLowerCase();
+  if (c === 2) return (x.r.roomType || '').toLowerCase();
+  if (c === 3) return x.s;
+  if (c === 4) return x.s + x.n;
+  if (c === 5) return x.n;
+  return x.prices[c - 6];
+}
+function ordered() {
+  if (sortKey == null) return results;
+  var c = sortKey, d = sortDir, idx = new Map(); results.forEach(function (x, i) { idx.set(x, i); });
+  return results.slice().sort(function (x, y) {
+    var a = sortVal(x, c), b = sortVal(y, c), an = a == null, bn = b == null;
+    if (an || bn) return an && bn ? idx.get(x) - idx.get(y) : an ? 1 : -1;   /* a dash is always last */
+    return (a < b ? -d : a > b ? d : 0) || idx.get(x) - idx.get(y);
+  });
+}
 function search(cfg) {
   var out = [], t0 = performance.now();
   var a = Math.round((cfg.from - CAL_START) / DAY), b = Math.round((cfg.to - CAL_START) / DAY); /* nights a..b-1 may be used */
@@ -260,7 +294,7 @@ function rowData(x) {
   return [x.r.name, x.r.location, x.r.roomType, fmtDate(t), fmtDate(t + x.n * DAY), x.n].concat(x.prices);
 }
 function render() {
-  var list = results.slice(0, shown), budget = lastInfo.points, html = '', cols = 7 + lastInfo.rates.length;
+  var list = ordered().slice(0, shown), budget = lastInfo.points, html = '', cols = 7 + lastInfo.rates.length;
   list.forEach(function (x) {
     var d = rowData(x);
     html += '<tr><td>' + esc(d[0]) + '</td><td>' + esc(d[1]) + '</td><td>' + esc(d[2]) + '</td><td>' + esc(d[3]) + '</td><td>' + esc(d[4]) + '</td><td class="n">' + d[5] + '</td>';
@@ -272,7 +306,7 @@ function render() {
   });
   if (!list.length) html = '<tr><td colspan="' + cols + '">No stay fits these settings. Try more points, a wider date range or fewer filters.</td></tr>';
   $('body').innerHTML = html;
-  $('status').textContent = 'Showing ' + list.length + ' of ' + results.length + ' stays, closest to ' + NUM.format(budget) + ' points first. Searched in ' + Math.round(lastInfo.ms) + ' ms.';
+  $('status').textContent = 'Showing ' + list.length + ' of ' + results.length + ' stays' + (sortKey == null ? ', closest to ' + NUM.format(budget) + ' points first' : ', sorted by ' + $('tbl').querySelectorAll('thead th')[sortKey].textContent.replace(/[\u25B2\u25BC]/g, '') + (sortDir > 0 ? ' (ascending)' : ' (descending)')) + '. Searched in ' + Math.round(lastInfo.ms) + ' ms.';
   $('all').hidden = results.length <= shown;
   $('resCard').hidden = false;
   $('xlsx').disabled = $('pdf').disabled = !list.length;
@@ -304,13 +338,20 @@ $('f').addEventListener('submit', function (ev) {
   render();
 });
 $('vip').addEventListener('change', function () { if (lastInfo) $('f').requestSubmit(); });
+$('tbl').querySelector('thead').addEventListener('click', function (ev) {
+  var b = ev.target.closest('button[data-col]'); if (!b || !lastInfo) return;
+  var c = +b.getAttribute('data-col');
+  if (sortKey === c) sortDir = -sortDir; else { sortKey = c; sortDir = 1; }
+  sortUI(); render(); var nb = $('tbl').querySelector('thead button[data-col="' + c + '"]'); if (nb) nb.focus();
+});
+$('reset').addEventListener('click', function () { sortKey = null; sortDir = 1; sortUI(); render(); });
 $('all').addEventListener('click', function () { shown = results.length; render(); });
 $('pdf').addEventListener('click', function () { window.print(); });
 
 /* ---- Exports (Excel loads only when selected; CSV if the library fails) ---- */
 var HEAD = function () { return ['Resort', 'Location', 'Room Type', 'Check-In', 'Check-Out', 'Nights', 'Full Price'].concat(lastInfo.rates.map(colLabel)); };
 function exportRows() {
-  return results.slice(0, shown).map(function (x) { return rowData(x).map(function (v, i) { return i >= 6 && v == null ? '—' : v; }); });
+  return ordered().slice(0, shown).map(function (x) { return rowData(x).map(function (v, i) { return i >= 6 && v == null ? '—' : v; }); });
 }
 function metaRows() {
   return [['Thrifty Points'], ['Total Points', lastInfo.points], ['VIP Level', lastInfo.vipLabel], ['VIP Discount Window', lastInfo.win], ['Area', lastInfo.area], ['State', lastInfo.stateName], ['Resort', lastInfo.resort || 'All'], ['Room Size', lastInfo.size || 'All'],
