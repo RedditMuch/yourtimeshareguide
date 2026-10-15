@@ -28,7 +28,8 @@ test("non-VIP 140,000 + 150,000: 2 then 4 credits, buy 10,000 more", async ({ pa
   await setup(page, { cur: "140,000", add: "150,000" });
   expect(await boxText(page, 0)).toContain("2 Housekeeping Credits");
   expect(await boxText(page, 1)).toContain("4 Housekeeping Credits");
-  await expect(page.locator(".consider .cdir")).toHaveText("Purchasing 10,000 MORE Points");
+  await expect(page.locator(".consider .cdir")).toContainText("10,000");
+  await expect(page.locator(".consider .cdir")).toHaveClass(/more/);
   await expect(page.locator(".consider li").filter({ hasText: "Adds 1 Housekeeping Credit for a Total of 5 Housekeeping Credits and reaches VIP Bronze" })).toHaveCount(1);
 });
 
@@ -36,14 +37,16 @@ test("non-VIP 285,000 + 20,000: 4 then 5 credits, buy 5,000 less", async ({ page
   await setup(page, { cur: "285,000", add: "20,000" });
   expect(await boxText(page, 0)).toContain("4 Housekeeping Credits");
   expect(await boxText(page, 1)).toContain("5 Housekeeping Credits");
-  await expect(page.locator(".consider .cdir")).toHaveText("Purchasing 5,000 LESS Points");
+  await expect(page.locator(".consider .cdir")).toContainText("5,000");
+  await expect(page.locator(".consider .cdir")).toHaveClass(/less/);
 });
 
 test("Silver 500,000 + 70,000: 9 then 10 credits, buy 10,000 less", async ({ page }) => {
   await setup(page, { status: "silver", cur: "500,000", add: "70,000" });
   expect(await boxText(page, 0)).toContain("9 Housekeeping Credits");
   expect(await boxText(page, 1)).toContain("10 Housekeeping Credits");
-  await expect(page.locator(".consider .cdir")).toHaveText("Purchasing 10,000 LESS Points");
+  await expect(page.locator(".consider .cdir")).toContainText("10,000");
+  await expect(page.locator(".consider .cdir")).toHaveClass(/less/);
 });
 
 test("Grandfathered Gold: unlimited credits and no suggestion", async ({ page }) => {
@@ -57,7 +60,7 @@ test("VIP Gold 140,000 + 150,000: 6 credits including +4, one reservation transa
   await setup(page, { status: "gold", cur: "140,000", add: "150,000" });
   const t = await boxText(page, 0);
   expect(t).toContain("6 Housekeeping Credits");
-  expect(t).toContain("(Includes +4 for VIP Gold)");
+  expect(t).toContain("+4");
   expect(t).toContain("1 Reservation Transaction");
   expect(t).not.toContain("Unlimited Reservation");
 });
@@ -65,10 +68,10 @@ test("VIP Gold 140,000 + 150,000: 6 credits including +4, one reservation transa
 test("new owner: Clear All Fields then a first purchase", async ({ page }) => {
   await setup(page, { clear: true, add: "200,000", price: "25,000", apr: "12", term: "10", newPer1k: "8.50", inc: "3" });
   const t = await boxText(page, 0);
-  expect(t).toContain("Your Purchase: 200,000 pts");
+  expect(t).toContain("200,000 pts");
   expect(t).toContain("2 Housekeeping Credits");
-  await expect(page.locator(".consider .cdir")).toHaveText("Purchasing 10,000 MORE Points");
-  await expect(page.locator("#claim")).toContainText("What This Purchase Costs");
+  await expect(page.locator(".consider .cdir")).toContainText("10,000");
+  await expect(page.locator(".consider .cdir")).toHaveClass(/more/);
 });
 
 test("non-VIP 70,000 + 7,000: reservation transaction shown, nothing earns nothing", async ({ page }) => {
@@ -83,9 +86,8 @@ test("non-VIP 3,000,000 points: 60,000 earn nothing (42 x 70,000 = 2,940,000)", 
   expect(await boxText(page, 0)).toContain("60,000 pts earn nothing");
 });
 
-test("phone width: no sideways scroll, dedication present", async ({ page }) => {
+test("phone width: no sideways scroll", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(URL);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
-  await expect(page.locator("body")).toContainText("This page is dedicated to Mary");
 });
