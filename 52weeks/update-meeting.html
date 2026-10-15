@@ -93,14 +93,9 @@ tr.loanend td{border-bottom:2px solid var(--mute)}
 .perk ul{margin:0;padding-left:20px;font-size:.92rem}
 .buyin .f{background:color-mix(in srgb,var(--buy) 9%,var(--card));border-color:color-mix(in srgb,var(--buy) 40%,var(--line))}
 .perk li{margin-bottom:4px}
+.ohead{display:flex;align-items:center;justify-content:space-between;gap:8px 16px;flex-wrap:wrap;margin-bottom:10px}.ohead h2{margin:0}
+.vipsel{font-size:.9rem;color:var(--mute)}.vipsel select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 8px;margin-left:6px}
 .kn{text-align:center;font-size:1.1rem;margin:16px 0 4px}
-.mix{text-align:center;font-size:.9rem;color:var(--mute);margin:0 0 10px}
-.duo2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.pk{border:1px solid var(--line);border-radius:10px;padding:10px 14px}
-.pk h4{margin:0 0 6px;font-size:1rem;text-align:center}
-.pk dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:.9rem}
-.pk dt{font-weight:700;white-space:nowrap}.pk dd{margin:0}
-@media (max-width:760px){.duo2{grid-template-columns:1fr}}
 .perk .how{text-align:center;font-weight:600;color:var(--mute);margin:0 0 6px}
 .consider{border:1px solid var(--line);border-left:5px solid var(--buy);border-radius:10px;padding:10px 14px;margin:0 0 12px;background:var(--bg)}
 .consider{text-align:center}.consider .cl{color:var(--mute);font-size:.9rem}.consider .cdir{font-size:1.35rem;font-weight:800;letter-spacing:.01em;margin-top:2px}.cdir.less{color:var(--good)}.cdir.more{color:var(--buy)}.consider .cnum{font-size:1.15rem;margin:4px auto 8px;padding-bottom:8px;border-bottom:2px solid var(--line);width:min(300px,80%)}.consider .cnum b{font-size:1.5rem}.consider .cnum span{color:var(--mute);font-size:.9rem;margin:0 4px}.consider .cnum s{color:var(--mute)}.consider .cwhy{font-weight:700;margin-bottom:2px}.consider .cnote{font-size:.85rem;color:var(--mute);margin:8px 0 0}.consider ul{margin:0;padding:0;list-style:none}.consider li{margin:2px 0}
@@ -117,7 +112,7 @@ tr.loanend td{border-bottom:2px solid var(--mute)}
 <p class="sub">Enter your own numbers and see what their pitch really costs.<br><a href="#" id="clr" style="font-size:.8rem;color:var(--mute)">Clear all fields</a></p>
 
 <div class="card">
-<h2>Current Ownership</h2>
+<div class="ohead"><h2>Current Ownership</h2><label class="vipsel">VIP Status <select id="vipSt"><option value="non">Non-VIP</option><option value="bronze">Bronze</option><option value="silver">Silver</option><option value="gold">Gold</option><option value="platinum">Platinum</option><option value="founders">Founders</option><option value="gsilver">Grandfathered Silver</option><option value="ggold">Grandfathered Gold</option><option value="gplat">Grandfathered Platinum</option></select></label></div>
 <div class="duo">
 <div class="area"><div class="acap">Maintenance Fees</div><div class="g2">
 <div class="cell"><label><div class="lt">Current # of Points</div><div class="f"><input type="text" inputmode="decimal" id="curPts" value="140,000" placeholder="Points You Own"></div></label><div class="hint"></div></div>
@@ -227,42 +222,40 @@ function render(){
 
   // points perks: 1 housekeeping credit per 70,000 pts, plus VIP milestone bonus; 1 Reservation Transaction per 77,000 pts
   const TIERS=[[1400000,8,'Founders'],[1100000,6,'Platinum'],[800000,4,'Gold'],[500000,2,'Silver'],[300000,1,'Bronze']];
-  const vip=p=>TIERS.find(t=>p>=t[0]), cr=p=>Math.floor(p/70000)+(vip(p)?vip(p)[1]:0), ph=p=>Math.floor(p/77000);
-  const nextJ=p=>Math.min((Math.floor(p/70000)+1)*70000,...TIERS.map(t=>t[0]).filter(x=>x>p)), lastJ=p=>Math.max(Math.floor(p/70000)*70000,...TIERS.map(t=>t[0]).filter(x=>x<=p));
+  // VIP status: b = Housekeeping Credits added, u = unlimited Housekeeping Credits, r = unlimited Reservation Transactions
+  const STAT={non:{n:'Non-VIP',b:0},bronze:{n:'Bronze',b:1},silver:{n:'Silver',b:2},gold:{n:'Gold',b:4,r:1},platinum:{n:'Platinum',b:6,r:1},founders:{n:'Founders',b:8,r:1},
+    gsilver:{n:'Grandfathered Silver',b:2},ggold:{n:'Grandfathered Gold',b:0,u:1,r:1},gplat:{n:'Grandfathered Platinum',b:0,u:1,r:1}};
+  const st=STAT[$('vipSt').value]?$('vipSt').value:'non';
+  // status in effect at p points; a = true when buying more can move you up to the milestone your points reach
+  const eff=(p,a)=>{const s=STAT[st];if(s.u||!a)return s;const t=TIERS.find(t=>p>=t[0]);return t&&t[1]>s.b?STAT[t[2].toLowerCase()]:s};
+  const cr=(p,a)=>{const e=eff(p,a);return e.u?Infinity:Math.floor(p/70000)+e.b}, ph=p=>Math.floor(p/77000);
+  const isJ=(x,a)=>x>0&&cr(x,a)>cr(x-1,a), JC=a=>TIERS.map(t=>t[0]);
+  const nextJ=(p,a)=>Math.min((Math.floor(p/70000)+1)*70000,...JC().filter(x=>x>p&&isJ(x,a))), lastJ=(p,a)=>Math.max(Math.floor(p/70000)*70000,...JC().filter(x=>x<=p&&isJ(x,a)));
   const plural=(n,w)=>n+' '+w+(n===1?'':'s');
   const rec=(cur,add)=>{
-    const T=cur+add; if(!T)return null;
-    const u=nextJ(T), d=lastJ(T), gap=u?u-T:Infinity, tgt=Math.max(d,Math.floor(T/77000)*77000,cur);
-    if(gap<=20000){const g=cr(u)-cr(T), nv=vip(u)&&!vip(T)?vip(u)[2]:'';
+    const T=cur+add; if(!T||eff(T,true).u)return null;
+    const u=nextJ(T,true), d=lastJ(T,true), gap=u?u-T:Infinity, tgt=Math.max(d,eff(T,true).r?0:Math.floor(T/77000)*77000,cur);
+    if(gap<=20000){const g=cr(u,true)-cr(T,true), eu=eff(u,true), nv=eu.b>eff(T,true).b?eu.n:'';
       return {dir:'more',newAdd:u-cur,t:`Buy ${gap.toLocaleString()} more points (${u.toLocaleString()} total): ${plural(g,'more credit')}${nv?' and reaches VIP '+nv:''}`,
         tg:`Buying ${gap.toLocaleString()} more points (${(u-cur).toLocaleString()} additional points instead of ${add.toLocaleString()})`,
         why:[`Adds ${plural(g,'Housekeeping Credit')}${nv?' and reaches VIP '+nv:''}`,'A Housekeeping Credit costs $185 if you run out and have to buy one']}}
     if(add>0&&T>tgt){const x=(T-tgt).toLocaleString();
-      return tgt===cur?{dir:'less',newAdd:0,t:'This purchase adds no credits',tg:'Skipping this purchase',why:[`Your Housekeeping Credits stay at ${cr(T)} either way`,'You would pay for points that earn nothing extra']}
-       :{dir:'less',newAdd:tgt-cur,t:`Buy ${x} fewer points (${tgt.toLocaleString()} total): same ${plural(cr(T),'credit')}`,tg:`Buying ${x} fewer points (${(tgt-cur).toLocaleString()} additional points instead of ${add.toLocaleString()})`,
-        why:[`Those extra ${x} points do not provide any additional perks within the Club Wyndham system`,'Fewer points means a smaller loan and lower maintenance fees']}}
+      return tgt===cur?{dir:'less',newAdd:0,t:'This purchase adds no credits',tg:'Skipping this purchase',why:[`Your Housekeeping Credits stay at ${cr(T,true)} either way`,'You would pay for points that earn nothing extra']}
+       :{dir:'less',newAdd:tgt-cur,t:`Buy ${x} fewer points (${tgt.toLocaleString()} total): same ${plural(cr(T,true),'credit')}`,tg:`Buying ${x} fewer points (${(tgt-cur).toLocaleString()} additional points instead of ${add.toLocaleString()})`,
+        why:[`Those extra ${x} points do not provide any additional Owner benefits within the Club Wyndham system`,'Fewer points means a smaller loan and lower maintenance fees']}}
     return add>0?{t:'No points wasted at this total',tg:'',why:[]}:null;
   };
-  const perkBox=(t,p)=>{const k=cr(p),w=p-lastJ(p),v=vip(p);return `<div class="box ${w?'buy':'goodb'}"><div class="t">${t}: ${p.toLocaleString()} pts</div><div class="n">${plural(k,'Housekeeping Credit')}</div><div class="d">${v?`<div style="margin-top:4px">(Includes +${v[1]} for VIP ${v[2]})</div>`:''}${plural(ph(p),'Reservation Transaction')}<br>`+(!p?'':w?`<b class="bad">${w.toLocaleString()} pts earn nothing</b>`:'<b class="good">No points wasted</b>')+`</div></div>`};
-  const recT=rec(c.curPts,c.addPts);const g77=77000-(c.curPts+c.addPts)%77000, rt77=recT&&recT.dir==='more'&&g77<=20000?`<p class="cnote">Also: ${g77.toLocaleString()} more points would earn 1 more Reservation Transaction ($39 per phone booking; online is free).</p>`:'';
+  const perkBox=(t,p,a)=>{const e=eff(p,a),k=cr(p,a),w=e.u?0:p-lastJ(p,a);return `<div class="box ${w?'buy':'goodb'}"><div class="t">${t}: ${p.toLocaleString()} pts</div><div class="n">${e.u?'Unlimited Housekeeping Credits':plural(k,'Housekeeping Credit')}</div><div class="d">${e.u?`<div style="margin-top:4px">(${e.n})</div>`:e.b?`<div style="margin-top:4px">(Includes +${e.b} for ${e.n.startsWith('Grand')?'':'VIP '}${e.n})</div>`:''}${e.r?'Unlimited Reservation Transactions':plural(ph(p),'Reservation Transaction')}<br>`+(!p||e.u?'':w?`<b class="bad">${w.toLocaleString()} pts earn nothing</b>`:'<b class="good">No points wasted</b>')+`</div></div>`};
+  const recT=rec(c.curPts,c.addPts);const g77=77000-(c.curPts+c.addPts)%77000, rt77=recT&&recT.dir==='more'&&g77<=20000&&!eff(c.curPts+c.addPts,true).r?`<p class="cnote">Also: ${g77.toLocaleString()} more points would earn 1 more Reservation Transaction ($39 per phone booking; online is free).</p>`:'';
   const consider=recT&&recT.tg?`<div class="consider"><div class="cl">Have You Considered:</div><div class="cdir ${recT.dir}">Purchasing ${recT.dir==='more'?'MORE':'LESS'} Points</div><div class="cnum"><b>${recT.newAdd.toLocaleString()}</b> <span>vs.</span> <s>${c.addPts.toLocaleString()}</s></div><div class="cwhy">Here&rsquo;s Why:</div><ul>${recT.why.map(w=>'<li>'+w+'</li>').join('')}</ul>${rt77}</div>`:'';
-  
+
   $('perk').innerHTML='<h2>Get the Most From Your Points: Own in Multiples of 70,000</h2>'+
    '<p class="how">Here&rsquo;s How it Works</p>'+
    '<p class="rule">Every <b>70,000 points</b> = 1 free Housekeeping Credit (70K, 140K, 210K, 280K&hellip;).<br>Points left over earn nothing.</p>'+
-   (c.curPts?`<div class="live">${perkBox('Current Ownership',c.curPts)}${c.addPts?perkBox('After Purchase',c.curPts+c.addPts):''}</div>${c.addPts?consider:''}`:'')+
+   (c.curPts?`<div class="live">${perkBox('Current Ownership',c.curPts,false)}${c.addPts?perkBox('After Purchase',c.curPts+c.addPts,true):''}</div>${c.addPts?consider:''}`:'')+
    '<h3 class="kn">What Every Owner Should Know</h3>'+
-   '<p class="mix">Don&rsquo;t mix them up: <b>70,000</b> points earns a Housekeeping Credit. <b>77,000</b> points earns a Reservation Transaction.</p>'+
-   '<div class="duo2"><div class="pk"><h4>Housekeeping Credits</h4><dl>'+
-   '<dt>You Get</dt><dd>1 for every 70,000 points, each Use Year. VIP Milestones add more: Bronze +1, Silver +2, Gold +4, Platinum +6, Founders +8.</dd>'+
-   '<dt>You Use</dt><dd>1 per reservation, along with your points, whatever the length of stay or suite size.</dd>'+
-   '<dt>If You Run Out</dt><dd>$185 per credit, paid when you book.</dd>'+
-   '<dt>Expires</dt><dd>At the end of your Use Year.</dd></dl></div>'+
-   '<div class="pk"><h4>Reservation Transactions</h4><dl>'+
-   '<dt>You Get</dt><dd>1 for every 77,000 points, each calendar year.</dd>'+
-   '<dt>You Use</dt><dd>1 per booking made by phone (Vacation Planning Center). Booking on your owner website is free.</dd>'+
-   '<dt>If You Run Out</dt><dd>$39 per phone booking.</dd>'+
-   '<dt>Expires</dt><dd>December 31.</dd></dl></div></div>'+
+   '<ul><li><b>Housekeeping Credits:</b> 1 for every <b>70,000</b> points each Use Year (VIP Milestones add more: Bronze +1, Silver +2, Gold +4, Platinum +6, Founders +8). You need 1 per reservation, along with your points. $185 each if you run out. They expire at the end of your Use Year.</li>'+
+   '<li><b>Reservation Transactions:</b> 1 for every <b>77,000</b> points each calendar year. You need 1 per booking made by phone (booking on your owner website is free). $39 each if you run out. They expire December 31.</li></ul>'+
    '<p class="note" style="margin:10px 0 0;text-align:right">Source: Details from Club Wyndham: <a href="https://clubwyndham.wyndhamdestinations.com/us/en/owner-guide/resources/housekeeping-credits" rel="noopener">Housekeeping Credits</a> &middot; <a href="https://clubwyndham.wyndhamdestinations.com/us/en/owner-guide/resources/reservation-transactions" rel="noopener">Reservation Transactions</a></p>';
 
   const feeSaveY=c.curY-c.newY, feeSaveM=feeSaveY/12;
@@ -366,11 +359,12 @@ $('chart').addEventListener('pointermove',hover);
 $('chart').addEventListener('pointerleave',()=>{$('tip').style.display='none';const g=$('hov');if(g)g.innerHTML=''});
 
 const KEY='umc-settings-v2';
-function save(){try{const o={};document.querySelectorAll('input').forEach(i=>o[i.id]=i.value);localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}}
+function save(){try{const o={};document.querySelectorAll('input,select').forEach(i=>o[i.id]=i.value);localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}}
 try{const s=JSON.parse(localStorage.getItem(KEY)||'{}');for(const id in s){const el=$(id);if(el)el.value=s[id]}}catch(e){}
 document.querySelectorAll('input[type=text]').forEach(i=>i.addEventListener('input',()=>{fmtInput(i);render();save()}));
-$('clr').addEventListener('click',e=>{e.preventDefault();document.querySelectorAll('input[type=text]').forEach(i=>i.value='');render();save()});
+$('clr').addEventListener('click',e=>{e.preventDefault();document.querySelectorAll('input[type=text]').forEach(i=>i.value='');$('vipSt').value='non';render();save()});
 $('yrs').addEventListener('input',()=>{render();save()});
+$('vipSt').addEventListener('change',()=>{render();save()});
 render();
 </script>
 </body>
