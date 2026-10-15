@@ -698,3 +698,11 @@ a.ytg-card .ytg-card__title { color: var(--accent); text-decoration: underline; 
 .ytg-row__text { grid-column: 1; color: var(--muted); font-size: var(--fs-small); line-height: var(--lh-ui); }
 .ytg-row__arrow { grid-column: 2; grid-row: 1 / span 2; color: var(--accent); font-weight: 700; transition: transform 0.15s; }
 .ytg-row:hover .ytg-row__arrow { transform: translateX(3px); color: var(--accent-strong); }
+/* Small Tile: smaller version of the Tile for secondary links (not in Claude Design yet; used by 52weeks/welcome.njk). */
+.ytg-tiles--small { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+@media (max-width: 560px) { .ytg-tiles--small { grid-template-columns: minmax(0, 1fr); } }
+.ytg-tile--small { padding: var(--space-5) var(--space-4) var(--space-4); gap: var(--space-1); }
+.ytg-tile--small .ytg-tile__bar { height: 4px; }
+.ytg-tile--small .ytg-tile__title { font-size: var(--fs-body); }
+.ytg-tile--small .ytg-tile__text { font-size: var(--fs-ui); }
+.ytg-tile--small .ytg-tile__cue { margin-top: var(--space-2); font-size: var(--fs-ui); }

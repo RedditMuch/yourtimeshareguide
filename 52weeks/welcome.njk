@@ -2,8 +2,7 @@
 layout: layouts/base.njk
 title: Welcome
 heading: Your Timeshare Guide
-description: Club Wyndham, explained by an owner. Links to the pages that are live.
-lead: Club Wyndham, explained by an owner.
+description: Links to the pages that are live.
 ---
 {#- Temporary landing page (planning #54). The links are data in _data/welcome.js.
     Hero stripe, Tile and Rows are not in Claude Design yet (see the end of design-system/components.css). -#}
@@ -19,9 +18,10 @@ lead: Club Wyndham, explained by an owner.
   </section>
   <section aria-labelledby="{{ welcome.more.id }}">
     <h2 class="ytg-eyebrow" id="{{ welcome.more.id }}">{{ welcome.more.label }}</h2>
-    <ul class="ytg-rows">
+    <ul class="ytg-tiles ytg-tiles--small">
+      {%- set seasons = ["prime", "high", "value", "quiet"] %}
       {%- for link in welcome.more.links %}
-      <li><a class="ytg-row" href="{{ link.href }}"><span class="ytg-row__title">{{ link.title }}</span><span class="ytg-row__text">{{ link.desc }}</span><span class="ytg-row__arrow" aria-hidden="true">&rarr;</span></a></li>
+      <li><a class="ytg-tile ytg-tile--small" href="{{ link.href }}"><span class="ytg-tile__bar ytg-s-{{ seasons[loop.index0 % 4] }}" aria-hidden="true"></span><span class="ytg-tile__title">{{ link.title }}</span><span class="ytg-tile__text">{{ link.desc }}</span><span class="ytg-tile__cue">Open &rarr;</span></a></li>
       {%- endfor %}
     </ul>
   </section>
