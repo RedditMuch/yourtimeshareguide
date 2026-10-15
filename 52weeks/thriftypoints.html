@@ -36,7 +36,8 @@ table{border-collapse:collapse;width:100%;min-width:760px;font-size:.92rem}
 th,td{padding:7px 9px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
 th{background:var(--head);font-size:.82rem;white-space:nowrap}
 td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
-tfoot td{font-weight:700;background:var(--head)}
+td.fit{background:#d4efe0;font-weight:700;box-shadow:inset 3px 0 0 var(--good)}
+@media (prefers-color-scheme:dark){td.fit{background:#1d4a31}}
 .notes{background:var(--warn)}
 .notes p{margin:0 0 8px}.notes p:last-child{margin:0}
 .foot{color:var(--mute);font-size:.85rem;text-align:center;margin-top:20px}
@@ -50,6 +51,7 @@ tfoot td{font-weight:700;background:var(--head)}
  .scroll{overflow:visible;border:0}
  table{min-width:0;font-size:10pt}
  th{background:#eee!important;color:#000}
+ td.fit{background:#ddd!important;color:#000}
  tr{break-inside:avoid}
  .foot{color:#000}
 }
@@ -58,14 +60,13 @@ tfoot td{font-weight:700;background:var(--head)}
 <body>
 <div class="wrap">
 <h1>Thrifty Points</h1>
-<p class="sub noprint">Enter your points and VIP status and see, for each resort and room type, the stay that uses the most of them without going over.</p>
+<p class="sub noprint">Enter your points and see, for each resort and room type, the stay that uses the most of them without going over, at the full price and at each VIP discount.</p>
 
 <section class="card noprint" aria-labelledby="sh">
 <h2 id="sh">Search Settings</h2>
 <form id="f" novalidate>
 <div class="grid">
 <div><label for="pts">Total Points</label><input id="pts" inputmode="numeric" autocomplete="off" placeholder="60,000" value="60,000"></div>
-<div><label for="vip">VIP Status</label><select id="vip"><option value="">Non-VIP</option><option value="Bronze">VIP Bronze</option><option value="Silver">VIP Silver</option><option value="Gold">VIP Gold</option><option value="Platinum">VIP Platinum</option><option value="Founders">VIP Founders</option></select></div>
 <div><label for="area">Area</label><select id="area"><option>Everywhere</option><option>East Coast</option><option>West Coast</option><option>Hawaii</option><option>Other</option></select></div>
 <div><label for="state">State</label><select id="state"><option value="">All States</option></select></div>
 <div><label for="resort">Resort</label><input id="resort" list="resorts" autocomplete="off" placeholder="Search by Name"><datalist id="resorts"></datalist></div>
@@ -80,7 +81,7 @@ tfoot td{font-weight:700;background:var(--head)}
 <div class="btns"><button type="submit" id="go">Find Stays</button></div>
 <p class="hint" id="win"></p>
 <p class="msg err" id="err" role="alert" hidden></p>
-<p class="msg err" id="vipnote" role="status" hidden></p>
+<p class="msg err" id="ratenote" role="status" hidden></p>
 </form>
 </section>
 
@@ -88,8 +89,10 @@ tfoot td{font-weight:700;background:var(--head)}
 <h2 id="rh">Results</h2>
 <div class="printonly" id="printInfo"></div>
 <p class="status" id="status" aria-live="polite"></p>
+<p class="hint" id="legend">Highlighted prices are at or below your total points. Read down the column for your VIP level. A dash means the discount is not available because check-in is more than 60 days away.</p>
+<p class="hint" id="levels"></p>
 <div class="scroll" id="scroll" tabindex="0" role="region" aria-label="Best stays for your points, scrollable table">
-<table id="tbl"><thead><tr><th>Resort</th><th>Location</th><th>Room Type</th><th>Check-In</th><th>Check-Out</th><th class="n">Nights</th><th class="n">Full Points</th><th class="n">Discount</th><th class="n">Points Used</th><th class="n">Points Left</th></tr></thead><tbody id="body"></tbody><tfoot id="foot"></tfoot></table>
+<table id="tbl"><thead><tr><th>Resort</th><th>Location</th><th>Room Type</th><th>Check-In</th><th>Check-Out</th><th class="n">Nights</th><th class="n">Full Price</th></tr></thead><tbody id="body"></tbody></table>
 </div>
 <div class="btns noprint">
 <button type="button" class="alt" id="all" hidden>Show All</button>
@@ -103,7 +106,7 @@ tfoot td{font-weight:700;background:var(--head)}
 <section class="card notes" aria-labelledby="nh">
 <h2 id="nh">Notes and Limits</h2>
 <p>Points shown are from the 2026/2027 directory charts. Availability is not checked, so a stay listed here may not be bookable.</p>
-<p>VIP discount: the points discount applies only to eligible new reservations made within 2 months (60 days) before check-in. A stay is treated as discounted when its check-in date falls within 60 days after today. Eligibility and availability are not verified. Discounted points are rounded up to the next whole point so a stay never goes over your total; Wyndham's booking rounding is not confirmed.</p>
+<p>VIP discounts apply only to eligible new reservations made within 2 months (60 days) before check-in. A stay is shown with discounted prices only when its check-in date falls within 60 days after today. Eligibility and availability are not verified. Discounted prices are rounded up to the next whole point; Wyndham's booking rounding is not confirmed.</p>
 <p>Source: Club Wyndham Member's Directory 2026/2027, VIP benefits chart, printed pages 266–270 (Club Wyndham search bar pages 270–274).</p>
 <p>Housekeeping Credits ($185 each when you run out) and Reservation Transactions are not included.</p>
 <p id="left"></p>
@@ -191,10 +194,17 @@ var nightWeek = new Int16Array(NIGHTS), nightWknd = new Uint8Array(NIGHTS);
 })();
 
 /* ---- Search ---- */
-var VIP_RATE = null;  /* tier -> discount, read from reference-data.js */
-try { VIP_RATE = {}; window.REFERENCE.vip.tiers.forEach(function (t) { if (typeof t.points_discount_within_2_months === 'number') VIP_RATE[t.tier] = t.points_discount_within_2_months; }); } catch (e) { VIP_RATE = null; }
+var RATES = [], TIER_OF = {};  /* discounts read from reference-data.js, ascending */
+try { window.REFERENCE.vip.tiers.forEach(function (t) { var d = t.points_discount_within_2_months; if (typeof d === 'number' && d > 0 && d < 1) { if (RATES.indexOf(d) < 0) RATES.push(d); TIER_OF[d] = (TIER_OF[d] ? TIER_OF[d] + ' and ' : '') + t.tier; } }); } catch (e) { RATES = []; }
+RATES.sort(function (a, b) { return a - b; });
+var pctOf = function (d) { return Math.round(d * 1000) / 10 + '%'; };
+(function () {
+  $('tbl').querySelector('thead tr').insertAdjacentHTML('beforeend', RATES.map(function (d) { return '<th class="n">' + pctOf(d) + ' Off</th>'; }).join(''));
+  $('levels').textContent = RATES.length ? 'VIP levels: ' + RATES.map(function (d) { return pctOf(d) + ' ' + TIER_OF[d]; }).join(', ') + '.' : '';
+  if (!RATES.length) { $('ratenote').textContent = 'The VIP discount percentages could not be read from the reference data, so only full prices are shown.'; $('ratenote').hidden = false; }
+})();
 var winEnd = todayUTC + VIP_DAYS * DAY;
-$('win').textContent = 'VIP discount window: stays with a check-in date from ' + dfmt.format(todayUTC) + ' through ' + dfmt.format(winEnd) + ' (today plus 60 days) are discounted. Later stays are priced in full.';
+$('win').textContent = 'VIP discount window: stays with a check-in date from ' + dfmt.format(todayUTC) + ' through ' + dfmt.format(winEnd) + ' (today plus 60 days) show discounted prices. Later stays show the full price only.';
 var results = [], shown = 50, lastInfo = null;
 function search(cfg) {
   var out = [], t0 = performance.now();
@@ -214,42 +224,51 @@ function search(cfg) {
     }
     var best = null;
     for (var s0 = a; s0 < b; s0++) {
-      var ci = CAL_START + s0 * DAY, disc = (cfg.disc > 0 && ci >= cfg.today && ci <= cfg.today + VIP_DAYS * DAY) ? cfg.disc : 0;
+      var ci = CAL_START + s0 * DAY, inWin = ci >= cfg.today && ci <= cfg.today + VIP_DAYS * DAY;
       var maxLen = Math.min(cfg.maxN, b - s0);
       for (var n = cfg.minN; n <= maxLen; n++) {
         var e = s0 + n;
         if (miss[e] - miss[s0]) continue;
-        var full = pre[e] - pre[s0], tot = disc ? Math.ceil(Math.round(full * (1 - disc) * 1e6) / 1e6) : full;
-        if (tot > cfg.points) break;                   /* longer stays only cost more */
-        if (!best || tot > best.used || (tot === best.used && (n > best.n || (n === best.n && s0 < best.s)))) best = { s: s0, n: n, used: tot, full: full, disc: disc };
+        var full = pre[e] - pre[s0], prices = [full], used = full <= cfg.points ? full : -1, low = full;
+        for (var k = 0; k < RATES.length; k++) {
+          var dp = inWin ? Math.ceil(Math.round(full * (1 - RATES[k]) * 1e6) / 1e6) : null;
+          prices.push(dp);
+          if (dp != null) { if (dp < low) low = dp; if (dp <= cfg.points && dp > used) used = dp; }
+        }
+        if (low > cfg.points) break;                   /* longer stays only cost more */
+        if (used < 0) continue;
+        if (!best || used > best.used || (used === best.used && (n > best.n || (n === best.n && s0 < best.s)))) best = { s: s0, n: n, used: used, prices: prices };
       }
     }
-    if (best) out.push({ r: r, s: best.s, n: best.n, used: best.used, full: best.full, disc: best.disc });
+    if (best) out.push({ r: r, s: best.s, n: best.n, used: best.used, prices: best.prices });
   });
   out.sort(function (x, y) { return y.used - x.used || y.n - x.n || x.s - y.s || (x.r.name < y.r.name ? -1 : x.r.name > y.r.name ? 1 : 0); });
   return { list: out, ms: performance.now() - t0 };
 }
 
 /* ---- Output ---- */
-var pct = function (d) { return d ? Math.round(d * 1000) / 10 + '%' : '—'; };
-function rowData(x, budget) {
+function rowData(x) {
   var t = CAL_START + x.s * DAY;
-  return [x.r.name, x.r.location, x.r.roomType, dfmt.format(t), dfmt.format(t + x.n * DAY), x.n, x.full, pct(x.disc), x.used, budget - x.used];
+  return [x.r.name, x.r.location, x.r.roomType, dfmt.format(t), dfmt.format(t + x.n * DAY), x.n].concat(x.prices);
 }
 function render() {
-  var list = results.slice(0, shown), budget = lastInfo.points, html = '', tn = 0, tu = 0;
+  var list = results.slice(0, shown), budget = lastInfo.points, html = '', cols = 7 + RATES.length;
   list.forEach(function (x) {
-    var d = rowData(x, budget); tn += x.n; tu += x.used;
-    html += '<tr><td>' + esc(d[0]) + '</td><td>' + esc(d[1]) + '</td><td>' + esc(d[2]) + '</td><td>' + esc(d[3]) + '</td><td>' + esc(d[4]) + '</td><td class="n">' + d[5] + '</td><td class="n">' + NUM.format(d[6]) + '</td><td class="n">' + d[7] + '</td><td class="n">' + NUM.format(d[8]) + '</td><td class="n">' + NUM.format(d[9]) + '</td></tr>';
+    var d = rowData(x);
+    html += '<tr><td>' + esc(d[0]) + '</td><td>' + esc(d[1]) + '</td><td>' + esc(d[2]) + '</td><td>' + esc(d[3]) + '</td><td>' + esc(d[4]) + '</td><td class="n">' + d[5] + '</td>';
+    for (var k = 6; k < d.length; k++) {
+      var v = d[k], fit = v != null && v <= budget;
+      html += '<td class="n' + (fit ? ' fit' : '') + '" data-fit="' + fit + '">' + (v == null ? '—' : NUM.format(v)) + '</td>';
+    }
+    html += '</tr>';
   });
-  if (!list.length) html = '<tr><td colspan="10">No stay fits these settings. Try more points, a wider date range or fewer filters.</td></tr>';
+  if (!list.length) html = '<tr><td colspan="' + cols + '">No stay fits these settings. Try more points, a wider date range or fewer filters.</td></tr>';
   $('body').innerHTML = html;
-  $('foot').innerHTML = list.length ? '<tr><td colspan="5">Total (' + list.length + ' Stays)</td><td class="n">' + tn + '</td><td></td><td></td><td class="n">' + NUM.format(tu) + '</td><td class="n">' + NUM.format(list.length * budget - tu) + '</td></tr>' : '';
   $('status').textContent = 'Showing ' + list.length + ' of ' + results.length + ' stays, closest to ' + NUM.format(budget) + ' points first. Searched in ' + Math.round(lastInfo.ms) + ' ms.';
   $('all').hidden = results.length <= shown;
   $('resCard').hidden = false;
   $('xlsx').disabled = $('pdf').disabled = !list.length;
-  $('printInfo').innerHTML = '<p>Total Points: ' + NUM.format(budget) + ' | VIP Status: ' + esc(lastInfo.vipLabel) + ' | Area: ' + esc(lastInfo.area) + ' | State: ' + esc(lastInfo.stateName) + ' | Resort: ' + esc(lastInfo.resort || 'All') + ' | Room Size: ' + esc(lastInfo.size || 'All') + '<br>Check-In From: ' + esc(lastInfo.from) + ' | Check-Out By: ' + esc(lastInfo.to) + ' | Nights per Stay: ' + lastInfo.minN + ' to ' + lastInfo.maxN + '<br>Generated: ' + esc(new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })) + '</p>';
+  $('printInfo').innerHTML = '<p>Total Points: ' + NUM.format(budget) + ' | VIP Discount Window: ' + esc(lastInfo.win) + ' | Area: ' + esc(lastInfo.area) + ' | State: ' + esc(lastInfo.stateName) + ' | Resort: ' + esc(lastInfo.resort || 'All') + ' | Room Size: ' + esc(lastInfo.size || 'All') + '<br>Check-In From: ' + esc(lastInfo.from) + ' | Check-Out By: ' + esc(lastInfo.to) + ' | Nights per Stay: ' + lastInfo.minN + ' to ' + lastInfo.maxN + '<br>Generated: ' + esc(new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })) + '</p>';
   document.documentElement.setAttribute('data-search-ms', String(Math.round(lastInfo.ms)));
 }
 function fail(m) { var e = $('err'); e.textContent = m; e.hidden = !m; }
@@ -262,30 +281,25 @@ $('f').addEventListener('submit', function (ev) {
   if (isNaN(from) || isNaN(to) || to <= from) return fail('Enter an earliest check-in date that comes before the latest check-out date.');
   if (!(minN >= 1) || !(maxN >= minN)) return fail('Enter a minimum number of nights of at least 1 and a maximum that is not smaller.');
   fail('');
-  var st = $('state'), vs = $('vip'), tier = vs.value, rate = 0, note = '';
-  if (tier) { if (VIP_RATE && typeof VIP_RATE[tier] === 'number') rate = VIP_RATE[tier]; else note = 'The VIP discount for ' + vs.options[vs.selectedIndex].text + ' could not be read from the reference data, so no discount is applied.'; }
-  $('vipnote').textContent = note; $('vipnote').hidden = !note;
-  var cfg = { points: pts, disc: rate, today: todayUTC, from: from, to: to, minN: minN, maxN: Math.min(maxN, 60), area: $('area').value, state: st.value, size: $('size').value, resort: $('resort').value.trim() };
+  var st = $('state');
+  var cfg = { points: pts, today: todayUTC, from: from, to: to, minN: minN, maxN: Math.min(maxN, 60), area: $('area').value, state: st.value, size: $('size').value, resort: $('resort').value.trim() };
   var res = search(cfg);
   results = res.list; shown = 50;
-  lastInfo = { win: dfmt.format(todayUTC) + ' through ' + dfmt.format(winEnd), points: pts, vipLabel: vs.options[vs.selectedIndex].text, disc: rate, ms: res.ms, area: cfg.area, stateName: st.value ? st.options[st.selectedIndex].text : 'All', resort: cfg.resort, size: cfg.size, from: dfmt.format(from), to: dfmt.format(to), minN: minN, maxN: cfg.maxN };
+  lastInfo = { win: dfmt.format(todayUTC) + ' through ' + dfmt.format(winEnd), points: pts, ms: res.ms, area: cfg.area, stateName: st.value ? st.options[st.selectedIndex].text : 'All', resort: cfg.resort, size: cfg.size, from: dfmt.format(from), to: dfmt.format(to), minN: minN, maxN: cfg.maxN };
   render();
 });
 $('all').addEventListener('click', function () { shown = results.length; render(); });
 $('pdf').addEventListener('click', function () { window.print(); });
 
 /* ---- Exports (Excel loads only when selected; CSV if the library fails) ---- */
-var HEAD = ['Resort', 'Location', 'Room Type', 'Check-In', 'Check-Out', 'Nights', 'Full Points', 'Discount', 'Points Used', 'Points Left'];
+var HEAD = ['Resort', 'Location', 'Room Type', 'Check-In', 'Check-Out', 'Nights', 'Full Price'].concat(RATES.map(function (d) { return pctOf(d) + ' Off'; }));
 function exportRows() {
-  var out = results.slice(0, shown).map(function (x) { return rowData(x, lastInfo.points); });
-  var tn = 0, tu = 0; out.forEach(function (d) { tn += d[5]; tu += d[8]; });
-  out.push(['Total (' + out.length + ' Stays)', '', '', '', '', tn, '', '', tu, out.length * lastInfo.points - tu]);
-  return out;
+  return results.slice(0, shown).map(function (x) { return rowData(x).map(function (v, i) { return i >= 6 && v == null ? '—' : v; }); });
 }
 function metaRows() {
-  return [['Thrifty Points'], ['Total Points', lastInfo.points], ['VIP Status', lastInfo.vipLabel], ['VIP Discount Window', lastInfo.win], ['Area', lastInfo.area], ['State', lastInfo.stateName], ['Resort', lastInfo.resort || 'All'], ['Room Size', lastInfo.size || 'All'],
+  return [['Thrifty Points'], ['Total Points', lastInfo.points], ['VIP Discount Window', lastInfo.win], ['Area', lastInfo.area], ['State', lastInfo.stateName], ['Resort', lastInfo.resort || 'All'], ['Room Size', lastInfo.size || 'All'],
     ['Check-In From', lastInfo.from], ['Check-Out By', lastInfo.to], ['Nights per Stay', lastInfo.minN + ' to ' + lastInfo.maxN], ['Generated', new Date().toISOString().slice(0, 10)],
-    ['Points are from the 2026/2027 directory charts. The VIP discount applies only to eligible new reservations made within 2 months (60 days) of check-in and is rounded up to the next whole point; eligibility and availability are not verified, and Wyndham\'s booking rounding is not confirmed. Source: Club Wyndham Member\'s Directory 2026/2027, VIP benefits chart, printed pages 266–270.'],['Availability is not checked. Housekeeping Credits and Reservation Transactions are not included.'], []];
+    ['Points are from the 2026/2027 directory charts. VIP discounts (' + RATES.map(function (d) { return pctOf(d) + ' ' + TIER_OF[d]; }).join(', ') + ') apply only to eligible new reservations made within 2 months (60 days) of check-in and are rounded up to the next whole point; eligibility and availability are not verified, and Wyndham\'s booking rounding is not confirmed. Source: Club Wyndham Member\'s Directory 2026/2027, VIP benefits chart, printed pages 266–270.'],['Availability is not checked. Housekeeping Credits and Reservation Transactions are not included.'], []];
 }
 function download(name, type, data) {
   var a = document.createElement('a'), u = URL.createObjectURL(new Blob([data], { type: type }));
@@ -313,7 +327,7 @@ $('xlsx').addEventListener('click', function () {
   var btn = this, xe = $('xerr'); xe.hidden = true; btn.disabled = true;
   loadXlsx().then(function () {
     var meta = metaRows(), ws = XLSX.utils.aoa_to_sheet(meta.concat([HEAD], exportRows()));
-    ws['!cols'] = [{ wch: 38 }, { wch: 22 }, { wch: 22 }, { wch: 18 }, { wch: 18 }, { wch: 8 }, { wch: 12 }, { wch: 10 }, { wch: 12 }, { wch: 12 }];
+    ws['!cols'] = [{ wch: 38 }, { wch: 22 }, { wch: 22 }, { wch: 18 }, { wch: 18 }, { wch: 8 }, { wch: 12 }].concat(RATES.map(function () { return { wch: 12 }; }));
     var wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Thrifty Points');
     XLSX.writeFile(wb, 'thrifty-points.xlsx');
   }).catch(function () {
