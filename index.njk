@@ -21,7 +21,7 @@ description: Links to the pages that are live.
     <ul class="ytg-tiles ytg-tiles--small">
       {%- set seasons = ["prime", "high", "value", "quiet"] %}
       {%- for link in welcome.more.links %}
-      <li><a class="ytg-tile ytg-tile--small" href="{{ link.href }}"><span class="ytg-tile__bar ytg-s-{{ seasons[loop.index0 % 4] }}" aria-hidden="true"></span><span class="ytg-tile__title">{{ link.title }}</span><span class="ytg-tile__text">{{ link.desc }}</span><span class="ytg-tile__cue">Open &rarr;</span></a></li>
+      <li><a class="ytg-tile ytg-tile--small" href="{{ link.href }}"><span class="ytg-tile__bar ytg-s-{{ seasons[loop.index0 % 4] }}" aria-hidden="true"></span><span class="ytg-tile__title">{{ link.title }}</span><span class="ytg-tile__text">{{ link.desc }}</span><span class="ytg-tile__cue" aria-hidden="true">Open &rarr;</span></a></li>
       {%- endfor %}
     </ul>
   </section>

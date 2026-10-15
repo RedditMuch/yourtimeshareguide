@@ -1,4 +1,4 @@
-// The temporary welcome page's links (52weeks/welcome.njk), as data.
+// The home page's links (root index.njk), as data.
 // Name approved by the owner. Where the page lives is still the owner's decision.
 
 export default {
