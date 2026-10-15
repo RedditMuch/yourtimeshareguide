@@ -246,7 +246,7 @@ function render(){
     if(gap<=20000){const g=cr(u,true)-cr(T,true), eu=eff(u,true), nv=eu.b>eff(T,true).b?eu.n:'';
       return {dir:'more',diff:gap,newAdd:u-cur,t:`Buy ${gap.toLocaleString()} more points (${u.toLocaleString()} total): ${plural(g,'more credit')}${nv?' and reaches VIP '+nv:''}`,
         tg:`Buying ${gap.toLocaleString()} more points (${(u-cur).toLocaleString()} additional points instead of ${add.toLocaleString()})`,
-        why:[`Adds ${plural(g,'Housekeeping Credit')}${nv?' and reaches VIP '+nv:''}`,'A Housekeeping Credit costs $185 if you run out and have to buy one']}}
+        why:[`Adds ${plural(g,'Housekeeping Credit')} for a Total of ${plural(cr(u,true),'Housekeeping Credit')}${nv?' and reaches VIP '+nv:''}`,'A Housekeeping Credit costs $185 if you run out and have to buy one']}}
     if(add>0&&T>tgt){const x=(T-tgt).toLocaleString();
       return tgt===cur?{dir:'less',diff:add,newAdd:0,t:'This purchase adds no credits',tg:'Skipping this purchase',why:[`Your Housekeeping Credits stay at ${cr(T,true)} either way`,'You would pay for points that earn nothing extra']}
        :{dir:'less',diff:T-tgt,newAdd:tgt-cur,t:`Buy ${x} fewer points (${tgt.toLocaleString()} total): same ${plural(cr(T,true),'credit')}`,tg:`Buying ${x} fewer points (${(tgt-cur).toLocaleString()} additional points instead of ${add.toLocaleString()})`,
