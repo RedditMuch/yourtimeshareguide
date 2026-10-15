@@ -167,7 +167,7 @@ tr.loanend td{border-bottom:2px solid var(--mute)}
 
 <div class="card res">
 <div class="chead"><h2>Total Paid Over Time: Current Status vs. New Contract</h2>
-<label class="look"><span>Look ahead: <b id="yrsLbl"></b> years</span><input type="range" id="yrs" min="1" max="22" value="22"></label></div>
+<label class="look"><span>Look Ahead: <b id="yrsLbl"></b> Years</span><input type="range" id="yrs" min="1" max="22" value="22"></label></div>
 <div class="cw"><svg id="chart" viewBox="0 0 800 340" role="img" aria-label="Cumulative cost chart"></svg><div class="tip" id="tip"></div></div>
 <div class="legend"><span><i style="background:var(--stay)"></i>Current Status</span><span><i style="background:var(--buy)"></i>New Contract</span></div>
 </div>
@@ -305,7 +305,7 @@ function render(){
   $('mBuy').innerHTML=`${money(buyM+oM,2)}${termSet?`<small class="term"> for ${yt}</small>`:''}`;
   $('mBuyD').innerHTML=`${money(afterM,2)} Maint Fee + ${money(c.loanM,2)} New Loan${hasOld?` + ${money(c.oldM,2)} Current Loan`:''}<br><b class="bad">${money(buyM-c.curM,2)} more per month</b>`;
   $('mAfter').innerHTML=`${money(afterM,2)}`;
-  $('mAfterT').innerHTML=termSet?`Monthly Payment in <b>${yt}</b>`:'Monthly Payment After Loan Payoff';
+  $('mAfterT').innerHTML=termSet?`Monthly Payment in <b>${yt.replace(/year/,'Year')}</b>`:'Monthly Payment After Loan Payoff';
   $('mAfterBox').className='box '+(feeSaveM>0?'goodb':'buy');
   $('mAfterD').innerHTML=newOwner?'Maintenance fees continue after the loan':(feeSaveM>0?`<b class="good">${money(feeSaveM,2)} less</b> but still forever`:`<b class="bad">${money(-feeSaveM,2)} more</b>`)+(hasOld&&c.oldN>c.term*12?`<br>(plus your current loan if still running)`:'');
 
@@ -318,7 +318,7 @@ function render(){
   for(let i=0;i<=4;i++){const v=top*i/4;s+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${L-8}" y="${Y(v)+4}" text-anchor="end" font-size="12" fill="var(--mute)">${money(v)}</text>`}
   const step=n<=10?1:n<=20?2:n<=50?5:10;
   for(let i=0;i<=n;i+=step)s+=`<text x="${X(i)}" y="${H-18}" text-anchor="middle" font-size="12" fill="var(--mute)">${i}</text>`;
-  s+=`<text x="${(L+W-R)/2}" y="${H-3}" text-anchor="middle" font-size="11" fill="var(--mute)">years from today</text>`;
+  s+=`<text x="${(L+W-R)/2}" y="${H-3}" text-anchor="middle" font-size="11" fill="var(--mute)">Years From Today</text>`;
   const path=k=>'M'+[`${X(0)},${Y(0)}`].concat(pts.map((p,i)=>`${X(i+1)},${Y(p[k])}`)).join('L');
   const gap=`${path('cb')}L${[...pts].reverse().map((p,i)=>`${X(n-i)},${Y(p.cs)}`).join('L')}L${X(0)},${Y(0)}Z`;
   s+=`<path d="${gap}" fill="var(--buy)" opacity=".12"/>`;
@@ -350,7 +350,7 @@ function render(){
   h+=`<tr>${cols.filter(x=>x.g).map(x=>`<th class="nm ${cls(x.g)}${x.sep?' sep':''}">${x.h}</th>`).join('')}</tr></thead><tbody>`;
   r.slice(0,50).forEach(x=>{
     h+=`<tr>${cols.map(col=>`<td class="${cls(col.g)}${col.sep?' sep':''}">${col.v(x)}</td>`).join('')}</tr>`;
-    if(x.y===c.term&&c.term<50)h+=`<tr class="payoff"><td colspan="${cols.length}">&#9650; Loan years above &nbsp;|&nbsp; Loan paid off after year ${c.term} <span>&mdash; below, you pay maintenance fees only</span> &#9660;</td></tr>`;
+    if(x.y===c.term&&c.term<50)h+=`<tr class="payoff"><td colspan="${cols.length}">&#9650; Loan Years Above &nbsp;|&nbsp; Loan Paid Off After Year ${c.term} <span>&mdash; Below, You Pay Maintenance Fees Only</span> &#9660;</td></tr>`;
   });
   $('tbl').innerHTML=h+'</tbody>';
 }
