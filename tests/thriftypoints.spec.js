@@ -24,19 +24,19 @@ test("thriftypoints: the VIP Level dropdown tailors the columns and re-renders w
   await expect(page.locator("#vip")).toHaveCount(1);
   const all = await heads(page);
   expect(all.length).toBeGreaterThan(8);
-  const pcts = all.slice(8).map(num);
+  const pcts = all.slice(9).map(num);
   expect(pcts).toEqual([...pcts].sort((a, b) => a - b));
   expect(pcts).toContain(35);
   await page.selectOption("#vip", { label: "Non-VIP" });
-  await expect.poll(async () => (await heads(page)).length).toBe(8);
+  await expect.poll(async () => (await heads(page)).length).toBe(9);
   expect((await rows(page)).length).toBeGreaterThan(0);
   await page.selectOption("#vip", { label: "VIP Gold" });
-  await expect.poll(async () => (await heads(page)).length).toBe(9);
-  expect(num((await heads(page))[8])).toBe(35);
+  await expect.poll(async () => (await heads(page)).length).toBe(10);
+  expect(num((await heads(page))[9])).toBe(35);
   for (const row of await rows(page)) {
-    expect(row.length).toBe(9);
-    expect(row.slice(7).some(c => !isDash(c.t) && num(c.t) <= 60000)).toBe(true);
-    if (daysOut(row) > 60) expect(isDash(row[8].t)).toBe(true);
+    expect(row.length).toBe(10);
+    expect(row.slice(8).some(c => !isDash(c.t) && num(c.t) <= 60000)).toBe(true);
+    if (daysOut(row) > 60) expect(isDash(row[9].t)).toBe(true);
   }
   await page.selectOption("#vip", { label: "Show All Discounts" });
   await expect.poll(async () => (await heads(page)).length).toBe(all.length);
@@ -47,7 +47,7 @@ test("thriftypoints: every row has a price at most 60,000 and highlights match e
   const r = await rows(page);
   expect(r.length).toBeGreaterThan(0);
   for (const row of r) {
-    const prices = row.slice(7);
+    const prices = row.slice(8);
     expect(prices.some(c => !isDash(c.t) && num(c.t) <= 60000)).toBe(true);
     for (const c of prices) {
       const fits = !isDash(c.t) && num(c.t) <= 60000;
@@ -65,8 +65,8 @@ test("thriftypoints: inside the window 35% Off is the rounded-up full price time
   let inside = 0, outside = 0;
   for (const row of await rows(page)) {
     const d = daysOut(row);
-    if (d >= 0 && d <= 60) { inside++; expect(num(row[col].t)).toBe(Math.ceil(num(row[7].t) * 0.65 - 1e-6)); }
-    else if (d > 60) { outside++; for (const c of row.slice(8)) expect(isDash(c.t)).toBe(true); }
+    if (d >= 0 && d <= 60) { inside++; expect(num(row[col].t)).toBe(Math.ceil(num(row[8].t) * 0.65 - 1e-6)); }
+    else if (d > 60) { outside++; for (const c of row.slice(9)) expect(isDash(c.t)).toBe(true); }
   }
   expect(inside).toBeGreaterThan(0);
   expect(outside).toBeGreaterThan(0);
@@ -155,23 +155,36 @@ test("thriftypoints: City and State columns exist, State sorts with equal codes 
   expect(codes).toEqual([...codes].sort((a, b) => (a.toLowerCase() < b.toLowerCase() ? -1 : a.toLowerCase() > b.toLowerCase() ? 1 : 0)));
 });
 
-test("thriftypoints: the Full Price cell carries its season color, hidden season text and a legend", async ({ page }) => {
+test("thriftypoints: the Season cell is color-filled with hidden text, Full Price uses the green fit highlight, and Season sorts in groups", async ({ page }) => {
   await search(page, { points: "150,000" });
   await page.click("#all").catch(() => {});
   await expect(page.locator("#seasonLegend .chip")).toHaveCount(4);
+  const h = await heads(page);
+  const si = h.indexOf("Season");
+  expect(si).toBeGreaterThan(0);
+  expect(h[si + 1]).toBe("Full Price");
   const colors = { Prime: "rgb(229, 127, 118)", High: "rgb(239, 156, 76)", Value: "rgb(247, 226, 151)", Quiet: "rgb(140, 207, 176)" };
-  const cells = await page.$$eval("#body tr td[data-season]", tds => tds.map(td => ({ s: td.dataset.season, bg: getComputedStyle(td).backgroundColor, vh: td.querySelector(".vh") ? td.querySelector(".vh").textContent : "", title: td.title })));
+  const cells = await page.$$eval("#body tr td[data-season]", tds => tds.map(td => ({ s: td.dataset.season, bg: getComputedStyle(td).backgroundColor, text: td.textContent.trim(), vh: td.querySelector(".vh") ? td.querySelector(".vh").textContent : "", title: td.title })));
   expect(cells.length).toBeGreaterThan(0);
   const seen = new Set();
   for (const c of cells) {
     if (!c.s) continue;
     seen.add(c.s);
     expect(c.bg).toBe(colors[c.s]);
-    expect(c.vh).toContain(c.s);
-    expect(c.title).toContain(c.s);
+    expect(c.vh).toBe(c.s);
+    expect(c.title).toBe(c.s);
   }
   expect(seen.has("Prime") || seen.has("High")).toBe(true);
   expect(seen.has("Value") || seen.has("Quiet")).toBe(true);
+  const full = await page.$$eval("#body tr", (trs, i) => trs.map(tr => { const td = tr.children[i + 1]; return { bg: getComputedStyle(td).backgroundColor, cls: td.className, fit: td.dataset.fit, w: getComputedStyle(td).fontWeight }; }), si);
+  for (const c of full) { expect(["rgb(229, 127, 118)", "rgb(239, 156, 76)", "rgb(247, 226, 151)", "rgb(140, 207, 176)"]).not.toContain(c.bg); if (c.fit === "true") { expect(c.cls).toContain("fit"); expect(Number(c.w)).toBeGreaterThanOrEqual(700); } }
+  expect(full.some(c => c.fit === "true")).toBe(true);
+  await page.locator("#tbl thead button[data-col='" + si + "']").click();
+  const order = ["Prime", "High", "Value", "Quiet", ""];
+  const seq = (await page.$$eval("#body tr td[data-season]", tds => tds.map(td => td.dataset.season))).map(x => order.indexOf(x));
+  expect(seq).toEqual([...seq].sort((a, b) => a - b));
+  await page.locator("#tbl thead button[data-col='" + si + "']").click();
+  expect(await page.locator("#tbl thead th").nth(si).getAttribute("aria-sort")).toBe("descending");
 });
 
 test("thriftypoints: Club Wyndham is dropped from resort names but typing it still finds the resort", async ({ page }) => {
