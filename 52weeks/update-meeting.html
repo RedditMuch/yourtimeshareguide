@@ -3,18 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Update Meeting Calculator</title>
+<title>Buy the Numbers: Update Meeting Calculator</title>
 <meta name="robots" content="noindex, nofollow">
 <style>
 :root{--bg:#f6f7f9;--card:#fff;--ink:#1c2430;--mute:#5d6877;--line:#dde2e8;--stay:#2a6fb0;--buy:#c2410c;--good:#15803d;--bad:#b91c1c;--warn:#fff4e5;--per1k:#7e22ce}
 @media (prefers-color-scheme:dark){:root{--bg:#10151c;--card:#19212b;--ink:#e8edf3;--mute:#9aa6b5;--line:#2c3744;--stay:#6aa9e6;--buy:#fb923c;--good:#4ade80;--bad:#f87171;--warn:#2b2113;--per1k:#c084fc}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,Segoe UI,Roboto,sans-serif}
-.wrap{max-width:1000px;margin:0 auto;padding:20px 16px 60px}
-h1{font-size:1.8rem;margin:0 0 6px;text-align:center}
-.tag{text-align:center;font-size:1.15rem;font-style:italic;color:var(--mute);margin:0 0 26px}
+.wrap{max-width:1000px;margin:0 auto;padding:12px 16px 60px}
+h1{font-size:1.8rem;margin:0 0 2px;text-align:center}
+.tag{text-align:center;font-size:1.15rem;font-weight:600;color:var(--mute);margin:0 0 8px}
 .claim h2.ct{text-align:center;margin-bottom:12px}
-.sub{color:var(--mute);margin:0 0 8px;text-align:center}
+.sub{color:var(--mute);margin:0 auto 10px;text-align:center;max-width:720px}
+.clrrow{margin:0 0 6px;text-align:left}.clrrow a{font-size:.85rem;color:var(--mute)}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px}
 h2{font-size:1.1rem;margin:0 0 10px}
 .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
@@ -84,20 +85,45 @@ th.grp.c{border-top:4px solid var(--stay)}th.grp.n{border-top:4px solid var(--bu
 .sep{border-left:2px solid var(--line)}
 tr.loanend td{border-bottom:2px solid var(--mute)}
 .note{font-size:.85rem;color:var(--mute)}
+.dedic{text-align:center;font-style:italic;color:var(--mute);margin:28px auto 0;max-width:560px;padding-top:16px;border-top:1px solid var(--line)}
+.perk{border-left:5px solid var(--good)}
+.perk h2{text-align:center;font-size:1.25rem;margin-bottom:6px}
+.perk .rule{text-align:center;font-size:1.05rem;margin:0 0 12px}
+.perk .live{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin-bottom:12px}
+.perk .live .box{padding:10px}
+.perk .live .n{font-size:1.5rem}
+.perk ul{margin:0;padding-left:20px;font-size:.92rem}
+.buyin .f{background:color-mix(in srgb,var(--buy) 9%,var(--card));border-color:color-mix(in srgb,var(--buy) 40%,var(--line))}
+.perk li{margin-bottom:4px}
+.sechead{display:flex;align-items:center;gap:16px;margin:8px 0 8px}.sechead span{flex:1;height:2px;background:var(--line);border-radius:2px;min-width:16px}
+.sechead h2{margin:0;text-align:center;font-size:1.25rem;line-height:1.25;max-width:820px}.sechead em{font-style:normal;color:var(--good);letter-spacing:.06em;text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:4px}
+.mix{text-align:center;font-size:.9rem;color:var(--mute);margin:0 0 10px}
+.ohead{display:flex;align-items:center;justify-content:flex-start;gap:8px 14px;flex-wrap:wrap;margin-bottom:10px}.ohead h2{margin:0}
+.vipsel select{font:inherit;font-size:.85rem;font-weight:500;color:var(--ink);background:color-mix(in srgb,var(--stay) 6%,var(--card));border:1px solid color-mix(in srgb,var(--stay) 25%,var(--line));border-radius:6px;padding:3px 6px;cursor:pointer}
+.newown{flex:1 1 280px;margin:0;font-size:.85rem;font-style:italic;color:var(--mute)}
+.vipsel select:focus{outline:2px solid var(--stay);outline-offset:1px}
+.kn{text-align:center;font-size:1.1rem;margin:16px 0 4px}
+.perk .how{text-align:center;font-weight:600;color:var(--mute);margin:0 0 6px}
+.consider{border:1px solid var(--line);border-left:5px solid var(--buy);border-radius:10px;padding:10px 14px;margin:0 0 12px;background:var(--bg)}
+.consider{text-align:center}.consider .cl{color:var(--mute);font-size:.9rem}.consider .cdir{font-size:1.35rem;font-weight:800;letter-spacing:.01em;margin-top:2px}.cdir.less{color:var(--good)}.cdir.more{color:var(--buy)}.consider .cnum{font-size:1.15rem;margin:4px auto 8px;padding-bottom:8px;border-bottom:2px solid var(--line);width:min(300px,80%)}.consider .cnum b{font-size:1.5rem}.consider .cnum span{color:var(--mute);font-size:.9rem;margin:0 4px}.consider .cnum s{color:var(--mute)}.consider .cwhy{font-weight:700;margin-bottom:2px}.consider .cnote{font-size:.85rem;color:var(--mute);margin:8px 0 0}.consider ul{margin:0;padding:0;list-style:none}.consider li{margin:2px 0}
+.sumrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0;margin-top:6px;border-top:1px solid var(--line);padding-top:8px}
+.mini{text-align:center;padding:0 14px;font-size:.85rem;color:var(--mute)}.mini:first-child{padding-left:0}.mini+.mini{border-left:1px solid var(--line)}
+.mini .t{font-size:.8rem}.mini .n{font-size:1.1rem;font-weight:600;color:var(--ink)}.mini .n span{font-size:.85rem!important;color:var(--mute)}
+@media (max-width:760px){.mini,.mini:first-child{padding:6px 0}.mini+.mini{border-left:0;border-top:1px solid var(--line)}}
 </style>
 </head>
 <body>
 <div class="wrap">
-<h1>Update Meeting Calculator</h1>
-<p class="tag">"Buy more points and your maintenance fees go down"</p>
-<p class="sub">Enter your own numbers and see what their pitch really costs.<br><a href="#" id="clr" style="font-size:.8rem;color:var(--mute)">Clear all fields</a></p>
+<h1>Buy the Numbers</h1>
+<div class="sechead"><span></span><h2>Calculations and Considerations <em>BEFORE</em> Purchasing</h2><span></span></div>
+<p class="clrrow"><a href="#" id="clr">Clear All Fields</a></p>
 
 <div class="card">
-<h2>Current Ownership</h2>
+<div class="ohead"><h2>Current Ownership</h2><div class="vipsel"><select id="vipSt" aria-label="VIP Status" title="VIP Status"><option value="non">Non-VIP</option><option value="bronze">VIP Bronze</option><option value="silver">VIP Silver</option><option value="gold">VIP Gold</option><option value="platinum">VIP Platinum</option><option value="founders">VIP Founders</option><option value="gsilver">Grandfathered Silver</option><option value="ggold">Grandfathered Gold</option><option value="gplat">Grandfathered Platinum</option></select></div><p class="newown">New owner? Select Clear All Fields above, then start with Points Purchase below.</p></div>
 <div class="duo">
 <div class="area"><div class="acap">Maintenance Fees</div><div class="g2">
-<div class="cell"><label><div class="lt">Current # of Points</div><div class="f"><input type="text" inputmode="decimal" id="curPts" value="140,000" placeholder="Points You Own"></div></label><div class="hint"></div></div>
-<div class="cell"><label><div class="lt">Maintenance Fee (per Month)</div><div class="f"><span>$</span><input type="text" inputmode="decimal" id="curMonthly" value="100" placeholder="Per Month"></div></label>
+<div class="cell"><label><div class="lt">Current # of Points</div><div class="f"><input type="text" inputmode="decimal" id="curPts" value="200,000" placeholder="Points You Own"></div></label><div class="hint"></div></div>
+<div class="cell"><label><div class="lt">Maintenance Fee (per Month)</div><div class="f"><span>$</span><input type="text" inputmode="decimal" id="curMonthly" value="155" placeholder="Per Month"></div></label>
 <div class="hint"><b id="curYearly"></b>: Yearly<br><b id="curPer1k"></b>: per 1,000 pts</div></div>
 </div></div>
 <div class="area div"><div class="acap">Current Loan</div><div class="g2">
@@ -107,12 +133,10 @@ tr.loanend td{border-bottom:2px solid var(--mute)}
 <div class="hint" id="oldLoanH"></div></div>
 </div></div>
 </div>
-</div>
 
-<div class="card">
-<h2>Additional Purchase</h2>
-<div class="grid">
-<div class="cell"><label><div class="lt">Additional Points Purchase</div><div class="f"><input type="text" inputmode="decimal" id="addPts" placeholder="Points Offered"></div></label><div class="hint"></div></div>
+<h2 style="margin-top:10px;padding-top:10px;border-top:1px solid var(--line)">Points Purchase</h2>
+<div class="grid buyin">
+<div class="cell"><label><div class="lt">Points Purchase</div><div class="f"><input type="text" inputmode="decimal" id="addPts" placeholder="Points Offered"></div></label><div class="hint" id="addH"></div></div>
 <div class="cell"><label><div class="lt">Asking Price (Often Negotiable)</div><div class="f"><span>$</span><input type="text" inputmode="decimal" id="price" placeholder="Price"></div></label><div class="hint"></div></div>
 <div class="cell"><label><div class="lt">Interest Rate on Loan</div><div class="f"><input type="text" inputmode="decimal" id="apr" placeholder="Interest Rate"></div></label><div class="hint"></div></div>
 <div class="cell"><label><div class="lt">Length of Loan (Years)</div><div class="f"><input type="text" inputmode="decimal" id="term" placeholder="How Long?"></div></label><div class="hint"></div></div>
@@ -121,12 +145,14 @@ tr.loanend td{border-bottom:2px solid var(--mute)}
 <div class="cell"><label><div class="lt two">Fees Rise Each Year by (%)</div><div class="f"><input type="text" inputmode="decimal" id="inc" placeholder="Increase"></div></label>
 <div class="hint">Guesstimate (Suggest 3-5%)</div></div>
 </div>
-<div class="grid res" style="margin-top:6px">
-<div class="box buy" style="grid-column:span 2"><div class="t">Total Amortized Loan Cost</div><div class="n" id="sLoan"></div><div class="d" id="sLoanD"></div></div>
-<div class="box stay"><div class="t">Combined points after buying</div><div class="n" id="sPts"></div><div class="d" id="sPtsD"></div></div>
-<div class="box after"><div class="t">New Maintenance Fee</div><div class="n" id="sFee"></div><div class="d" id="sFeeD"></div></div>
+<div class="sumrow res">
+<div class="mini"><div class="t">Total Amortized Loan Cost</div><div class="n" id="sLoan"></div><div class="d" id="sLoanD"></div></div>
+<div class="mini"><div class="t">Combined Points After Purchase</div><div class="n" id="sPts"></div><div class="d" id="sPtsD"></div></div>
+<div class="mini"><div class="t">New Maintenance Fee</div><div class="n" id="sFee"></div><div class="d" id="sFeeD"></div></div>
 </div>
 </div>
+
+<div class="card perk" id="perk"></div>
 
 <div class="card claim" id="claim"></div>
 
@@ -151,6 +177,7 @@ tr.loanend td{border-bottom:2px solid var(--mute)}
 <div class="tw" tabindex="0" role="region" aria-label="Financial Outlook Comparison table, scrollable"><table id="tbl"></table></div>
 <p class="note">Maintenance fees never end, so the New Contract keeps costing after the loan is gone (the dark bar marks where the loan ends). The extra points do come with you; the loan is what makes the pitch costly.</p>
 </div>
+<p class="dedic">This page is dedicated to Mary.<br>Everyone considering owning a timeshare deserves clear and complete answers to help them make the best decisions <b>BEFORE</b> they Buy.</p>
 </div>
 
 <script>
@@ -175,7 +202,7 @@ function fmtInput(el){
 function pmt(P,apr,yrs){const n=yrs*12,r=apr/100/12;if(!n)return 0;return r?P*r/(1-Math.pow(1+r,-n)):P/n}
 
 function calc(){
-  const curPts=num('curPts'),curM=num('curMonthly'),addPts=num('addPts'),price=num('price'),apr=num('apr');
+  const curPts=Math.floor(num('curPts')),curM=num('curMonthly'),addPts=Math.floor(num('addPts')),price=num('price'),apr=num('apr');
   const term=Math.max(1,Math.round(num('term'))),new1k=num('newPer1k'),g=num('inc')/100,yrs=+$('yrs').value;
   const noBuy=!addPts&&!price&&!new1k;
   const curY=curM*12, newY=noBuy?curM*12:(curPts+addPts)/1000*new1k, loanM=pmt(price,apr,term), loanY=loanM*12;
@@ -201,6 +228,47 @@ function render(){
   $('curPer1k').textContent=c.curPts?money(c.curY/(c.curPts/1000),2):'-';
   $('yrsLbl').textContent=c.yrs;
 
+  // points perks: 1 housekeeping credit per 70,000 pts, plus VIP milestone bonus; 1 Reservation Transaction per 77,000 pts
+  const TIERS=[[1400000,8,'Founders'],[1100000,6,'Platinum'],[800000,4,'Gold'],[500000,2,'Silver'],[300000,1,'Bronze']];
+  // VIP status: b = Housekeeping Credits added, u = unlimited Housekeeping Credits, r = unlimited Reservation Transactions
+  const STAT={non:{n:'Non-VIP',b:0},bronze:{n:'Bronze',b:1},silver:{n:'Silver',b:2},gold:{n:'Gold',b:4},platinum:{n:'Platinum',b:6},founders:{n:'Founders',b:8},
+    gsilver:{n:'Grandfathered Silver',b:0,u:1},ggold:{n:'Grandfathered Gold',b:0,u:1,r:1},gplat:{n:'Grandfathered Platinum',b:0,u:1,r:1}};
+  const st=STAT[$('vipSt').value]?$('vipSt').value:'non';
+  // status in effect at p points; a = true for After Purchase: buying up to a higher milestone than you already reach moves you up
+  const tierAt=p=>TIERS.find(t=>p>=t[0]), curTier=tierAt(c.curPts);
+  const eff=(p,a)=>{const s=STAT[st];if(s.u||!a)return s;const t=tierAt(p);return t&&t[1]>s.b&&(!curTier||t[1]>curTier[1])?STAT[t[2].toLowerCase()]:s};
+  const cr=(p,a)=>{const e=eff(p,a);return e.u?Infinity:Math.floor(p/70000)+e.b}, ph=p=>Math.floor(p/77000);
+  const isJ=(x,a)=>x>0&&cr(x,a)>cr(x-1,a), JC=a=>TIERS.map(t=>t[0]);
+  const nextJ=(p,a)=>Math.min((Math.floor(p/70000)+1)*70000,...JC().filter(x=>x>p&&isJ(x,a))), lastJ=(p,a)=>Math.max(Math.floor(p/70000)*70000,...JC().filter(x=>x<=p&&isJ(x,a)));
+  const plural=(n,w)=>n+' '+w+(n===1?'':'s');
+  const rec=(cur,add)=>{
+    const T=cur+add; if(!T||eff(T,true).u)return null;
+    const u=nextJ(T,true), d=lastJ(T,true), gap=u?u-T:Infinity, tgt=Math.max(d,eff(T,true).r?0:Math.floor(T/77000)*77000,cur);
+    if(gap<=20000){const g=cr(u,true)-cr(T,true), eu=eff(u,true), nv=eu.b>eff(T,true).b?eu.n:'';
+      return {dir:'more',diff:gap,newAdd:u-cur,t:`Buy ${gap.toLocaleString()} more points (${u.toLocaleString()} total): ${plural(g,'more credit')}${nv?' and reaches VIP '+nv:''}`,
+        tg:`Buying ${gap.toLocaleString()} more points (${(u-cur).toLocaleString()} additional points instead of ${add.toLocaleString()})`,
+        why:[`Adds ${plural(g,'Housekeeping Credit')} for a Total of ${plural(cr(u,true),'Housekeeping Credit')}${nv?' and reaches VIP '+nv:''}`,'A Housekeeping Credit costs $185 if you run out and have to buy one']}}
+    if(add>0&&T>tgt){const x=(T-tgt).toLocaleString();
+      return tgt===cur?{dir:'less',diff:add,newAdd:0,t:'This purchase adds no credits',tg:'Skipping this purchase',why:[`Your Housekeeping Credits stay at ${cr(T,true)} either way`,'You would pay for points that earn nothing extra']}
+       :{dir:'less',diff:T-tgt,newAdd:tgt-cur,t:`Buy ${x} fewer points (${tgt.toLocaleString()} total): same ${plural(cr(T,true),'credit')}`,tg:`Buying ${x} fewer points (${(tgt-cur).toLocaleString()} additional points instead of ${add.toLocaleString()})`,
+        why:[`Those extra ${x} points do not provide any additional Owner benefits within the Club Wyndham system`,'Fewer points means a smaller loan and lower maintenance fees']}}
+    return add>0?{t:'No points wasted at this total',tg:'',why:[]}:null;
+  };
+  const perkBox=(t,p,a)=>{const e=eff(p,a),k=cr(p,a),w=e.u?0:p-Math.max(lastJ(p,a),e.r?0:Math.floor(p/77000)*77000);return `<div class="box ${w?'buy':'goodb'}"><div class="t">${t}: ${p.toLocaleString()} pts</div><div class="n">${e.u?'Unlimited Housekeeping Credits':plural(k,'Housekeeping Credit')}</div><div class="d">${e.u?`<div style="margin-top:4px">(${e.n})</div>`:e.b?`<div style="margin-top:4px">(Includes +${e.b} for ${e.n.startsWith('Grand')?'':'VIP '}${e.n})</div>`:''}${e.r?'Unlimited Reservation Transactions':plural(ph(p),'Reservation Transaction')}<br>`+(!p||e.u?'':w?`<b class="bad">${w.toLocaleString()} pts earn nothing</b>`:'<b class="good">No points wasted</b>')+`</div></div>`};
+  const recT=rec(c.curPts,c.addPts);const g77=77000-(c.curPts+c.addPts)%77000, rt77=recT&&recT.dir==='more'&&g77<=20000&&!eff(c.curPts+c.addPts,true).r?`<p class="cnote">Also: ${g77.toLocaleString()} more points would earn 1 more Reservation Transaction ($39 per phone booking; online is free).</p>`:'';
+  const consider=recT&&recT.tg?`<div class="consider"><div class="cl">Have You Considered:</div><div class="cdir ${recT.dir}">Purchasing ${recT.diff.toLocaleString()} ${recT.dir==='more'?'MORE':'LESS'} Points</div><div class="cnum"><b>${recT.newAdd.toLocaleString()}</b> <span>vs.</span> <s>${c.addPts.toLocaleString()}</s></div><div class="cwhy">Here&rsquo;s Why:</div><ul>${recT.why.map(w=>'<li>'+w+'</li>').join('')}</ul>${rt77}</div>`:'';
+
+  $('perk').innerHTML='<h2>Get the Most From Your Points: Own in Multiples of 70,000</h2>'+
+   '<p class="how">Here&rsquo;s How it Works</p>'+
+   '<p class="rule">Every <b>70,000 points</b> = 1 free Housekeeping Credit (70K, 140K, 210K, 280K&hellip;).<br>Points left over earn nothing.</p>'+
+   ((c.curPts||c.addPts)?`<div class="live">${c.curPts?perkBox('Current Ownership',c.curPts,false):''}${c.addPts?perkBox(c.curPts?'After Purchase':'Your Purchase',c.curPts+c.addPts,true):''}</div>${c.addPts?consider:''}`:'')+
+   '<h3 class="kn">What Every Owner Should Know</h3>'+
+   '<p class="mix">Don&rsquo;t mix them up: <b>70,000</b> points earns a Housekeeping Credit. <b>77,000</b> points earns a Reservation Transaction.</p>'+
+   '<ul><li>Housekeeping Credits cost <b>$185</b> each when you run out. You need 1 Housekeeping Credit per reservation (along with applicable points). Unused Housekeeping Credits expire at the end of your <b>Use Year</b>.</li>'+
+   '<li>Reservation Transactions cost <b>$39</b> each when you run out. You need 1 Reservation Transaction per booking made by phone (booking on your owner website is free). Unused Reservation Transactions expire at the end of the <b>Calendar Year</b> (December 31).</li>'+
+   '<li><b>VIP Milestones also add credits:</b> Bronze +1, Silver +2, Gold +4, Platinum +6, Founders +8.</li></ul>'+
+   '<p class="note" style="margin:10px 0 0;text-align:right">Source: Details from Club Wyndham: <a href="https://clubwyndham.wyndhamdestinations.com/us/en/owner-guide/resources/housekeeping-credits" rel="noopener">Housekeeping Credits</a> &middot; <a href="https://clubwyndham.wyndhamdestinations.com/us/en/owner-guide/resources/reservation-transactions" rel="noopener">Reservation Transactions</a></p>';
+
   const feeSaveY=c.curY-c.newY, feeSaveM=feeSaveY/12;
   const buyM=c.newY/12+c.loanM, afterM=c.newY/12;
   const payback=feeSaveY>0?c.loanTotal/feeSaveY:Infinity;
@@ -212,28 +280,34 @@ function render(){
    `<div class="pc"><b>The Pitch:</b><div>Your Maintenance Fee ${feeSaveM>0?'drops':'changes'} from ${money(c.curM,2)} to ${money(afterM,2)} a month.<br>
     That's ${feeSaveM>0?'a savings of':'a change of'} <b class="good">${money(Math.abs(feeSaveM),2)} a month</b> (${money(Math.abs(feeSaveY))} a year).</div></div>
     <div class="pc"><b>The Catch:</b><div>You are also paying <b class="bad">${money(c.loanM,2)} a month</b> for ${yt} to get that (${money(Math.abs(feeSaveY))} a year) savings.<br>
-    That's ${money(c.loanTotal)} total (${money(c.price)} loan + ${money(c.interest)} interest).</div></div>
-    <div class="pc"><b></b><div>${feeSaveY>0?`${money(feeSaveY)} saved per year takes <b class="bad">${payback>=100?Math.round(payback).toLocaleString():payback.toFixed(1)} years</b> of "savings" to break even.`:'Your fee does not actually go down at these numbers.'}</div></div>`;
-  const empty=!c.curM;document.querySelectorAll('.res').forEach(e=>e.style.display=empty?'none':'');
-  if(empty||!c.price||!c.addPts)$('claim').innerHTML='<h2 class="ct">The Pitch vs. The Math</h2><p style="text-align:center;margin:0">'+(empty?'Fill in the boxes above and the comparison appears here.':'Now enter the Additional Purchase above to see the comparison.')+'</p>';
+    That's ${money(c.loanTotal)} total (${money(c.price)} loan + ${money(c.interest)} interest).<br>${feeSaveY>0?`${money(feeSaveY)} saved per year takes <b class="bad">${payback>=100?Math.round(payback).toLocaleString():payback.toFixed(1)} years</b> of "savings" to break even.`:'Your fee does not actually go down at these numbers.'}</div></div>
+    ${eff(c.curPts+c.addPts,true).u?'':`<div class="pc"><b>Watch For:</b><div>Remember that adding 10,000 points to a 200k points package will give you <b>ONE</b> additional Housekeeping Credit. Saving you $185 per year.</div></div>`}`;
+  const newOwner=!c.curPts&&!c.curM&&c.addPts>0;
+  const empty=!c.curM&&!newOwner;document.querySelectorAll('.res').forEach(e=>e.style.display=empty?'none':'');
+  if(newOwner)$('claim').innerHTML='<h2 class="ct">What This Purchase Costs</h2>'+
+   `<div class="pc"><b>The Loan:</b><div>${c.price?`<b class="bad">${money(c.loanM,2)} a month</b> for ${yt}.<br>That's ${money(c.loanTotal)} total (${money(c.price)} loan + ${money(c.interest)} interest).`:'Enter the Asking Price above to see the loan cost.'}</div></div>
+    <div class="pc"><b>The Fees:</b><div>${c.new1k?`Maintenance fees of <b class="bad">${money(afterM,2)} a month</b> (${money(c.newY)} a year) for ${allPts} points${c.g?`, rising ${+(c.g*100).toFixed(1)}% a year`:''}.<br>They continue after the loan is paid off.`:'Enter the New Maintenance Fee above to see the yearly fees.'}</div></div>
+    ${c.price&&c.new1k?`<div class="pc"><b>Year One:</b><div>${money(buyM*12)} in loan payments and maintenance fees (${money(buyM,2)} a month).</div></div>`:''}
+    ${eff(c.curPts+c.addPts,true).u?'':`<div class="pc"><b>Watch For:</b><div>Remember that adding 10,000 points to a 200k points package will give you <b>ONE</b> additional Housekeeping Credit. Saving you $185 per year.</div></div>`}`;
+  else if(empty||!c.price||!c.addPts)$('claim').innerHTML='<h2 class="ct">The Pitch vs. The Math</h2><p style="text-align:center;margin:0">'+(empty?'Fill in the boxes above and the comparison appears here.':'Now enter the Points Purchase above to see the comparison.')+'</p>';
   $('sLoan').textContent=money(c.loanTotal);
   $('sLoanD').innerHTML=termSet?`${money(c.loanM,2)} per month for ${yt}`:'';
   $('sPts').textContent=allPts;
-  $('sPtsD').textContent=`${c.curPts.toLocaleString()} now + ${c.addPts.toLocaleString()} new`;
+  $('sPtsD').textContent=c.curPts?`${c.curPts.toLocaleString()} now + ${c.addPts.toLocaleString()} new`:'All new points';
   $('sFee').innerHTML=`${money(afterM,2)}<span style="font-size:1rem;font-weight:400"> /month</span>`;
-  $('sFeeD').innerHTML=`${money(c.newY,2)} a year<br>${allPts} pts &times; ${money(c.new1k,2)} per 1,000`;
+  $('sFeeD').innerHTML=`${money(c.newY,2)} a year<br>${allPts} pts @ ${money(c.new1k,2)} per 1,000`;
 
   const oldTxt=hasOld?` + ${money(c.oldM,2)} current loan`:'';
   const oldEnd=hasOld?`<br>Current loan ends in ${c.oldN.toLocaleString()} months, then this drops by ${money(c.oldM,2)}`:'';
   $('oldLoanH').textContent=hasOld?`Still owed: about ${money(c.oldM*c.oldN)}`:'';
   $('mStay').textContent=money(c.curM+oM,2);
-  $('mStayD').innerHTML=hasOld?`${money(c.curM,2)} Maint Fee + ${money(c.oldM,2)} Current Loan${oldEnd}`:'Maint Fee only';
+  $('mStayD').innerHTML=hasOld?`${money(c.curM,2)} Maint Fee + ${money(c.oldM,2)} Current Loan${oldEnd}`:(c.curM?'Maint Fee only':'No current ownership');
   $('mBuy').innerHTML=`${money(buyM+oM,2)}${termSet?`<small class="term"> for ${yt}</small>`:''}`;
   $('mBuyD').innerHTML=`${money(afterM,2)} Maint Fee + ${money(c.loanM,2)} New Loan${hasOld?` + ${money(c.oldM,2)} Current Loan`:''}<br><b class="bad">${money(buyM-c.curM,2)} more per month</b>`;
   $('mAfter').innerHTML=`${money(afterM,2)}`;
   $('mAfterT').innerHTML=termSet?`Monthly Payment in <b>${yt}</b>`:'Monthly Payment After Loan Payoff';
   $('mAfterBox').className='box '+(feeSaveM>0?'goodb':'buy');
-  $('mAfterD').innerHTML=(feeSaveM>0?`<b class="good">${money(feeSaveM,2)} less</b> but still forever`:`<b class="bad">${money(-feeSaveM,2)} more</b>`)+(hasOld&&c.oldN>c.term*12?`<br>(plus your current loan if still running)`:'');
+  $('mAfterD').innerHTML=newOwner?'Maintenance fees continue after the loan':(feeSaveM>0?`<b class="good">${money(feeSaveM,2)} less</b> but still forever`:`<b class="bad">${money(-feeSaveM,2)} more</b>`)+(hasOld&&c.oldN>c.term*12?`<br>(plus your current loan if still running)`:'');
 
   // chart
   const n=c.yrs, pts=r.slice(0,n);
@@ -300,12 +374,14 @@ function hover(ev){
 $('chart').addEventListener('pointermove',hover);
 $('chart').addEventListener('pointerleave',()=>{$('tip').style.display='none';const g=$('hov');if(g)g.innerHTML=''});
 
-const KEY='umc-settings-v2';
-function save(){try{const o={};document.querySelectorAll('input').forEach(i=>o[i.id]=i.value);localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}}
+const KEY='umc-settings-v3';
+function save(){try{const o={};document.querySelectorAll('input,select').forEach(i=>o[i.id]=i.value);localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}}
 try{const s=JSON.parse(localStorage.getItem(KEY)||'{}');for(const id in s){const el=$(id);if(el)el.value=s[id]}}catch(e){}
 document.querySelectorAll('input[type=text]').forEach(i=>i.addEventListener('input',()=>{fmtInput(i);render();save()}));
-$('clr').addEventListener('click',e=>{e.preventDefault();document.querySelectorAll('input[type=text]').forEach(i=>i.value='');render();save()});
+$('clr').addEventListener('click',e=>{e.preventDefault();document.querySelectorAll('input[type=text]').forEach(i=>i.value='');$('vipSt').value='non';render();save()});
 $('yrs').addEventListener('input',()=>{render();save()});
+if(!$('vipSt').value)$('vipSt').value='non';
+$('vipSt').addEventListener('change',()=>{render();save()});
 render();
 </script>
 </body>
