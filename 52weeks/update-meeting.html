@@ -262,8 +262,9 @@ function render(){
    (c.curPts?`<div class="live">${perkBox('Current Ownership',c.curPts,false)}${c.addPts?perkBox('After Purchase',c.curPts+c.addPts,true):''}</div>${c.addPts?consider:''}`:'')+
    '<h3 class="kn">What Every Owner Should Know</h3>'+
    '<p class="mix">Don&rsquo;t mix them up: <b>70,000</b> points earns a Housekeeping Credit. <b>77,000</b> points earns a Reservation Transaction.</p>'+
-   '<ul><li><b>Housekeeping Credits:</b> 1 for every <b>70,000</b> points each Use Year (VIP Milestones add more: Bronze +1, Silver +2, Gold +4, Platinum +6, Founders +8). You need 1 per reservation, along with your points. $185 each if you run out. They expire at the end of your Use Year.</li>'+
-   '<li><b>Reservation Transactions:</b> 1 for every <b>77,000</b> points each calendar year. You need 1 per booking made by phone (booking on your owner website is free). $39 each if you run out. They expire December 31.</li></ul>'+
+   '<ul><li><b>Housekeeping Credits cost $185 each</b> if you run out. You need 1 Housekeeping Credit per reservation (along with applicable points). Unused Housekeeping Credits expire at the end of your Use Year.</li>'+
+   '<li><b>Reservation Transactions cost $39 each</b> if you run out. You need 1 Reservation Transaction per booking made by phone (booking on your owner website is free). Unused Reservation Transactions expire on December 31.</li>'+
+   '<li><b>VIP Milestones also add credits:</b> Bronze +1, Silver +2, Gold +4, Platinum +6, Founders +8.</li></ul>'+
    '<p class="note" style="margin:10px 0 0;text-align:right">Source: Details from Club Wyndham: <a href="https://clubwyndham.wyndhamdestinations.com/us/en/owner-guide/resources/housekeeping-credits" rel="noopener">Housekeeping Credits</a> &middot; <a href="https://clubwyndham.wyndhamdestinations.com/us/en/owner-guide/resources/reservation-transactions" rel="noopener">Reservation Transactions</a></p>';
 
   const feeSaveY=c.curY-c.newY, feeSaveM=feeSaveY/12;
