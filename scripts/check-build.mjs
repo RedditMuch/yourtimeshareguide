@@ -10,7 +10,7 @@
 
 import { existsSync, readdirSync, statSync } from "node:fs";
 import { extname, join } from "node:path";
-import { ASSET_EXTENSIONS, GENERATED_FILES, IGNORED_NAMES, ROOT_FILES, SITE_FOLDERS } from "./site-files.mjs";
+import { ASSET_EXTENSIONS, GENERATED_FILES, IGNORED_NAMES, ROOT_FILES, ROOT_NJK_FILES, SITE_FOLDERS } from "./site-files.mjs";
 
 const problems = [];
 
@@ -24,6 +24,7 @@ function walk(dir) {
 const sources = [
   ...SITE_FOLDERS.filter((folder) => existsSync(folder)).flatMap(walk),
   ...ROOT_FILES.filter((file) => existsSync(file)),
+  ...ROOT_NJK_FILES.filter((file) => existsSync(file)),
 ];
 
 for (const file of sources) {
