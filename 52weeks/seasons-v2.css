@@ -124,7 +124,7 @@ h1{font-size:24px;line-height:1.2;margin:0}
 .typ.pick{color:#a32b1f;font-weight:700}
 .grid td.c{height:var(--row);text-align:center;font-weight:400;color:var(--cell-ink);font-variant-numeric:tabular-nums}
 .grid td.na{color:#66737a}
-.grid td.w53{background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.55) 0 4px,transparent 4px 9px)}
+.grid td.w53{background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.7) 0 4px,transparent 4px 9px)}
 .grid td.sel{box-shadow:inset 2px 0 0 var(--navy),inset -2px 0 0 var(--navy)}
 .grid td.trip{outline:2px solid var(--accent);outline-offset:-2px}
 .grid tbody tr:hover td.typ{background:#f1f6f8}

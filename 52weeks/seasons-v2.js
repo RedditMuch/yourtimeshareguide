@@ -23,7 +23,7 @@
   const LETTER = { Prime: 'P', High: 'H', Value: 'V', Quiet: 'Q', 'WorldMark High': 'H', 'WorldMark Medium': 'M', 'WorldMark Low': 'L' };
   const NONE_LABEL = 'Not Offered';
   /* Charts that print week 53 themselves (2026/2027): Page 91 (CW search bar page 95) and Page 184 (CW search bar page 188).
-     Every other resort's week 53 is gray, priced like week 1, until Club Wyndham confirms. */
+     Every other resort's week 53 follows week 52 (slashed overlay) until Club Wyndham confirms. */
   const WEEK53 = { 'Club Wyndham Paniolo Greens': 'Prime', 'Little Sweden': 'Prime' };
   const COLLECTION_LABEL = { 'Club Pass': 'WorldMark / Club Pass', 'Margaritaville Vacation Club': 'Margaritaville', 'Associate': 'Associate (Australia & New Zealand)' };
   /* Resorts where some associations voted to close (Club Wyndham, "Your Resort Portfolio Is Getting A Refresh", 2025; bankruptcy tracking sites from Owner Services) */
@@ -216,7 +216,7 @@
     if (row.p && row.p.cpChart && row.p.weeks[52]) return { season: row.p.weeks[52], points: pts ? pts[52] : null, w53: 'chart' };
     const fixed = WEEK53[row.s.name];
     if (fixed) { const i = weeks.indexOf(fixed); return { season: fixed, points: pts && i >= 0 ? pts[i] : null, w53: 'chart' }; }
-    return { season: CLS[weeks[51]] ? weeks[51] : null, points: pts ? pts[51] : null, w53: 'assumed' };
+    return { season: CLS[weeks[51]] ? weeks[51] : null, points: pts ? pts[51] : null, w53: CLS[weeks[51]] ? 'assumed' : undefined };
   }
   /* Nightly points (Fri–Sat and Sun–Thur) for a row in a given week. Not in the data yet: returns null until it's added (#24, Phase 2). */
   function nightly(row, w, weekend) {
