@@ -209,18 +209,18 @@
   /* Each building on its own line: split lists at ";", ",", " / ", " and " and "&" (but not "Tanglewood I & II") */
   const bldgLines = b => BUILDING_LINES[b] || b.split(/;\s*|,\s*|\s+\/\s+|\s+and\s+|\s+&\s+(?![IVX]+\b|\d)/).map(x => x.trim()).filter(Boolean);
 
-  /* Season and points for one week of a row. Week 53 follows WEEK53, or else is gray and priced like week 1. */
+  /* Season and points for one week of a row. Week 53 follows its own chart where one prints it (WEEK53, Club Pass), or else follows week 52 (slashed overlay, not confirmed). */
   function weekInfo(row, w) {
     const weeks = (row.p && row.p.weeks) || row.s.weeks || [], pts = row.p ? row.p.weeklyPoints : null;
     if (w <= 52) return { season: CLS[weeks[w - 1]] ? weeks[w - 1] : null, points: pts ? pts[w - 1] : null };
     if (row.p && row.p.cpChart && row.p.weeks[52]) return { season: row.p.weeks[52], points: pts ? pts[52] : null, w53: 'chart' };
     const fixed = WEEK53[row.s.name];
     if (fixed) { const i = weeks.indexOf(fixed); return { season: fixed, points: pts && i >= 0 ? pts[i] : null, w53: 'chart' }; }
-    return { season: null, points: pts ? pts[0] : null, w53: 'assumed' };
+    return { season: CLS[weeks[51]] ? weeks[51] : null, points: pts ? pts[51] : null, w53: 'assumed' };
   }
   /* Nightly points (Fri–Sat and Sun–Thur) for a row in a given week. Not in the data yet: returns null until it's added (#24, Phase 2). */
   function nightly(row, w, weekend) {
-    if (row.p && row.p.nightlyByWeek) { const x = row.p.nightlyByWeek[w - 1] || (w === 53 ? row.p.nightlyByWeek[0] : null); return x ? (weekend ? x[0] : x[1]) : null; }
+    if (row.p && row.p.nightlyByWeek) { const x = row.p.nightlyByWeek[w - 1] || (w === 53 ? row.p.nightlyByWeek[51] : null); return x ? (weekend ? x[0] : x[1]) : null; }
     const n = row.p && row.p.nightly; if (!n) return null;
     const season = weekInfo(row, w).season; const band = season && n[season];
     return band ? (weekend ? band.friSat : band.sunThu) : null;
@@ -611,7 +611,7 @@
     if (firstCell) setFocusCell(firstCell);
 
     $('week53Note').hidden = !any53;
-    if (any53) $('week53Note').innerHTML = '<strong>Week 53</strong> (striped gray) isn’t listed in most resorts’ charts. It’s shown at week 1 points as a guide only; confirm with Club Wyndham before you book. Paniolo Greens and Little Sweden print week 53 as Prime, so theirs are colored.';
+    if (any53) $('week53Note').innerHTML = '<strong>Week 53</strong> (slashed overlay) follows week 52 values and has not been confirmed. Confirm with Club Wyndham before you book. Paniolo Greens and Little Sweden print week 53 as Prime, so theirs have no overlay.';
 
     // Center the chosen week. Its position is read in the next frame, when the browser lays the new table out anyway,
     // instead of forcing a second layout right here (planning #36).
@@ -635,7 +635,7 @@
       let sum = 0, ok = true; for (const d of c.nights) { const n = nightly(r, c.w, isWeekend(d)); if (n == null) ok = false; else sum += n; }
       text = ok ? short(sum) : '…'; if (withTip) tip = (info.season || NONE_LABEL) + ' · ' + c.nights.length + ' night(s) · ' + (ok ? full(sum) : 'nightly points coming soon');
     } else { text = short(info.points); if (withTip) tip = (info.season || NONE_LABEL) + ' · ' + full(info.points); }
-    if (withTip && info.w53 === 'assumed') tip += ' · Week 53 isn’t in this resort’s chart; shown at week 1 points. Confirm with Club Wyndham.';
+    if (withTip && info.w53 === 'assumed') tip += ' · Week 53 follows week 52 values and has not been confirmed.';
     return { cls, text, w53: info.w53 === 'assumed', tip: withTip ? weekLabel(c) + ' · ' + tip : '' };
   }
 

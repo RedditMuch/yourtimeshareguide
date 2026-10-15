@@ -525,3 +525,21 @@ test.describe("season chart v2 weekday and weekend columns (planning #47)", () =
     expect(await page.locator("#grid thead th.nt").count()).toBe(0);
   });
 });
+
+test.describe("season chart v2 week 53 follows week 52 (planning #48)", () => {
+  test("week 53 shows week 52 values with a slashed overlay and a note", async ({ page }) => {
+    await page.goto("/52weeks/seasons-v2.html", { waitUntil: "load" });
+    await expect(page.locator("#grid tbody tr").first()).toBeVisible();
+    await page.locator("#week").selectOption({ label: (await page.locator("#week option").allTextContents()).find(t => /^Week 53/.test(t.trim())) });
+    await expect(page.locator("#grid td.w53").first()).toBeAttached();
+    const same = await page.evaluate(() => {
+      const heads = [...document.querySelectorAll("#grid thead th.wk")];
+      const i52 = heads.findIndex(h => h.querySelector("b")?.textContent === "52"), i53 = heads.findIndex(h => h.querySelector("b")?.textContent === "53");
+      const rows = [...document.querySelectorAll("#grid tbody tr")].filter(r => r.querySelector("td.w53"));
+      return { ok: i52 >= 0 && i53 === i52 + 1 && rows.length > 0 && rows.every(r => { const cs = r.querySelectorAll("td.c"), a = cs[i52], b = cs[i53]; return a.textContent === b.textContent && [...a.classList].find(c => /^s-/.test(c)) === [...b.classList].find(c => /^s-/.test(c)); }) };
+    });
+    expect(same.ok).toBe(true);
+    await expect(page.locator("#week53Note")).toBeVisible();
+    await expect(page.locator("#week53Note")).toContainText("follows week 52");
+  });
+});
