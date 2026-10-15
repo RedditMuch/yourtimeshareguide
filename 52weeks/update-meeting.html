@@ -225,7 +225,7 @@ function render(){
   const TIERS=[[1400000,8,'Founders'],[1100000,6,'Platinum'],[800000,4,'Gold'],[500000,2,'Silver'],[300000,1,'Bronze']];
   // VIP status: b = Housekeeping Credits added, u = unlimited Housekeeping Credits, r = unlimited Reservation Transactions
   const STAT={non:{n:'Non-VIP',b:0},bronze:{n:'Bronze',b:1},silver:{n:'Silver',b:2},gold:{n:'Gold',b:4,r:1},platinum:{n:'Platinum',b:6,r:1},founders:{n:'Founders',b:8,r:1},
-    gsilver:{n:'Grandfathered Silver',b:2},ggold:{n:'Grandfathered Gold',b:0,u:1,r:1},gplat:{n:'Grandfathered Platinum',b:0,u:1,r:1}};
+    gsilver:{n:'Grandfathered Silver',b:0,u:1},ggold:{n:'Grandfathered Gold',b:0,u:1,r:1},gplat:{n:'Grandfathered Platinum',b:0,u:1,r:1}};
   const st=STAT[$('vipSt').value]?$('vipSt').value:'non';
   // status in effect at p points; a = true for After Purchase: buying up to a higher milestone than you already reach moves you up
   const tierAt=p=>TIERS.find(t=>p>=t[0]), curTier=tierAt(c.curPts);
