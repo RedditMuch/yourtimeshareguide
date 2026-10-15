@@ -93,6 +93,14 @@ tr.loanend td{border-bottom:2px solid var(--mute)}
 .perk ul{margin:0;padding-left:20px;font-size:.92rem}
 .buyin .f{background:color-mix(in srgb,var(--buy) 9%,var(--card));border-color:color-mix(in srgb,var(--buy) 40%,var(--line))}
 .perk li{margin-bottom:4px}
+.kn{text-align:center;font-size:1.1rem;margin:16px 0 4px}
+.mix{text-align:center;font-size:.9rem;color:var(--mute);margin:0 0 10px}
+.duo2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pk{border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+.pk h4{margin:0 0 6px;font-size:1rem;text-align:center}
+.pk dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:.9rem}
+.pk dt{font-weight:700;white-space:nowrap}.pk dd{margin:0}
+@media (max-width:760px){.duo2{grid-template-columns:1fr}}
 .perk .how{text-align:center;font-weight:600;color:var(--mute);margin:0 0 6px}
 .consider{border:1px solid var(--line);border-left:5px solid var(--buy);border-radius:10px;padding:10px 14px;margin:0 0 12px;background:var(--bg)}
 .consider{text-align:center}.consider .cl{color:var(--mute);font-size:.9rem}.consider .cdir{font-size:1.35rem;font-weight:800;letter-spacing:.01em;margin-top:2px}.cdir.less{color:var(--good)}.cdir.more{color:var(--buy)}.consider .cnum{font-size:1.15rem;margin:4px auto 8px;padding-bottom:8px;border-bottom:2px solid var(--line);width:min(300px,80%)}.consider .cnum b{font-size:1.5rem}.consider .cnum span{color:var(--mute);font-size:.9rem;margin:0 4px}.consider .cnum s{color:var(--mute)}.consider .cwhy{font-weight:700;margin-bottom:2px}.consider .cnote{font-size:.85rem;color:var(--mute);margin:8px 0 0}.consider ul{margin:0;padding:0;list-style:none}.consider li{margin:2px 0}
@@ -191,7 +199,7 @@ function fmtInput(el){
 function pmt(P,apr,yrs){const n=yrs*12,r=apr/100/12;if(!n)return 0;return r?P*r/(1-Math.pow(1+r,-n)):P/n}
 
 function calc(){
-  const curPts=num('curPts'),curM=num('curMonthly'),addPts=num('addPts'),price=num('price'),apr=num('apr');
+  const curPts=Math.floor(num('curPts')),curM=num('curMonthly'),addPts=Math.floor(num('addPts')),price=num('price'),apr=num('apr');
   const term=Math.max(1,Math.round(num('term'))),new1k=num('newPer1k'),g=num('inc')/100,yrs=+$('yrs').value;
   const noBuy=!addPts&&!price&&!new1k;
   const curY=curM*12, newY=noBuy?curM*12:(curPts+addPts)/1000*new1k, loanM=pmt(price,apr,term), loanY=loanM*12;
@@ -220,12 +228,11 @@ function render(){
   // points perks: 1 housekeeping credit per 70,000 pts, plus VIP milestone bonus; 1 Reservation Transaction per 77,000 pts
   const TIERS=[[1400000,8,'Founders'],[1100000,6,'Platinum'],[800000,4,'Gold'],[500000,2,'Silver'],[300000,1,'Bronze']];
   const vip=p=>TIERS.find(t=>p>=t[0]), cr=p=>Math.floor(p/70000)+(vip(p)?vip(p)[1]:0), ph=p=>Math.floor(p/77000);
-  const JUMPS=(()=>{const s=new Set(TIERS.map(t=>t[0]));for(let k=1;k<=40;k++)s.add(k*70000);return [...s].sort((a,b)=>a-b)})();
-  const nextJ=p=>JUMPS.find(j=>j>p), lastJ=p=>JUMPS.filter(j=>j<=p).pop()||0;
+  const nextJ=p=>Math.min((Math.floor(p/70000)+1)*70000,...TIERS.map(t=>t[0]).filter(x=>x>p)), lastJ=p=>Math.max(Math.floor(p/70000)*70000,...TIERS.map(t=>t[0]).filter(x=>x<=p));
   const plural=(n,w)=>n+' '+w+(n===1?'':'s');
   const rec=(cur,add)=>{
     const T=cur+add; if(!T)return null;
-    const u=nextJ(T), d=lastJ(T), gap=u?u-T:Infinity, tgt=Math.max(d,cur);
+    const u=nextJ(T), d=lastJ(T), gap=u?u-T:Infinity, tgt=Math.max(d,Math.floor(T/77000)*77000,cur);
     if(gap<=20000){const g=cr(u)-cr(T), nv=vip(u)&&!vip(T)?vip(u)[2]:'';
       return {dir:'more',newAdd:u-cur,t:`Buy ${gap.toLocaleString()} more points (${u.toLocaleString()} total): ${plural(g,'more credit')}${nv?' and reaches VIP '+nv:''}`,
         tg:`Buying ${gap.toLocaleString()} more points (${(u-cur).toLocaleString()} additional points instead of ${add.toLocaleString()})`,
@@ -236,7 +243,7 @@ function render(){
         why:[`Those extra ${x} points do not provide any additional perks within the Club Wyndham system`,'Fewer points means a smaller loan and lower maintenance fees']}}
     return add>0?{t:'No points wasted at this total',tg:'',why:[]}:null;
   };
-  const perkBox=(t,p)=>{const k=cr(p),w=p-lastJ(p),v=vip(p),u=nextJ(p);return `<div class="box ${w?'buy':'goodb'}"><div class="t">${t}: ${p.toLocaleString()} pts</div><div class="n">${plural(k,'Housekeeping Credit')}</div><div class="d">${v?`<div style="margin-top:4px">(Includes +${v[1]} for VIP ${v[2]})</div>`:''}${plural(ph(p),'Reservation Transaction')}<br>`+(!p?'':w?`<b class="bad">${w.toLocaleString()} pts earn nothing</b>`:'<b class="good">No points wasted</b>')+`</div></div>`};
+  const perkBox=(t,p)=>{const k=cr(p),w=p-lastJ(p),v=vip(p);return `<div class="box ${w?'buy':'goodb'}"><div class="t">${t}: ${p.toLocaleString()} pts</div><div class="n">${plural(k,'Housekeeping Credit')}</div><div class="d">${v?`<div style="margin-top:4px">(Includes +${v[1]} for VIP ${v[2]})</div>`:''}${plural(ph(p),'Reservation Transaction')}<br>`+(!p?'':w?`<b class="bad">${w.toLocaleString()} pts earn nothing</b>`:'<b class="good">No points wasted</b>')+`</div></div>`};
   const recT=rec(c.curPts,c.addPts);const g77=77000-(c.curPts+c.addPts)%77000, rt77=recT&&recT.dir==='more'&&g77<=20000?`<p class="cnote">Also: ${g77.toLocaleString()} more points would earn 1 more Reservation Transaction ($39 per phone booking; online is free).</p>`:'';
   const consider=recT&&recT.tg?`<div class="consider"><div class="cl">Have You Considered:</div><div class="cdir ${recT.dir}">Purchasing ${recT.dir==='more'?'MORE':'LESS'} Points</div><div class="cnum"><b>${recT.newAdd.toLocaleString()}</b> <span>vs.</span> <s>${c.addPts.toLocaleString()}</s></div><div class="cwhy">Here&rsquo;s Why:</div><ul>${recT.why.map(w=>'<li>'+w+'</li>').join('')}</ul>${rt77}</div>`:'';
   
@@ -244,9 +251,18 @@ function render(){
    '<p class="how">Here&rsquo;s How it Works</p>'+
    '<p class="rule">Every <b>70,000 points</b> = 1 free Housekeeping Credit (70K, 140K, 210K, 280K&hellip;).<br>Points left over earn nothing.</p>'+
    (c.curPts?`<div class="live">${perkBox('Current Ownership',c.curPts)}${c.addPts?perkBox('After Purchase',c.curPts+c.addPts):''}</div>${c.addPts?consider:''}`:'')+
-   '<ul><li><b>Housekeeping Credits cost $185 each</b> if you run out. You need 1 Housekeeping Credit per reservation (along with applicable points). Unused Housekeeping Credits expire at the end of your Use Year.</li>'+
-   '<li><b>VIP Milestones also add credits:</b> Bronze +1, Silver +2, Gold +4, Platinum +6, Founders +8.</li>'+
-   '<li><b>Reservation Transactions:</b> 1 free per 77,000 points each calendar year. Booking by phone (Vacation Planning Center) without one costs $39; booking on your owner website is free.</li></ul>'+
+   '<h3 class="kn">What Every Owner Should Know</h3>'+
+   '<p class="mix">Don&rsquo;t mix them up: <b>70,000</b> points earns a Housekeeping Credit. <b>77,000</b> points earns a Reservation Transaction.</p>'+
+   '<div class="duo2"><div class="pk"><h4>Housekeeping Credits</h4><dl>'+
+   '<dt>You Get</dt><dd>1 for every 70,000 points, each Use Year. VIP Milestones add more: Bronze +1, Silver +2, Gold +4, Platinum +6, Founders +8.</dd>'+
+   '<dt>You Use</dt><dd>1 per reservation, along with your points, whatever the length of stay or suite size.</dd>'+
+   '<dt>If You Run Out</dt><dd>$185 per credit, paid when you book.</dd>'+
+   '<dt>Expires</dt><dd>At the end of your Use Year.</dd></dl></div>'+
+   '<div class="pk"><h4>Reservation Transactions</h4><dl>'+
+   '<dt>You Get</dt><dd>1 for every 77,000 points, each calendar year.</dd>'+
+   '<dt>You Use</dt><dd>1 per booking made by phone (Vacation Planning Center). Booking on your owner website is free.</dd>'+
+   '<dt>If You Run Out</dt><dd>$39 per phone booking.</dd>'+
+   '<dt>Expires</dt><dd>December 31.</dd></dl></div></div>'+
    '<p class="note" style="margin:10px 0 0;text-align:right">Source: Details from Club Wyndham: <a href="https://clubwyndham.wyndhamdestinations.com/us/en/owner-guide/resources/housekeeping-credits" rel="noopener">Housekeeping Credits</a> &middot; <a href="https://clubwyndham.wyndhamdestinations.com/us/en/owner-guide/resources/reservation-transactions" rel="noopener">Reservation Transactions</a></p>';
 
   const feeSaveY=c.curY-c.newY, feeSaveM=feeSaveY/12;
