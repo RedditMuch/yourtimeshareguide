@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Update Meeting Calculator</title>
+<title>Buy the Numbers: Update Meeting Calculator</title>
 <meta name="robots" content="noindex, nofollow">
 <style>
 :root{--bg:#f6f7f9;--card:#fff;--ink:#1c2430;--mute:#5d6877;--line:#dde2e8;--stay:#2a6fb0;--buy:#c2410c;--good:#15803d;--bad:#b91c1c;--warn:#fff4e5;--per1k:#7e22ce}
@@ -110,7 +110,7 @@ tr.loanend td{border-bottom:2px solid var(--mute)}
 </head>
 <body>
 <div class="wrap">
-<h1>Update Meeting Calculator</h1>
+<h1>Buy the Numbers</h1>
 <p class="tag">Compare What a Points Purchase Costs With What It Earns</p>
 <p class="sub">Enter your numbers below to compare your current ownership with a proposed purchase: maintenance fees, loan costs, Housekeeping Credits and VIP milestones.</p>
 <p class="clrrow"><a href="#" id="clr">Clear All Fields</a></p>
@@ -276,7 +276,7 @@ function render(){
     That's ${feeSaveM>0?'a savings of':'a change of'} <b class="good">${money(Math.abs(feeSaveM),2)} a month</b> (${money(Math.abs(feeSaveY))} a year).</div></div>
     <div class="pc"><b>The Catch:</b><div>You are also paying <b class="bad">${money(c.loanM,2)} a month</b> for ${yt} to get that (${money(Math.abs(feeSaveY))} a year) savings.<br>
     That's ${money(c.loanTotal)} total (${money(c.price)} loan + ${money(c.interest)} interest).<br>${feeSaveY>0?`${money(feeSaveY)} saved per year takes <b class="bad">${payback>=100?Math.round(payback).toLocaleString():payback.toFixed(1)} years</b> of "savings" to break even.`:'Your fee does not actually go down at these numbers.'}</div></div>
-    ${eff(c.curPts+c.addPts,true).u?'':`<div class="pc"><b>Watch For:</b><div><b>200,000-point offers.</b> Remember &mdash; adding 10,000 points to a 200k point package gives you 1 additional Housekeeping Credit.</div></div>`}`;
+    ${eff(c.curPts+c.addPts,true).u?'':`<div class="pc"><b>Watch For:</b><div>Remember that adding 10,000 points to a 200k points package will give you <b>ONE</b> additional Housekeeping Credit. Saving you $185 per year.</div></div>`}`;
   const empty=!c.curM;document.querySelectorAll('.res').forEach(e=>e.style.display=empty?'none':'');
   if(empty||!c.price||!c.addPts)$('claim').innerHTML='<h2 class="ct">The Pitch vs. The Math</h2><p style="text-align:center;margin:0">'+(empty?'Fill in the boxes above and the comparison appears here.':'Now enter the Additional Purchase above to see the comparison.')+'</p>';
   $('sLoan').textContent=money(c.loanTotal);
