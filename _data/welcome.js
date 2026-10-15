@@ -6,8 +6,8 @@ export default {
     id: "welcome-live",
     label: "Start Here",
     links: [
-      { title: "52-Week Season Chart", href: "/52weeks/seasons-v2.html", desc: "All 52 weeks, season colors and points by room type." },
-      { title: "Buy the Numbers", href: "/52weeks/buythenumbers.html", desc: "See what a points purchase costs and what it earns." },
+      { title: "52-Week Season Chart", href: "/52weeks/seasons-v2.html", season: "prime", desc: "All 52 weeks, season colors and points by room type." },
+      { title: "Buy the Numbers", href: "/52weeks/buythenumbers.html", season: "quiet", desc: "See what a points purchase costs and what it earns." },
     ],
   },
   more: {

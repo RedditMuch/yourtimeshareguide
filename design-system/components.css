@@ -638,3 +638,63 @@ a.ytg-card .ytg-card__title { color: var(--accent); text-decoration: underline; 
   vertical-align: 1px;
 }
 .ytg-notice { margin-left: 5px; color: var(--danger); font-size: 13px; cursor: help; }
+
+/* ---------- Welcome page: Hero, Tile, Rows ---------- */
+/* NOT IN CLAUDE DESIGN YET (planning #54): to add to Claude Design as Hero (page heading with the
+   four-season stripe), Tile (whole-card link with a season accent bar and an "Open" cue) and Rows
+   (divided list of whole-row links with a trailing arrow). Remove this comment once the next copy
+   from Claude Design includes them. */
+.ytg-main:has(.ytg-welcome) { padding-top: var(--space-8); }
+.ytg-main:has(.ytg-welcome) .ytg-page-head { gap: var(--space-4); margin-bottom: var(--space-7); }
+.ytg-main:has(.ytg-welcome) .ytg-page-head h1 {
+  font-size: clamp(var(--fs-h1), 8vw, 56px);
+  line-height: var(--lh-tight);
+  letter-spacing: -0.02em;
+}
+.ytg-main:has(.ytg-welcome) .ytg-page-head .ytg-lead { font-size: calc(var(--fs-lead) + 2px); }
+.ytg-stripe { display: flex; width: 160px; height: 6px; border-radius: var(--radius-pill); overflow: hidden; margin-bottom: var(--space-3); }
+.ytg-stripe > * { flex: 1; }
+.ytg-welcome { display: grid; gap: var(--space-8); }
+.ytg-welcome > section { display: grid; gap: var(--space-4); align-content: start; }
+.ytg-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-5); margin: 0; padding: 0; list-style: none; }
+@media (max-width: 760px) { .ytg-tiles { grid-template-columns: minmax(0, 1fr); } }
+.ytg-tile {
+  position: relative;
+  display: grid;
+  gap: var(--space-2);
+  align-content: start;
+  height: 100%;
+  box-sizing: border-box;
+  padding: var(--space-6) var(--space-5) var(--space-5);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+  box-shadow: 0 1px 2px rgba(16, 45, 64, 0.06), 0 6px 18px rgba(16, 45, 64, 0.05);
+  color: var(--ink);
+  text-decoration: none;
+  overflow: hidden;
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+.ytg-tile:hover { color: var(--ink); box-shadow: 0 2px 4px rgba(16, 45, 64, 0.08), 0 12px 28px rgba(16, 45, 64, 0.1); transform: translateY(-2px); }
+.ytg-tile__bar { position: absolute; inset: 0 0 auto 0; height: 6px; }
+.ytg-tile__title { font-family: var(--font-display); font-size: var(--fs-h2); font-weight: 700; line-height: var(--lh-heading); color: var(--ink); }
+.ytg-tile__text { color: var(--muted); font-size: var(--fs-body); line-height: var(--lh-body); }
+.ytg-tile__cue { margin-top: var(--space-3); color: var(--accent); font-weight: 700; font-size: var(--fs-ui); }
+.ytg-tile:hover .ytg-tile__cue { color: var(--accent-strong); }
+.ytg-rows { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+.ytg-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: var(--space-4);
+  min-height: 44px;
+  padding: var(--space-4) var(--space-3);
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  text-decoration: none;
+}
+.ytg-row:hover { background: var(--sunk); color: var(--ink); }
+.ytg-row__title { font-weight: 700; font-size: var(--fs-body); line-height: var(--lh-ui); }
+.ytg-row__text { grid-column: 1; color: var(--muted); font-size: var(--fs-small); line-height: var(--lh-ui); }
+.ytg-row__arrow { grid-column: 2; grid-row: 1 / span 2; color: var(--accent); font-weight: 700; transition: transform 0.15s; }
+.ytg-row:hover .ytg-row__arrow { transform: translateX(3px); color: var(--accent-strong); }

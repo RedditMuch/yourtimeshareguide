@@ -5,14 +5,24 @@ heading: Your Timeshare Guide
 description: Club Wyndham, explained by an owner. Links to the pages that are live.
 lead: Club Wyndham, explained by an owner.
 ---
-{%- import "components.njk" as ui -%}
-{#- Temporary landing page (planning #54). The links are data in _data/welcome.js. -#}
-<div class="ytg-columns">
+{#- Temporary landing page (planning #54). The links are data in _data/welcome.js.
+    Hero stripe, Tile and Rows are not in Claude Design yet (see the end of design-system/components.css). -#}
+<div class="ytg-welcome">
+  <div class="ytg-stripe" aria-hidden="true"><span class="ytg-s-prime"></span><span class="ytg-s-high"></span><span class="ytg-s-value"></span><span class="ytg-s-quiet"></span></div>
   <section aria-labelledby="{{ welcome.live.id }}">
     <h2 class="ytg-eyebrow" id="{{ welcome.live.id }}">{{ welcome.live.label }}</h2>
-    {%- for link in welcome.live.links %}
-    {{ ui.card(link) }}
-    {%- endfor %}
+    <ul class="ytg-tiles">
+      {%- for link in welcome.live.links %}
+      <li><a class="ytg-tile" href="{{ link.href }}"><span class="ytg-tile__bar ytg-s-{{ link.season }}" aria-hidden="true"></span><span class="ytg-tile__title">{{ link.title }}</span><span class="ytg-tile__text">{{ link.desc }}</span><span class="ytg-tile__cue" aria-hidden="true">Open &rarr;</span></a></li>
+      {%- endfor %}
+    </ul>
   </section>
-  {{ ui.linkList(welcome.more) }}
+  <section aria-labelledby="{{ welcome.more.id }}">
+    <h2 class="ytg-eyebrow" id="{{ welcome.more.id }}">{{ welcome.more.label }}</h2>
+    <ul class="ytg-rows">
+      {%- for link in welcome.more.links %}
+      <li><a class="ytg-row" href="{{ link.href }}"><span class="ytg-row__title">{{ link.title }}</span><span class="ytg-row__text">{{ link.desc }}</span><span class="ytg-row__arrow" aria-hidden="true">&rarr;</span></a></li>
+      {%- endfor %}
+    </ul>
+  </section>
 </div>
