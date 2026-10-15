@@ -129,6 +129,9 @@
   const classOf = new Map(P.classifications.map((c, i) => [c.id, Object.assign({ order: i }, c)]));
   const pointsBySchedule = new Map();
   for (const p of P.rows) { if (!pointsBySchedule.has(p.scheduleId)) pointsBySchedule.set(p.scheduleId, []); pointsBySchedule.get(p.scheduleId).push(p); }
+  /* Nightly points (nightlydata.js): Fri-Sat and Sun-Thur per night from the directory charts. Only rows whose nightly points add up to the weekly points are listed. */
+  const NIGHTLY = window.NIGHTLY_POINTS || {};
+  for (const p of P.rows) if (NIGHTLY[p.id]) p.nightly = NIGHTLY[p.id];
   /* Club Pass (WorldMark) and affiliate points, read from Club Wyndham's own chart PDFs (club-pass-points.js).
      Each chart column becomes a room-type row with its season, full-week points and nightly points for every week. */
   const CP = (window.CLUB_PASS_POINTS && window.CLUB_PASS_POINTS.resorts) || {};
@@ -550,7 +553,7 @@
     note.textContent = t.days + ' days, ' + t.nights + (t.nights === 1 ? ' night' : ' nights');
     if (t.nights === 1) { note.classList.add('warn'); note.title = 'One night can’t be booked. Shown for comparison only.'; }
     $('dateAlert').hidden = false;
-    $('dateAlert').innerHTML = '<strong>Trip totals are ready for WorldMark and affiliate resorts.</strong> Club Wyndham resorts show “…” until their separate weekend and weeknight points are added from the directory.';
+    $('dateAlert').innerHTML = '<strong>Trip totals use each resort’s printed nightly points</strong> (Friday–Saturday and Sunday–Thursday). A few room types show “…” where the directory prints no single nightly rate, such as lockoff suites and resorts with several rates in one season.';
   }
 
   function renderGrid(rows, cols, t, totals) {
@@ -572,7 +575,7 @@
       prevYear = c.y;
     }
     if (tripMode && showType) head += '<th class="tot" scope="col">' + sortBtn('total', 'Total') + '</th>';
-    if (!tripMode && showType) head += '<th class="nt wd" scope="col" aria-label="Weekday, week ' + sel.w + ', Sunday to Thursday nights" title="Points per night for the chosen week. Club Wyndham resorts show … until their nightly points are added.">Weekday<small>Wk ' + sel.w + '</small><small>Sun–Thu</small></th><th class="nt we" scope="col" aria-label="Weekend, week ' + sel.w + ', Friday and Saturday nights" title="Points per night for the chosen week. Club Wyndham resorts show … until their nightly points are added.">Weekend<small>Wk ' + sel.w + '</small><small>Fri–Sat</small></th>';
+    if (!tripMode && showType) head += '<th class="nt wd" scope="col" aria-label="Weekday, week ' + sel.w + ', Sunday to Thursday nights" title="Points per night for the chosen week. Rows show … where the directory prints no single nightly rate.">Weekday<small>Wk ' + sel.w + '</small><small>Sun–Thu</small></th><th class="nt we" scope="col" aria-label="Weekend, week ' + sel.w + ', Friday and Saturday nights" title="Points per night for the chosen week. Rows show … where the directory prints no single nightly rate.">Weekend<small>Wk ' + sel.w + '</small><small>Fri–Sat</small></th>';
     head += '</tr></thead>';
 
     const view = { rows, cols, sel, showType, tripMode, tot: tripMode && showType, end: showType ? (tripMode ? 1 : 2) : 0 }; // end = columns after the week cells

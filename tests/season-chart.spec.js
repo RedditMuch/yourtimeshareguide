@@ -543,3 +543,23 @@ test.describe("season chart v2 week 53 follows week 52 (planning #48)", () => {
     await expect(page.locator("#week53Note")).toContainText("follows week 52");
   });
 });
+
+test.describe("season chart v2 nightly points for Club Wyndham (planning #52)", () => {
+  test("most Club Wyndham rows now show Weekday and Weekend nightly points that add up to the weekly points", async ({ page }) => {
+    await page.goto("/52weeks/seasons-v2.html", { waitUntil: "load" });
+    await expect(page.locator("#grid tbody tr").first()).toBeVisible();
+    const r = await page.evaluate(() => {
+      const rows = [...document.querySelectorAll("#grid tbody tr")], num = t => { const m = /^([\d.]+)k$/.exec(t.trim()); return m ? Math.round(parseFloat(m[1]) * 1000) : null; };
+      let filled = 0, total = 0, off = 0;
+      for (const tr of rows) {
+        const wd = tr.querySelector("td.nt.wd"), we = tr.querySelector("td.nt.we"), cells = tr.querySelectorAll("td.c"); if (!wd || !we) continue; total++;
+        const a = num(wd.textContent), b = num(we.textContent); if (a == null || b == null) continue; filled++;
+        const sel = tr.querySelector("td.c.sel"), w = sel ? num(sel.textContent) : null;
+        if (w != null && Math.abs(5 * a + 2 * b - w) > 0.05 * w) off++; /* k-rounded numbers: allow 5% */
+      }
+      return { filled, total, off };
+    });
+    expect(r.filled).toBeGreaterThan(r.total * 0.5);
+    expect(r.off).toBe(0);
+  });
+});
