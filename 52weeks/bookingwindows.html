@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="When you can book, and what you can do, as your Club Wyndham check-in date gets closer.">
+<title>Booking Windows and Deadlines</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--ink:#1c2430;--mute:#5d6877;--line:#dde2e8;--stay:#2a6fb0;--buy:#c2410c;--good:#15803d;--warn:#fff4e5}
+@media (prefers-color-scheme:dark){:root{--bg:#10151c;--card:#19212b;--ink:#e8edf3;--mute:#9aa6b5;--line:#2c3744;--stay:#6aa9e6;--buy:#fb923c;--good:#4ade80;--warn:#2b2113}}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:860px;margin:0 auto;padding:16px 16px 60px}
+h1{font-size:1.7rem;text-align:center;margin:8px 0 4px}
+.sub{text-align:center;color:var(--mute);margin:0 0 14px}
+.draft{background:var(--warn);border:1px solid var(--line);border-left:5px solid var(--buy);border-radius:10px;padding:10px 14px;margin:0 0 18px;font-size:.92rem}
+.legend{display:flex;flex-wrap:wrap;gap:6px 10px;justify-content:center;margin:0 0 18px;font-size:.85rem}
+.chip{--non:#566070;--bronze:#8a4f24;--silver:#5b6773;--gold:#7d5a06;--plat:#3a5a8c;--found:#7e22ce;--all:#15803d;display:inline-block;border-radius:999px;padding:1px 9px;font-size:.78rem;font-weight:700;color:#fff;white-space:nowrap}
+.c-non{background:var(--non)}.c-bronze{background:var(--bronze)}.c-silver{background:var(--silver)}.c-gold{background:var(--gold)}.c-plat{background:var(--plat)}.c-found{background:var(--found)}.c-all{background:var(--all)}.c-vip{background:var(--stay)}.c-pr{background:#334155}.c-marg{background:#0e7490}
+.tl{position:relative;margin:0;padding:0 0 0 0;list-style:none}
+.tl::before{content:"";position:absolute;left:92px;top:6px;bottom:6px;width:3px;background:var(--line);border-radius:2px}
+.m{display:grid;grid-template-columns:84px 1fr;gap:0 24px;margin:0 0 14px;position:relative}
+.when{text-align:right;font-weight:800;font-size:.95rem;padding-top:10px;line-height:1.2}
+.when small{display:block;font-weight:500;color:var(--mute);font-size:.75rem}
+.m::before{content:"";position:absolute;left:87px;top:14px;width:13px;height:13px;border-radius:50%;background:var(--stay);border:3px solid var(--bg)}
+.m.after::before{background:var(--buy)}
+.body{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 14px}
+.body ul{margin:0;padding-left:18px}.body li{margin:4px 0}
+.note{font-size:.82rem;color:var(--mute)}
+h2{font-size:1.15rem;margin:26px 0 8px}
+table{border-collapse:collapse;width:100%;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden;font-size:.92rem}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:left}
+thead th{background:color-mix(in srgb,var(--stay) 12%,var(--card))}
+tbody tr:last-child td{border-bottom:0}
+.tw{overflow-x:auto}
+.confirm{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--buy);border-radius:10px;padding:12px 16px;margin-top:26px}
+.confirm ul{margin:4px 0 0;padding-left:20px}
+.foot{text-align:center;color:var(--mute);font-size:.82rem;margin-top:24px}
+@media (max-width:560px){.tl::before{left:12px}.m{grid-template-columns:1fr;gap:0}.when{text-align:left;padding:0 0 4px 34px}.m::before{left:6px;top:4px}.body{margin-left:30px}.when small{display:inline;margin-left:6px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Booking Windows and Deadlines</h1>
+<p class="sub">What you can book, and what you can do, as your check-in date gets closer</p>
+<p class="draft"><b>Not yet confirmed.</b> These windows and perks are compiled from owner notes and have not yet been checked against Club Wyndham's own pages. Confirm with Club Wyndham before you plan around them. Every window is counted back from your check-in date.</p>
+<div class="legend"><span><span class="chip c-all">Everyone</span></span><span><span class="chip c-vip">All VIP</span></span><span><span class="chip c-non">Non-VIP</span></span><span><span class="chip c-bronze">Bronze</span></span><span><span class="chip c-silver">Silver</span></span><span><span class="chip c-gold">Gold</span></span><span><span class="chip c-plat">Platinum</span></span><span><span class="chip c-found">Founders</span></span><span><span class="chip c-pr">Presidential Reserve</span></span><span><span class="chip c-marg">Margaritaville</span></span></div>
+
+<ol class="tl" id="tl"></ol>
+
+<h2>VIP Perks at a Glance</h2>
+<div class="tw" tabindex="0" role="region" aria-label="VIP perks by level, scrollable"><table>
+<thead><tr><th>VIP Level</th><th>Reciprocal Advance Reservations (11 Months)</th><th>Margaritaville Booking Opens</th><th>Upgrades Available</th><th>Points Deposit Deadline</th></tr></thead>
+<tbody>
+<tr><td><span class="chip c-non">Non-VIP</span></td><td>None</td><td>5 months</td><td>None</td><td>3 months after the Use Year starts</td></tr>
+<tr><td><span class="chip c-bronze">Bronze</span></td><td>1</td><td>6 months</td><td>15 days before</td><td>4 months after the Use Year starts</td></tr>
+<tr><td><span class="chip c-silver">Silver</span></td><td>2</td><td>6 months</td><td>30 days before</td><td>6 months after the Use Year starts</td></tr>
+<tr><td><span class="chip c-gold">Gold</span></td><td>3</td><td>8 months</td><td>45 days before</td><td>9 months after the Use Year starts</td></tr>
+<tr><td><span class="chip c-plat">Platinum</span></td><td>4</td><td>10 months</td><td>60 days before</td><td>Any time during the Use Year</td></tr>
+<tr><td><span class="chip c-found">Founders</span></td><td>5</td><td>10 months</td><td>60 days before</td><td>Any time during the Use Year</td></tr>
+</tbody></table></div>
+<p class="note">Deposited points expire at the end of the Use Year selected and cannot be deposited again. All VIP members get discounts at 60 days.</p>
+
+<p class="foot">Independent guide, not affiliated with or endorsed by Club Wyndham. Not legal or financial advice. Last checked: not yet confirmed.</p>
+</div>
+<script>
+const T=[
+["14 Months","",[["Margaritaville owners can book their home resort.","marg"],["PR (Presidential Reserve) owners can book their home resort.","pr"]]],
+["13 to 10 Months","",[["Everyone can book their home resorts.","all"],["Club Wyndham Access (CWA) owners can book CWA units in participating resorts.","all"]]],
+["12 Months","",[["PR owners can book all PR units.","pr"]]],
+["11 Months","",[["Margaritaville owners can book other Margaritaville resorts in the system.","marg"],["VIP members can use Reciprocal Advance Reservation Priority (RARP) at resorts they do not own. Allowed: Bronze 1, Silver 2, Gold 3, Platinum 4, Founders 5. Limited to resorts where VIP benefits apply.","vip"]]],
+["10 Months","",[["Everyone can book most Club Wyndham resorts.","all"],["Platinum and Founders VIP members can book Margaritaville resorts.","plat"],["Points deposited from the prior Use Year (Points Deposit Feature) can be used. Banked PR points cannot be used for reserved PR units.","all"],["Reservations can be made with bonus points.","all"],["Waitlist requests can be created.","all"],["Future Use Year deposited points can be used.","all"],["PR Preferred Reserve Period: 75% of unreserved Presidential Reserve suites are held for PR Members.","pr"]]],
+["9 Months","",[["Retail owners (not resale) can book WorldMark through Club Pass.","all"]]],
+["8 Months","",[["Gold VIP members can book Margaritaville resorts.","gold"]]],
+["6 Months","",[["Silver and Bronze VIP members can book Margaritaville resorts.","silver"]]],
+["5 Months","",[["Anyone can book Margaritaville resorts.","all"]]],
+["3 Months","",[["Reservation minimum stay is reduced to 2 days.","all"],["Points can be borrowed from future years.","all"],["Last day for Non-VIPs to use the points deposit feature.","non"]]],
+["60 Days","",[["All VIP members get discounts.","vip"],["Platinum and Founders VIP members get available upgrades.","plat"],["Active waitlist requests are terminated.","all"]]],
+["45 Days","",[["Gold VIP members get available upgrades.","gold"]]],
+["30 Days","",[["Silver VIP members get available upgrades.","silver"],["PR Preferred Reserve Period ends (units held for PR members are released).","pr"]]],
+["15 Days","",[["Bronze VIP members get available upgrades.","bronze"],["Deadline to cancel reservations.","all"],["Deadline to add points protection.","all"],["Deadline to book Club Pass reservations.","all"]]]
+];
+const label={all:"Everyone",non:"Non-VIP",bronze:"Bronze",silver:"Silver",gold:"Gold",plat:"Platinum",found:"Founders",pr:"PR",marg:"Margaritaville",vip:"VIP"};
+document.getElementById('tl').innerHTML=T.map(([w,s,items],i)=>`<li class="m${i>=10?' after':''}"><div class="when">${w}<small>Before Check-In</small></div><div class="body"><ul>${items.map(([t,c])=>`<li><span class="chip c-${c}">${label[c]}</span> ${t}</li>`).join('')}</ul></div></li>`).join('');
+</script>
+</body>
+</html>
