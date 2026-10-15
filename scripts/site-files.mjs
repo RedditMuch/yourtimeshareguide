@@ -4,7 +4,7 @@
 export const SITE_FOLDERS = ["52weeks", "starburst", "assets"];
 
 // Files at the repository root that are published if they exist.
-export const ROOT_FILES = ["index.html", "CNAME", "404.html", "robots.txt", "favicon.ico", "sitemap.xml", "site.webmanifest"];
+export const ROOT_FILES = ["index.html", "comingsoon.html", "CNAME", "404.html", "robots.txt", "favicon.ico", "sitemap.xml", "site.webmanifest"];
 
 // File types copied as they are. A file of any other type in a site folder fails the build
 // (scripts/check-build.mjs), so nothing is ever left off the live site by accident.
