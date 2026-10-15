@@ -11,7 +11,7 @@
 @media (prefers-color-scheme:dark){:root{--bg:#10151c;--card:#19212b;--ink:#e8edf3;--mute:#9aa6b5;--line:#2c3744;--stay:#6aa9e6;--good:#4ade80;--bad:#f87171;--warn:#2b2113;--head:#212c38}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,Segoe UI,Roboto,sans-serif}
-.wrap{max-width:1400px;margin:0 auto;padding:12px 16px 60px}
+.wrap{max-width:1500px;margin:0 auto;padding:12px 16px 60px}
 #setCard,.sub,.notes{max-width:1000px;margin-left:auto;margin-right:auto}
 h1{font-size:1.8rem;margin:0 0 2px;text-align:center}
 h2{font-size:1.1rem;margin:0 0 10px}
@@ -33,22 +33,22 @@ button:disabled{opacity:.5;cursor:default}
 .msg.err{color:var(--bad);font-weight:600}
 .status{color:var(--mute);font-size:.9rem;margin:0 0 8px}
 .scroll{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
-table{border-collapse:collapse;width:100%;min-width:1100px;font-size:.88rem;table-layout:auto}
-td.res{min-width:200px}td.nw{white-space:nowrap}td.n{white-space:nowrap;min-width:90px}
-th[data-h="1"],td:nth-child(2){min-width:130px}th[data-h="2"],td:nth-child(3){min-width:60px}th[data-h="3"],td:nth-child(4){min-width:180px}th[data-h="0"]{min-width:200px}
-th,td{padding:7px 6px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+table{border-collapse:collapse;width:100%;min-width:1000px;font-size:14px;table-layout:auto}
+td.res{min-width:160px}td.nw{white-space:nowrap}td.n{white-space:nowrap;min-width:78px}
+th[data-h="1"],td:nth-child(2){min-width:105px}th[data-h="2"],td:nth-child(3){min-width:60px}th[data-h="3"],td:nth-child(4){min-width:135px}th[data-h="0"]{min-width:160px}
+th,td{padding:6px 5px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
 th{background:var(--head);font-size:.82rem;white-space:nowrap;padding:0}
 th[aria-sort=ascending],th[aria-sort=descending]{background:#cfe0f3}
 @media (prefers-color-scheme:dark){th[aria-sort=ascending],th[aria-sort=descending]{background:#2f4a66}}
 td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
-th button{all:unset;box-sizing:border-box;display:block;width:100%;padding:8px 6px;cursor:pointer;font:inherit;font-size:.82rem;font-weight:700;white-space:nowrap;color:var(--ink)}
+th button{all:unset;box-sizing:border-box;display:block;width:100%;padding:8px 5px;cursor:pointer;font:inherit;font-size:.82rem;font-weight:700;white-space:nowrap;color:var(--ink)}
 th.n button{text-align:right}
 th button:hover{background:rgba(42,111,176,.18);text-decoration:underline}
 th button:focus-visible{outline:2px solid var(--stay);outline-offset:-2px}
 th .arr{display:inline-block;min-width:1.1em;margin-left:4px;font-size:.8em;opacity:.55}
 th[aria-sort=ascending] .arr,th[aria-sort=descending] .arr{opacity:1;font-size:.95em}
 :root{--prime:#e57f76;--high:#ef9c4c;--value:#f7e297;--quiet:#8ccfb0;--cellink:#1b2a33}
-td.sea{width:52px;min-width:52px;max-width:56px;padding:0;border:1px solid rgba(0,0,0,.4);position:relative}
+td.sea{width:68px;min-width:68px;padding:6px 4px;text-align:center;white-space:nowrap;color:#1b2a33;border:1px solid rgba(0,0,0,.4);position:relative}
 th.sea button{text-align:center}
 td.sPrime{background:var(--prime)}td.sHigh{background:var(--high)}td.sValue{background:var(--value)}td.sQuiet{background:var(--quiet)}
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
@@ -114,7 +114,6 @@ td.fit{background:#d4efe0;font-weight:700;box-shadow:inset 3px 0 0 var(--good)}
 <p class="hint" id="legend">Highlighted prices (green fill and bold) are at or below your total points. Read down the column for your VIP level. A dash means the discount is not available because check-in is more than 60 days away.</p>
 <p class="hint" id="levels"></p>
 <p class="hint noprint">Select any column heading to sort.</p>
-<p class="chips" id="seasonLegend"><span>Season Colors:</span><span class="chip"><i style="background:#e57f76"></i>Prime</span><span class="chip"><i style="background:#ef9c4c"></i>High</span><span class="chip"><i style="background:#f7e297"></i>Value</span><span class="chip"><i style="background:#8ccfb0"></i>Quiet</span></p>
 <div class="scroll" id="scroll" tabindex="0" role="region" aria-label="Best stays for your points, scrollable table">
 <table id="tbl"><thead><tr></tr></thead><tbody id="body"></tbody></table>
 </div>
@@ -329,7 +328,7 @@ function render() {
   list.forEach(function (x) {
     var d = rowData(x);
     html += '<tr><td class="res">' + esc(d[0]) + '</td><td>' + esc(d[1]) + '</td><td>' + esc(d[2]) + '</td><td>' + esc(d[3]) + '</td><td class="nw">' + esc(d[4]) + '</td><td class="nw">' + esc(d[5]) + '</td><td class="n">' + d[6] + '</td>';
-    html += '<td class="sea' + (x.season ? ' s' + x.season : '') + '" data-season="' + esc(x.season) + '"' + (x.season ? ' title="' + x.season + '"' : '') + '>' + (x.season ? '<span class="vh">' + x.season + '</span>' : '') + '</td>';
+    html += '<td class="sea' + (x.season ? ' s' + x.season : '') + '" data-season="' + esc(x.season) + '"' + '>' + esc(x.season) + '</td>';
     for (var k = 8; k < d.length; k++) {
       var v = d[k], fit = v != null && v <= budget;
       html += '<td class="n' + (fit ? ' fit' : '') + '" data-fit="' + fit + '">' + (v == null ? '—' : NUM.format(v)) + '</td>';

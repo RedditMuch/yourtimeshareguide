@@ -155,24 +155,25 @@ test("thriftypoints: City and State columns exist, State sorts with equal codes 
   expect(codes).toEqual([...codes].sort((a, b) => (a.toLowerCase() < b.toLowerCase() ? -1 : a.toLowerCase() > b.toLowerCase() ? 1 : 0)));
 });
 
-test("thriftypoints: the Season cell is color-filled with hidden text, Full Price uses the green fit highlight, and Season sorts in groups", async ({ page }) => {
+test("thriftypoints: the Season cell shows the season name on its color, Full Price uses the green fit highlight, and Season sorts in groups", async ({ page }) => {
   await search(page, { points: "150,000" });
   await page.click("#all").catch(() => {});
-  await expect(page.locator("#seasonLegend .chip")).toHaveCount(4);
+  await expect(page.locator("#seasonLegend")).toHaveCount(0);
   const h = await heads(page);
   const si = h.indexOf("Season");
   expect(si).toBeGreaterThan(0);
   expect(h[si + 1]).toBe("Full Price");
   const colors = { Prime: "rgb(229, 127, 118)", High: "rgb(239, 156, 76)", Value: "rgb(247, 226, 151)", Quiet: "rgb(140, 207, 176)" };
-  const cells = await page.$$eval("#body tr td[data-season]", tds => tds.map(td => ({ s: td.dataset.season, bg: getComputedStyle(td).backgroundColor, text: td.textContent.trim(), vh: td.querySelector(".vh") ? td.querySelector(".vh").textContent : "", title: td.title })));
+  const cells = await page.$$eval("#body tr td[data-season]", tds => tds.map(td => ({ s: td.dataset.season, bg: getComputedStyle(td).backgroundColor, text: td.textContent.trim(), color: getComputedStyle(td).color, align: getComputedStyle(td).textAlign })));
   expect(cells.length).toBeGreaterThan(0);
   const seen = new Set();
   for (const c of cells) {
     if (!c.s) continue;
     seen.add(c.s);
     expect(c.bg).toBe(colors[c.s]);
-    expect(c.vh).toBe(c.s);
-    expect(c.title).toBe(c.s);
+    expect(c.text).toBe(c.s);
+    expect(c.color).toBe("rgb(27, 42, 51)");
+    expect(c.align).toBe("center");
   }
   expect(seen.has("Prime") || seen.has("High")).toBe(true);
   expect(seen.has("Value") || seen.has("Quiet")).toBe(true);
@@ -203,4 +204,14 @@ test("thriftypoints: Club Wyndham is dropped from resort names but typing it sti
   await page.click("#go");
   await expect(page.locator("#body tr").first()).toBeVisible();
   expect((await rows(page)).length).toBe(a.length);
+});
+
+test("thriftypoints: at 1366 and 1400 px wide the table fits without inner scrolling", async ({ page }) => {
+  for (const w of [1366, 1400]) {
+    await page.setViewportSize({ width: w, height: 900 });
+    await search(page);
+    const m = await page.evaluate(() => { const s = document.getElementById("scroll"); return { sw: s.scrollWidth, cw: s.clientWidth, page: document.documentElement.scrollWidth <= document.documentElement.clientWidth }; });
+    expect(m.sw).toBeLessThanOrEqual(m.cw);
+    expect(m.page).toBe(true);
+  }
 });
