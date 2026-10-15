@@ -119,7 +119,7 @@ tr.loanend td{border-bottom:2px solid var(--mute)}
 <p class="clrrow"><a href="#" id="clr">Clear All Fields</a></p>
 
 <div class="card">
-<div class="ohead"><h2>Current Ownership</h2><div class="vipsel"><select id="vipSt" aria-label="VIP Status" title="VIP Status"><option value="non">Non-VIP</option><option value="bronze">VIP Bronze</option><option value="silver">VIP Silver</option><option value="gold">VIP Gold</option><option value="platinum">VIP Platinum</option><option value="founders">VIP Founders</option><option value="gsilver">Grandfathered Silver</option><option value="ggold">Grandfathered Gold</option><option value="gplat">Grandfathered Platinum</option></select></div><p class="newown">New owner? Select Clear All Fields above, then start with Additional Purchase below.</p></div>
+<div class="ohead"><h2>Current Ownership</h2><div class="vipsel"><select id="vipSt" aria-label="VIP Status" title="VIP Status"><option value="non">Non-VIP</option><option value="bronze">VIP Bronze</option><option value="silver">VIP Silver</option><option value="gold">VIP Gold</option><option value="platinum">VIP Platinum</option><option value="founders">VIP Founders</option><option value="gsilver">Grandfathered Silver</option><option value="ggold">Grandfathered Gold</option><option value="gplat">Grandfathered Platinum</option></select></div><p class="newown">New owner? Select Clear All Fields above, then start with Points Purchase below.</p></div>
 <div class="duo">
 <div class="area"><div class="acap">Maintenance Fees</div><div class="g2">
 <div class="cell"><label><div class="lt">Current # of Points</div><div class="f"><input type="text" inputmode="decimal" id="curPts" value="200,000" placeholder="Points You Own"></div></label><div class="hint"></div></div>
@@ -134,9 +134,9 @@ tr.loanend td{border-bottom:2px solid var(--mute)}
 </div></div>
 </div>
 
-<h2 style="margin-top:10px;padding-top:10px;border-top:1px solid var(--line)">Additional Purchase</h2>
+<h2 style="margin-top:10px;padding-top:10px;border-top:1px solid var(--line)">Points Purchase</h2>
 <div class="grid buyin">
-<div class="cell"><label><div class="lt">Additional Points Purchase</div><div class="f"><input type="text" inputmode="decimal" id="addPts" placeholder="Points Offered"></div></label><div class="hint" id="addH"></div></div>
+<div class="cell"><label><div class="lt">Points Purchase</div><div class="f"><input type="text" inputmode="decimal" id="addPts" placeholder="Points Offered"></div></label><div class="hint" id="addH"></div></div>
 <div class="cell"><label><div class="lt">Asking Price (Often Negotiable)</div><div class="f"><span>$</span><input type="text" inputmode="decimal" id="price" placeholder="Price"></div></label><div class="hint"></div></div>
 <div class="cell"><label><div class="lt">Interest Rate on Loan</div><div class="f"><input type="text" inputmode="decimal" id="apr" placeholder="Interest Rate"></div></label><div class="hint"></div></div>
 <div class="cell"><label><div class="lt">Length of Loan (Years)</div><div class="f"><input type="text" inputmode="decimal" id="term" placeholder="How Long?"></div></label><div class="hint"></div></div>
@@ -289,7 +289,7 @@ function render(){
     <div class="pc"><b>The Fees:</b><div>${c.new1k?`Maintenance fees of <b class="bad">${money(afterM,2)} a month</b> (${money(c.newY)} a year) for ${allPts} points${c.g?`, rising ${+(c.g*100).toFixed(1)}% a year`:''}.<br>They continue after the loan is paid off.`:'Enter the New Maintenance Fee above to see the yearly fees.'}</div></div>
     ${c.price&&c.new1k?`<div class="pc"><b>Year One:</b><div>${money(buyM*12)} in loan payments and maintenance fees (${money(buyM,2)} a month).</div></div>`:''}
     ${eff(c.curPts+c.addPts,true).u?'':`<div class="pc"><b>Watch For:</b><div>Remember that adding 10,000 points to a 200k points package will give you <b>ONE</b> additional Housekeeping Credit. Saving you $185 per year.</div></div>`}`;
-  else if(empty||!c.price||!c.addPts)$('claim').innerHTML='<h2 class="ct">The Pitch vs. The Math</h2><p style="text-align:center;margin:0">'+(empty?'Fill in the boxes above and the comparison appears here.':'Now enter the Additional Purchase above to see the comparison.')+'</p>';
+  else if(empty||!c.price||!c.addPts)$('claim').innerHTML='<h2 class="ct">The Pitch vs. The Math</h2><p style="text-align:center;margin:0">'+(empty?'Fill in the boxes above and the comparison appears here.':'Now enter the Points Purchase above to see the comparison.')+'</p>';
   $('sLoan').textContent=money(c.loanTotal);
   $('sLoanD').innerHTML=termSet?`${money(c.loanM,2)} per month for ${yt}`:'';
   $('sPts').textContent=allPts;
