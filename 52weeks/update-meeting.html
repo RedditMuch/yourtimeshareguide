@@ -260,7 +260,7 @@ function render(){
   $('perk').innerHTML='<h2>Get the Most From Your Points: Own in Multiples of 70,000</h2>'+
    '<p class="how">Here&rsquo;s How it Works</p>'+
    '<p class="rule">Every <b>70,000 points</b> = 1 free Housekeeping Credit (70K, 140K, 210K, 280K&hellip;).<br>Points left over earn nothing.</p>'+
-   (c.curPts?`<div class="live">${perkBox('Current Ownership',c.curPts,false)}${c.addPts?perkBox('After Purchase',c.curPts+c.addPts,true):''}</div>${c.addPts?consider:''}`:'')+
+   ((c.curPts||c.addPts)?`<div class="live">${c.curPts?perkBox('Current Ownership',c.curPts,false):''}${c.addPts?perkBox(c.curPts?'After Purchase':'Your Purchase',c.curPts+c.addPts,true):''}</div>${c.addPts?consider:''}`:'')+
    '<h3 class="kn">What Every Owner Should Know</h3>'+
    '<p class="mix">Don&rsquo;t mix them up: <b>70,000</b> points earns a Housekeeping Credit. <b>77,000</b> points earns a Reservation Transaction.</p>'+
    '<ul><li><b>Housekeeping Credits cost $185 each</b> if you run out. You need 1 Housekeeping Credit per reservation (along with applicable points). Unused Housekeeping Credits expire at the end of your <b>Use Year</b>.</li>'+
@@ -281,12 +281,18 @@ function render(){
     <div class="pc"><b>The Catch:</b><div>You are also paying <b class="bad">${money(c.loanM,2)} a month</b> for ${yt} to get that (${money(Math.abs(feeSaveY))} a year) savings.<br>
     That's ${money(c.loanTotal)} total (${money(c.price)} loan + ${money(c.interest)} interest).<br>${feeSaveY>0?`${money(feeSaveY)} saved per year takes <b class="bad">${payback>=100?Math.round(payback).toLocaleString():payback.toFixed(1)} years</b> of "savings" to break even.`:'Your fee does not actually go down at these numbers.'}</div></div>
     ${eff(c.curPts+c.addPts,true).u?'':`<div class="pc"><b>Watch For:</b><div>Remember that adding 10,000 points to a 200k points package will give you <b>ONE</b> additional Housekeeping Credit. Saving you $185 per year.</div></div>`}`;
-  const empty=!c.curM;document.querySelectorAll('.res').forEach(e=>e.style.display=empty?'none':'');
-  if(empty||!c.price||!c.addPts)$('claim').innerHTML='<h2 class="ct">The Pitch vs. The Math</h2><p style="text-align:center;margin:0">'+(empty?'Fill in the boxes above and the comparison appears here.':'Now enter the Additional Purchase above to see the comparison.')+'</p>';
+  const newOwner=!c.curPts&&!c.curM&&c.addPts>0;
+  const empty=!c.curM&&!newOwner;document.querySelectorAll('.res').forEach(e=>e.style.display=empty?'none':'');
+  if(newOwner)$('claim').innerHTML='<h2 class="ct">What This Purchase Costs</h2>'+
+   `<div class="pc"><b>The Loan:</b><div>${c.price?`<b class="bad">${money(c.loanM,2)} a month</b> for ${yt}.<br>That's ${money(c.loanTotal)} total (${money(c.price)} loan + ${money(c.interest)} interest).`:'Enter the Asking Price above to see the loan cost.'}</div></div>
+    <div class="pc"><b>The Fees:</b><div>${c.new1k?`Maintenance fees of <b class="bad">${money(afterM,2)} a month</b> (${money(c.newY)} a year) for ${allPts} points${c.g?`, rising ${+(c.g*100).toFixed(1)}% a year`:''}.<br>They continue after the loan is paid off.`:'Enter the New Maintenance Fee above to see the yearly fees.'}</div></div>
+    ${c.price&&c.new1k?`<div class="pc"><b>Year One:</b><div>${money(buyM*12)} in loan payments and maintenance fees (${money(buyM,2)} a month).</div></div>`:''}
+    ${eff(c.curPts+c.addPts,true).u?'':`<div class="pc"><b>Watch For:</b><div>Remember that adding 10,000 points to a 200k points package will give you <b>ONE</b> additional Housekeeping Credit. Saving you $185 per year.</div></div>`}`;
+  else if(empty||!c.price||!c.addPts)$('claim').innerHTML='<h2 class="ct">The Pitch vs. The Math</h2><p style="text-align:center;margin:0">'+(empty?'Fill in the boxes above and the comparison appears here.':'Now enter the Additional Purchase above to see the comparison.')+'</p>';
   $('sLoan').textContent=money(c.loanTotal);
   $('sLoanD').innerHTML=termSet?`${money(c.loanM,2)} per month for ${yt}`:'';
   $('sPts').textContent=allPts;
-  $('sPtsD').textContent=`${c.curPts.toLocaleString()} now + ${c.addPts.toLocaleString()} new`;
+  $('sPtsD').textContent=c.curPts?`${c.curPts.toLocaleString()} now + ${c.addPts.toLocaleString()} new`:'All new points';
   $('sFee').innerHTML=`${money(afterM,2)}<span style="font-size:1rem;font-weight:400"> /month</span>`;
   $('sFeeD').innerHTML=`${money(c.newY,2)} a year<br>${allPts} pts @ ${money(c.new1k,2)} per 1,000`;
 
@@ -294,13 +300,13 @@ function render(){
   const oldEnd=hasOld?`<br>Current loan ends in ${c.oldN.toLocaleString()} months, then this drops by ${money(c.oldM,2)}`:'';
   $('oldLoanH').textContent=hasOld?`Still owed: about ${money(c.oldM*c.oldN)}`:'';
   $('mStay').textContent=money(c.curM+oM,2);
-  $('mStayD').innerHTML=hasOld?`${money(c.curM,2)} Maint Fee + ${money(c.oldM,2)} Current Loan${oldEnd}`:'Maint Fee only';
+  $('mStayD').innerHTML=hasOld?`${money(c.curM,2)} Maint Fee + ${money(c.oldM,2)} Current Loan${oldEnd}`:(c.curM?'Maint Fee only':'No current ownership');
   $('mBuy').innerHTML=`${money(buyM+oM,2)}${termSet?`<small class="term"> for ${yt}</small>`:''}`;
   $('mBuyD').innerHTML=`${money(afterM,2)} Maint Fee + ${money(c.loanM,2)} New Loan${hasOld?` + ${money(c.oldM,2)} Current Loan`:''}<br><b class="bad">${money(buyM-c.curM,2)} more per month</b>`;
   $('mAfter').innerHTML=`${money(afterM,2)}`;
   $('mAfterT').innerHTML=termSet?`Monthly Payment in <b>${yt}</b>`:'Monthly Payment After Loan Payoff';
   $('mAfterBox').className='box '+(feeSaveM>0?'goodb':'buy');
-  $('mAfterD').innerHTML=(feeSaveM>0?`<b class="good">${money(feeSaveM,2)} less</b> but still forever`:`<b class="bad">${money(-feeSaveM,2)} more</b>`)+(hasOld&&c.oldN>c.term*12?`<br>(plus your current loan if still running)`:'');
+  $('mAfterD').innerHTML=newOwner?'Maintenance fees continue after the loan':(feeSaveM>0?`<b class="good">${money(feeSaveM,2)} less</b> but still forever`:`<b class="bad">${money(-feeSaveM,2)} more</b>`)+(hasOld&&c.oldN>c.term*12?`<br>(plus your current loan if still running)`:'');
 
   // chart
   const n=c.yrs, pts=r.slice(0,n);
