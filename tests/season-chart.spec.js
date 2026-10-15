@@ -509,3 +509,19 @@ test.describe("season chart v2 round 5 (2026-10-13)", () => {
     expect(order[0]).toBeLessThan(order[1]); expect(order[1]).toBeLessThan(order[2]);
   });
 });
+
+test.describe("season chart v2 weekday and weekend columns (planning #47)", () => {
+  test("By Week shows Weekday and Weekend columns after the weeks; By Dates shows Total instead", async ({ page }) => {
+    await page.goto("/52weeks/seasons-v2.html", { waitUntil: "load" });
+    await expect(page.locator("#grid tbody tr").first()).toBeVisible();
+    const heads = await page.locator("#grid thead th").allTextContents();
+    expect(heads.slice(-2).map(t => t.slice(0, 7))).toEqual(["Weekday", "Weekend"]);
+    const filled = await page.locator("#grid tbody td.nt.wd").evaluateAll(tds => tds.filter(t => /\d/.test(t.textContent)).length);
+    expect(filled).toBeGreaterThan(0);
+    expect(await page.locator("#grid tbody tr:first-child td.nt").count()).toBe(2);
+    await page.locator(".mode-opt", { hasText: "By Dates" }).click();
+    await page.locator("#startDate").fill("2026-11-02"); await page.locator("#endDate").fill("2026-11-06");
+    await expect(page.locator("#grid thead th.tot")).toHaveCount(1);
+    expect(await page.locator("#grid thead th.nt").count()).toBe(0);
+  });
+});
