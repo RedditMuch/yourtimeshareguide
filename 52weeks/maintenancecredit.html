@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Points to Maintenance Credit</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--ink:#1c2430;--mute:#5d6877;--line:#dde2e8;--stay:#2a6fb0;--buy:#c2410c;--good:#15803d;--bad:#b91c1c;--warn:#fff4e5}
+@media (prefers-color-scheme:dark){:root{--bg:#10151c;--card:#19212b;--ink:#e8edf3;--mute:#9aa6b5;--line:#2c3744;--stay:#6aa9e6;--buy:#fb923c;--good:#4ade80;--bad:#f87171;--warn:#2b2113}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:800px;margin:0 auto;padding:12px 16px 60px}
+h1{font-size:1.8rem;margin:8px 0 4px;text-align:center}
+h2{font-size:1.1rem;margin:0 0 10px}
+.sub{color:var(--mute);margin:0 auto 12px;text-align:center;max-width:620px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px}
+.notice{background:var(--warn);border-left:5px solid var(--buy)}
+.notice p{margin:0}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:600px){.grid{grid-template-columns:minmax(0,1fr)}}
+.lt{display:block;font-size:.9rem;color:var(--mute);line-height:1.25}
+.f{display:flex;align-items:center;border:1px solid var(--line);border-radius:8px;margin-top:4px;background:var(--bg);overflow:hidden;height:42px}
+.f input,.f select{width:100%;border:0;background:transparent;color:var(--ink);font:inherit;padding:8px;outline:0;height:100%}
+.f select option{background:var(--card);color:var(--ink)}
+.f:focus-within{border-color:var(--stay);outline:2px solid var(--stay);outline-offset:1px}
+.three{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.box{border-radius:10px;padding:12px;border:1px solid var(--line);border-top:5px solid var(--mute);text-align:center}
+.box.net{border-top-color:var(--stay)}
+.box .t{font-size:.85rem;color:var(--mute)}
+.box .n{font-size:1.6rem;font-weight:700;line-height:1.25;overflow-wrap:anywhere}
+.bad{color:var(--bad)}.good{color:var(--good)}
+.verdict{margin:14px 0 0;padding:10px 14px;border:1px solid var(--line);border-left:5px solid var(--buy);border-radius:10px;background:var(--bg)}
+.note{font-size:.85rem;color:var(--mute)}
+.tw{overflow:auto;max-height:420px;border:1px solid var(--line);border-radius:8px}
+.tw:focus{outline:2px solid var(--stay)}
+table{border-collapse:separate;border-spacing:0;width:100%;min-width:420px;font-size:.92rem}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+thead th{position:sticky;top:0;background:var(--card);font-weight:600;white-space:normal}
+footer{margin-top:24px;text-align:center;font-size:.85rem;color:var(--mute)}
+</style>
+</head>
+<body>
+<main class="wrap">
+<h1>Points to Maintenance Credit</h1>
+<p class="sub">What a straight conversion of Club Wyndham points to a maintenance-fee credit is worth, after the conversion fee.</p>
+
+<section class="card notice" aria-label="Notice">
+<p><strong>Not yet confirmed:</strong> the conversion rate and the $19 fee come from owner notes and must be checked with Club Wyndham; Club Wyndham's Reservation Transactions page lists converting points to maintenance dollars as a transaction that needs a Reservation Transaction.</p>
+</section>
+
+<section class="card" aria-labelledby="calc">
+<h2 id="calc">Calculator</h2>
+<div class="grid">
+<div><label class="lt" for="pts">Points to convert</label><div class="f"><input type="text" inputmode="numeric" id="pts" value="50,000" autocomplete="off"></div></div>
+<div><label class="lt" for="fee">Reservation Transaction</label><div class="f"><select id="fee"><option value="free">I have a free Reservation Transaction</option><option value="paid" selected>I will pay the $19 fee</option></select></div></div>
+</div>
+</section>
+
+<section class="card" aria-labelledby="res">
+<h2 id="res">Result</h2>
+<div class="three" aria-live="polite">
+<div class="box"><div class="t">Credit before fee</div><div class="n" id="rCredit"></div></div>
+<div class="box"><div class="t">Fee</div><div class="n" id="rFee"></div></div>
+<div class="box net"><div class="t">Net credit</div><div class="n" id="rNet"></div></div>
+<div class="box"><div class="t">Effective rate per 1,000 points</div><div class="n" id="rRate"></div></div>
+</div>
+<p class="verdict" id="verdict"></p>
+<p class="note">Assumes 1,000 points = $2.10 of maintenance-fee credit, and one conversion costs one Reservation Transaction or $19. A free Reservation Transaction is treated as costing nothing here; you may prefer to use it for something else.</p>
+</section>
+
+<section class="card" aria-labelledby="tbl">
+<h2 id="tbl">Examples of a straight conversion</h2>
+<div class="tw" tabindex="0" role="region" aria-label="Examples of straight conversion, scrollable table">
+<table>
+<thead><tr><th scope="col">Points</th><th scope="col">Credit (1,000 points = $2.10)</th><th scope="col">Net credit after $19 fee</th></tr></thead>
+<tbody>
+<tr><td>1,000</td><td>$2.10</td><td class="bad">-$16.90</td></tr>
+<tr><td>6,600</td><td>$13.86</td><td class="bad">-$5.14</td></tr>
+<tr><td>25,000</td><td>$52.50</td><td class="good">$33.50</td></tr>
+<tr><td>50,000</td><td>$105.00</td><td class="good">$86.00</td></tr>
+<tr><td>80,000</td><td>$168.00</td><td class="good">$149.00</td></tr>
+<tr><td>100,000</td><td>$210.00</td><td class="good">$191.00</td></tr>
+<tr><td>200,000</td><td>$420.00</td><td class="good">$401.00</td></tr>
+<tr><td>300,000</td><td>$630.00</td><td class="good">$611.00</td></tr>
+<tr><td>400,000</td><td>$840.00</td><td class="good">$821.00</td></tr>
+<tr><td>500,000</td><td>$1,050.00</td><td class="good">$1,031.00</td></tr>
+<tr><td>1,000,000</td><td>$2,100.00</td><td class="good">$2,081.00</td></tr>
+<tr><td>1,100,000</td><td>$2,310.00</td><td class="good">$2,291.00</td></tr>
+<tr><td>1,400,000</td><td>$2,940.00</td><td class="good">$2,921.00</td></tr>
+<tr><td>2,000,000</td><td>$4,200.00</td><td class="good">$4,181.00</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<footer><p>Independent guide, not affiliated with or endorsed by Club Wyndham. Not legal or financial advice. Last checked: not yet confirmed.</p></footer>
+</main>
+<script>
+const RATE=2.10, FEE=19, BREAK=Math.ceil(FEE/RATE*1000);
+const $=id=>document.getElementById(id);
+const money=x=>(x<0?'-':'')+'$'+Math.abs(x).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+function fmtInput(el){
+  const pos=el.selectionStart;
+  const before=el.value.slice(0,pos).replace(/\D/g,'').length;
+  const out=el.value.replace(/\D/g,'').replace(/^0+(?=\d)/,'').replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  el.value=out;
+  let n=0,p=0;
+  while(p<out.length&&n<before){if(/\d/.test(out[p]))n++;p++}
+  el.setSelectionRange(p,p);
+}
+function calc(){
+  const pts=parseInt($('pts').value.replace(/,/g,''),10)||0;
+  const paid=$('fee').value==='paid';
+  const credit=pts*RATE/1000, fee=paid?FEE:0, net=credit-fee;
+  $('rCredit').textContent=money(credit);
+  $('rFee').textContent=fee?'-'+money(fee):'$0.00';
+  const n=$('rNet'); n.textContent=money(net); n.className='n '+(net<0?'bad':'good');
+  $('rRate').textContent=pts?money(net/pts*1000):'n/a';
+  let v;
+  if(!pts) v='Enter a number of points to see the result.';
+  else if(!paid) v='With a free Reservation Transaction there is no cash fee, so the full credit applies.';
+  else if(net<0) v='At this size the $19 fee is more than the credit, so the conversion loses '+money(-net)+'.';
+  else v='The credit is larger than the $19 fee at this size.';
+  if(paid) v+=' With the $19 fee, the credit only equals the fee at about '+BREAK.toLocaleString('en-US')+' points; below that, converting is not worth the fee.';
+  $('verdict').textContent=v;
+}
+$('pts').addEventListener('input',e=>{fmtInput(e.target);calc()});
+$('fee').addEventListener('change',calc);
+calc();
+</script>
+</body>
+</html>
