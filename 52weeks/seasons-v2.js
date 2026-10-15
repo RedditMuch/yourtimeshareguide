@@ -572,7 +572,7 @@
       prevYear = c.y;
     }
     if (tripMode && showType) head += '<th class="tot" scope="col">' + sortBtn('total', 'Total') + '</th>';
-    if (!tripMode && showType) head += '<th class="nt wd" scope="col" title="Points per night for the chosen week. Club Wyndham resorts show … until their nightly points are added.">Weekday<small>Wk ' + sel.w + '</small><small>Sun–Thu</small></th><th class="nt we" scope="col" title="Points per night for the chosen week. Club Wyndham resorts show … until their nightly points are added.">Weekend<small>Wk ' + sel.w + '</small><small>Fri–Sat</small></th>';
+    if (!tripMode && showType) head += '<th class="nt wd" scope="col" aria-label="Weekday, week ' + sel.w + ', Sunday to Thursday nights" title="Points per night for the chosen week. Club Wyndham resorts show … until their nightly points are added.">Weekday<small>Wk ' + sel.w + '</small><small>Sun–Thu</small></th><th class="nt we" scope="col" aria-label="Weekend, week ' + sel.w + ', Friday and Saturday nights" title="Points per night for the chosen week. Club Wyndham resorts show … until their nightly points are added.">Weekend<small>Wk ' + sel.w + '</small><small>Fri–Sat</small></th>';
     head += '</tr></thead>';
 
     const view = { rows, cols, sel, showType, tripMode, tot: tripMode && showType, end: showType ? (tripMode ? 1 : 2) : 0 }; // end = columns after the week cells
