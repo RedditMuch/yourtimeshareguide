@@ -2,7 +2,7 @@
 // The page remembers inputs in localStorage; each test gets a fresh browser context, so every load starts from the page defaults.
 import { test, expect } from "@playwright/test";
 
-const URL = "/52weeks/update-meeting.html";
+const URL = "/52weeks/buythenumbers.html";
 const BASE = { price: "30,000", apr: "12", term: "10", newPer1k: "7.84" };
 
 async function setup(page, { status = "non", cur, add, clear = false, ...rest }) {
