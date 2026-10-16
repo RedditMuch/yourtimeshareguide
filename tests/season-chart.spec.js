@@ -655,3 +655,20 @@ test.describe("season chart v2 requests of 2026-10-15", () => {
     expect(sizes).toEqual(GROUPS.filter(g => sizes.includes(g)));
   });
 });
+
+test.describe("season chart v2 Moab 2 BR Presidential High season (planning #55)", () => {
+  test("week 44 shows 350k with 42k weekday and 70k weekend nights (the book prints 350,00)", async ({ page }) => {
+    await chartRows(page, { query: "Moab", size: "all" });
+    const labels = await page.locator("#week option").allTextContents();
+    await page.locator("#week").selectOption({ label: labels.find(t => /^Week 44\b/.test(t.trim())) });
+    const r = await page.evaluate(() => {
+      let cur = ""; for (const tr of document.querySelectorAll("#grid tbody tr")) {
+        const th = tr.querySelector("th.res"); if (th) cur = th.textContent;
+        const typ = tr.querySelector("td.typ");
+        if (/Moab/.test(cur) && typ && /2 BR Presidential|2 Bedroom Presidential/.test(typ.textContent)) {
+          const sel = tr.querySelector("td.c.sel"); return { week: sel && sel.textContent.trim(), wd: tr.querySelector("td.nt.wd").textContent.trim(), we: tr.querySelector("td.nt.we").textContent.trim() };
+        } }
+      return null; });
+    expect(r).toEqual({ week: "350k", wd: "42k", we: "70k" });
+  });
+});
