@@ -10,7 +10,6 @@ export default {
       { title: "52-Week Season Chart", href: "/52weeks/seasons-v2.html", season: "prime", desc: "All 52 weeks, season colors and points by room type." },
       { title: "Buy the Numbers", href: "/52weeks/buythenumbers.html", season: "quiet", desc: "See what a points purchase costs and what it earns." },
       { title: "Thrifty Points", href: "/52weeks/thriftypoints.html", season: "high", desc: "Find where your points can take you, with VIP prices, and save the list." },
-      { title: "Buy the Perks", href: "/52weeks/buytheperks.html", season: "value", desc: "See which perks come with each points level, and what they are worth." },
     ],
   },
   more: {
@@ -18,7 +17,7 @@ export default {
     label: "More From the Guide",
     links: [
       { title: "Points Value Calculator", href: "/starburst/calculator.html", desc: "What do your points really cost you? Compare with what Wyndham pays and charges." },
-      { title: "Club Wyndham Fees", href: "/starburst/fees.html", desc: "All the charges in the Member's Directory, with page numbers." },
+      { title: "Club Wyndham Fees", href: "/52weeks/fees.html?task=all", desc: "All the charges in the Member's Directory, with page numbers." },
       { title: "Directory Errors", href: "/starburst/errors.html", desc: "Mistakes we found in the official 2026/2027 directory, including a wrong 2029 calendar." },
       { title: "Resources", href: "/starburst/resources.html", desc: "Official phone numbers, links, and owner communities." },
     ],
@@ -28,6 +27,7 @@ export default {
     label: "In Progress",
     tag: "In-Progress",
     items: [
+      { title: "Buy the Perks", desc: "Which perks come with each points level, and what they are worth. Needs the owner's review." },
       { title: "Booking Windows and Deadlines", desc: "When you can book, upgrade and cancel, from 14 months to 15 days before check-in. Needs a Club Wyndham source." },
       { title: "Points to Maintenance Credit", desc: "What your points are worth as maintenance fee credit. Needs the conversion fee confirmed." },
       { title: "Helpful Links", desc: "Official Club Wyndham and Wyndham Rewards links in one place." },
