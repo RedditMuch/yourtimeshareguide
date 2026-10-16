@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Buy the Perks</title>
+<meta name="description" content="See which Club Wyndham perks come with each points level, and what they would cost if you had to buy them.">
+<meta name="robots" content="noindex, nofollow">
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--ink:#1c2430;--mute:#5d6877;--line:#dde2e8;--stay:#2a6fb0;--good:#15803d;--bad:#b91c1c;--warn:#fff4e5;--head:#eef2f6;--mine:#d4efe0;--step:#fff8d6}
+@media (prefers-color-scheme:dark){:root{--bg:#10151c;--card:#19212b;--ink:#e8edf3;--mute:#9aa6b5;--line:#2c3744;--stay:#6aa9e6;--good:#4ade80;--bad:#f87171;--warn:#2b2113;--head:#212c38;--mine:#1d4a31;--step:#3a3416}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:1300px;margin:0 auto;padding:12px 16px 60px}
+h1{font-size:1.8rem;margin:0 0 2px;text-align:center}
+h2{font-size:1.1rem;margin:0 0 10px}
+.sub{color:var(--mute);margin:0 auto 14px;text-align:center;max-width:760px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin:0 auto 16px;max-width:1000px}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:end}
+.row>div{flex:1 1 220px}
+label{display:block;font-size:.85rem;color:var(--mute);line-height:1.25}
+input,select{display:block;width:100%;height:40px;margin-top:3px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit;padding:6px 8px}
+input:focus,select:focus,button:focus-visible,.scroll:focus-visible{outline:2px solid var(--stay);outline-offset:1px}
+.hint{font-size:.78rem;color:var(--mute);margin-top:3px}
+button{font:inherit;font-weight:600;padding:9px 16px;border-radius:8px;border:1px solid var(--stay);background:var(--stay);color:#fff;cursor:pointer;min-height:40px}
+@media (prefers-color-scheme:dark){button{color:#10151c}}
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--card)}
+table{border-collapse:collapse;width:100%;min-width:980px;font-size:14px}
+th,td{padding:7px 8px;text-align:right;border-bottom:1px solid var(--line);vertical-align:top;font-variant-numeric:tabular-nums}
+th{background:var(--head);font-size:.82rem;position:sticky;top:0}
+th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--card);font-weight:700;white-space:nowrap}
+th:first-child{background:var(--head)}
+td small{display:block;color:var(--mute);font-size:.78em;line-height:1.25}
+td.txt,th:nth-child(2),th:nth-child(6){text-align:left}
+tr.vip td{border-top:2px solid var(--stay)}
+tr.vip td:first-child{background:var(--step)}
+td.up{background:var(--step);font-weight:700}
+tr.mine td,tr.mine td:first-child{background:var(--mine);font-weight:700}
+.notes{max-width:1000px;margin:16px auto 0;color:var(--mute);font-size:.9rem}
+.notes li{margin:4px 0}
+.foot{max-width:1000px;margin:20px auto 0;color:var(--mute);font-size:.85rem;text-align:center}
+.legend{font-size:.85rem;color:var(--mute);margin:0 0 8px}
+.legend b{color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Buy the Perks</h1>
+<p class="sub">Every point total where a perk goes up, and how many of each perk you get there. Costs show what each perk would be worth if you had to pay for it.</p>
+
+<div class="card">
+<div class="row">
+<div><label for="mypts">My Points<input id="mypts" type="number" inputmode="numeric" min="0" step="1000" placeholder="Example: 200000"></label><div class="hint">Your row is highlighted in green.</div></div>
+<div><label for="gcprice">Guest Confirmation Price
+<select id="gcprice"><option value="99">Online price ($99)</option><option value="129">Phone price ($129)</option></select></label></div>
+</div>
+</div>
+
+<p class="legend"><b>Yellow</b> = a number that went up from the row above. <b>Blue line</b> = a new VIP Level starts.</p>
+<div class="scroll" tabindex="0" role="region" aria-label="Buy the Perks chart"><table id="chart"></table></div>
+
+<ul class="notes">
+<li><b>Housekeeping Credits:</b> 1 for every 70,000 points, plus the extra credits each VIP Level adds (Bronze +1, Silver +2, Gold +4, Platinum +6, Founders +8). A Housekeeping Credit costs $185 when you run out.</li>
+<li><b>Reservation Transactions:</b> 1 for every 77,000 points. Extras cost $39 by phone. Wyndham's page says Gold, Platinum and Founders are unlimited; this guide has not confirmed that, so it keeps counting them.</li>
+<li><b>Guest Confirmations:</b> 2 each calendar year for every owner, plus 3 (Bronze), 5 (Silver), 10 (Gold), or 15 per million eligible points (Platinum and Founders, rounded down). Page 279 (CW search bar page 283). Extras cost $99 online or $129 by phone. Only points bought from Wyndham count as eligible.</li>
+<li><b>Vacation Share:</b> free for VIP Gold and above. Everyone else pays $0 the first year, then $59.95 a year unless it is canceled. Figures from the owner, not from the directory.</li>
+<li><b>Discount Within 2 Months:</b> VIP discount on new reservations booked within 2 months of check-in. Page 268 (CW search bar page 272).</li>
+<li><b>Worth if Bought:</b> Housekeeping Credits ($185), Reservation Transactions ($39) and Guest Confirmations beyond the 2 everyone gets, plus Vacation Share at $59.95 when it is free. It is what the perks would cost, not what you pay.</li>
+<li>Owners who joined VIP before 11/11/20 keep unlimited Housekeeping Credits (Grandfathered). They are not counted here.</li>
+</ul>
+
+<p class="foot">Independent guide, not affiliated with or endorsed by Club Wyndham. Not legal or financial advice. Last checked: not yet confirmed.</p>
+</div>
+
+<script>
+(function(){
+var HC=70000,RT=77000,HC_COST=185,RT_COST=39,VS=59.95;
+var VIP=[
+{n:"Non-VIP",min:0,hk:0,gc:2,disc:"None",vs:false},
+{n:"VIP Bronze",min:300000,hk:1,gc:3,disc:"15%",vs:false},
+{n:"VIP Silver",min:500000,hk:2,gc:5,disc:"25%",vs:false},
+{n:"VIP Gold",min:800000,hk:4,gc:10,disc:"35%",vs:true},
+{n:"VIP Platinum",min:1100000,hk:6,gc:0,disc:"50%",vs:true},
+{n:"VIP Founders",min:1400000,hk:8,gc:0,disc:"60%",vs:true}];
+var MAX=1540000;
+function level(p){var l=VIP[0];VIP.forEach(function(v){if(p>=v.min)l=v});return l}
+function calc(p,gcPrice){
+var l=level(p),hc=Math.floor(p/HC)+l.hk,rt=Math.floor(p/RT);
+var gc=l.gc||Math.floor(15*p/1e6);
+var extraGc=Math.max(0,gc-2);
+var worth=hc*HC_COST+rt*RT_COST+extraGc*gcPrice+(l.vs?VS:0);
+return {p:p,l:l,hc:hc,rt:rt,gc:gc,worth:worth};
+}
+function pts(n){return n.toLocaleString("en-US")}
+function usd(n){return "$"+n.toLocaleString("en-US",{minimumFractionDigits:n%1?2:0,maximumFractionDigits:2})}
+function rowsList(){
+var s={};
+for(var i=1;i*HC<=MAX;i++)s[i*HC]=1;
+for(var j=1;j*RT<=MAX;j++)s[j*RT]=1;
+VIP.forEach(function(v){if(v.min)s[v.min]=1});
+var a=Object.keys(s).map(Number).sort(function(x,y){return x-y});
+a.unshift(0);return a;
+}
+var list=rowsList();
+function render(){
+var gcPrice=+document.getElementById("gcprice").value;
+var my=parseInt(document.getElementById("mypts").value,10);
+var mineAt=null;
+if(my>=0){list.forEach(function(p){if(p<=my)mineAt=p})}
+var h='<thead><tr><th>Points</th><th>VIP Level</th><th>Housekeeping Credits</th><th>Reservation Transactions</th><th>Guest Confirmations</th><th>Vacation Share</th><th>Discount Within 2 Months</th><th>Worth if Bought</th></tr></thead><tbody>';
+var prev=null;
+list.forEach(function(p){
+var r=calc(p,gcPrice),isVip=p&&VIP.some(function(v){return v.min===p});
+var upH=prev&&r.hc>prev.hc,upR=prev&&r.rt>prev.rt,upG=prev&&r.gc>prev.gc;
+var cls=(isVip?"vip":"")+(p===mineAt?" mine":"");
+h+='<tr class="'+cls.trim()+'"><td>'+(p===0?"Under "+pts(HC):pts(p))+(p===mineAt&&my>p?'<small>You: '+pts(my)+'</small>':'')+'</td>'
++'<td class="txt">'+r.l.n+'</td>'
++'<td class="'+(upH?"up":"")+'">'+r.hc+'</td>'
++'<td class="'+(upR?"up":"")+'">'+r.rt+'</td>'
++'<td class="'+(upG?"up":"")+'">'+r.gc+'</td>'
++'<td class="txt">'+(r.l.vs?"Free":"$0 Year 1, then $59.95")+'</td>'
++'<td>'+r.l.disc+'</td>'
++'<td>'+(r.worth?usd(r.worth):"$0")+'</td></tr>';
+prev=r;
+});
+document.getElementById("chart").innerHTML=h+'</tbody>';
+}
+document.getElementById("mypts").addEventListener("input",render);
+document.getElementById("gcprice").addEventListener("change",render);
+render();
+})();
+</script>
+</body>
+</html>
