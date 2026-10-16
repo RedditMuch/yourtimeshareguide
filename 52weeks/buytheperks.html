@@ -27,15 +27,17 @@ button{font:inherit;font-weight:600;padding:9px 16px;border-radius:8px;border:1p
 .scroll{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--card)}
 table{border-collapse:collapse;width:100%;min-width:980px;font-size:14px}
 th,td{padding:7px 8px;text-align:right;border-bottom:1px solid var(--line);vertical-align:top;font-variant-numeric:tabular-nums}
-th{background:var(--head);font-size:.82rem;position:sticky;top:0}
+th{background:var(--head);font-size:.82rem}
 th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--card);font-weight:700;white-space:nowrap}
 th:first-child{background:var(--head)}
 td small{display:block;color:var(--mute);font-size:.78em;line-height:1.25}
 td.txt,th:nth-child(2),th:nth-child(6){text-align:left}
 tr.vip td{border-top:2px solid var(--stay)}
-tr.vip td:first-child{background:var(--step)}
+
 td.up{background:var(--step);font-weight:700}
 tr.mine td,tr.mine td:first-child{background:var(--mine);font-weight:700}
+tr.mine td small{color:var(--ink)}
+th:first-child,td:first-child{z-index:1}
 .notes{max-width:1000px;margin:16px auto 0;color:var(--mute);font-size:.9rem}
 .notes li{margin:4px 0}
 .foot{max-width:1000px;margin:20px auto 0;color:var(--mute);font-size:.85rem;text-align:center}
@@ -50,14 +52,14 @@ tr.mine td,tr.mine td:first-child{background:var(--mine);font-weight:700}
 
 <div class="card">
 <div class="row">
-<div><label for="mypts">My Points<input id="mypts" type="number" inputmode="numeric" min="0" step="1000" placeholder="Example: 200000"></label><div class="hint">Your row is highlighted in green.</div></div>
+<div><label for="mypts">My Points<input id="mypts" type="number" inputmode="numeric" min="0" step="1" placeholder="Example: 200000"></label><div class="hint">Your row is highlighted in green.</div></div>
 <div><label for="gcprice">Guest Confirmation Price
-<select id="gcprice"><option value="99">Online price ($99)</option><option value="129">Phone price ($129)</option></select></label></div>
+<select id="gcprice"><option value="99">Online Price ($99)</option><option value="129">Phone Price ($129)</option></select></label></div>
 </div>
 </div>
 
 <p class="legend"><b>Yellow</b> = a number that went up from the row above. <b>Blue line</b> = a new VIP Level starts.</p>
-<div class="scroll" tabindex="0" role="region" aria-label="Buy the Perks chart"><table id="chart"></table></div>
+<div class="scroll" tabindex="0" role="region" aria-label="Buy the Perks Chart"><table id="chart"></table></div>
 
 <ul class="notes">
 <li><b>Housekeeping Credits:</b> 1 for every 70,000 points, plus the extra credits each VIP Level adds (Bronze +1, Silver +2, Gold +4, Platinum +6, Founders +8). A Housekeeping Credit costs $185 when you run out.</li>
@@ -65,7 +67,7 @@ tr.mine td,tr.mine td:first-child{background:var(--mine);font-weight:700}
 <li><b>Guest Confirmations:</b> 2 each calendar year for every owner, plus 3 (Bronze), 5 (Silver), 10 (Gold), or 15 per million eligible points (Platinum and Founders, rounded down). Page 279 (CW search bar page 283). Extras cost $99 online or $129 by phone. Only points bought from Wyndham count as eligible.</li>
 <li><b>Vacation Sidekick:</b> the local discounts app. Free for VIP Gold and above (page 295, CW search bar page 299). Everyone else pays $59.95 a year ($4.99 a month). The owner says the first year is free; the directory does not say so.</li>
 <li><b>Discount Within 2 Months:</b> VIP discount on new reservations booked within 2 months of check-in. Page 268 (CW search bar page 272).</li>
-<li><b>Worth if Bought:</b> Housekeeping Credits ($185), Reservation Transactions ($39) and Guest Confirmations beyond the 2 everyone gets, plus Vacation Sidekick at $59.95 when it is free. It is what the perks would cost, not what you pay.</li>
+<li><b>Worth If Bought:</b> Housekeeping Credits ($185), Reservation Transactions ($39) and Guest Confirmations beyond the 2 everyone gets, plus Vacation Sidekick at $59.95 when it is free. It is what the perks would cost, not what you pay.</li>
 <li>Owners who joined VIP before 11/11/20 keep unlimited Housekeeping Credits (Grandfathered). They are not counted here.</li>
 </ul>
 
@@ -97,6 +99,7 @@ function rowsList(){
 var s={};
 for(var i=1;i*HC<=MAX;i++)s[i*HC]=1;
 for(var j=1;j*RT<=MAX;j++)s[j*RT]=1;
+for(var k=1;k<=23;k++){var g=Math.ceil(k*1e6/15);if(g>=1100000&&g<=MAX)s[g]=1}
 VIP.forEach(function(v){if(v.min)s[v.min]=1});
 var a=Object.keys(s).map(Number).sort(function(x,y){return x-y});
 a.unshift(0);return a;
@@ -107,7 +110,7 @@ var gcPrice=+document.getElementById("gcprice").value;
 var my=parseInt(document.getElementById("mypts").value,10);
 var mineAt=null;
 if(my>=0){list.forEach(function(p){if(p<=my)mineAt=p})}
-var h='<thead><tr><th>Points</th><th>VIP Level</th><th>Housekeeping Credits</th><th>Reservation Transactions</th><th>Guest Confirmations</th><th>Vacation Sidekick</th><th>Discount Within 2 Months</th><th>Worth if Bought</th></tr></thead><tbody>';
+var h='<thead><tr><th>Points</th><th>VIP Level</th><th>Housekeeping Credits</th><th>Reservation Transactions</th><th>Guest Confirmations</th><th>Vacation Sidekick</th><th>Discount Within 2 Months</th><th>Worth If Bought</th></tr></thead><tbody>';
 var prev=null;
 list.forEach(function(p){
 var r=calc(p,gcPrice),isVip=p&&VIP.some(function(v){return v.min===p});
