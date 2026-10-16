@@ -215,3 +215,23 @@ test("thriftypoints: at 1366 and 1400 px wide the table fits without inner scrol
     expect(m.page).toBe(true);
   }
 });
+
+test("thriftypoints: no duplicate resort and room type rows, short State codes, sort resets when the VIP Level changes", async ({ page }) => {
+  await page.goto(URL);
+  await page.fill("#pts", "400,000");
+  await page.fill("#minN", "1");
+  await page.click("#go");
+  await expect(page.locator("#body tr").first()).toBeVisible();
+  await page.click("#all").catch(() => {});
+  const r = await rows(page);
+  expect(r.length).toBeGreaterThan(100);
+  const keys = r.map(c => [c[0].t, c[3].t].join("|"));
+  expect(new Set(keys).size).toBe(keys.length);
+  for (const c of r) expect(c[2].t.length).toBeLessThanOrEqual(2);
+  await expect(page.locator('label[for="from"]')).not.toContainText("mm");
+  await page.locator('#tbl thead button[data-col="6"]').click();
+  expect(await page.locator("#tbl thead th").nth(6).getAttribute("aria-sort")).toBe("ascending");
+  await page.selectOption("#vip", { label: "VIP Gold" });
+  await expect.poll(async () => (await heads(page)).length).toBe(10);
+  expect(await page.locator('#tbl thead th[aria-sort="ascending"], #tbl thead th[aria-sort="descending"]').count()).toBe(0);
+});

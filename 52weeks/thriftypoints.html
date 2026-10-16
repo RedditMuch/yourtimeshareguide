@@ -94,8 +94,8 @@ td.fit{background:#d4efe0;font-weight:700;box-shadow:inset 3px 0 0 var(--good)}
 <div><label for="resort">Resort</label><input id="resort" list="resorts" autocomplete="off" placeholder="Search by Name"><datalist id="resorts"></datalist></div>
 <div><label for="size">Room Size</label><select id="size"><option value="">All Sizes</option></select></div>
 <div></div>
-<div><label for="from">Earliest Check-In (mm/dd/yy)</label><input id="from" type="date"></div>
-<div><label for="to">Latest Check-Out (mm/dd/yy)</label><input id="to" type="date"></div>
+<div><label for="from">Earliest Check-In</label><input id="from" type="date"></div>
+<div><label for="to">Latest Check-Out</label><input id="to" type="date"></div>
 <div></div>
 <div><label for="minN">Minimum Nights per Stay</label><input id="minN" type="number" min="1" max="30" value="2"></div>
 <div><label for="maxN">Maximum Nights per Stay</label><input id="maxN" type="number" min="1" max="30" value="14"></div>
@@ -170,7 +170,7 @@ var sizeOf = function (r) { var g = groupOf[r.category] || 'Other'; return /^[34
 var EAST = 'ME NH MA RI CT NY NJ PA DE MD DC VA NC SC GA FL'.split(' '), WESTC = ['CA', 'OR', 'WA'];
 rows.forEach(function (r) {
   var m = /, ([A-Z]{2})$/.exec(r.location || '');
-  r._code = m ? m[1] : (r.state || r.country || 'Other');
+  r._code = m ? m[1] : (r.state || r.country || 'Other'); if (r._code === 'U.S. Virgin Islands') r._code = 'VI';
   r._stateName = m ? (r.state || m[1]) : (r.state || r.country || 'Other');
   r._city = r.city || (r.location || '').split(',')[0] || r.name;
   r._area = EAST.indexOf(r._code) >= 0 ? 'East Coast' : WESTC.indexOf(r._code) >= 0 ? 'West Coast' : r._code === 'HI' ? 'Hawaii' : 'Other';
@@ -181,6 +181,16 @@ rows.forEach(function (r) {
 var PFX = "Club Wyndham ", dispSeen = {};
 rows.forEach(function (r) { r._disp = r.name.indexOf(PFX) === 0 ? r.name.slice(PFX.length) : r.name; var k = r._disp + "|" + r._city + "|" + r._code; (dispSeen[k] = dispSeen[k] || {})[r.name] = 1; });
 rows.forEach(function (r) { if (r._disp !== r.name && Object.keys(dispSeen[r._disp + "|" + r._city + "|" + r._code]).length > 1) r._disp = r.name; r._dlow = r._disp.toLowerCase(); });
+/* Same resort and room type listed twice: drop the copy when every season price is identical, otherwise label each with its schedule */
+var grp = {};
+rows.forEach(function (r) { var k = r.name + '|' + r.roomType; (grp[k] = grp[k] || []).push(r); });
+var keep = [];
+Object.keys(grp).forEach(function (k) {
+  var a = grp[k], uniq = [], sig = {};
+  a.forEach(function (r) { var g = JSON.stringify(r.weeks) + JSON.stringify(N[r.id]); if (!sig[g]) { sig[g] = 1; uniq.push(r); } });
+  uniq.forEach(function (r) { r._room = r.roomType + (uniq.length > 1 && r.schedule ? ' (' + r.schedule + ')' : ''); keep.push(r); });
+});
+rows = rows.filter(function (r) { return keep.indexOf(r) >= 0; });
 var fill = function (sel, items) { items.forEach(function (it) { var o = document.createElement('option'); o.value = it[0]; o.textContent = it[1]; sel.appendChild(o); }); };
 var states = {}; rows.forEach(function (r) { states[r._code] = r._stateName; });
 fill($('state'), Object.keys(states).sort(function (a, b) { return states[a].localeCompare(states[b]); }).map(function (k) { return [k, states[k]]; }));
@@ -259,7 +269,7 @@ function sortVal(x, c) {
   if (c === 0) return x.r._dlow;
   if (c === 1) return x.r._city.toLowerCase();
   if (c === 2) return x.r._code.toLowerCase();
-  if (c === 3) return (x.r.roomType || '').toLowerCase();
+  if (c === 3) return x.r._room.toLowerCase();
   if (c === 4) return x.s;
   if (c === 5) return x.s + x.n;
   if (c === 6) return x.n;
@@ -321,7 +331,7 @@ function search(cfg) {
 /* ---- Output ---- */
 function rowData(x) {
   var t = CAL_START + x.s * DAY;
-  return [x.r._disp, x.r._city, x.r._code, x.r.roomType, fmtDate(t), fmtDate(t + x.n * DAY), x.n, x.season || ''].concat(x.prices);
+  return [x.r._disp, x.r._city, x.r._code, x.r._room, fmtDate(t), fmtDate(t + x.n * DAY), x.n, x.season || ''].concat(x.prices);
 }
 function render() {
   var list = ordered().slice(0, shown), budget = lastInfo.points, html = '', cols = 9 + lastInfo.rates.length;
@@ -368,7 +378,7 @@ $('f').addEventListener('submit', function (ev) {
   lastInfo = { rates: VIS.slice(), vipLabel: vs.options[vs.selectedIndex].text, win: fmtDate(todayUTC) + ' through ' + fmtDate(winEnd), points: pts, ms: res.ms, area: cfg.area, stateName: st.value ? st.options[st.selectedIndex].text : 'All', resort: cfg.resort, size: cfg.size, from: fmtDate(from), to: fmtDate(to), minN: minN, maxN: cfg.maxN };
   render();
 });
-$('vip').addEventListener('change', function () { if (lastInfo) $('f').requestSubmit(); });
+$('vip').addEventListener('change', function () { sortKey = null; sortDir = 1; if (lastInfo) $('f').requestSubmit(); });
 $('tbl').querySelector('thead').addEventListener('click', function (ev) {
   var b = ev.target.closest('button[data-col]'); if (!b || !lastInfo) return;
   var c = +b.getAttribute('data-col');
