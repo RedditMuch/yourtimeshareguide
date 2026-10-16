@@ -34,21 +34,22 @@ button:disabled{opacity:.5;cursor:default}
 .status{color:var(--mute);font-size:.9rem;margin:0 0 8px}
 .scroll{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
 table{border-collapse:collapse;width:100%;min-width:1000px;font-size:14px;table-layout:auto}
-td.res{min-width:160px}td.nw{white-space:nowrap}td.n{white-space:nowrap;min-width:78px}
-th[data-h="1"],td:nth-child(2){min-width:105px}th[data-h="2"],td:nth-child(3){min-width:60px}th[data-h="3"],td:nth-child(4){min-width:135px}th[data-h="0"]{min-width:160px}
-th,td{padding:6px 5px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+td.res{min-width:140px;max-width:200px}td.nw{white-space:nowrap}td.n{white-space:nowrap;min-width:70px}
+td.rt{max-width:190px}td.rt small{display:block;color:var(--mute);font-size:.8em;line-height:1.25}
+th[data-h="1"],td:nth-child(2){min-width:90px}th[data-h="2"],td:nth-child(3){min-width:60px}th[data-h="3"],td:nth-child(4){min-width:120px}th[data-h="0"]{min-width:140px}
+th,td{padding:6px 4px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
 th{background:var(--head);font-size:.82rem;white-space:nowrap;padding:0}
 th[aria-sort=ascending],th[aria-sort=descending]{background:#cfe0f3}
 @media (prefers-color-scheme:dark){th[aria-sort=ascending],th[aria-sort=descending]{background:#2f4a66}}
 td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
-th button{all:unset;box-sizing:border-box;display:block;width:100%;padding:8px 5px;cursor:pointer;font:inherit;font-size:.82rem;font-weight:700;white-space:nowrap;color:var(--ink)}
+th button{all:unset;box-sizing:border-box;display:block;width:100%;padding:8px 4px;cursor:pointer;font:inherit;font-size:.82rem;font-weight:700;white-space:nowrap;color:var(--ink)}
 th.n button{text-align:right}
 th button:hover{background:rgba(42,111,176,.18);text-decoration:underline}
 th button:focus-visible{outline:2px solid var(--stay);outline-offset:-2px}
 th .arr{display:inline-block;min-width:1.1em;margin-left:4px;font-size:.8em;opacity:.55}
 th[aria-sort=ascending] .arr,th[aria-sort=descending] .arr{opacity:1;font-size:.95em}
 :root{--prime:#e57f76;--high:#ef9c4c;--value:#f7e297;--quiet:#8ccfb0;--cellink:#1b2a33}
-td.sea{width:68px;min-width:68px;padding:6px 4px;text-align:center;white-space:nowrap;color:#1b2a33;border:1px solid rgba(0,0,0,.4);position:relative}
+td.sea{width:62px;min-width:62px;padding:6px 4px;text-align:center;white-space:nowrap;color:#1b2a33;border:1px solid rgba(0,0,0,.4);position:relative}
 th.sea button{text-align:center}
 td.sPrime{background:var(--prime)}td.sHigh{background:var(--high)}td.sValue{background:var(--value)}td.sQuiet{background:var(--quiet)}
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
@@ -188,7 +189,7 @@ var keep = [];
 Object.keys(grp).forEach(function (k) {
   var a = grp[k], uniq = [], sig = {};
   a.forEach(function (r) { var g = JSON.stringify(r.weeks) + JSON.stringify(N[r.id]); if (!sig[g]) { sig[g] = 1; uniq.push(r); } });
-  uniq.forEach(function (r) { r._room = r.roomType + (uniq.length > 1 && r.schedule ? ' (' + r.schedule + ')' : ''); keep.push(r); });
+  uniq.forEach(function (r) { r._sch = uniq.length > 1 && r.schedule ? r.schedule : ''; r._room = r.roomType + (r._sch ? ' (' + r._sch + ')' : ''); keep.push(r); });
 });
 rows = rows.filter(function (r) { return keep.indexOf(r) >= 0; });
 var fill = function (sel, items) { items.forEach(function (it) { var o = document.createElement('option'); o.value = it[0]; o.textContent = it[1]; sel.appendChild(o); }); };
@@ -337,7 +338,7 @@ function render() {
   var list = ordered().slice(0, shown), budget = lastInfo.points, html = '', cols = 9 + lastInfo.rates.length;
   list.forEach(function (x) {
     var d = rowData(x);
-    html += '<tr><td class="res">' + esc(d[0]) + '</td><td>' + esc(d[1]) + '</td><td>' + esc(d[2]) + '</td><td>' + esc(d[3]) + '</td><td class="nw">' + esc(d[4]) + '</td><td class="nw">' + esc(d[5]) + '</td><td class="n">' + d[6] + '</td>';
+    html += '<tr><td class="res">' + esc(d[0]) + '</td><td>' + esc(d[1]) + '</td><td>' + esc(d[2]) + '</td><td class="rt">' + esc(x.r.roomType) + (x.r._sch ? '<small>' + esc(x.r._sch) + '</small>' : '') + '</td><td class="nw">' + esc(d[4]) + '</td><td class="nw">' + esc(d[5]) + '</td><td class="n">' + d[6] + '</td>';
     html += '<td class="sea' + (x.season ? ' s' + x.season : '') + '" data-season="' + esc(x.season) + '"' + '>' + esc(x.season) + '</td>';
     for (var k = 8; k < d.length; k++) {
       var v = d[k], fit = v != null && v <= budget;
