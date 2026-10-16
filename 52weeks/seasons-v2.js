@@ -183,11 +183,9 @@
   /* Room types run smallest to largest (owner, 2026-10-15, planning #43): by size, then by lowest weekly points (size drives price), then by name */
   const lowestPoints = new Map();
   const lowest = p => { let m = lowestPoints.get(p); if (m === undefined) { m = Infinity; for (const x of p.weeklyPoints || []) if (x != null && x < m) m = x; lowestPoints.set(p, m); } return m; };
-  const typeCost = new Map(); // a classification's usual lowest points: the average of its rows' lowest points
-  for (const p of P.rows) { const m = lowest(p); if (m === Infinity) continue; const t = typeCost.get(p.category) || { sum: 0, n: 0 }; t.sum += m; t.n++; typeCost.set(p.category, t); }
-  const costOf = c => { const t = typeCost.get(c.id); return t ? t.sum / t.n : Infinity; };
-  const typesInGroup = g => P.classifications.filter(c => c.group === g && P.rows.some(p => p.category === c.id)).sort((a, b) => costOf(a) - costOf(b) || a.label.localeCompare(b.label));
-  const groupOfType = id => (classOf.get(id) || {}).group;
+  const typesInGroup = g => [...CLASSES.values()].filter(c => c.group === g).sort((a, b) => classCost(a) - classCost(b) || a.label.localeCompare(b.label));
+  const groupOfType = id => (CLASSES.get(id) || classOf.get(id) || {}).group;
+  const classCost = c => c.n ? c.sum / c.n : Infinity;
   const collections = [...new Set(D.rows.map(s => s.collection))].sort((a, b) => (COLLECTION_ORDER.indexOf(a) + 99) % 99 - (COLLECTION_ORDER.indexOf(b) + 99) % 99 || a.localeCompare(b));
   const regionOf = s => s.country === 'United States' ? s.state : s.country;
   const regions = [...new Set(D.rows.map(regionOf).filter(Boolean))].sort();
@@ -211,6 +209,23 @@
     return { type: br(t), bldg: '' }; };
   const typeLabel = p => { const x = typeParts(p); return x.type + (x.bldg ? ' · ' + x.bldg : ''); };
   const typeHtml = r => esc(typeParts(r.p).type);
+  /* Room Types lists every room type the chart shows (owner, 2026-10-16): a type with its own name (Studio-J, Studio King, 2 BR Boulevard,
+     a view or a level) is its own choice, next to the plain categories. Rows that show the same name within a size share one choice. */
+  const typeKey = t => br(t).replace(/\s+/g, '').toLowerCase();
+  const typeName = p => br(typeParts(p).type).replace(/\s+/g, ' ').trim();
+  const CLASSES = new Map(), idByKey = new Map(), idsOfCategory = new Map(), typeIds = new Map();
+  for (const c of P.classifications) if (P.rows.some(p => p.category === c.id)) idByKey.set(c.group + '|' + typeKey(c.label), c.id);
+  const typeId = p => { let id = typeIds.get(p);
+    if (id === undefined) { const base = classOf.get(p.category); if (!base) return p.category;
+      const t = typeName(p), k = base.group + '|' + typeKey(t);
+      id = idByKey.get(k); if (!id) idByKey.set(k, id = base.group + '::' + t);
+      typeIds.set(p, id); }
+    return id; };
+  for (const ps of pointsBySchedule.values()) for (const p of ps) { const base = classOf.get(p.category); if (!base) continue;
+    const id = typeId(p); let c = CLASSES.get(id);
+    if (!c) CLASSES.set(id, c = { id, label: classOf.has(id) ? classOf.get(id).label : typeName(p), group: base.group, order: classOf.has(id) ? classOf.get(id).order : base.order, sum: 0, n: 0 });
+    if (!idsOfCategory.has(p.category)) idsOfCategory.set(p.category, new Set()); idsOfCategory.get(p.category).add(id);
+    const m = lowest(p); if (m !== Infinity) { c.sum += m; c.n++; } }
   /* Building or building group for a row: from the room type name ("Mountain Laurels: ..."), or from the chart it belongs to.
      A chart's name counts as a building only when it isn't a placeholder ("Chart 1", "All listed suites"). */
   const chartBldg = (name, x) => { const f = (NAME_FIX[name] || {}).charts || {}; return x.schedule in f ? f[x.schedule] : x.multiple && !/^All listed suites$/i.test(x.schedule) ? x.schedule : ''; };
@@ -255,6 +270,7 @@
       const o = JSON.parse(raw, (k, v) => v && typeof v === 'object' && Array.isArray(v.set) ? new Set(v.set) : v), d = DEFAULTS();
       for (const k of Object.keys(d)) if (k in o && typeof o[k] === typeof d[k]) d[k] = o[k];
       if (o.colorsOnly === true) d.types = new Set(); // saved before "None" meant no room types
+      for (const id of [...d.types]) for (const k of idsOfCategory.get(id) || []) d.types.add(k); // saved before each named type was its own choice
       if (!(d.idx >= 0 && d.idx < WEEKS.length)) d.idx = DEFAULTS().idx;
       return d; } catch (_) { return null; }
   }
@@ -264,8 +280,8 @@
   const pointsOn = () => !state.colorsOnly;
 
   /* ---- Controls ---- */
-  const presidentialIds = () => P.classifications.filter(c => /presidential/i.test(c.label) && P.rows.some(p => p.category === c.id)).map(c => c.id);
-  const allTypeIds = () => P.classifications.filter(c => P.rows.some(p => p.category === c.id)).map(c => c.id);
+  const presidentialIds = () => [...CLASSES.values()].filter(c => /presidential/i.test(c.label)).map(c => c.id);
+  const allTypeIds = () => [...CLASSES.keys()];
   const sameSet = (set, ids) => set.size === ids.length && ids.every(id => set.has(id));
   function buildControls() {
     let html = '', y = null;
@@ -358,7 +374,7 @@
       const all = pointsBySchedule.get(s.id) || [];
       // Show exact repeats (same room type, same points) once: the directory prints a suite again for each lockoff it is part of
       const seen = new Map(), ticked = [];
-      for (const p of all.filter(p => state.types.has(p.category))) {
+      for (const p of all.filter(p => state.types.has(typeId(p)))) {
         const row = { s, p, gap: '' }, key = bldgOf(row) + '|' + typeLabel(p) + '|' + JSON.stringify(p.weeklyPoints);
         if (seen.has(key)) continue;
         seen.set(key, row); ticked.push(row);

@@ -268,9 +268,12 @@ test.describe("season chart v2 filters round (2026-10-12)", () => {
     await pick(page, "all");
     await expect(sum).toHaveText(`(${total} of ${total})`);
     await pick(page, "presidential");
-    await expect(sum).toHaveText(`(10 of ${total})`);
+    // every room type whose name says Presidential (plain ones and named ones such as 2 BR Presidential Lower), nothing else
     const ticked = await page.locator("#typeTree input[value]:checked").evaluateAll(els => els.map(e => e.value));
-    expect(ticked.every(v => /presidential/.test(v))).toBe(true);
+    expect(ticked.length).toBeGreaterThanOrEqual(10);
+    await expect(sum).toHaveText(`(${ticked.length} of ${total})`);
+    expect(ticked.every(v => /presidential/i.test(v))).toBe(true);
+    expect(await page.locator("#typeTree input[value]:not(:checked)").evaluateAll(els => els.filter(e => /presidential/i.test(e.value)).length)).toBe(0);
     // unticking every type sets Bedrooms to None
     await pick(page, "1 Bedroom");
     for (const v of await page.locator("#typeTree input[value]:checked").evaluateAll(els => els.map(e => e.value))) await page.evaluate(v => document.querySelector(`#typeTree input[value="${v}"]`).click(), v);
@@ -670,5 +673,42 @@ test.describe("season chart v2 Moab 2 BR Presidential High season (planning #55)
         } }
       return null; });
     expect(r).toEqual({ week: "350k", wd: "42k", we: "70k" });
+  });
+});
+
+// ---- Owner, 2026-10-16: every room type the chart shows is a Room Types choice ----
+test.describe("season chart v2 every room type is selectable (2026-10-16)", () => {
+  const typeBox = async page => page.evaluate(() => { document.getElementById("filterBox").open = true; document.getElementById("typeBox").open = true; });
+  const tick = async (page, label, on) => { await page.evaluate(([label, on]) => { const l = [...document.querySelectorAll("#typeTree label.check")].find(x => x.querySelector("input[value]") && x.textContent.trim() === label); const i = l.querySelector("input"); if (i.checked !== on) i.click(); }, [label, on]); await settled(page); };
+  const types = rows => rows.map(r => r.type.trim()).filter(Boolean);
+
+  test("Studio-J (Asian Inspired) at Royal Garden has its own Room Types choice", async ({ page }) => {
+    let rows = await chartRows(page, { query: "Royal Garden" });
+    expect(types(rows)).toContain("Studio-J (Asian Inspired)");
+    await typeBox(page);
+    expect(await page.locator("#typeTree label.check", { hasText: "Studio-J (Asian Inspired)" }).count()).toBe(1);
+    await tick(page, "Studio-J (Asian Inspired)", false);
+    rows = await page.evaluate(() => [...document.querySelectorAll("#grid td.typ")].map(td => ({ type: td.textContent })));
+    expect(types(rows)).not.toContain("Studio-J (Asian Inspired)");
+    expect(types(rows)).toContain("2 BR Presidential");
+    // only Studio-J
+    await page.evaluate(() => { const s = document.querySelector("#bedrooms"); s.value = "all"; s.dispatchEvent(new Event("change")); });
+    await settled(page);
+    for (const t of ["Studio", "1 BR Presidential", "2 BR Presidential"]) await tick(page, t, false);
+    rows = await page.evaluate(() => [...document.querySelectorAll("#grid td.typ")].map(td => ({ type: td.textContent })));
+    expect(types(rows)).toEqual(["Studio-J (Asian Inspired)"]);
+  });
+
+  test("every room type shown under ALL is a Room Types choice", async ({ page }) => {
+    await chartRows(page, { query: "Royal Garden" });
+    await typeBox(page);
+    const key = t => t.split(" ").join("").toLowerCase(); // spellings that differ only by spaces are one choice ("Ocean Front", "Oceanfront")
+    const labels = new Set((await page.locator("#typeTree label.check").allInnerTexts()).map(t => key(t.trim())));
+    for (const q of ["Royal Garden", "Moab", "Pagosa", "Towers on the Grove"]) {
+      await page.evaluate(q => { const s = document.querySelector("#search"); s.value = q; s.dispatchEvent(new Event("input")); }, q);
+      await page.waitForTimeout(400); await settled(page);
+      const shown = await page.evaluate(() => [...document.querySelectorAll("#grid td.typ")].map(td => td.textContent.trim()));
+      for (const t of shown) if (t && !/Not Offered|coming soon|Select a valid/i.test(t)) expect(labels.has(key(t)), q + ": " + t).toBe(true);
+    }
   });
 });
