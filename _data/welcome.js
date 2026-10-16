@@ -10,6 +10,7 @@ export default {
       { title: "52-Week Season Chart", href: "/52weeks/seasons-v2.html", season: "prime", desc: "All 52 weeks, season colors and points by room type." },
       { title: "Buy the Numbers", href: "/52weeks/buythenumbers.html", season: "quiet", desc: "See what a points purchase costs and what it earns." },
       { title: "Thrifty Points", href: "/52weeks/thriftypoints.html", season: "high", desc: "Find where your points can take you, with VIP prices, and save the list." },
+      { title: "Buy the Perks", href: "/52weeks/buytheperks.html", season: "value", desc: "See which perks come with each points level, and what they are worth." },
     ],
   },
   more: {
