@@ -270,7 +270,8 @@
       const o = JSON.parse(raw, (k, v) => v && typeof v === 'object' && Array.isArray(v.set) ? new Set(v.set) : v), d = DEFAULTS();
       for (const k of Object.keys(d)) if (k in o && typeof o[k] === typeof d[k]) d[k] = o[k];
       if (o.colorsOnly === true) d.types = new Set(); // saved before "None" meant no room types
-      for (const id of [...d.types]) for (const k of idsOfCategory.get(id) || []) d.types.add(k); // saved before each named type was its own choice
+      for (const id of [...d.types]) for (const k of idsOfCategory.get(id) || []) d.types.add(k);
+      for (const id of [...d.types]) if (!CLASSES.has(id)) d.types.delete(id); // a category that now only has named types // saved before each named type was its own choice
       if (!(d.idx >= 0 && d.idx < WEEKS.length)) d.idx = DEFAULTS().idx;
       return d; } catch (_) { return null; }
   }

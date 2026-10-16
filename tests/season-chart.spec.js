@@ -711,4 +711,16 @@ test.describe("season chart v2 every room type is selectable (2026-10-16)", () =
       for (const t of shown) if (t && !/Not Offered|coming soon|Select a valid/i.test(t)) expect(labels.has(key(t)), q + ": " + t).toBe(true);
     }
   });
+
+  test("a filter saved before (every category selected) still means ALL, with a true count", async ({ page }) => {
+    await page.goto("/52weeks/seasons-v2.html");
+    await expect(page.locator("#grid tbody tr").first()).toBeVisible();
+    await page.evaluate(() => { const ids = window.WEEKLY_POINTS.classifications.map(c => c.id); localStorage.setItem("ytg-season-chart-v2", JSON.stringify({ collections: { set: ["Club Wyndham"] }, types: { set: ids }, span: 0, showAll: true })); });
+    await page.reload();
+    await expect(page.locator("#grid tbody tr").first()).toBeVisible();
+    await page.evaluate(() => { document.getElementById("filterBox").open = true; });
+    await expect(page.locator("#bedrooms")).toHaveValue("all");
+    const sum = (await page.locator("#typeSummary").textContent()).match(/(\d+) of (\d+)/);
+    expect(sum[1]).toBe(sum[2]);
+  });
 });
