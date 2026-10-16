@@ -63,9 +63,9 @@ tr.mine td,tr.mine td:first-child{background:var(--mine);font-weight:700}
 <li><b>Housekeeping Credits:</b> 1 for every 70,000 points, plus the extra credits each VIP Level adds (Bronze +1, Silver +2, Gold +4, Platinum +6, Founders +8). A Housekeeping Credit costs $185 when you run out.</li>
 <li><b>Reservation Transactions:</b> 1 for every 77,000 points. Extras cost $39 by phone. Wyndham's page says Gold, Platinum and Founders are unlimited; this guide has not confirmed that, so it keeps counting them.</li>
 <li><b>Guest Confirmations:</b> 2 each calendar year for every owner, plus 3 (Bronze), 5 (Silver), 10 (Gold), or 15 per million eligible points (Platinum and Founders, rounded down). Page 279 (CW search bar page 283). Extras cost $99 online or $129 by phone. Only points bought from Wyndham count as eligible.</li>
-<li><b>Vacation Share:</b> free for VIP Gold and above. Everyone else pays $0 the first year, then $59.95 a year unless it is canceled. Figures from the owner, not from the directory.</li>
+<li><b>Vacation Sidekick:</b> the local discounts app. Free for VIP Gold and above (page 295, CW search bar page 299). Everyone else pays $59.95 a year ($4.99 a month). The owner says the first year is free; the directory does not say so.</li>
 <li><b>Discount Within 2 Months:</b> VIP discount on new reservations booked within 2 months of check-in. Page 268 (CW search bar page 272).</li>
-<li><b>Worth if Bought:</b> Housekeeping Credits ($185), Reservation Transactions ($39) and Guest Confirmations beyond the 2 everyone gets, plus Vacation Share at $59.95 when it is free. It is what the perks would cost, not what you pay.</li>
+<li><b>Worth if Bought:</b> Housekeeping Credits ($185), Reservation Transactions ($39) and Guest Confirmations beyond the 2 everyone gets, plus Vacation Sidekick at $59.95 when it is free. It is what the perks would cost, not what you pay.</li>
 <li>Owners who joined VIP before 11/11/20 keep unlimited Housekeeping Credits (Grandfathered). They are not counted here.</li>
 </ul>
 
@@ -107,7 +107,7 @@ var gcPrice=+document.getElementById("gcprice").value;
 var my=parseInt(document.getElementById("mypts").value,10);
 var mineAt=null;
 if(my>=0){list.forEach(function(p){if(p<=my)mineAt=p})}
-var h='<thead><tr><th>Points</th><th>VIP Level</th><th>Housekeeping Credits</th><th>Reservation Transactions</th><th>Guest Confirmations</th><th>Vacation Share</th><th>Discount Within 2 Months</th><th>Worth if Bought</th></tr></thead><tbody>';
+var h='<thead><tr><th>Points</th><th>VIP Level</th><th>Housekeeping Credits</th><th>Reservation Transactions</th><th>Guest Confirmations</th><th>Vacation Sidekick</th><th>Discount Within 2 Months</th><th>Worth if Bought</th></tr></thead><tbody>';
 var prev=null;
 list.forEach(function(p){
 var r=calc(p,gcPrice),isVip=p&&VIP.some(function(v){return v.min===p});
