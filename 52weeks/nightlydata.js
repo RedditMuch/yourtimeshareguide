@@ -6047,6 +6047,20 @@ window.NIGHTLY_POINTS = {
    "sunThu": 28000
   }
  },
+ "p179-1c2": {
+  "Prime": {
+   "friSat": 85000,
+   "sunThu": 51000
+  },
+  "High": {
+   "friSat": 70000,
+   "sunThu": 42000
+  },
+  "Value": {
+   "friSat": 60000,
+   "sunThu": 36000
+  }
+ },
  "p179-1c3": {
   "Prime": {
    "friSat": 100000,
