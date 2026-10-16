@@ -180,7 +180,13 @@
   const refOf = s => refByName.get(s.name) || refById.get(s.resort_id) || {};
   const hasChart = s => (s.weeks || []).some(x => CLS[x]);
   const resortKey = s => s.resort_id || s.name;
-  const typesInGroup = g => P.classifications.filter(c => c.group === g && P.rows.some(p => p.category === c.id));
+  /* Room types run smallest to largest (owner, 2026-10-15, planning #43): by size, then by lowest weekly points (size drives price), then by name */
+  const lowestPoints = new Map();
+  const lowest = p => { let m = lowestPoints.get(p); if (m === undefined) { m = Infinity; for (const x of p.weeklyPoints || []) if (x != null && x < m) m = x; lowestPoints.set(p, m); } return m; };
+  const typeCost = new Map(); // a classification's usual lowest points: the average of its rows' lowest points
+  for (const p of P.rows) { const m = lowest(p); if (m === Infinity) continue; const t = typeCost.get(p.category) || { sum: 0, n: 0 }; t.sum += m; t.n++; typeCost.set(p.category, t); }
+  const costOf = c => { const t = typeCost.get(c.id); return t ? t.sum / t.n : Infinity; };
+  const typesInGroup = g => P.classifications.filter(c => c.group === g && P.rows.some(p => p.category === c.id)).sort((a, b) => costOf(a) - costOf(b) || a.label.localeCompare(b.label));
   const groupOfType = id => (classOf.get(id) || {}).group;
   const collections = [...new Set(D.rows.map(s => s.collection))].sort((a, b) => (COLLECTION_ORDER.indexOf(a) + 99) % 99 - (COLLECTION_ORDER.indexOf(b) + 99) % 99 || a.localeCompare(b));
   const regionOf = s => s.country === 'United States' ? s.state : s.country;
@@ -372,9 +378,11 @@
     const sizeOrder = r => r.p ? GROUPS.indexOf(groupOfType(r.p.category)) : 99;
     const rankOf = r => (r.p && typeParts(r.p).rank) || 0;
     const typeOrder = r => r.p ? classOf.get(r.p.category).order : 9999;
+    const costOrder = r => r.p ? lowest(r.p) : Infinity; // lowest weekly points of the row, so a smaller or cheaper room type comes first
     const byChart = (a, b) => a.s === b.s && rankOf(a) && rankOf(b) ? rankOf(a) - rankOf(b) : 0;
-    const byType = (a, b) => sizeOrder(a) - sizeOrder(b) || byChart(a, b) || typeOrder(a) - typeOrder(b) || (a.p && b.p ? typeLabel(a.p).localeCompare(typeLabel(b.p)) : 0);
+    const byType = (a, b) => sizeOrder(a) - sizeOrder(b) || byChart(a, b) || (costOrder(a) === costOrder(b) ? 0 : costOrder(a) < costOrder(b) ? -1 : 1) || (a.p && b.p ? typeLabel(a.p).localeCompare(typeLabel(b.p)) : 0) || typeOrder(a) - typeOrder(b);
     if (state.sort.key === 'type') return rows.sort((a, b) => d * byType(a, b) || byResort(a, b));
+    if (state.sort.key === 'wkday' || state.sort.key === 'wkend') return rows.sort((a, b) => { const x = totals.get(a), y = totals.get(b); return (x == null) - (y == null) || d * ((x || 0) - (y || 0)) || byResort(a, b) || byType(a, b); });
     if (state.sort.key === 'total') return rows.sort((a, b) => { const x = totals.get(a), y = totals.get(b); return (x == null) - (y == null) || d * ((x || 0) - (y || 0)) || byResort(a, b); });
     return rows.sort((a, b) => d * byResort(a, b) || byType(a, b));
   }
@@ -533,6 +541,10 @@
       for (const c of cols) for (const d of c.nights) { const n = nightly(r, c.w, isWeekend(d)); if (n == null) ok = false; else sum += n; }
       totals.set(r, ok ? sum : null);
     }
+    // Weekday and Weekend sort by the chosen week's nightly points; they only exist while those columns do
+    const nightKey = state.sort.key === 'wkday' || state.sort.key === 'wkend';
+    if (nightKey && (!pointsOn() || (t && !t.bad && !t.pending))) state.sort = { key: 'resort', dir: 1 };
+    else if (nightKey) for (const r of rows) totals.set(r, r.gap ? null : nightly(r, wk, state.sort.key === 'wkend'));
     sortRows(rows, totals);
 
     return { wk, place, t, cand, bySeason, rows, cols, totals };
@@ -571,11 +583,14 @@
       const cls = 'wk' + (!tripMode && c === sel ? ' sel' : '') + (WEEKS.indexOf(c) === todayIdx || (c.start <= todayUTC && todayUTC < c.start + 7 * DAY) ? ' today' : '') + (tripMode ? ' part' : '');
       const sub = tripMode ? '<small>' + fmt(c.nights[0], MD) + '</small><small class="n">' + c.nights.length + (c.nights.length === 1 ? ' night' : ' nights') + '</small>'
         : '<small>' + fmt(c.start, MD) + '</small>';
-      head += '<th class="' + cls + '" scope="col" title="' + esc(weekLabel(c)) + '">' + (c.y !== prevYear ? '<span class="yr">' + c.y + '</span>' : '') + '<b>' + c.w + '</b>' + sub + '</th>';
+      const inner = (c.y !== prevYear ? '<span class="yr">' + c.y + '</span>' : '') + '<b>' + c.w + '</b>' + sub;
+      // By Week: the header is a button that selects this week (planning #44). By Dates: it stays plain text.
+      head += state.mode === 'week' ? '<th class="' + cls + '" scope="col" title="' + esc(weekLabel(c)) + '"><button type="button" class="wk-btn" data-idx="' + WEEKS.indexOf(c) + '" title="Select week ' + c.w + '" aria-label="Select week ' + c.w + '">' + inner + '</button></th>'
+        : '<th class="' + cls + '" scope="col" title="' + esc(weekLabel(c)) + '">' + inner + '</th>';
       prevYear = c.y;
     }
     if (tripMode && showType) head += '<th class="tot" scope="col">' + sortBtn('total', 'Total') + '</th>';
-    if (!tripMode && showType) head += '<th class="nt wd" scope="col" aria-label="Weekday, week ' + sel.w + ', Sunday to Thursday nights" title="Points per night for the chosen week. Rows show … where the directory prints no single nightly rate.">Weekday<small>Wk ' + sel.w + '</small><small>Sun–Thu</small></th><th class="nt we" scope="col" aria-label="Weekend, week ' + sel.w + ', Friday and Saturday nights" title="Points per night for the chosen week. Rows show … where the directory prints no single nightly rate.">Weekend<small>Wk ' + sel.w + '</small><small>Fri–Sat</small></th>';
+    if (!tripMode && showType) head += '<th class="nt wd" scope="col" aria-label="Weekday, week ' + sel.w + ', Sunday to Thursday nights" title="Points per night for the chosen week. Rows show … where the directory prints no single nightly rate.">' + sortBtn('wkday', 'Weekday') + '<small>Wk ' + sel.w + '</small><small>Sun–Thu</small></th><th class="nt we" scope="col" aria-label="Weekend, week ' + sel.w + ', Friday and Saturday nights" title="Points per night for the chosen week. Rows show … where the directory prints no single nightly rate.">' + sortBtn('wkend', 'Weekend') + '<small>Wk ' + sel.w + '</small><small>Fri–Sat</small></th>';
     head += '</tr></thead>';
 
     const view = { rows, cols, sel, showType, tripMode, tot: tripMode && showType, end: showType ? (tripMode ? 1 : 2) : 0 }; // end = columns after the week cells
@@ -610,6 +625,7 @@
     $('grid').__rows = rows;
     $('grid').__view = view;
     hideTip(); focusCell = null;
+    if (refocusWeek) { refocusWeek = false; const wb = $('grid').querySelector('thead .wk.sel .wk-btn'); if (wb) wb.focus({ preventScroll: true }); } // the redraw replaced the button that had focus
     const firstCell = $('grid').querySelector('tbody td.c.sel') || $('grid').querySelector('tbody td.c');
     if (firstCell) setFocusCell(firstCell);
 
@@ -625,7 +641,7 @@
         wrap.scrollLeft = Math.max(0, th.offsetLeft - fixed - (wrap.clientWidth - fixed - th.offsetWidth) / 2); }
     });
   }
-  let centerFrame = 0;
+  let centerFrame = 0, refocusWeek = false;
 
   /* One week cell: its classes, its text, and (only when asked, for the tooltip) its description */
   function cell(r, c, v, withTip) {
@@ -819,6 +835,8 @@
     $('grid').addEventListener('click', e => {
       const sb = e.target.closest('.sort');
       if (sb) { const k = sb.dataset.sort; state.sort = state.sort.key === k ? { key: k, dir: -state.sort.dir } : { key: k, dir: 1 }; render(); return; }
+      const wb = e.target.closest('.wk-btn');
+      if (wb) { state.idx = Number(wb.dataset.idx); refocusWeek = true; render(); return; }
       const b = e.target.closest('.res-name'); if (b) openDetail($('grid').__rows[Number(b.dataset.row)]);
     });
     $('grid').addEventListener('change', e => { if (e.target.id === 'showAll') { state.showAll = e.target.checked; render(); } });

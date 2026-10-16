@@ -576,3 +576,82 @@ test.describe("season chart v2 nightly data fallback (planning #52)", () => {
     expect(errors).toEqual([]);
   });
 });
+
+// ---- Planning #44 and #43 (c): select a week from its header, sortable Weekday and Weekend, room types smallest to largest ----
+test.describe("season chart v2 requests of 2026-10-15", () => {
+  test("selecting a week header selects that week and updates the drop-down", async ({ page }) => {
+    await page.goto("/52weeks/seasons-v2.html", { waitUntil: "load" });
+    await expect(page.locator("#grid tbody tr").first()).toBeVisible();
+    const before = await page.locator("#week").inputValue();
+    const buttons = page.locator("#grid thead .wk-btn");
+    expect(await buttons.count()).toBeGreaterThan(5);
+    const other = page.locator("#grid thead th.wk:not(.sel) .wk-btn").first();
+    const idx = await other.getAttribute("data-idx"), num = (await other.locator("b").textContent()).trim();
+    await expect(other).toHaveAttribute("aria-label", "Select week " + num);
+    await expect(other).toHaveAttribute("title", "Select week " + num);
+    await other.focus(); await page.keyboard.press("Enter"); await settled(page);
+    expect(idx).not.toBe(before);
+    await expect(page.locator("#week")).toHaveValue(idx);
+    await expect(page.locator("#grid thead th.wk.sel b")).toHaveText(num);
+    await expect(page.locator("#seasonWeek")).toHaveText(num);
+    // Space works too, and the keyboard focus stays on the chosen week's header
+    const next = page.locator("#grid thead th.wk:not(.sel) .wk-btn").last();
+    const idx2 = await next.getAttribute("data-idx");
+    await next.focus(); await page.keyboard.press("Space"); await settled(page);
+    await expect(page.locator("#week")).toHaveValue(idx2);
+    expect(await page.evaluate(() => document.activeElement.classList.contains("wk-btn"))).toBe(true);
+  });
+
+  test("By Dates week headers are not buttons", async ({ page }) => {
+    await page.goto("/52weeks/seasons-v2.html", { waitUntil: "load" });
+    await expect(page.locator("#grid tbody tr").first()).toBeVisible();
+    await page.locator(".mode-opt", { hasText: "By Dates" }).click(); await settled(page);
+    expect(await page.locator("#grid thead th.wk").count()).toBeGreaterThan(0);
+    await expect(page.locator("#grid thead .wk-btn")).toHaveCount(0);
+    await page.locator("#startDate").fill("2026-11-02"); await page.locator("#endDate").fill("2026-11-06"); await settled(page);
+    await expect(page.locator("#grid thead .wk-btn")).toHaveCount(0);
+  });
+
+  const nums = async (page, cls) => (await page.locator("#grid tbody td.nt." + cls).allTextContents()).map(t => t.trim()).map(t => t === "…" || t === "" ? null : parseFloat(t));
+  test("Weekday and Weekend sort both ways, with … last", async ({ page }) => {
+    await page.goto("/52weeks/seasons-v2.html", { waitUntil: "load" });
+    await expect(page.locator("#grid tbody tr").first()).toBeVisible();
+    for (const [key, cls] of [["wkday", "wd"], ["wkend", "we"]]) {
+      const btn = page.locator(`#grid thead .sort[data-sort=${key}]`);
+      await btn.click(); await settled(page);
+      await expect(btn).toHaveAttribute("aria-pressed", "true");
+      await expect(page.locator("#grid thead .sort[data-sort=resort]")).toHaveAttribute("aria-pressed", "false");
+      let v = await nums(page, cls);
+      expect(v.some(x => x == null)).toBe(true);
+      let real = v.filter(x => x != null);
+      expect(v.slice(0, real.length).every(x => x != null)).toBe(true); // … only at the end
+      expect(real).toEqual([...real].sort((a, b) => a - b));
+      await expect(btn.locator(".arrow")).toHaveText("▲");
+      await btn.click(); await settled(page);
+      v = await nums(page, cls); real = v.filter(x => x != null);
+      expect(v.slice(0, real.length).every(x => x != null)).toBe(true); // … still last
+      expect(real).toEqual([...real].sort((a, b) => b - a));
+      await expect(btn.locator(".arrow")).toHaveText("▼");
+    }
+  });
+
+  test("no resort lists its room types out of size order", async ({ page }) => {
+    const GROUPS = ["Hotel", "Studio", "1 Bedroom", "2 Bedroom", "3 Bedroom", "4 Bedroom", "5 Bedroom"];
+    const state = { collections: { set: ALL_COLLECTIONS }, span: 0, showAll: false };
+    await page.addInitScript(s => localStorage.setItem("ytg-season-chart-v2", s), JSON.stringify(state));
+    await page.goto("/52weeks/seasons-v2.html", { waitUntil: "load" });
+    await expect(page.locator("#grid tbody tr").first()).toBeVisible();
+    await page.evaluate(() => { const s = document.querySelector("#bedrooms"); s.value = "all"; s.dispatchEvent(new Event("change")); }); await settled(page);
+    const rows = await page.evaluate(() => { const P = window.WEEKLY_POINTS, grp = new Map(P.classifications.map(c => [c.id, c.group]));
+      const trs = [...document.querySelectorAll("#grid tbody tr")]; let g = -1;
+      return document.getElementById("grid").__rows.map((r, i) => { if (trs[i].querySelector("th.res")) g++; return { g, sid: r.s.id, grp: r.p && grp.get(r.p.category), min: r.p ? Math.min(...r.p.weeklyPoints.filter(x => x != null)) : 0 }; }).filter(r => r.grp); });
+    expect(rows.length).toBeGreaterThan(300);
+    const bad = [];
+    for (let i = 1; i < rows.length; i++) { const a = rows[i - 1], b = rows[i]; if (a.g !== b.g) continue; // a new resort or building starts here
+      const d = GROUPS.indexOf(a.grp) - GROUPS.indexOf(b.grp) || a.min - b.min; if (d > 0) bad.push(a.sid + ":" + a.grp + "/" + a.min + ">" + b.grp + "/" + b.min); }
+    expect(bad).toEqual([]);
+    // the Room Types filter lists each size's types by their points too, smallest first
+    const sizes = await page.evaluate(() => [...document.querySelectorAll("#typeTree [data-group]")].map(i => i.dataset.group));
+    expect(sizes).toEqual(GROUPS.filter(g => sizes.includes(g)));
+  });
+});
