@@ -755,8 +755,8 @@
     'Club Wyndham Ocean Boulevard': [{ text: ACCESS_LIMITED }], /* p. 151 */
     'Club Wyndham SeaWatch Resort': [{ text: ACCESS_LIMITED }] /* p. 155 */
   };
-  /* The resort card's title goes on two rows: the collection name (Club Wyndham, WorldMark, Margaritaville Vacation Club by Wyndham) on the first, the resort on the second, so long names don't wrap at an odd place on a phone. */
-  const titleHtml = name => { const m = name.match(/^(Club Wyndham|WorldMark|Margaritaville Vacation Club by Wyndham)(?: - | )(.+)$/);
+  /* The resort card's title goes on two rows: the collection name (Club Wyndham, WorldMark, Margaritaville Vacation Club by Wyndham) on the first, the resort on the second, so long names don't wrap at an odd place on a phone. Names like "Club Wyndham at Majestic Sun" stay on one row, because "at Majestic Sun" alone reads oddly. */
+  const titleHtml = name => { const m = name.match(/^(Club Wyndham|WorldMark|Margaritaville Vacation Club by Wyndham)(?: - | )(?!at )(.+)$/);
     return m ? '<span class="brand">' + esc(m[1]) + '</span><span class="rname">' + esc(m[2]) + '</span>' : esc(name); };
 
   /* ---- Resort details ---- */
