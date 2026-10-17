@@ -135,7 +135,7 @@
   for (const p of P.rows) { if (!pointsBySchedule.has(p.scheduleId)) pointsBySchedule.set(p.scheduleId, []); pointsBySchedule.get(p.scheduleId).push(p); }
   /* Nightly points (nightlydata.js): Fri-Sat and Sun-Thur per night from the directory charts. Only rows whose nightly points add up to the weekly points are listed. */
   const NIGHTLY = window.NIGHTLY_POINTS || {};
-  for (const p of P.rows) if (NIGHTLY[p.id]) p.nightly = NIGHTLY[p.id];
+  for (const p of P.rows) if (NIGHTLY[p.id]) { if (NIGHTLY[p.id].byWeek) p.nightlyByWeek = NIGHTLY[p.id].byWeek; else p.nightly = NIGHTLY[p.id]; } /* byWeek: several rates inside one season, listed week by week like the Club Pass rows */
   /* Club Pass (WorldMark) and affiliate points, read from Club Wyndham's own chart PDFs (club-pass-points.js).
      Each chart column becomes a room-type row with its season, full-week points and nightly points for every week. */
   const CP = (window.CLUB_PASS_POINTS && window.CLUB_PASS_POINTS.resorts) || {};
@@ -588,7 +588,7 @@
     note.textContent = t.days + ' days, ' + t.nights + (t.nights === 1 ? ' night' : ' nights');
     if (t.nights === 1) { note.classList.add('warn'); note.title = 'One night can’t be booked. Shown for comparison only.'; }
     $('dateAlert').hidden = false;
-    $('dateAlert').innerHTML = '<strong>Trip totals use each resort’s printed nightly points</strong> (Friday–Saturday and Sunday–Thursday). A few room types show “…” where the directory prints no single nightly rate, such as lockoff suites and resorts with several rates in one season.';
+    $('dateAlert').innerHTML = '<strong>Trip totals use each resort’s printed nightly points</strong> (Friday–Saturday and Sunday–Thursday). A few room types show “…” where the directory prints no single nightly rate, such as lockoff suites.';
   }
 
   function renderGrid(rows, cols, t, totals) {

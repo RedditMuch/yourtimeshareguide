@@ -787,3 +787,41 @@ test.describe("season chart v2 website names, apostrophes and departed resorts (
     expect(rows.some(r => /coming soon/i.test(r.type))).toBe(false);
   });
 });
+
+// ---- Nightly points for rows with several rates inside one season (Waikiki Beach Walk, Ocean Boulevard, La Cascada) ----
+test.describe("season chart v2 nightly points for several rates in one season", () => {
+  const RESORTS = ["Waikiki Beach Walk", "Ocean Boulevard", "La Cascada"];
+
+  test("By Week: every room type of these resorts shows Weekday and Weekend numbers, not …", async ({ page }) => {
+    for (const q of RESORTS) {
+      await chartRows(page, { query: q, size: "all", collections: ["Club Wyndham"] });
+      const cells = await page.locator("#grid tbody td.nt").allTextContents();
+      expect(cells.length, q).toBeGreaterThanOrEqual(10);
+      expect(cells.filter(t => !/\d/.test(t)), q).toEqual([]);
+    }
+  });
+
+  test("By Dates: trip totals work for these rows", async ({ page }) => {
+    await chartRows(page, { query: "Ocean Boulevard", size: "all", collections: ["Club Wyndham"] });
+    await page.locator(".mode-opt", { hasText: "By Dates" }).click();
+    await page.locator("#startDate").fill("2026-11-02"); await page.locator("#endDate").fill("2026-11-06");
+    await settled(page);
+    const cells = await page.locator("#grid tbody td.c").allTextContents();
+    expect(cells.length).toBeGreaterThan(10);
+    expect(cells.filter(t => !/\d/.test(t))).toEqual([]);
+  });
+
+  test("every nightly row adds up: 2 x Fri-Sat + 5 x Sun-Thur equals the weekly points for every week", async ({ page }) => {
+    await page.goto("/52weeks/seasons-v2.html");
+    const r = await page.evaluate(() => {
+      const N = window.NIGHTLY_POINTS, rows = window.WEEKLY_POINTS.rows; let checked = 0, byWeek = 0; const fails = [];
+      for (const p of rows) { const n = N[p.id]; if (!n) continue; if (n.byWeek) byWeek++;
+        for (let w = 1; w <= 52; w++) { const wp = p.weeklyPoints[w - 1]; if (wp == null) continue;
+          const x = n.byWeek ? n.byWeek[w - 1] : (n[p.weeks[w - 1]] ? [n[p.weeks[w - 1]].friSat, n[p.weeks[w - 1]].sunThu] : null); checked++;
+          if (!x || 2 * x[0] + 5 * x[1] !== wp) fails.push(p.id + " week " + w); } }
+      return { checked, byWeek, fails };
+    });
+    expect(r.byWeek).toBe(33);
+    expect(r.fails).toEqual([]);
+  });
+});
