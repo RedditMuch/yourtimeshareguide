@@ -898,3 +898,17 @@ test.describe("season chart v2 WorldMark Inn at the Park uses the WorldMark colo
     if (cw) expect(cw[1].every(c => /^s-/.test(c))).toBe(true);
   });
 });
+
+test("season chart v2 resort card shows the full address and phone, the printed page only, and no points tables", async ({ page }) => {
+  await page.goto("/52weeks/seasons-v2.html");
+  await expect(page.locator("#grid tbody .res-name").first()).toBeVisible();
+  await page.locator("#grid tbody .res-name", { hasText: "Anaheim" }).first().click();
+  const body = page.locator("#detailBody");
+  await expect(body).toBeVisible();
+  await expect(body.locator("dt").first()).toHaveText("Address");
+  await expect(body.locator("dd").first()).toContainText(/Anaheim, CA \d{5}/);
+  await expect(body.locator('a[href^="tel:"]')).toHaveCount(1);
+  await expect(body).toContainText(/Page \d+/);
+  await expect(body).not.toContainText("search bar");
+  await expect(body.locator("table")).toHaveCount(0);
+});
