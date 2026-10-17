@@ -905,10 +905,11 @@ test("season chart v2 resort card shows the full address and phone, the printed 
   await page.locator("#grid tbody .res-name", { hasText: "Anaheim" }).first().click();
   const body = page.locator("#detailBody");
   await expect(body).toBeVisible();
-  await expect(body.locator("dt").first()).toHaveText("Address");
-  await expect(body.locator("dd").first()).toContainText(/Anaheim, CA \d{5}/);
+  await expect(body.locator("dt", { hasText: "Address" })).toHaveCount(0);
+  await expect(body.locator(".addr")).toContainText("201 West Katella Avenue");
+  await expect(body.locator(".addr")).toContainText(/Anaheim, CA \d{5}/);
   await expect(body.locator('a[href^="tel:"]')).toHaveCount(1);
-  await expect(body).toContainText(/Page \d+/);
+  await expect(body.locator("dt", { hasText: "Directory Pg" })).toHaveCount(1);
   await expect(body).not.toContainText("search bar");
   await expect(body.locator("table")).toHaveCount(0);
 });

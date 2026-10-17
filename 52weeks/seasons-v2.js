@@ -14,7 +14,7 @@
   /* Official directory: the 2026/2027 edition, where CW search bar page = book page + 4 */
   const DIRECTORY_URL = 'https://media.travelandleisure.com/WD/email/2025/0625-2025/cw-directory/index.html';
   const PAGE_OFFSET = 4;
-  const cite = n => '<a href="' + DIRECTORY_URL + '#p=' + n + '" target="_blank" rel="noopener">Page ' + (n - PAGE_OFFSET) + '</a>'; // shows the printed page; the link keeps the CW search bar page n
+  const cite = n => '<a href="' + DIRECTORY_URL + '#p=' + n + '" target="_blank" rel="noopener">' + (n - PAGE_OFFSET) + '</a>'; // shows the printed page; the link keeps the CW search bar page n
 
   const SEASONS = ['Prime', 'High', 'Value', 'Quiet'];
   const CLS = { Prime: 's-p', High: 's-h', Value: 's-v', Quiet: 's-q', 'WorldMark High': 'w-h', 'WorldMark Medium': 'w-m', 'WorldMark Low': 'w-l' };
@@ -768,14 +768,14 @@
     $('detailTitle').innerHTML = titleHtml(officialName(s.name));
     const addr = String(ref.address || s.location || [s.city, s.state, s.country].filter(Boolean).join(', ')).split(/\n/).map(esc).join('<br>');
     const phone = s.phone || ref.phone;
-    let h = '<dl><dt>Address</dt><dd>' + addr + '</dd>';
+    let h = '<p class="addr">' + addr + '</p><dl>';
     if (phone) h += '<dt>Phone</dt><dd><a href="tel:' + esc(String(phone).replace(/[^0-9+]/g, '')) + '">' + esc(phone) + '</a></dd>';
     if (s.multiple) h += '<dt>Chart</dt><dd>' + esc(s.schedule) + '</dd>';
     h += '<dt>Collection</dt><dd>' + esc(COLLECTION_LABEL[s.collection] || s.collection) + '</dd>';
     if (ref.vip_benefits) h += '<dt>VIP Benefits</dt><dd>' + esc(ref.vip_benefits === 'Conditional' ? (ref.program_notes || 'In some cases') : ref.vip_benefits) + '</dd>';
-    if (ref.club_wyndham_access === 'Yes') h += '<dt>Club Wyndham Access</dt><dd>Yes</dd>';
+    if (ref.club_wyndham_access === 'Yes') h += '<dt>CWA</dt><dd>Yes</dd>';
     const pages = [...new Set([].concat(s.pages || [], ...ps.map(p => p.pages || [])))].sort((a, b) => a - b);
-    if (pages.length) h += '<dt>Club Wyndham Directory</dt><dd>' + pages.map(cite).join('<br>') + '</dd>';
+    if (pages.length) h += '<dt>Directory Pg</dt><dd>' + pages.map(cite).join(', ') + '</dd>';
     if (s.cp) h += '<dt>Points Chart</dt><dd><a href="' + esc(s.cp.pdf) + '" target="_blank" rel="noopener">Club Wyndham’s Chart (PDF)</a>' + (s.cp.pdfExtra || []).map(u => '<br><a href="' + esc(u.url) + '" target="_blank" rel="noopener">' + esc(u.label) + '</a>').join('') + '</dd>';
     h += '</dl>';
     if (s.cp) { const src = s.cp.notes.filter(n => /^Source:/.test(n)).map(n => esc(n.replace(/\s*\(CW search bar page \d+\)/g, ''))); if (src.length) h += '<p class="hint">' + src.join('<br>') + '</p>'; }
