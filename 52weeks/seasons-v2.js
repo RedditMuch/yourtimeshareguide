@@ -135,7 +135,7 @@
   for (const p of P.rows) { if (!pointsBySchedule.has(p.scheduleId)) pointsBySchedule.set(p.scheduleId, []); pointsBySchedule.get(p.scheduleId).push(p); }
   /* Nightly points (nightlydata.js): Fri-Sat and Sun-Thur per night from the directory charts. Only rows whose nightly points add up to the weekly points are listed. */
   const NIGHTLY = window.NIGHTLY_POINTS || {};
-  for (const p of P.rows) if (NIGHTLY[p.id]) p.nightly = NIGHTLY[p.id];
+  for (const p of P.rows) if (NIGHTLY[p.id]) { if (NIGHTLY[p.id].byWeek) p.nightlyByWeek = NIGHTLY[p.id].byWeek; else p.nightly = NIGHTLY[p.id]; } /* byWeek: several rates inside one season, listed week by week like the Club Pass rows */
   /* Club Pass (WorldMark) and affiliate points, read from Club Wyndham's own chart PDFs (club-pass-points.js).
      Each chart column becomes a room-type row with its season, full-week points and nightly points for every week. */
   const CP = (window.CLUB_PASS_POINTS && window.CLUB_PASS_POINTS.resorts) || {};
@@ -249,6 +249,12 @@
     return { season: CLS[weeks[51]] ? weeks[51] : null, points: pts ? pts[51] : null, w53: CLS[weeks[51]] ? 'assumed' : undefined };
   }
   /* Nightly points (Fri–Sat and Sun–Thur) for a row in a given week. Not in the data yet: returns null until it's added (#24, Phase 2). */
+  /* Fairfield Sapphire Valley: the directory prints weekly points only (no Fri-Sat or Sun-Thur rows), so these rows say so instead of showing … (the 2 BR Lockoff is built from two of them). */
+  const NOT_PUBLISHED = new Set(['p136-1c1', 'p136-1c2', 'p136-1c3', 'd025']), NOT_PUBLISHED_TIP = 'The directory prints weekly points only for this room type';
+  /* Resorts without a published points chart say so (owner, 2026-10-16); the tooltip says why. */
+  const NO_CHART = 'No Points Chart Available', NO_CHART_WHY = {};
+  const noChartTip = s => NO_CHART_WHY[s.name] || 'No points chart is published';
+  const unpublished = r => !!(r.p && NOT_PUBLISHED.has(r.p.id));
   function nightly(row, w, weekend) {
     if (row.p && row.p.nightlyByWeek) { const x = row.p.nightlyByWeek[w - 1] || (w === 53 ? row.p.nightlyByWeek[51] : null); return x ? (weekend ? x[0] : x[1]) : null; }
     const n = row.p && row.p.nightly; if (!n) return null;
@@ -308,7 +314,7 @@
     $('collectionChecks').innerHTML = collections.map(c => {
       const label = COLLECTION_LABEL[c] || c, dot = c === 'Affiliate' ? '<i class="dot aff"></i>' : c === 'Associate' ? '<i class="dot assoc"></i>' : '';
       const m = label.match(/^(\S+) \((.*)\)$/), name = c === 'Associate' && m ? esc(m[1]) + dot + '<span class="sub">' + esc(m[2]) + '</span>' : esc(label) + dot;
-      const soon = c === 'Associate' || D.rows.some(s => s.collection === c && hasChart(s)) ? '' : '<span class="hint soon">Points coming soon</span>';
+      const soon = c === 'Associate' || D.rows.some(s => s.collection === c && hasChart(s)) ? '' : '<span class="hint soon">No Points Chart Available</span>';
       return (c === COLLECTION_AFTER_SEPARATOR ? '<hr class="sep coll-sep">' : '') + '<label class="check"><input type="checkbox" value="' + esc(c) + '"><span class="lbl">' + name + soon + '</span></label>';
     }).join('');
     $('countryList').innerHTML = COUNTRIES.map(c => '<li><button type="button" class="link" data-country="' + esc(c[0]) + '">' + esc(c[0]) + '</button></li>').join('');
@@ -588,7 +594,7 @@
     note.textContent = t.days + ' days, ' + t.nights + (t.nights === 1 ? ' night' : ' nights');
     if (t.nights === 1) { note.classList.add('warn'); note.title = 'One night can’t be booked. Shown for comparison only.'; }
     $('dateAlert').hidden = false;
-    $('dateAlert').innerHTML = '<strong>Trip totals use each resort’s printed nightly points</strong> (Friday–Saturday and Sunday–Thursday). A few room types show “…” where the directory prints no single nightly rate, such as lockoff suites and resorts with several rates in one season.';
+    $('dateAlert').innerHTML = '<strong>Trip totals use each resort’s printed nightly points</strong> (Friday–Saturday and Sunday–Thursday). A few room types show “…” where the directory prints no nightly rate, or “Not Published” where it prints weekly points only.';
   }
 
   function renderGrid(rows, cols, t, totals) {
@@ -626,21 +632,21 @@
         const vip = ref.vip_benefits === 'Yes' ? crownSvg('') : ref.vip_benefits === 'Conditional' ? crownSvg('half') : '';
         const dot = s.collection === 'Affiliate' ? '<i class="dot aff" title="Affiliate resort"></i>' : s.collection === 'Associate' ? '<i class="dot assoc" title="Associate resort"></i>' : '';
         const bldg = bldgOf(r) ? bldgLines(bldgOf(r)).map(b => '<span class="res-bldg">' + esc(b) + '</span>').join('') : ''; // one line per building
-        const extra = !showType && r.gap === 'chart' ? '<span class="res-loc gap">Points chart coming soon</span>' : '';
+        const extra = !showType && r.gap === 'chart' ? '<span class="res-loc gap" title="' + esc(noChartTip(r.s)) + '">' + NO_CHART + '</span>' : '';
         body += '<th class="res" scope="row"' + (span > 1 ? ' rowspan="' + span + '"' : '') + '><button type="button" class="res-name" data-row="' + i + '">' + nameHtml(shortName(s.name), vip + dot) + '</button>' + (NOTICES[s.name] ? '<span class="notice" title="' + esc(NOTICE_TEXT) + '">⚠</span>' : '') +
           '<span class="res-loc">' + esc(s.location || [s.city, s.state].filter(Boolean).join(', ')) + '</span>' + bldg + extra + '</th>';
       }
       if (showBld) body += '<td class="bld">' + esc(bldgOf(r)) + '</td>';
       if (showType) body += r.gap === 'pick' ? '<td class="typ pick">Select a valid room type for this resort</td>'
         : r.gap === 'size' ? '<td class="typ gap">' + (groups.length === 1 ? esc(sizeWords(groups[0])) + ' ' + NONE_LABEL : 'These room types ' + NONE_LABEL) + '</td>'
-        : r.gap === 'chart' ? '<td class="typ gap">Points chart coming soon</td>' : '<td class="typ">' + typeHtml(r) + '</td>';
+        : r.gap === 'chart' ? '<td class="typ gap"><span title="' + esc(noChartTip(r.s)) + '">' + NO_CHART + '</span></td>' : '<td class="typ">' + typeHtml(r) + '</td>';
       for (const c of cols) {
         const x = cell(r, c, view, false);
         if (x.w53) any53 = true;
         body += '<td class="' + x.cls + '">' + x.text + '</td>';
       }
       if (tripMode && showType) { const v = totals.get(r); body += '<td class="tot">' + (r.gap ? '' : v == null ? '…' : short(v)) + '</td>'; }
-      if (!tripMode && showType) for (const weekend of [false, true]) { const n = r.gap ? '' : nightly(r, sel.w, weekend); body += '<td class="nt ' + (weekend ? 'we' : 'wd') + '">' + (r.gap ? '' : n == null ? '…' : short(n)) + '</td>'; }
+      if (!tripMode && showType) for (const weekend of [false, true]) { const n = r.gap ? '' : nightly(r, sel.w, weekend); body += '<td class="nt ' + (weekend ? 'we' : 'wd') + '">' + (r.gap ? '' : n == null ? (unpublished(r) ? '<span class="np" style="display:inline-block;white-space:normal;font-size:.78em;line-height:1.1;text-align:center" title="' + NOT_PUBLISHED_TIP + '">Not Published</span>' : '…') : short(n)) + '</td>'; }
       body += '</tr>';
     });
     $('grid').innerHTML = head + body + '</tbody>';
@@ -675,7 +681,7 @@
     else if (!v.showType) { text = info.season ? LETTER[info.season] || info.season[0] : '–'; tip = info.season || NONE_LABEL; }
     else if (v.tripMode) {
       let sum = 0, ok = true; for (const d of c.nights) { const n = nightly(r, c.w, isWeekend(d)); if (n == null) ok = false; else sum += n; }
-      text = ok ? short(sum) : '…'; if (withTip) tip = (info.season || NONE_LABEL) + ' · ' + c.nights.length + ' night(s) · ' + (ok ? full(sum) : 'nightly points coming soon');
+      text = ok ? short(sum) : unpublished(r) ? 'Not Published' : '…'; if (withTip) tip = (info.season || NONE_LABEL) + ' · ' + c.nights.length + ' night(s) · ' + (ok ? full(sum) : unpublished(r) ? NOT_PUBLISHED_TIP : 'nightly points not available yet');
     } else { text = short(info.points); if (withTip) tip = (info.season || NONE_LABEL) + ' · ' + full(info.points); }
     if (withTip && info.w53 === 'assumed') tip += ' · Week 53 follows week 52 values and has not been confirmed.';
     return { cls, text, w53: info.w53 === 'assumed', tip: withTip ? weekLabel(c) + ' · ' + tip : '' };
@@ -770,7 +776,7 @@
       h += '</tbody></table>';
       const notes = [...new Set(ps.map(p => p.note).concat(ps.map(p => p.derivedNote)).filter(Boolean))];
       if (notes.length) h += '<p class="hint">' + notes.map(esc).join(' ') + '</p>';
-    } else h += '<p>The directory doesn’t print a points chart for this resort; it’s on clubwyndham.com and is being added here.' + '</p>';
+    } else h += '<p><strong>' + NO_CHART + '.</strong> ' + esc(noChartTip(s)) + '.</p>';
     if (NOTICES[s.name]) h += '<p class="alert">⚠ ' + esc(NOTICE_TEXT) + ' Club Wyndham explains it in <a href="https://clubwyndham.wyndhamdestinations.com/us/en/resorts/resort-news/2025/your-resort-portfolio-refresh" target="_blank" rel="noopener">Your Resort Portfolio Is Getting A Refresh</a>. Court updates: <a href="' + NOTICES[s.name].url + '" target="_blank" rel="noopener">' + esc(NOTICES[s.name].site) + '</a>.</p>';
     if (s.note) h += '<p class="hint">' + esc(s.note) + '</p>';
     if (WEEK53[s.name]) h += '<p class="hint">This resort’s chart lists week 53 as ' + WEEK53[s.name] + '.</p>';

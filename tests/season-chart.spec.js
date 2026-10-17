@@ -238,7 +238,7 @@ test.describe("season chart v2 Collections filters (2026-10-12)", () => {
     await chartRows(page, { size: null });
     await expect(page.locator("#placeChecks")).toHaveCount(0);
     const labels = await page.locator("#collectionChecks .lbl").allTextContents();
-    expect(labels.map(l => l.replace(/Points coming soon|\(Australia & New Zealand\)|Australia & New Zealand/, "").trim())).toEqual(["Club Wyndham", "Affiliate", "WorldMark / Club Pass", "Margaritaville", "Associate"]);
+    expect(labels.map(l => l.replace(/No Points Chart Available|Points coming soon|\(Australia & New Zealand\)|Australia & New Zealand/, "").trim())).toEqual(["Club Wyndham", "Affiliate", "WorldMark / Club Pass", "Margaritaville", "Associate"]);
     await expect(page.locator("#collectionChecks .coll-sep")).toHaveCount(1);
   });
 
@@ -615,7 +615,7 @@ test.describe("season chart v2 requests of 2026-10-15", () => {
     await expect(page.locator("#grid thead .wk-btn")).toHaveCount(0);
   });
 
-  const nums = async (page, cls) => (await page.locator("#grid tbody td.nt." + cls).allTextContents()).map(t => t.trim()).map(t => t === "…" || t === "" ? null : parseFloat(t));
+  const nums = async (page, cls) => (await page.locator("#grid tbody td.nt." + cls).allTextContents()).map(t => t.trim()).map(t => t === "…" || t === "Not Published" || t === "" ? null : parseFloat(t));
   test("Weekday and Weekend sort both ways, with … last", async ({ page }) => {
     await page.goto("/52weeks/seasons-v2.html", { waitUntil: "load" });
     await expect(page.locator("#grid tbody tr").first()).toBeVisible();
@@ -708,7 +708,7 @@ test.describe("season chart v2 every room type is selectable (2026-10-16)", () =
       await page.evaluate(q => { const s = document.querySelector("#search"); s.value = q; s.dispatchEvent(new Event("input")); }, q);
       await page.waitForTimeout(400); await settled(page);
       const shown = await page.evaluate(() => [...document.querySelectorAll("#grid td.typ")].map(td => td.textContent.trim()));
-      for (const t of shown) if (t && !/Not Offered|coming soon|Select a valid/i.test(t)) expect(labels.has(key(t)), q + ": " + t).toBe(true);
+      for (const t of shown) if (t && !/Not Offered|coming soon|No Points Chart Available|Select a valid/i.test(t)) expect(labels.has(key(t)), q + ": " + t).toBe(true);
     }
   });
 
@@ -785,5 +785,116 @@ test.describe("season chart v2 website names, apostrophes and departed resorts (
     const rows = await chartRows(page, { size: "all", query: "Harbortown" });
     expect(rows.filter(r => r.resort === "Harbortown Point").map(r => r.type).sort()).toEqual(["1 BR Plus", "Studio"]);
     expect(rows.some(r => /coming soon/i.test(r.type))).toBe(false);
+  });
+});
+
+// ---- Nightly points for rows with several rates inside one season (Waikiki Beach Walk, Ocean Boulevard, La Cascada) ----
+test.describe("season chart v2 nightly points for several rates in one season", () => {
+  const RESORTS = ["Waikiki Beach Walk", "Ocean Boulevard", "La Cascada"];
+
+  test("By Week: every room type of these resorts shows Weekday and Weekend numbers, not …", async ({ page }) => {
+    for (const q of RESORTS) {
+      await chartRows(page, { query: q, size: "all", collections: ["Club Wyndham"] });
+      const cells = await page.locator("#grid tbody td.nt").allTextContents();
+      expect(cells.length, q).toBeGreaterThanOrEqual(10);
+      expect(cells.filter(t => !/\d/.test(t)), q).toEqual([]);
+    }
+  });
+
+  test("By Dates: trip totals work for these rows", async ({ page }) => {
+    await chartRows(page, { query: "Ocean Boulevard", size: "all", collections: ["Club Wyndham"] });
+    await page.locator(".mode-opt", { hasText: "By Dates" }).click();
+    await page.locator("#startDate").fill("2026-11-02"); await page.locator("#endDate").fill("2026-11-06");
+    await settled(page);
+    const cells = await page.locator("#grid tbody td.c").allTextContents();
+    expect(cells.length).toBeGreaterThan(10);
+    expect(cells.filter(t => !/\d/.test(t))).toEqual([]);
+  });
+
+  test("every nightly row adds up: 2 x Fri-Sat + 5 x Sun-Thur equals the weekly points for every week", async ({ page }) => {
+    await page.goto("/52weeks/seasons-v2.html");
+    const r = await page.evaluate(() => {
+      const N = window.NIGHTLY_POINTS, rows = window.WEEKLY_POINTS.rows; let checked = 0, byWeek = 0; const fails = [];
+      for (const p of rows) { const n = N[p.id]; if (!n) continue; if (n.byWeek) byWeek++;
+        for (let w = 1; w <= 52; w++) { const wp = p.weeklyPoints[w - 1]; if (wp == null) continue;
+          const x = n.byWeek ? n.byWeek[w - 1] : (n[p.weeks[w - 1]] ? [n[p.weeks[w - 1]].friSat, n[p.weeks[w - 1]].sunThu] : null); checked++;
+          if (!x && p.id === "p129-1c2") continue; /* Desert Rose 2 BR High: misprint in the book, left blank */
+          if (!x || 2 * x[0] + 5 * x[1] !== wp) fails.push(p.id + " week " + w); } }
+      return { checked, byWeek, fails };
+    });
+    expect(r.byWeek).toBe(70); // 33 several-rate rows, 36 lockoffs built from their two components, Desert Rose 2 BR
+    expect(r.fails).toEqual([]);
+  });
+});
+
+test.describe("season chart v2 lockoffs and weekly-only rows", () => {
+  test("a lockoff's nights are the sum of its two components' nights, every week", async ({ page }) => {
+    await page.goto("/52weeks/seasons-v2.html");
+    const r = await page.evaluate(() => { const N = window.NIGHTLY_POINTS, rows = window.WEEKLY_POINTS.rows, by = id => rows.find(p => p.id === id);
+      const get = (p, w) => { const n = N[p.id]; if (!n) return null; if (n.byWeek) return n.byWeek[w - 1]; const s = n[p.weeks[w - 1]]; return s ? [s.friSat, s.sunThu] : null; };
+      let lockoffs = 0; const fails = [];
+      for (const d of rows.filter(p => p.derived && N[p.id])) { lockoffs++;
+        for (let w = 1; w <= 52; w++) { if (d.weeklyPoints[w - 1] == null) continue; const x = get(d, w), cs = d.components.map(c => get(by(c), w));
+          if (!x || cs.some(c => !c) || x[0] !== cs.reduce((a, c) => a + c[0], 0) || x[1] !== cs.reduce((a, c) => a + c[1], 0)) fails.push(d.id + " week " + w); } }
+      return { lockoffs, fails }; });
+    expect(r.lockoffs).toBe(36);
+    expect(r.fails).toEqual([]);
+  });
+
+  test("Fairfield Sapphire Valley says Not Published (weekly points only) instead of …", async ({ page }) => {
+    await chartRows(page, { query: "Sapphire Valley", size: "all", collections: ["Club Wyndham"] });
+    const cells = await page.locator("#grid tbody td.nt").allTextContents();
+    expect(cells.filter(t => t.trim() === "Not Published").length).toBeGreaterThanOrEqual(8);
+    expect(cells.filter(t => t.trim() === "…")).toEqual([]);
+    await expect(page.locator("#grid tbody td.nt span[title*='weekly points only']").first()).toBeAttached();
+    // the label (smaller text, wraps if needed) stays inside its column, so it is never cut off
+    const fit = await page.locator("#grid tbody td.nt span.np").evaluateAll(sp => sp.map(x => { const td = x.parentElement; return x.scrollWidth <= td.clientWidth + 1 && x.getBoundingClientRect().right <= td.getBoundingClientRect().right + 1; }));
+    expect(fit.length).toBeGreaterThanOrEqual(8);
+    expect(fit.every(Boolean)).toBe(true);
+  });
+});
+
+
+test.describe("season chart v2 WorldMark St. George and Balboa Park (2023-2024 directory charts)", () => {
+  test("both show room types, nightly points and every week 1 to 52, and the sums add up", async ({ page }) => {
+    await page.goto("/52weeks/seasons-v2.html");
+    await expect(page.locator("#grid tbody tr").first()).toBeVisible();
+    const r = await page.evaluate(() => {
+      const out = {};
+      for (const name of ["WorldMark St. George", "WorldMark Balboa Park"]) { const c = window.CLUB_PASS_POINTS.resorts[name], seen = {}; let bad = 0;
+        for (const t of c.tables) for (const b of t.bands) { for (const w of b.weeks) seen[w] = (seen[w] || 0) + 1; for (const col of t.columns) { const [f, s, u] = b.rates[col]; if (2 * f + 5 * s !== u) bad++; } }
+        out[name] = { cols: c.tables[0].columns, bad, missing: Array.from({ length: 52 }, (_, i) => i + 1).filter(w => seen[w] !== 1), notes: c.notes.join(" ") }; }
+      return out; });
+    expect(r["WorldMark St. George"].cols).toHaveLength(8);
+    expect(r["WorldMark Balboa Park"].cols).toEqual(["Studio Hotel", "1 BR Hotel"]);
+    for (const x of Object.values(r)) { expect(x.bad).toBe(0); expect(x.missing).toEqual([]); }
+    expect(r["WorldMark St. George"].notes).toContain("Page 268 (CW search bar page 270)");
+    expect(r["WorldMark Balboa Park"].notes).toContain("Page 241 (CW search bar page 243)");
+    for (const q of ["St. George", "Balboa Park"]) {
+      const rows = await chartRows(page, { query: q, size: "all", collections: ["Club Pass"] });
+      expect(rows.length, q).toBeGreaterThan(1);
+      const cells = await page.locator("#grid tbody td.nt").allTextContents();
+      expect(cells.filter(t => !/\d/.test(t)), q).toEqual([]);
+    }
+  });
+
+  test("no resort says coming soon or No Points Chart Available", async ({ page }) => {
+    await chartRows(page, { size: "all" });
+    await expect(page.locator("#grid")).not.toContainText(/coming soon|No Points Chart Available/i);
+  });
+});
+
+test.describe("season chart v2 WorldMark Inn at the Park uses the WorldMark colors", () => {
+  test("three purple tiers, with the printed names kept; Club Wyndham Inn at the Park keeps its own colors", async ({ page }) => {
+    await chartRows(page, { query: "Inn at the Park", size: "all", collections: ["Club Pass", "Club Wyndham"] });
+    const r = await page.evaluate(() => { const out = {}; let cur = null;
+      for (const tr of document.querySelectorAll("#grid tbody tr")) { const th = tr.querySelector("th.res"); if (th) cur = th.querySelector(".res-name").textContent; const c = tr.querySelector("td.c.sel"); if (c && cur) (out[cur] ||= new Set()).add([...c.classList].find(x => /^(w|s)-/.test(x))); }
+      return Object.fromEntries(Object.entries(out).map(([k, v]) => [k, [...v]])); });
+    const wm = Object.entries(r).find(([k]) => k.startsWith("WorldMark Inn at the Park"));
+    expect(wm[1].every(c => /^w-/.test(c))).toBe(true);
+    const cp = await page.evaluate(() => window.CLUB_PASS_POINTS.resorts["WorldMark Inn at the Park"].tables[0].bands.map(b => [b.season, b.tier, b.label]));
+    expect(cp).toEqual([[null, "High", "Prime"], [null, "Medium", "High"], [null, "Low", "Value"]]);
+    const cw = Object.entries(r).find(([k]) => k.startsWith("Inn at the Park") || k.startsWith("Club Wyndham Inn"));
+    if (cw) expect(cw[1].every(c => /^s-/.test(c))).toBe(true);
   });
 });
