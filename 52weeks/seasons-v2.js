@@ -869,7 +869,6 @@
     $('grid').addEventListener('change', e => { if (e.target.id === 'showAll') { state.showAll = e.target.checked; render(); } });
     $('closeDetail').addEventListener('click', () => $('detail').close());
     $('detail').addEventListener('click', e => { if (e.target === $('detail')) $('detail').close(); });
-    if (window.matchMedia('(max-width: 820px)').matches) $('filterBox').open = false;
   }
 
   buildControls();

@@ -272,7 +272,7 @@ select:disabled{background:#f0f3f5;color:var(--muted)}
 .today{flex:0 0 auto;margin-left:auto}
 @media (max-width:1500px){.timebox .mode-body{grid-template-columns:minmax(260px,1.4fr) minmax(170px,1fr)}}
 
-/* Round 8 (#24): darker week/date box that fits its contents, Today at the top right, room to scroll the filters */
+/* Round 8 (#24): darker week/date box that fits its contents, Today at the top right */
 .timebox{height:auto;min-height:104px;background:#dfe7ec;border-color:#c3d0d8}
 .timebox .mode-body{height:auto;min-height:84px}
 .timebox select,.timebox input[type=date]{background:#fff}
@@ -280,7 +280,6 @@ select:disabled{background:#f0f3f5;color:var(--muted)}
 .top .today{margin-left:auto;text-align:right}
 .top .today .t,.top .today .d{display:inline;margin-right:6px}
 .top .today .w{display:block;font-size:20px}
-.filters{padding-bottom:50vh}
 .keys .cwa{margin-left:0}
 
 /* Let the week/date box shrink to the space it has */
@@ -396,3 +395,19 @@ select option{padding:1px 8px;min-height:0;line-height:1.2;font-size:13.5px}
 /* Phone fix (owner, 2026-10-17): on narrow screens the Weekday and Weekend columns stop sticking to the right
    (line 209), but their headers must still stay at the top like the week headers. */
 @media (max-width:700px){.grid thead .nt.wd,.grid thead .nt.we{position:sticky;top:0;right:auto;z-index:3}}
+
+/* Filters and dates (owner, 2026-10-17). The half-screen of blank space under the filters is gone: on wider screens the
+   filter panel scrolls on its own, and a soft shadow at its top or bottom edge shows when more filters are out of view
+   (the paper-colored covers scroll with the content and hide each shadow once that end is reached). */
+.filters{padding-bottom:12px;background:
+  linear-gradient(var(--paper),var(--paper)) top/100% 16px no-repeat local,
+  linear-gradient(var(--paper),var(--paper)) bottom/100% 16px no-repeat local,
+  linear-gradient(rgba(16,45,64,.16),rgba(16,45,64,0)) top/100% 10px no-repeat scroll,
+  linear-gradient(to top,rgba(16,45,64,.16),rgba(16,45,64,0)) bottom/100% 10px no-repeat scroll,
+  var(--paper)}
+@media (max-width:820px){.filters{background:var(--paper)}}
+/* iPhone date boxes keep their own minimum width and spill into each other; let them shrink to their column, with a gap */
+.timebox #dateBox .field{min-width:0}
+.timebox input[type=date]{min-width:0;max-width:100%}
+@supports (-webkit-touch-callout:none){.timebox input[type=date]{-webkit-appearance:none;appearance:none;text-align:left}.timebox input[type=date]::-webkit-date-and-time-value{text-align:left}}
+@media (max-width:600px){.timebox #dateBox{column-gap:14px}}
