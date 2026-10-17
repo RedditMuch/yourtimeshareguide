@@ -408,6 +408,6 @@ select option{padding:1px 8px;min-height:0;line-height:1.2;font-size:13.5px}
 @media (max-width:820px){.filters{background:var(--paper)}}
 /* iPhone date boxes keep their own minimum width and spill into each other; let them shrink to their column, with a gap */
 .timebox #dateBox .field{min-width:0}
-.timebox input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:none;text-align:left}
-.timebox input[type=date]::-webkit-date-and-time-value{text-align:left}
+.timebox input[type=date]{min-width:0;max-width:100%}
+@supports (-webkit-touch-callout:none){.timebox input[type=date]{-webkit-appearance:none;appearance:none;text-align:left}.timebox input[type=date]::-webkit-date-and-time-value{text-align:left}}
 @media (max-width:600px){.timebox #dateBox{column-gap:14px}}
