@@ -14,7 +14,7 @@
   /* Official directory: the 2026/2027 edition, where CW search bar page = book page + 4 */
   const DIRECTORY_URL = 'https://media.travelandleisure.com/WD/email/2025/0625-2025/cw-directory/index.html';
   const PAGE_OFFSET = 4;
-  const cite = n => '<a href="' + DIRECTORY_URL + '#p=' + n + '" target="_blank" rel="noopener">Page ' + (n - PAGE_OFFSET) + ' (CW search bar page ' + n + ')</a>';
+  const cite = n => '<a href="' + DIRECTORY_URL + '#p=' + n + '" target="_blank" rel="noopener">Page ' + (n - PAGE_OFFSET) + '</a>'; // shows the printed page; the link keeps the CW search bar page n
 
   const SEASONS = ['Prime', 'High', 'Value', 'Quiet'];
   const CLS = { Prime: 's-p', High: 's-h', Value: 's-v', Quiet: 's-q', 'WorldMark High': 'w-h', 'WorldMark Medium': 'w-m', 'WorldMark Low': 'w-l' };
@@ -739,42 +739,26 @@
   }
 
   /* ---- Resort details ---- */
+  /* Resort card (owner, 2026-10-17): full address and phone at the top, the directory's printed page only (the search bar
+     page stays in the link and in the code comments), and no points tables: the directory page and Club Wyndham's own chart
+     already have them. */
   function openDetail(row) {
     const s = row.s, ref = refOf(s), ps = pointsBySchedule.get(s.id) || [];
     $('detailTitle').textContent = officialName(s.name);
-    let h = '<dl><dt>Location</dt><dd>' + esc(s.location || [s.city, s.state, s.country].filter(Boolean).join(', ')) + '</dd>';
+    const addr = String(ref.address || s.location || [s.city, s.state, s.country].filter(Boolean).join(', ')).split(/\n/).map(esc).join('<br>');
+    const phone = s.phone || ref.phone;
+    let h = '<dl><dt>Address</dt><dd>' + addr + '</dd>';
+    if (phone) h += '<dt>Phone</dt><dd><a href="tel:' + esc(String(phone).replace(/[^0-9+]/g, '')) + '">' + esc(phone) + '</a></dd>';
     if (s.multiple) h += '<dt>Chart</dt><dd>' + esc(s.schedule) + '</dd>';
     h += '<dt>Collection</dt><dd>' + esc(COLLECTION_LABEL[s.collection] || s.collection) + '</dd>';
-    if (ref.vip_benefits) h += '<dt>VIP benefits</dt><dd>' + esc(ref.vip_benefits === 'Conditional' ? (ref.program_notes || 'In some cases') : ref.vip_benefits) + '</dd>';
+    if (ref.vip_benefits) h += '<dt>VIP Benefits</dt><dd>' + esc(ref.vip_benefits === 'Conditional' ? (ref.program_notes || 'In some cases') : ref.vip_benefits) + '</dd>';
     if (ref.club_wyndham_access === 'Yes') h += '<dt>Club Wyndham Access</dt><dd>Yes</dd>';
-    if (s.phone) h += '<dt>Phone</dt><dd>' + esc(s.phone) + '</dd>';
     const pages = [...new Set([].concat(s.pages || [], ...ps.map(p => p.pages || [])))].sort((a, b) => a - b);
-    if (pages.length) h += '<dt>Directory</dt><dd>' + pages.map(cite).join('<br>') + '</dd>';
+    if (pages.length) h += '<dt>Club Wyndham Directory</dt><dd>' + pages.map(cite).join('<br>') + '</dd>';
+    if (s.cp) h += '<dt>Points Chart</dt><dd><a href="' + esc(s.cp.pdf) + '" target="_blank" rel="noopener">Club Wyndham’s Chart (PDF)</a>' + (s.cp.pdfExtra || []).map(u => '<br><a href="' + esc(u.url) + '" target="_blank" rel="noopener">' + esc(u.label) + '</a>').join('') + '</dd>';
     h += '</dl>';
-    if (s.cp) {
-      for (const t of s.cp.tables) {
-        h += '<h3>Points by week group' + (t.building && s.collection === 'Associate' ? ' · ' + esc(t.building) : '') + '</h3><div style="overflow-x:auto"><table class="pts"><thead><tr><th>Weeks</th><th></th>' + t.columns.map(c => '<th>' + esc(br(c)) + '</th>').join('') + '</tr></thead><tbody>';
-        for (const b of t.bands) {
-          const label = (b.label || b.season || 'WorldMark ' + b.tier) + '<br><span class="hint">' + esc(compactWeeks(b.weeks)) + '</span>';
-          h += ['Fri–Sat night', 'Sun–Thur night', 'Full week'].map((n, k) => '<tr>' + (k ? '' : '<td rowspan="3">' + label + '</td>') + '<td>' + n + '</td>' +
-            t.columns.map(c => '<td>' + (b.rates[c] && b.rates[c][k] != null ? b.rates[c][k].toLocaleString('en-US') : '—') + '</td>').join('') + '</tr>').join('');
-        }
-        h += '</tbody></table></div>';
-      }
-      h += '<p class="hint">From Club Wyndham’s own chart: <a href="' + esc(s.cp.pdf) + '" target="_blank" rel="noopener">points chart (PDF)</a>' + (s.cp.pdfExtra || []).map(u => ', <a href="' + esc(u.url) + '" target="_blank" rel="noopener">' + esc(u.label) + '</a>').join('') + ', read on ' + esc(s.cp.checked || window.CLUB_PASS_POINTS.checked) + '.' +
-        (s.collection === 'Club Pass' ? ' WorldMark charts don’t name seasons, so the week groups are shaded by points: darkest is the most expensive.' : '') + '</p>';
-      if (s.cp.notes.length) h += '<p class="alert">' + s.cp.notes.map(n => esc(n.replace(/×/g, '×'))).join('<br>') + '</p>';
-    } else if (ps.length) {
-      const sorted = ps.slice().sort((a, b) => classOf.get(a.category).order - classOf.get(b.category).order);
-      h += '<h3>Points for a full week, by season</h3><table class="pts"><thead><tr><th>Room type</th>' + SEASONS.map(x => '<th>' + x + '</th>').join('') + '</tr></thead><tbody>';
-      for (const p of sorted) {
-        const by = {}; for (const b of p.bands || []) by[b.season] = b.points;
-        h += '<tr><td>' + esc(typeLabel(p)) + '</td>' + SEASONS.map(x => '<td>' + (by[x] != null ? by[x].toLocaleString('en-US') : '—') + '</td>').join('') + '</tr>';
-      }
-      h += '</tbody></table>';
-      const notes = [...new Set(ps.map(p => p.note).concat(ps.map(p => p.derivedNote)).filter(Boolean))];
-      if (notes.length) h += '<p class="hint">' + notes.map(esc).join(' ') + '</p>';
-    } else h += '<p><strong>' + NO_CHART + '.</strong> ' + esc(noChartTip(s)) + '.</p>';
+    if (s.cp) { const src = s.cp.notes.filter(n => /^Source:/.test(n)).map(n => esc(n.replace(/\s*\(CW search bar page \d+\)/g, ''))); if (src.length) h += '<p class="hint">' + src.join('<br>') + '</p>'; }
+    if (!s.cp && !ps.length) h += '<p><strong>' + NO_CHART + '.</strong> ' + esc(noChartTip(s)) + '.</p>';
     if (NOTICES[s.name]) h += '<p class="alert">⚠ ' + esc(NOTICE_TEXT) + ' Club Wyndham explains it in <a href="https://clubwyndham.wyndhamdestinations.com/us/en/resorts/resort-news/2025/your-resort-portfolio-refresh" target="_blank" rel="noopener">Your Resort Portfolio Is Getting A Refresh</a>. Court updates: <a href="' + NOTICES[s.name].url + '" target="_blank" rel="noopener">' + esc(NOTICES[s.name].site) + '</a>.</p>';
     if (s.note) h += '<p class="hint">' + esc(s.note) + '</p>';
     if (WEEK53[s.name]) h += '<p class="hint">This resort’s chart lists week 53 as ' + WEEK53[s.name] + '.</p>';
