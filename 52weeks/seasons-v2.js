@@ -646,7 +646,7 @@
         body += '<td class="' + x.cls + '">' + x.text + '</td>';
       }
       if (tripMode && showType) { const v = totals.get(r); body += '<td class="tot">' + (r.gap ? '' : v == null ? '…' : short(v)) + '</td>'; }
-      if (!tripMode && showType) for (const weekend of [false, true]) { const n = r.gap ? '' : nightly(r, sel.w, weekend); body += '<td class="nt ' + (weekend ? 'we' : 'wd') + '">' + (r.gap ? '' : n == null ? (unpublished(r) ? '<span title="' + NOT_PUBLISHED_TIP + '">Not Published</span>' : '…') : short(n)) + '</td>'; }
+      if (!tripMode && showType) for (const weekend of [false, true]) { const n = r.gap ? '' : nightly(r, sel.w, weekend); body += '<td class="nt ' + (weekend ? 'we' : 'wd') + '">' + (r.gap ? '' : n == null ? (unpublished(r) ? '<span class="np" style="display:inline-block;white-space:normal;font-size:.78em;line-height:1.1;text-align:center" title="' + NOT_PUBLISHED_TIP + '">Not Published</span>' : '…') : short(n)) + '</td>'; }
       body += '</tr>';
     });
     $('grid').innerHTML = head + body + '</tbody>';
@@ -681,7 +681,7 @@
     else if (!v.showType) { text = info.season ? LETTER[info.season] || info.season[0] : '–'; tip = info.season || NONE_LABEL; }
     else if (v.tripMode) {
       let sum = 0, ok = true; for (const d of c.nights) { const n = nightly(r, c.w, isWeekend(d)); if (n == null) ok = false; else sum += n; }
-      text = ok ? short(sum) : unpublished(r) ? 'Not Published' : '…'; if (withTip) tip = (info.season || NONE_LABEL) + ' · ' + c.nights.length + ' night(s) · ' + (ok ? full(sum) : unpublished(r) ? NOT_PUBLISHED_TIP : 'nightly points coming soon');
+      text = ok ? short(sum) : unpublished(r) ? 'Not Published' : '…'; if (withTip) tip = (info.season || NONE_LABEL) + ' · ' + c.nights.length + ' night(s) · ' + (ok ? full(sum) : unpublished(r) ? NOT_PUBLISHED_TIP : 'nightly points not available yet');
     } else { text = short(info.points); if (withTip) tip = (info.season || NONE_LABEL) + ' · ' + full(info.points); }
     if (withTip && info.w53 === 'assumed') tip += ' · Week 53 follows week 52 values and has not been confirmed.';
     return { cls, text, w53: info.w53 === 'assumed', tip: withTip ? weekLabel(c) + ' · ' + tip : '' };

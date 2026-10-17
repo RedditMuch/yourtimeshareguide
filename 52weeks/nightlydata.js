@@ -2,7 +2,6 @@
 // Only rows where every season passed: fullWeek = 5*sunThu + 2*friSat and matched points-data weekly points.
 // Rows with several nightly rates inside one season ("byWeek") list [Fri-Sat, Sun-Thur] for each week 1-52; each week was checked: 5 x Sun-Thur + 2 x Fri-Sat = the weekly points.
 // Lockoff rows ("byWeek" too): the directory says the lockoff equals two other columns together, so each night is the sum of those two columns' nightly points; checked every week (components' weekly points add to the lockoff's, and 5 x Sun-Thur + 2 x Fri-Sat = weekly).
-// Lockoff rows ("byWeek" too): the directory says the lockoff equals two other columns together, so each night is the sum of those two columns' nightly points; checked every week (components' weekly points add to the lockoff's, and 5 x Sun-Thur + 2 x Fri-Sat = weekly).
 window.NIGHTLY_POINTS = {
  "p021-1c1": {
   "Prime": {

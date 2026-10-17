@@ -847,6 +847,10 @@ test.describe("season chart v2 lockoffs and weekly-only rows", () => {
     expect(cells.filter(t => t.trim() === "Not Published").length).toBeGreaterThanOrEqual(8);
     expect(cells.filter(t => t.trim() === "…")).toEqual([]);
     await expect(page.locator("#grid tbody td.nt span[title*='weekly points only']").first()).toBeAttached();
+    // the label (smaller text, wraps if needed) stays inside its column, so it is never cut off
+    const fit = await page.locator("#grid tbody td.nt span.np").evaluateAll(sp => sp.map(x => { const td = x.parentElement; return x.scrollWidth <= td.clientWidth + 1 && x.getBoundingClientRect().right <= td.getBoundingClientRect().right + 1; }));
+    expect(fit.length).toBeGreaterThanOrEqual(8);
+    expect(fit.every(Boolean)).toBe(true);
   });
 });
 
