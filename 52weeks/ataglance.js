@@ -1,10 +1,17 @@
 'use strict';
-// Find a Stay Version 2 (plannerv2.html): adds the Resort History tab and an "Experiences on the App" filter
-// without changing planner.js. It runs after planner.js, so it only adds to what that script draws.
+// At a Glance (ataglance.html): adds the Resort History tab and an "Experiences on the App" filter
+// without changing planner.js. It loads just before planner.js so it can swap out the resort photo helpers (the photos are not published).
 (() => {
 const $ = id => document.getElementById(id);
 const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const TITLE = 'Find a Stay Version 2';
+const TITLE = 'At a Glance';
+
+// The resort photos are not published, so draw no photo (planner.js asks window.ResortDetails for them).
+if (window.ResortDetails) {
+  const RD = window.ResortDetails;
+  RD.photo = () => '';
+  RD.thumbnail = (id, cls = 'property-thumbnail') => '<p class="' + esc(cls) + ' photo-gap photo-gap-inline"><span>Photo not yet sourced</span></p>';
+}
 const H = window.RESORT_HISTORY || { rows: [], eras: [], timeline: [], note: '' };
 const NEWS = window.RESORT_NEWS || [];
 const UNC = 'Unconfirmed';
@@ -62,6 +69,7 @@ if (tabs && findView && savedView) {
   const squash = s => String(s ?? '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '');
   const dateKey = v => {
     if (!v || v === UNC || /^Between/.test(v)) return v && /^Between/.test(v) ? 99999999 : 99999999 + 1;
+    if (v === 'Before 2000') return 19991231;
     let m = /^(\d\d)\/(\d\d)\/(\d\d)$/.exec(v); if (m) return (2000 + +m[3]) * 10000 + +m[1] * 100 + +m[2];
     m = /^(\d{4})$/.exec(v); if (m) return +m[1] * 10000;
     return 99999999 + 1;
@@ -101,7 +109,7 @@ if (tabs && findView && savedView) {
   watch.observe(findView, { attributes: true, attributeFilter: ['hidden'] });
   watch.observe(savedView, { attributes: true, attributeFilter: ['hidden'] });
   const wantsHistory = location.hash === '#history';
-  if (wantsHistory) show();
+  if (wantsHistory) { if (document.readyState !== 'complete') document.addEventListener('DOMContentLoaded', show); else show(); }
 }
 
 // ---- "Experiences on the App" filter on Find a Stay ----

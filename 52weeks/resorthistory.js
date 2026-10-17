@@ -483,7 +483,7 @@ window.RESORT_HISTORY={
    "location": "Branson, MO",
    "status": "Active",
    "origin": "Fairfield Legacy",
-   "added": "Unconfirmed",
+   "added": "Before 2000",
    "removed": "",
    "notes": "Listed in the Fairfield Communities portfolio at 12/31/99. Branson resorts are listed together in the 10-K.",
    "sources": [
@@ -495,7 +495,7 @@ window.RESORT_HISTORY={
      "t": "Directory 2026/2027 index, Page 114 (CW search bar page 118)"
     }
    ],
-   "addedVerified": false,
+   "addedVerified": true,
    "originVerified": true,
    "removedVerified": false
   },
@@ -553,7 +553,7 @@ window.RESORT_HISTORY={
    "location": "Kissimmee, FL",
    "status": "Active",
    "origin": "Fairfield Legacy",
-   "added": "Unconfirmed",
+   "added": "Before 2000",
    "removed": "",
    "notes": "Listed in the Fairfield Communities portfolio at 12/31/99. Fairfield Orlando at Cypress Palms in the 10-K.",
    "sources": [
@@ -565,7 +565,7 @@ window.RESORT_HISTORY={
      "t": "Directory 2026/2027 index, Page 72 (CW search bar page 76)"
     }
    ],
-   "addedVerified": false,
+   "addedVerified": true,
    "originVerified": true,
    "removedVerified": false
   },
@@ -764,7 +764,7 @@ window.RESORT_HISTORY={
    "location": "New Bern, NC",
    "status": "Active",
    "origin": "Fairfield Legacy",
-   "added": "Unconfirmed",
+   "added": "Before 2000",
    "removed": "",
    "notes": "Listed in the Fairfield Communities portfolio at 12/31/99.",
    "sources": [
@@ -776,7 +776,7 @@ window.RESORT_HISTORY={
      "t": "Directory 2026/2027 index, Page 131 (CW search bar page 135)"
     }
    ],
-   "addedVerified": false,
+   "addedVerified": true,
    "originVerified": true,
    "removedVerified": false
   },
@@ -790,7 +790,7 @@ window.RESORT_HISTORY={
    "location": "Flagstaff, AZ",
    "status": "Active",
    "origin": "Fairfield Legacy",
-   "added": "Unconfirmed",
+   "added": "Before 2000",
    "removed": "",
    "notes": "Listed in the Fairfield Communities portfolio at 12/31/99.",
    "sources": [
@@ -802,7 +802,7 @@ window.RESORT_HISTORY={
      "t": "Directory 2026/2027 index, Page 18 (CW search bar page 22)"
     }
    ],
-   "addedVerified": false,
+   "addedVerified": true,
    "originVerified": true,
    "removedVerified": false
   },
@@ -882,7 +882,7 @@ window.RESORT_HISTORY={
    "location": "Williamsburg, VA",
    "status": "Active",
    "origin": "Fairfield Legacy",
-   "added": "Unconfirmed",
+   "added": "Before 2000",
    "removed": "",
    "notes": "Listed in the Fairfield Communities portfolio at 12/31/99. Fairfield Williamsburg at Governor’s Green in the 10-K (development began Q1 2000).",
    "sources": [
@@ -894,7 +894,7 @@ window.RESORT_HISTORY={
      "t": "Directory 2026/2027 index, Page 180 (CW search bar page 184)"
     }
    ],
-   "addedVerified": false,
+   "addedVerified": true,
    "originVerified": true,
    "removedVerified": false
   },
@@ -996,7 +996,7 @@ window.RESORT_HISTORY={
    "location": "Ventura, CA",
    "status": "Active",
    "origin": "Fairfield Legacy",
-   "added": "Unconfirmed",
+   "added": "Before 2000",
    "removed": "",
    "notes": "Listed in the Fairfield Communities portfolio at 12/31/99. Harbortown Point in the 10-K.",
    "sources": [
@@ -1008,7 +1008,7 @@ window.RESORT_HISTORY={
      "t": "Directory 2026/2027 index, Page 41 (CW search bar page 45)"
     }
    ],
-   "addedVerified": false,
+   "addedVerified": true,
    "originVerified": true,
    "removedVerified": false
   },
@@ -1258,7 +1258,7 @@ window.RESORT_HISTORY={
    "location": "Williamsburg, VA",
    "status": "Active",
    "origin": "Fairfield Legacy",
-   "added": "Unconfirmed",
+   "added": "Before 2000",
    "removed": "",
    "notes": "Listed in the Fairfield Communities portfolio at 12/31/99. Fairfield Williamsburg at Kingsgate in the 10-K.",
    "sources": [
@@ -1270,7 +1270,7 @@ window.RESORT_HISTORY={
      "t": "Directory 2026/2027 index, Page 182 (CW search bar page 186)"
     }
    ],
-   "addedVerified": false,
+   "addedVerified": true,
    "originVerified": true,
    "removedVerified": false
   },
@@ -1701,7 +1701,7 @@ window.RESORT_HISTORY={
    "location": "Nashville, TN",
    "status": "Active",
    "origin": "Fairfield Legacy",
-   "added": "Unconfirmed",
+   "added": "Before 2000",
    "removed": "",
    "notes": "Listed in the Fairfield Communities portfolio at 12/31/99. Fairfield Nashville at Music City USA (matched by city).",
    "sources": [
@@ -1713,7 +1713,7 @@ window.RESORT_HISTORY={
      "t": "Directory 2026/2027 index, Page 160 (CW search bar page 164)"
     }
    ],
-   "addedVerified": false,
+   "addedVerified": true,
    "originVerified": true,
    "removedVerified": false
   },
@@ -1820,7 +1820,7 @@ window.RESORT_HISTORY={
    "location": "Edisto Beach, SC",
    "status": "Active",
    "origin": "Fairfield Legacy",
-   "added": "Unconfirmed",
+   "added": "Before 2000",
    "removed": "",
    "notes": "Listed in the Fairfield Communities portfolio at 12/31/99. Fairfield Ocean Ridge in the 10-K (matched by name).",
    "sources": [
@@ -1832,7 +1832,7 @@ window.RESORT_HISTORY={
      "t": "Directory 2026/2027 index, Page 142 (CW search bar page 146)"
     }
    ],
-   "addedVerified": false,
+   "addedVerified": true,
    "originVerified": true,
    "removedVerified": false
   },
@@ -1894,7 +1894,7 @@ window.RESORT_HISTORY={
    "location": "Alexandria, VA",
    "status": "Active",
    "origin": "Fairfield Legacy",
-   "added": "Unconfirmed",
+   "added": "Before 2000",
    "removed": "",
    "notes": "Listed in the Fairfield Communities portfolio at 12/31/99. Fairfield Washington, D.C. in Alexandria, VA (matched by city).",
    "sources": [
@@ -1906,7 +1906,7 @@ window.RESORT_HISTORY={
      "t": "Directory 2026/2027 index, Page 50 (CW search bar page 54)"
     }
    ],
-   "addedVerified": false,
+   "addedVerified": true,
    "originVerified": true,
    "removedVerified": false
   },
@@ -1942,7 +1942,7 @@ window.RESORT_HISTORY={
    "location": "Pagosa Springs, CO",
    "status": "Active",
    "origin": "Fairfield Legacy",
-   "added": "Unconfirmed",
+   "added": "Before 2000",
    "removed": "",
    "notes": "Listed in the Fairfield Communities portfolio at 12/31/99.",
    "sources": [
@@ -1954,7 +1954,7 @@ window.RESORT_HISTORY={
      "t": "Directory 2026/2027 index, Page 44 (CW search bar page 48)"
     }
    ],
-   "addedVerified": false,
+   "addedVerified": true,
    "originVerified": true,
    "removedVerified": false
   },
@@ -1968,7 +1968,7 @@ window.RESORT_HISTORY={
    "location": "Pompano Beach, FL",
    "status": "Active",
    "origin": "Fairfield Legacy",
-   "added": "Unconfirmed",
+   "added": "Before 2000",
    "removed": "",
    "notes": "Listed in the Fairfield Communities portfolio at 12/31/99. The Fairways of Palm Aire in the 10-K.",
    "sources": [
@@ -1980,7 +1980,7 @@ window.RESORT_HISTORY={
      "t": "Directory 2026/2027 index, Page 62 (CW search bar page 66)"
     }
    ],
-   "addedVerified": false,
+   "addedVerified": true,
    "originVerified": true,
    "removedVerified": false
   },
@@ -2208,7 +2208,7 @@ window.RESORT_HISTORY={
    "location": "Sapphire, NC",
    "status": "Active",
    "origin": "Fairfield Legacy",
-   "added": "Unconfirmed",
+   "added": "Before 2000",
    "removed": "",
    "notes": "Listed in the Fairfield Communities portfolio at 12/31/99.",
    "sources": [
@@ -2220,7 +2220,7 @@ window.RESORT_HISTORY={
      "t": "Directory 2026/2027 index, Page 132 (CW search bar page 136)"
     }
    ],
-   "addedVerified": false,
+   "addedVerified": true,
    "originVerified": true,
    "removedVerified": false
   },
@@ -2344,7 +2344,7 @@ window.RESORT_HISTORY={
    "location": "Pompano Beach, FL",
    "status": "Active",
    "origin": "Fairfield Legacy",
-   "added": "Unconfirmed",
+   "added": "Before 2000",
    "removed": "",
    "notes": "Listed in the Fairfield Communities portfolio at 12/31/99.",
    "sources": [
@@ -2356,7 +2356,7 @@ window.RESORT_HISTORY={
      "t": "Directory 2026/2027 index, Page 66 (CW search bar page 70)"
     }
    ],
-   "addedVerified": false,
+   "addedVerified": true,
    "originVerified": true,
    "removedVerified": false
   },
@@ -2370,7 +2370,7 @@ window.RESORT_HISTORY={
    "location": "Pompano Beach, FL",
    "status": "Active",
    "origin": "Fairfield Legacy",
-   "added": "Unconfirmed",
+   "added": "Before 2000",
    "removed": "",
    "notes": "Listed in the Fairfield Communities portfolio at 12/31/99. Santa Barbara Resort and Yacht Club in the 10-K.",
    "sources": [
@@ -2382,7 +2382,7 @@ window.RESORT_HISTORY={
      "t": "Directory 2026/2027 index, Page 67 (CW search bar page 71)"
     }
    ],
-   "addedVerified": false,
+   "addedVerified": true,
    "originVerified": true,
    "removedVerified": false
   },
@@ -2396,7 +2396,7 @@ window.RESORT_HISTORY={
    "location": "Pompano Beach, FL",
    "status": "Active",
    "origin": "Fairfield Legacy",
-   "added": "Unconfirmed",
+   "added": "Before 2000",
    "removed": "",
    "notes": "Listed in the Fairfield Communities portfolio at 12/31/99. Sea Gardens Beach and Tennis Resort in the 10-K.",
    "sources": [
@@ -2408,7 +2408,7 @@ window.RESORT_HISTORY={
      "t": "Directory 2026/2027 index, Page 68 (CW search bar page 72)"
     }
    ],
-   "addedVerified": false,
+   "addedVerified": true,
    "originVerified": true,
    "removedVerified": false
   },
@@ -2422,7 +2422,7 @@ window.RESORT_HISTORY={
    "location": "Myrtle Beach, SC",
    "status": "Active",
    "origin": "Fairfield Legacy",
-   "added": "Unconfirmed",
+   "added": "Before 2000",
    "removed": "",
    "notes": "Listed in the Fairfield Communities portfolio at 12/31/99. Fairfield SeaWatch Plantation in the 10-K.",
    "sources": [
@@ -2434,7 +2434,7 @@ window.RESORT_HISTORY={
      "t": "Directory 2026/2027 index, Page 154 (CW search bar page 158)"
     }
    ],
-   "addedVerified": false,
+   "addedVerified": true,
    "originVerified": true,
    "removedVerified": false
   },
@@ -2597,7 +2597,7 @@ window.RESORT_HISTORY={
    "location": "Kissimmee, FL",
    "status": "Active",
    "origin": "Fairfield Legacy",
-   "added": "Unconfirmed",
+   "added": "Before 2000",
    "removed": "",
    "notes": "Listed in the Fairfield Communities portfolio at 12/31/99. Fairfield Orlando at Star Island in the 10-K.",
    "sources": [
@@ -2609,7 +2609,7 @@ window.RESORT_HISTORY={
      "t": "Directory 2026/2027 index, Page 77 (CW search bar page 81)"
     }
    ],
-   "addedVerified": false,
+   "addedVerified": true,
    "originVerified": true,
    "removedVerified": false
   },
@@ -2851,7 +2851,7 @@ window.RESORT_HISTORY={
    "location": "Villa Rica, GA",
    "status": "Active",
    "origin": "Fairfield Legacy",
-   "added": "Unconfirmed",
+   "added": "Before 2000",
    "removed": "",
    "notes": "Listed in the Fairfield Communities portfolio at 12/31/99. Fairfield Plantation in Villa Rica, GA (matched by town).",
    "sources": [
@@ -2863,7 +2863,7 @@ window.RESORT_HISTORY={
      "t": "Directory 2026/2027 index, Page 85 (CW search bar page 89)"
     }
    ],
-   "addedVerified": false,
+   "addedVerified": true,
    "originVerified": true,
    "removedVerified": false
   },
@@ -2929,7 +2929,7 @@ window.RESORT_HISTORY={
    "location": "North Myrtle Beach, SC",
    "status": "Active",
    "origin": "Fairfield Legacy",
-   "added": "Unconfirmed",
+   "added": "Before 2000",
    "removed": "",
    "notes": "Listed in the Fairfield Communities portfolio at 12/31/99. Described in the 10-K as the first Myrtle Beach resort.",
    "sources": [
@@ -2941,7 +2941,7 @@ window.RESORT_HISTORY={
      "t": "Directory 2026/2027 index, Page 158 (CW search bar page 162)"
     }
    ],
-   "addedVerified": false,
+   "addedVerified": true,
    "originVerified": true,
    "removedVerified": false
   },
@@ -5829,7 +5829,7 @@ window.RESORT_HISTORY={
    "origin": "Unconfirmed",
    "added": "Unconfirmed",
    "removed": "12/31/25",
-   "notes": "Club Wyndham said the association owners voted to cease operations at the end of 2025, and the resort comes off the points maps in early 2026. 12/31/25 is the end-of-year closing date, not a confirmed removal day. Club Wyndham’s article calls it Newport Bay Voyage.",
+   "notes": "Club Wyndham said the association owners voted to cease operations at the end of 2025, and the resort comes off the points maps in early 2026. 12/31/25 is the end-of-year closing date from the association vote, not a confirmed removal day. Club Wyndham’s article calls it Newport Bay Voyage.",
    "sources": [
     {
      "t": "Club Wyndham, Your Resort Portfolio Is Getting a Refresh (2025 resort news; page text saved 10/11/26, article date not shown)",
@@ -5856,7 +5856,7 @@ window.RESORT_HISTORY={
    "origin": "Unconfirmed",
    "added": "Unconfirmed",
    "removed": "12/31/25",
-   "notes": "Club Wyndham said the association owners voted to cease operations at the end of 2025, and the resort comes off the points maps in early 2026. 12/31/25 is the end-of-year closing date, not a confirmed removal day.",
+   "notes": "Club Wyndham said the association owners voted to cease operations at the end of 2025, and the resort comes off the points maps in early 2026. 12/31/25 is the end-of-year closing date from the association vote, not a confirmed removal day.",
    "sources": [
     {
      "t": "Club Wyndham, Your Resort Portfolio Is Getting a Refresh (2025 resort news; page text saved 10/11/26, article date not shown)",
@@ -5881,9 +5881,9 @@ window.RESORT_HISTORY={
    "location": "Branson, MO",
    "status": "Departed",
    "origin": "Fairfield Legacy",
-   "added": "Unconfirmed",
+   "added": "Before 2000",
    "removed": "12/31/25",
-   "notes": "Club Wyndham said the association owners voted to cease operations at the end of 2025, and the resort comes off the points maps in early 2026. 12/31/25 is the end-of-year closing date, not a confirmed removal day. Listed in the Fairfield Communities portfolio at 12/31/99. (Fairfield Branson at the Falls).",
+   "notes": "Club Wyndham said the association owners voted to cease operations at the end of 2025, and the resort comes off the points maps in early 2026. 12/31/25 is the end-of-year closing date from the association vote, not a confirmed removal day. Listed in the Fairfield Communities portfolio at 12/31/99. (Fairfield Branson at the Falls).",
    "sources": [
     {
      "t": "Club Wyndham, Your Resort Portfolio Is Getting a Refresh (2025 resort news; page text saved 10/11/26, article date not shown)",
@@ -5900,7 +5900,7 @@ window.RESORT_HISTORY={
      "t": "Not in the 2026/2027 Directory (searched the full text)"
     }
    ],
-   "addedVerified": false,
+   "addedVerified": true,
    "originVerified": true,
    "removedVerified": true
   },
@@ -5914,7 +5914,7 @@ window.RESORT_HISTORY={
    "origin": "Unconfirmed",
    "added": "Unconfirmed",
    "removed": "12/31/25",
-   "notes": "Club Wyndham said the association owners voted to cease operations at the end of 2025, and the resort comes off the points maps in early 2026. 12/31/25 is the end-of-year closing date, not a confirmed removal day.",
+   "notes": "Club Wyndham said the association owners voted to cease operations at the end of 2025, and the resort comes off the points maps in early 2026. 12/31/25 is the end-of-year closing date from the association vote, not a confirmed removal day.",
    "sources": [
     {
      "t": "Club Wyndham, Your Resort Portfolio Is Getting a Refresh (2025 resort news; page text saved 10/11/26, article date not shown)",
@@ -5941,7 +5941,7 @@ window.RESORT_HISTORY={
    "origin": "Unconfirmed",
    "added": "Unconfirmed",
    "removed": "12/31/25",
-   "notes": "Club Wyndham said the association owners voted to cease operations at the end of 2025, and the resort comes off the points maps in early 2026. 12/31/25 is the end-of-year closing date, not a confirmed removal day.",
+   "notes": "Club Wyndham said the association owners voted to cease operations at the end of 2025, and the resort comes off the points maps in early 2026. 12/31/25 is the end-of-year closing date from the association vote, not a confirmed removal day.",
    "sources": [
     {
      "t": "Club Wyndham, Your Resort Portfolio Is Getting a Refresh (2025 resort news; page text saved 10/11/26, article date not shown)",
@@ -5966,9 +5966,9 @@ window.RESORT_HISTORY={
    "location": "Williamsburg, VA",
    "status": "Departed",
    "origin": "Fairfield Legacy",
-   "added": "Unconfirmed",
+   "added": "Before 2000",
    "removed": "12/31/25",
-   "notes": "Club Wyndham said the association owners voted to cease operations at the end of 2025, and the resort comes off the points maps in early 2026. 12/31/25 is the end-of-year closing date, not a confirmed removal day. Listed in the Fairfield Communities portfolio at 12/31/99. (Fairfield Williamsburg at Patriot’s Place).",
+   "notes": "Club Wyndham said the association owners voted to cease operations at the end of 2025, and the resort comes off the points maps in early 2026. 12/31/25 is the end-of-year closing date from the association vote, not a confirmed removal day. Listed in the Fairfield Communities portfolio at 12/31/99. (Fairfield Williamsburg at Patriot’s Place).",
    "sources": [
     {
      "t": "Club Wyndham, Your Resort Portfolio Is Getting a Refresh (2025 resort news; page text saved 10/11/26, article date not shown)",
@@ -5985,7 +5985,7 @@ window.RESORT_HISTORY={
      "t": "Not in the 2026/2027 Directory (searched the full text)"
     }
    ],
-   "addedVerified": false,
+   "addedVerified": true,
    "originVerified": true,
    "removedVerified": true
   },
@@ -6020,9 +6020,9 @@ window.RESORT_HISTORY={
    "location": "Fairfield Bay, AR",
    "status": "Departed",
    "origin": "Fairfield Legacy",
-   "added": "Unconfirmed",
+   "added": "Before 2000",
    "removed": "12/31/25",
-   "notes": "Club Wyndham said the association owners voted to cease operations at the end of 2025, and the resort comes off the points maps in early 2026. 12/31/25 is the end-of-year closing date, not a confirmed removal day. Listed in the Fairfield Communities portfolio at 12/31/99. The community started in 1966 (Funding Universe); when the timeshare resort was added is Unconfirmed.",
+   "notes": "Club Wyndham said the association owners voted to cease operations at the end of 2025, and the resort comes off the points maps in early 2026. 12/31/25 is the end-of-year closing date from the association vote, not a confirmed removal day. Listed in the Fairfield Communities portfolio at 12/31/99. The community started in 1966 (Funding Universe); when the timeshare resort was added is Unconfirmed.",
    "sources": [
     {
      "t": "Club Wyndham, Your Resort Portfolio Is Getting a Refresh (2025 resort news; page text saved 10/11/26, article date not shown)",
@@ -6043,7 +6043,7 @@ window.RESORT_HISTORY={
      "t": "Not in the 2026/2027 Directory (searched the full text)"
     }
    ],
-   "addedVerified": false,
+   "addedVerified": true,
    "originVerified": true,
    "removedVerified": true
   },
@@ -6055,9 +6055,9 @@ window.RESORT_HISTORY={
    "location": "Fairfield Glade, TN",
    "status": "Departed",
    "origin": "Fairfield Legacy",
-   "added": "Unconfirmed",
+   "added": "Before 2000",
    "removed": "12/31/25",
-   "notes": "Club Wyndham said the association owners voted to cease operations at the end of 2025, and the resort comes off the points maps in early 2026. 12/31/25 is the end-of-year closing date, not a confirmed removal day. Listed in the Fairfield Communities portfolio at 12/31/99.",
+   "notes": "Club Wyndham said the association owners voted to cease operations at the end of 2025, and the resort comes off the points maps in early 2026. 12/31/25 is the end-of-year closing date from the association vote, not a confirmed removal day. Listed in the Fairfield Communities portfolio at 12/31/99.",
    "sources": [
     {
      "t": "Club Wyndham, Your Resort Portfolio Is Getting a Refresh (2025 resort news; page text saved 10/11/26, article date not shown)",
@@ -6078,7 +6078,7 @@ window.RESORT_HISTORY={
      "t": "Not in the 2026/2027 Directory (searched the full text)"
     }
    ],
-   "addedVerified": false,
+   "addedVerified": true,
    "originVerified": true,
    "removedVerified": true
   },
@@ -6092,7 +6092,7 @@ window.RESORT_HISTORY={
    "origin": "Cendant Era",
    "added": "2005",
    "removed": "12/31/25",
-   "notes": "Club Wyndham said the association owners voted to cease operations at the end of 2025, and the resort comes off the points maps in early 2026. 12/31/25 is the end-of-year closing date, not a confirmed removal day. Added in 2005 when Wyndham Vacation Resorts bought Shawnee Development, Inc.; a new building opened 10/21/08 (press release).",
+   "notes": "Club Wyndham said the association owners voted to cease operations at the end of 2025, and the resort comes off the points maps in early 2026. 12/31/25 is the end-of-year closing date from the association vote, not a confirmed removal day. Added in 2005 when Wyndham Vacation Resorts bought Shawnee Development, Inc.; a new building opened 10/21/08 (press release).",
    "sources": [
     {
      "t": "Club Wyndham, Your Resort Portfolio Is Getting a Refresh (2025 resort news; page text saved 10/11/26, article date not shown)",
@@ -6146,7 +6146,7 @@ window.RESORT_HISTORY={
    "origin": "Unconfirmed",
    "added": "Unconfirmed",
    "removed": "12/31/25",
-   "notes": "Club Wyndham said the association owners voted to cease operations at the end of 2025, and the resort comes off the points maps in early 2026. 12/31/25 is the end-of-year closing date, not a confirmed removal day. Club Wyndham’s article calls it Skyline Towers.",
+   "notes": "Club Wyndham said the association owners voted to cease operations at the end of 2025, and the resort comes off the points maps in early 2026. 12/31/25 is the end-of-year closing date from the association vote, not a confirmed removal day. Club Wyndham’s article calls it Skyline Towers.",
    "sources": [
     {
      "t": "Club Wyndham, Your Resort Portfolio Is Getting a Refresh (2025 resort news; page text saved 10/11/26, article date not shown)",
@@ -6177,7 +6177,7 @@ window.RESORT_HISTORY={
    "origin": "Unconfirmed",
    "added": "Unconfirmed",
    "removed": "12/31/25",
-   "notes": "Club Wyndham said the association owners voted to cease operations at the end of 2025, and the resort comes off the points maps in early 2026. 12/31/25 is the end-of-year closing date, not a confirmed removal day. Not in the chart resort list. Also in Directory 2023/2024 index, Page 96 (CW search bar page 98).",
+   "notes": "Club Wyndham said the association owners voted to cease operations at the end of 2025, and the resort comes off the points maps in early 2026. 12/31/25 is the end-of-year closing date from the association vote, not a confirmed removal day. Not in the chart resort list. Also in Directory 2023/2024 index, Page 96 (CW search bar page 98).",
    "sources": [
     {
      "t": "Club Wyndham, Your Resort Portfolio Is Getting a Refresh (2025 resort news; page text saved 10/11/26, article date not shown)",

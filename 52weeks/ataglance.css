@@ -1,4 +1,4 @@
-/* Find a Stay Version 2: Resort History tab and Experiences filter. Light theme only, like the rest of this page. */
+/* At a Glance: Resort History tab and Experiences filter. Light theme only, like the rest of this page. */
 [hidden] { display: none !important; }
 .module-tabs { max-width: 100%; flex-wrap: wrap; }
 .rh-view { min-width: 0; max-width: 100%; font-size: 17px; line-height: 1.5; }

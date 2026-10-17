@@ -1,7 +1,7 @@
-// Find a Stay Version 2 (plannerv2.html): Resort History tab, filters, News and Notices, Experiences filter.
+// At a Glance (ataglance.html): Resort History tab, filters, News and Notices, Experiences filter.
 import { test, expect } from "@playwright/test";
 
-const URL = "/52weeks/plannerv2.html";
+const URL = "/52weeks/ataglance.html";
 const rows = page => page.locator("#rhTable tbody tr");
 
 async function open(page) {
@@ -13,21 +13,38 @@ async function open(page) {
   return errors;
 }
 
-test("plannerv2: names, noindex and three tabs", async ({ page }) => {
+test("ataglance: names, noindex and three tabs", async ({ page }) => {
   const errors = await open(page);
-  await expect(page).toHaveTitle("Find a Stay Version 2");
-  await expect(page.locator("h1")).toHaveText("Find a Stay Version 2");
-  await expect(page.locator("#breadcrumbPage")).toHaveText("Find a Stay Version 2");
+  await expect(page).toHaveTitle("At a Glance");
+  await expect(page.locator("h1")).toHaveText("At a Glance");
+  await expect(page.locator("#breadcrumbPage")).toHaveText("At a Glance");
   expect(await page.locator('meta[name="robots"]').getAttribute("content")).toContain("noindex");
   await expect(page.locator(".module-tabs button")).toHaveText([/Find a Stay/, /Browser Shortlist/, /Resort History/]);
   // planner.js rewrites the titles when it draws; ours must survive a tab change
   await page.click("#savedTab");
-  await expect(page.locator("h1")).toHaveText("Find a Stay Version 2");
-  await expect(page).toHaveTitle("Find a Stay Version 2");
+  await expect(page.locator("h1")).toHaveText("At a Glance");
+  await expect(page).toHaveTitle("At a Glance");
   expect(errors).toEqual([]);
 });
 
-test("plannerv2: Resort History tab shows and hides with the other tabs", async ({ page }) => {
+test("ataglance: the #history link opens Resort History", async ({ page }) => {
+  await page.goto(URL + "#history");
+  await expect(page.locator("#historyView")).toBeVisible();
+  await expect(page.locator("#findView")).toBeHidden();
+});
+
+test("ataglance: Fairfield Legacy dates read Before 2000 and sort", async ({ page }) => {
+  await open(page);
+  await page.click("#historyTab");
+  await page.selectOption("#rhOrigin", "Fairfield Legacy");
+  await page.locator("th[data-k=added] button").click();
+  const d = await page.$$eval("#rhTable tbody tr", trs => trs.map(tr => tr.children[4].textContent.trim()));
+  expect(d).toContain("Before 2000");
+  expect(d[0]).toBe("1978");
+  expect(d.indexOf("Before 2000")).toBeGreaterThan(d.lastIndexOf("1999"));
+});
+
+test("ataglance: Resort History tab shows and hides with the other tabs", async ({ page }) => {
   const errors = await open(page);
   await page.click("#historyTab");
   await expect(page.locator("#historyView")).toBeVisible();
@@ -46,7 +63,7 @@ test("plannerv2: Resort History tab shows and hides with the other tabs", async 
   expect(errors).toEqual([]);
 });
 
-test("plannerv2: table, note, legend, headers and counts", async ({ page }) => {
+test("ataglance: table, note, legend, headers and counts", async ({ page }) => {
   const errors = await open(page);
   await page.click("#historyTab");
   await expect(page.locator(".rh-note")).toContainText("This list is being built. Dates marked Unconfirmed have not been verified.");
@@ -68,11 +85,11 @@ test("plannerv2: table, note, legend, headers and counts", async ({ page }) => {
   await expect(region).toHaveAttribute("aria-label", /.+/);
   // every shown date is mm/dd/yy, a year, Unconfirmed or an edition window
   const dates = await page.$$eval("#rhTable tbody tr", trs => trs.flatMap(tr => [4, 5].map(i => tr.children[i + 0].textContent.replace(/Unconfirmed/g, "").trim())));
-  for (const d of dates) expect(d === "" || d === "–" || /^(\d\d\/\d\d\/\d\d|\d{4}|Between 20\d\d\/20\d\d and 20\d\d\/20\d\d Directories)$/.test(d)).toBe(true);
+  for (const d of dates) expect(d === "" || d === "–" || /^(\d\d\/\d\d\/\d\d|\d{4}|Before 2000|Between 20\d\d\/20\d\d and 20\d\d\/20\d\d Directories)$/.test(d)).toBe(true);
   expect(errors).toEqual([]);
 });
 
-test("plannerv2: filters, search ignoring punctuation, sorting", async ({ page }) => {
+test("ataglance: filters, search ignoring punctuation, sorting", async ({ page }) => {
   await open(page);
   await page.click("#historyTab");
   const total = await page.evaluate(() => window.RESORT_HISTORY.rows.length);
@@ -109,7 +126,7 @@ test("plannerv2: filters, search ignoring punctuation, sorting", async ({ page }
   expect(first).not.toContain("Unconfirmed"); // dated rows come before Unconfirmed ones
 });
 
-test("plannerv2: departed resorts and sources", async ({ page }) => {
+test("ataglance: departed resorts and sources", async ({ page }) => {
   await open(page);
   await page.click("#historyTab");
   await page.selectOption("#rhStatus", "Departed");
@@ -122,7 +139,7 @@ test("plannerv2: departed resorts and sources", async ({ page }) => {
   await expect(bentley).toContainText("Directory 2025/2026 index, Page 120 (CW search bar page 124)");
 });
 
-test("plannerv2: News and Notices entry on four resorts", async ({ page }) => {
+test("ataglance: News and Notices entry on four resorts", async ({ page }) => {
   await open(page);
   await page.click("#historyTab");
   for (const name of ["Club Wyndham Sea Gardens", "Club Wyndham Ocean Boulevard", "Club Wyndham Bonnet Creek", "WorldMark Sea Gardens"]) {
@@ -136,7 +153,7 @@ test("plannerv2: News and Notices entry on four resorts", async ({ page }) => {
   await expect(page.locator(".rh-news li")).toHaveCount(0);
 });
 
-test("plannerv2: Experiences on the App filter on Find a Stay", async ({ page }) => {
+test("ataglance: Experiences on the App filter on Find a Stay", async ({ page }) => {
   const errors = await open(page);
   await expect(page.locator("#planResults .trip-candidate").first()).toBeVisible();
   const all = await page.locator("#planResults .trip-candidate").count();
@@ -150,7 +167,7 @@ test("plannerv2: Experiences on the App filter on Find a Stay", async ({ page })
   expect(errors).toEqual([]);
 });
 
-test("plannerv2: no sideways scrolling and the table scrolls inside its region", async ({ page }) => {
+test("ataglance: no sideways scrolling and the table scrolls inside its region", async ({ page }) => {
   await open(page);
   await page.click("#historyTab");
   const m = await page.evaluate(() => ({ doc: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth), win: document.documentElement.clientWidth, region: [document.getElementById("rhScroll").scrollWidth, document.getElementById("rhScroll").clientWidth] }));
