@@ -2,12 +2,12 @@
 # normalized to LF. Matches the next protected snapshot tag, season-chart-v2-2026-10-11-speed
 # (owner-approved changes: "select" wording, #35; softer season colors, #37;
 # resort, building and room-type names, planning #38; Collections filters, planning #39;
-# faster chart with a loading indicator, planning #36; filters round, owner 2026-10-12; affiliate dot, Angel Fire, Villas at Fairfield, owner 2026-10-12; last rows visible on iPhone, Weekday and Weekend headers stay at the top on phones, owner 2026-10-17).
+# faster chart with a loading indicator, planning #36; filters round, owner 2026-10-12; affiliate dot, Angel Fire, Villas at Fairfield, owner 2026-10-12; last rows visible on iPhone, Weekday and Weekend headers stay at the top on phones, trip-totals note removed, owner 2026-10-17).
 # Change this list only when the owner asks for a change to season chart v2,
 # in the same pull request as that change.
 fb7ffc485cdbe16efd8d19278ed289b1fb8968e8cb386c956386fef84175c8e2  52weeks/seasons-v2.html
 b088bfc848841acee358ad4b59e4518d632cb26945449a6a030d479f83dec53e  52weeks/seasons-v2.css
-63d0a416199a907415cb85287c65f837ad838976e6287456c9d53bde74d6776f  52weeks/seasons-v2.js
+e063ddec7146d92fef02db018448f61753be93c321c0864506c0124f3a616086  52weeks/seasons-v2.js
 1cacf0a1bd4d55735612877dd26a2dcf92e19dbaf8bd5640a60ee9b02e96559e  52weeks/club-pass-points.js
 6021285dd8824c76780b15c9f7934ea4c6d8e241195a816316673f064a3d750d  52weeks/data.js
 7cbcafc2b825a3238dd17423acb22d971acb43f3660d7a69a970acf7b0f52ac0  52weeks/geo-data.js

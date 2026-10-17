@@ -593,8 +593,6 @@
     if (t.bad) { note.classList.add('warn'); note.textContent = t.nights < 1 ? 'End date is before the start date' : (t.nights + 1) + ' days: choose up to ' + MAX_DAYS; return; }
     note.textContent = t.days + ' days, ' + t.nights + (t.nights === 1 ? ' night' : ' nights');
     if (t.nights === 1) { note.classList.add('warn'); note.title = 'One night can’t be booked. Shown for comparison only.'; }
-    $('dateAlert').hidden = false;
-    $('dateAlert').innerHTML = '<strong>Trip totals use each resort’s printed nightly points</strong> (Friday–Saturday and Sunday–Thursday). A few room types show “…” where the directory prints no nightly rate, or “Not Published” where it prints weekly points only.';
   }
 
   function renderGrid(rows, cols, t, totals) {
