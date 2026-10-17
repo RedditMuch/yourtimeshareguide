@@ -231,7 +231,7 @@ test.describe("season chart v2 Collections filters (2026-10-12)", () => {
   test("Associate alone shows the 7 ANZ resorts", async ({ page }) => {
     await chartRows(page, { size: null, collections: ["Associate"] });
     expect(await resortTotal(page)).toBe(7);
-    await expect(page.locator("#grid tbody .dot.assoc")).toHaveCount(7);
+    await expect(page.locator("#grid tbody .dot.assoc")).toHaveCount(8); // Sydney is one resort with two charts (Sydney, and Sydney Suites as a building), so it has two listings and two dots (planning #40)
   });
 
   test("no Locations buttons; resort types are in the owner's order", async ({ page }) => {
@@ -722,5 +722,68 @@ test.describe("season chart v2 every room type is selectable (2026-10-16)", () =
     await expect(page.locator("#bedrooms")).toHaveValue("all");
     const sum = (await page.locator("#typeSummary").textContent()).match(/(\d+) of (\d+)/);
     expect(sum[1]).toBe(sum[2]);
+  });
+});
+
+// ---- Planning #40: Associate resorts (Australia and New Zealand) have their points charts ----
+test.describe("season chart v2 Associate resorts show points (planning #40)", () => {
+  const NAMES = ["Cairns", "Coffs Harbour", "Golden Beach", "Seven Mile Beach", "Sydney", "Torquay", "Wanaka"];
+
+  test("the 7 Associate resorts show room types, with no \"Points chart coming soon\"", async ({ page }) => {
+    const rows = await chartRows(page, { size: "all", collections: ["Associate"] });
+    for (const n of NAMES) expect(rows.filter(r => r.resort.includes(n)).length, n).toBeGreaterThan(0);
+    expect(rows.some(r => /coming soon/i.test(r.type))).toBe(false);
+    await expect(page.locator("#grid .gap")).toHaveCount(0);
+    const nights = await page.locator("#grid tbody td.nt.wd").evaluateAll(tds => tds.filter(t => /\d/.test(t.textContent)).length);
+    expect(nights).toBeGreaterThanOrEqual(NAMES.length);
+  });
+
+  test("each chart adds up (Full Week = 2 x Fri-Sat + 5 x Sun-Thur) and covers weeks 1 to 52", async ({ page }) => {
+    await page.goto("/52weeks/seasons-v2.html");
+    await expect(page.locator("#grid tbody tr").first()).toBeVisible();
+    const r = await page.evaluate(() => {
+      const cp = window.CLUB_PASS_POINTS.resorts, out = [];
+      for (const [name, c] of Object.entries(cp)) if (/^Club Wyndham (Cairns|Coffs Harbour|Golden Beach|Seven Mile Beach|Sydney|Torquay|Wanaka)$/.test(name))
+        for (const t of c.tables) {
+          const seen = {}; let bad = 0;
+          for (const b of t.bands) { for (const w of b.weeks) seen[w] = (seen[w] || 0) + 1; for (const col of t.columns) { const [f, s, u] = b.rates[col]; if (2 * f + 5 * s !== u) bad++; } }
+          const missing = []; for (let w = 1; w <= 52; w++) if (seen[w] !== 1) missing.push(w);
+          out.push({ name, building: t.building, bad, missing });
+        }
+      return out;
+    });
+    expect(r.map(x => x.name).filter((v, i, a) => a.indexOf(v) === i)).toHaveLength(7);
+    for (const x of r) {
+      expect(x.bad, x.name).toBe(0);
+      // Seven Mile Beach prints the High weeks as "35-35"; the owner decided it is a typo for 35-37, so weeks 36 and 37 are High
+      expect(x.missing, x.name).toEqual([]);
+    }
+  });
+});
+
+test.describe("season chart v2 website names, apostrophes and departed resorts (planning #40)", () => {
+  test("names follow Club Wyndham's website; no curly apostrophes; no El Cid", async ({ page }) => {
+    const rows = await chartRows(page, { size: null });
+    const names = [...new Set(rows.map(r => r.resort))];
+    for (const n of ["Margaritaville Vacation Club by Wyndham - Atlanta", "Margaritaville Vacation Club by Wyndham - Desert Blue", "Margaritaville Vacation Club by Wyndham - Nashville", "Margaritaville Vacation Club by Wyndham - Rio Mar", "Margaritaville Vacation Club by Wyndham - St. Thomas",
+      "WorldMark Chelan - Lake House", "Holua Resort at the Mauna Loa Village", "Kauai Coast Resort at the Beachboy", "Waikiki Marina Resort at the Ilikai", "Dolphin's Cove", "Governor's Green", "Suites at Fisherman's Wharf", "WorldMark Dolphin's Cove"]) expect(names, n).toContain(n);
+    expect(names.filter(n => /[‘’]/.test(n))).toEqual([]);
+    expect(names.filter(n => /El Cid|El Moro|Granada Hotel|Marina Beach Hotel|La Ceiba/.test(n))).toEqual([]);
+    for (const n of ["WorldMark Plaza Resort & Spa", "WorldMark Canmore-Banff"]) expect(names.some(x => x.startsWith(n)), n).toBe(true);
+  });
+
+  test("searching Dolphin's with a straight or curly apostrophe, or an old name, finds the resort", async ({ page }) => {
+    for (const q of ["Dolphin's", "Dolphin’s", "Margaritaville Vacation Club - Atlanta", "WorldMark Lake House"]) {
+      const rows = await chartRows(page, { size: null, query: q });
+      expect(rows.length, q).toBeGreaterThan(0);
+    }
+    const rows = await chartRows(page, { size: null, query: "Dolphin's" });
+    expect(rows.map(r => r.resort)).toContain("Dolphin's Cove");
+  });
+
+  test("Harbortown Point shows points with Weekday and Weekend nights", async ({ page }) => {
+    const rows = await chartRows(page, { size: "all", query: "Harbortown" });
+    expect(rows.filter(r => r.resort === "Harbortown Point").map(r => r.type).sort()).toEqual(["1 BR Plus", "Studio"]);
+    expect(rows.some(r => /coming soon/i.test(r.type))).toBe(false);
   });
 });

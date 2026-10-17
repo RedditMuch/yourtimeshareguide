@@ -97,7 +97,11 @@
   const br = s => String(s || '').replace(/\bBedroom\b/g, 'BR');
   const groupLabel = g => g === 'Hotel' ? 'Hotel room' : br(g);
   const sizeWords = g => g === 'Hotel' ? 'Hotel rooms' : g === 'Studio' ? 'Studios' : br(g) + ' units';
-  const shortName = s => s.replace(/^Club Wyndham /, '').replace(/^Margaritaville Vacation Club - /, 'Margaritaville · ');
+  /* Resort names as Club Wyndham's website writes them (owner, 2026-10-16; planning name comparison). The data keeps the directory's names (other pages read them), so this only changes what is shown; searching still matches the old names too. Names use the plain keyboard apostrophe. */
+  const WEBSITE_NAMES = { 'WorldMark Lake House': 'WorldMark Chelan - Lake House', 'Club Wyndham Holua Resort at Mauna Loa Village': 'Club Wyndham Holua Resort at the Mauna Loa Village',
+    'Club Wyndham Kauai Coast Resort at The Beachboy': 'Club Wyndham Kauai Coast Resort at the Beachboy', 'Club Wyndham Waikiki Marina Resort at The Ilikai': 'Club Wyndham Waikiki Marina Resort at the Ilikai' };
+  const officialName = n => (WEBSITE_NAMES[n] || n.replace(/^Margaritaville Vacation Club - /, 'Margaritaville Vacation Club by Wyndham - ')).replace(/[‘’]/g, "'");
+  const shortName = s => officialName(s).replace(/^Club Wyndham /, '');
   const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const norm = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
   const crownSvg = cls => '<svg class="crown' + (cls ? ' ' + cls : '') + '" viewBox="0 0 16 12" aria-hidden="true"><path d="M1 10 2 3l4 3 2-5 2 5 4-3 1 7z"/></svg>';
@@ -149,6 +153,8 @@
      Its own chart (cw-angel-fire-cabin-share-pc.pdf) joins the resort's chart as one more column. The resort's chart
      (cw-angel-fire-pc.pdf) states "A Hotel Studio and a Hotel Room Deluxe equals total point value for a 1 BR Deluxe Lockoff",
      so that room type is the sum of the two Eagle Wing Suites columns (full week and each night type). */
+  /* The El Cid resorts have left Club Wyndham (owner, 2026-10-16): they are not in the chart. */
+  D.rows = D.rows.filter(s => !/^El Cid /.test(s.name));
   const AF = CP['Angel Fire Resort'], AF1 = CP['Angel Fire Resort - Cabin Share I'];
   if (AF && AF1 && !AF.tables[0].columns.includes('Cabin Share I 3 BR')) {
     const t = AF.tables[0], cols = t.columns, add = (a, b) => a.map((x, i) => x + b[i]);
@@ -310,7 +316,7 @@
     $('spanButtons').innerHTML = SPANS.map(n => '<button type="button" data-span="' + n + '">' + (n < 0 ? 'All' : n === 0 ? 'Selected' : n) + '</button>').join('');
     const firstDay = iso(WEEKS.find(x => x.y === startYear).start), lastDay = iso(WEEKS[WEEKS.length - 1].start + 6 * DAY);
     for (const id of ['startDate', 'endDate']) { $(id).min = firstDay; $(id).max = lastDay; }
-    const names = [...new Set(D.rows.map(s => s.name))].sort(); // official names only; a short form would just repeat each one (owner, 2026-10-12)
+    const names = [...new Set(D.rows.map(s => officialName(s.name)))].sort(); // official names only; a short form would just repeat each one (owner, 2026-10-12)
     $('places').innerHTML = regions.concat(COUNTRIES.map(c => c[0])).filter((r, i, a) => a.indexOf(r) === i && r !== 'U.S. Virgin Islands').map(r => '<option value="' + esc(r) + '"></option>').join('') + names.map(n => '<option value="' + esc(n) + '"></option>').join('') + (GEO ? GEO.options() : '');
   }
 
@@ -356,7 +362,7 @@
     if (center) return { city: true, test: s => GEO.match({ resort_id: s.resort_id, name: s.name, city: s.city, state: s.state, country: s.country, schedule: s.schedule }, q, state.radius),
       hint: 'Within ' + state.radius.toLocaleString('en-US') + ' miles of ' + center.label + ', in a straight line.' };
     const words = norm(q).split(' ').filter(Boolean);
-    return { test: s => { const t = norm([s.name, s.city, s.state, s.country, s.schedule].join(' ')); return words.every(w => t.includes(w)); },
+    return { test: s => { const t = norm([s.name, officialName(s.name), s.city, s.state, s.country, s.schedule].join(' ')); return words.every(w => t.includes(w)); },
       hint: 'Matching “' + q + '”. The search radius needs a city and state, such as Orlando, Florida.' };
   }
 
@@ -731,7 +737,7 @@
   /* ---- Resort details ---- */
   function openDetail(row) {
     const s = row.s, ref = refOf(s), ps = pointsBySchedule.get(s.id) || [];
-    $('detailTitle').textContent = s.name;
+    $('detailTitle').textContent = officialName(s.name);
     let h = '<dl><dt>Location</dt><dd>' + esc(s.location || [s.city, s.state, s.country].filter(Boolean).join(', ')) + '</dd>';
     if (s.multiple) h += '<dt>Chart</dt><dd>' + esc(s.schedule) + '</dd>';
     h += '<dt>Collection</dt><dd>' + esc(COLLECTION_LABEL[s.collection] || s.collection) + '</dd>';
@@ -743,15 +749,15 @@
     h += '</dl>';
     if (s.cp) {
       for (const t of s.cp.tables) {
-        h += '<h3>Points by week group</h3><div style="overflow-x:auto"><table class="pts"><thead><tr><th>Weeks</th><th></th>' + t.columns.map(c => '<th>' + esc(br(c)) + '</th>').join('') + '</tr></thead><tbody>';
+        h += '<h3>Points by week group' + (t.building && s.collection === 'Associate' ? ' · ' + esc(t.building) : '') + '</h3><div style="overflow-x:auto"><table class="pts"><thead><tr><th>Weeks</th><th></th>' + t.columns.map(c => '<th>' + esc(br(c)) + '</th>').join('') + '</tr></thead><tbody>';
         for (const b of t.bands) {
-          const label = (b.season || 'WorldMark ' + b.tier) + '<br><span class="hint">' + esc(compactWeeks(b.weeks)) + '</span>';
+          const label = (b.label || b.season || 'WorldMark ' + b.tier) + '<br><span class="hint">' + esc(compactWeeks(b.weeks)) + '</span>';
           h += ['Fri–Sat night', 'Sun–Thur night', 'Full week'].map((n, k) => '<tr>' + (k ? '' : '<td rowspan="3">' + label + '</td>') + '<td>' + n + '</td>' +
             t.columns.map(c => '<td>' + (b.rates[c] && b.rates[c][k] != null ? b.rates[c][k].toLocaleString('en-US') : '—') + '</td>').join('') + '</tr>').join('');
         }
         h += '</tbody></table></div>';
       }
-      h += '<p class="hint">From Club Wyndham’s own chart: <a href="' + esc(s.cp.pdf) + '" target="_blank" rel="noopener">points chart (PDF)</a>, read on ' + esc(window.CLUB_PASS_POINTS.checked) + '.' +
+      h += '<p class="hint">From Club Wyndham’s own chart: <a href="' + esc(s.cp.pdf) + '" target="_blank" rel="noopener">points chart (PDF)</a>' + (s.cp.pdfExtra || []).map(u => ', <a href="' + esc(u.url) + '" target="_blank" rel="noopener">' + esc(u.label) + '</a>').join('') + ', read on ' + esc(s.cp.checked || window.CLUB_PASS_POINTS.checked) + '.' +
         (s.collection === 'Club Pass' ? ' WorldMark charts don’t name seasons, so the week groups are shaded by points: darkest is the most expensive.' : '') + '</p>';
       if (s.cp.notes.length) h += '<p class="alert">' + s.cp.notes.map(n => esc(n.replace(/×/g, '×'))).join('<br>') + '</p>';
     } else if (ps.length) {
