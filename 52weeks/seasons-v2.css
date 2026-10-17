@@ -392,3 +392,7 @@ select option{padding:1px 8px;min-height:0;line-height:1.2;font-size:13.5px}
    screen with the toolbars showing; browsers without svh ignore these rules and keep the vh heights above. */
 .grid-wrap{max-height:calc(100svh - 40px)}
 @media (max-width:820px){.grid-wrap{max-height:80svh}}
+
+/* Phone fix (owner, 2026-10-17): on narrow screens the Weekday and Weekend columns stop sticking to the right
+   (line 209), but their headers must still stay at the top like the week headers. */
+@media (max-width:700px){.grid thead .nt{position:sticky;top:0;right:auto}}
