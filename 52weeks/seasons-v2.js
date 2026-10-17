@@ -743,15 +743,15 @@
     h += '</dl>';
     if (s.cp) {
       for (const t of s.cp.tables) {
-        h += '<h3>Points by week group</h3><div style="overflow-x:auto"><table class="pts"><thead><tr><th>Weeks</th><th></th>' + t.columns.map(c => '<th>' + esc(br(c)) + '</th>').join('') + '</tr></thead><tbody>';
+        h += '<h3>Points by week group' + (t.building && s.collection === 'Associate' ? ' · ' + esc(t.building) : '') + '</h3><div style="overflow-x:auto"><table class="pts"><thead><tr><th>Weeks</th><th></th>' + t.columns.map(c => '<th>' + esc(br(c)) + '</th>').join('') + '</tr></thead><tbody>';
         for (const b of t.bands) {
-          const label = (b.season || 'WorldMark ' + b.tier) + '<br><span class="hint">' + esc(compactWeeks(b.weeks)) + '</span>';
+          const label = (b.label || b.season || 'WorldMark ' + b.tier) + '<br><span class="hint">' + esc(compactWeeks(b.weeks)) + '</span>';
           h += ['Fri–Sat night', 'Sun–Thur night', 'Full week'].map((n, k) => '<tr>' + (k ? '' : '<td rowspan="3">' + label + '</td>') + '<td>' + n + '</td>' +
             t.columns.map(c => '<td>' + (b.rates[c] && b.rates[c][k] != null ? b.rates[c][k].toLocaleString('en-US') : '—') + '</td>').join('') + '</tr>').join('');
         }
         h += '</tbody></table></div>';
       }
-      h += '<p class="hint">From Club Wyndham’s own chart: <a href="' + esc(s.cp.pdf) + '" target="_blank" rel="noopener">points chart (PDF)</a>, read on ' + esc(window.CLUB_PASS_POINTS.checked) + '.' +
+      h += '<p class="hint">From Club Wyndham’s own chart: <a href="' + esc(s.cp.pdf) + '" target="_blank" rel="noopener">points chart (PDF)</a>' + (s.cp.pdfExtra || []).map(u => ', <a href="' + esc(u) + '" target="_blank" rel="noopener">suites chart (PDF)</a>').join('') + ', read on ' + esc(s.cp.checked || window.CLUB_PASS_POINTS.checked) + '.' +
         (s.collection === 'Club Pass' ? ' WorldMark charts don’t name seasons, so the week groups are shaded by points: darkest is the most expensive.' : '') + '</p>';
       if (s.cp.notes.length) h += '<p class="alert">' + s.cp.notes.map(n => esc(n.replace(/×/g, '×'))).join('<br>') + '</p>';
     } else if (ps.length) {
