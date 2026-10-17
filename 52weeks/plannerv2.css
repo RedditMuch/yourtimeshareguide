@@ -1,0 +1,58 @@
+/* Find a Stay Version 2: Resort History tab and Experiences filter. Light theme only, like the rest of this page. */
+[hidden] { display: none !important; }
+.module-tabs { max-width: 100%; flex-wrap: wrap; }
+.rh-view { min-width: 0; max-width: 100%; font-size: 17px; line-height: 1.5; }
+.rh-note { margin: 12px 0; padding: 12px 16px; border: 2px solid #b7791f; border-left-width: 8px; background: #fff8e6; color: #3d2a00; border-radius: 4px; }
+.rh-note p { margin: 4px 0 0; }
+.rh-h3 { margin: 18px 0 8px; font-size: 19px; }
+.rh-eras { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; margin: 0 0 12px; }
+.rh-era { margin: 0; padding: 10px 14px; border: 1px solid var(--line, #d2dfe5); border-radius: 4px; background: #fff; }
+.rh-era dt { font-weight: 800; font-size: 18px; color: var(--navy, #102d40); }
+.rh-era dd { margin: 4px 0 0; font-size: 15.5px; }
+.rh-range { display: inline-block; font-weight: 700; color: #1d4a5c; }
+.rh-who { color: var(--muted, #526978); }
+.rh-timeline { margin: 8px 0 14px; border: 1px solid var(--line, #d2dfe5); border-radius: 4px; padding: 8px 14px; background: #fff; }
+.rh-timeline summary { cursor: pointer; font-weight: 700; min-height: 44px; display: flex; align-items: center; }
+.rh-timeline li { margin: 6px 0; }
+.rh-filters { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin: 12px 0 6px; }
+.rh-filters label { display: grid; gap: 4px; font-weight: 700; font-size: 16px; min-width: 0; }
+.rh-filters select, .rh-filters input { min-height: 44px; font-size: 17px; padding: 6px 10px; border: 1px solid #6b7f8c; border-radius: 4px; max-width: 100%; box-sizing: border-box; background: #fff; color: #122f42; }
+.rh-search { flex: 1 1 240px; }
+.rh-search input { width: 100%; }
+.rh-count { margin: 8px 0 2px; font-size: 19px; font-weight: 800; }
+.rh-unc { margin: 2px 0 10px; font-size: 16px; }
+.rh-badge { display: inline-block; padding: 1px 8px; border: 2px dashed #8a5a00; border-radius: 4px; background: #fff3d1; color: #5a3b00; font-weight: 700; font-size: 15px; white-space: nowrap; }
+.rh-scroll { max-width: 100%; max-height: 75vh; overflow: auto; border: 1px solid var(--line, #cbd8df); border-radius: 4px; background: #fff; }
+.rh-scroll:focus-visible { outline: 3px solid #1959a6; outline-offset: 2px; }
+.rh-table { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 1500px; font-size: 16.5px; line-height: 1.45; }
+.rh-table th, .rh-table td { padding: 12px 14px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line, #dce5e9); }
+.rh-table thead th { position: sticky; top: 0; z-index: 1; background: #102d40; color: #fff; font-size: 16px; white-space: nowrap; }
+.rh-table tbody tr:nth-child(even) { background: #f4f8fa; }
+.rh-sort { all: unset; cursor: pointer; font: inherit; font-weight: 800; min-height: 32px; display: inline-flex; align-items: center; }
+.rh-sort:focus-visible { outline: 3px solid #ffd166; outline-offset: 3px; }
+.rh-name { font-weight: 800; min-width: 230px; background: inherit; }
+.rh-loc { display: block; font-weight: 400; color: var(--muted, #526978); font-size: 15px; }
+.rh-notes { min-width: 300px; max-width: 420px; font-size: 15.5px; }
+.rh-src, .rh-news { margin: 0; padding-left: 18px; font-size: 14.5px; min-width: 240px; }
+.rh-src li, .rh-news li { margin: 0 0 6px; }
+.rh-news { min-width: 190px; }
+.rh-table a { color: #0b4f9c; text-decoration: underline; overflow-wrap: anywhere; }
+.rh-newsdate { font-weight: 800; }
+.rh-chip { display: inline-block; padding: 2px 10px; border-radius: 12px; font-weight: 800; font-size: 15px; border: 2px solid; white-space: nowrap; }
+.rh-active { background: #e3f4ea; color: #0d5a2c; border-color: #2b8a52; }
+.rh-departed { background: #fde8e6; color: #8a1c14; border-color: #c4392c; }
+.rh-comingsoon { background: #e6effc; color: #123a7a; border-color: #3a6fc4; }
+.rh-empty { text-align: center; font-weight: 700; padding: 24px; }
+.rh-dash { color: #526978; }
+.exp-filter-row { grid-column: 1 / -1; width: 100%; }
+.plan-form .exp-filter { display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 10px; margin: 6px 0 0; min-height: 44px; font-weight: 700; color: #fff; text-align: left; }
+.plan-form .exp-filter input { width: 24px; height: 24px; min-height: 0; flex: none; margin: 0; }
+.plan-form .exp-message { margin: 2px 0 6px; font-weight: 700; color: #e6f0f5; text-align: left; }
+@media (max-width: 640px) {
+  .rh-view { font-size: 16px; }
+  .rh-eras { grid-template-columns: 1fr; }
+  .rh-filters label, .rh-filters select { width: 100%; }
+  .module-tabs button { flex: 1 1 auto; }
+}
+
+.profile-axis span { color: #4a6272; }

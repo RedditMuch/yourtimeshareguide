@@ -94,6 +94,18 @@
         ]
       }
     },
+    "52weeks/plannerv2.html": {
+      "desktop": {
+        "consoleErrors": [
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /52weeks/resort-photos/*.webp"
+        ]
+      },
+      "phone": {
+        "consoleErrors": [
+          "Failed to load resource: the server responded with a status of 404 (Not Found) /52weeks/resort-photos/*.webp"
+        ]
+      }
+    },
     "52weeks/resorts.html": {
       "brokenLinks": [
         "/52weeks/charts/page-021.webp (404)",
