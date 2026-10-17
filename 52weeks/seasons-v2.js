@@ -14,7 +14,7 @@
   /* Official directory: the 2026/2027 edition, where CW search bar page = book page + 4 */
   const DIRECTORY_URL = 'https://media.travelandleisure.com/WD/email/2025/0625-2025/cw-directory/index.html';
   const PAGE_OFFSET = 4;
-  const cite = n => '<a href="' + DIRECTORY_URL + '#p=' + n + '" target="_blank" rel="noopener">Page ' + (n - PAGE_OFFSET) + '</a>'; // shows the printed page; the link keeps the CW search bar page n
+  const cite = n => '<a href="' + DIRECTORY_URL + '#p=' + n + '" target="_blank" rel="noopener">' + (n - PAGE_OFFSET) + '</a>'; // shows the printed page; the link keeps the CW search bar page n
 
   const SEASONS = ['Prime', 'High', 'Value', 'Quiet'];
   const CLS = { Prime: 's-p', High: 's-h', Value: 's-v', Quiet: 's-q', 'WorldMark High': 'w-h', 'WorldMark Medium': 'w-m', 'WorldMark Low': 'w-l' };
@@ -738,28 +738,51 @@
     });
   }
 
+  /* Booking limits printed under or beside a resort's points chart in the Club Wyndham Member's Directory 2026/2027 (owner, 2026-10-17). Keyed by resort name (one card per row of the chart, so a resort with several charts shows the same lines on each). Printed page numbers in the comments. */
+  const ACCESS_LIMITED = 'Only a limited amount of this resort’s inventory is part of Club Wyndham Access, so getting a reservation here during the 13 to 10 month Advance Reservation Priority window is limited and should not be anticipated.';
+  const SAPPHIRE_7 = 'On the Fairway Forest & Foxhunt chart, a 7-night minimum stay is required in all seasons, and full week stays require check-in and checkout on Friday or Saturday.';
+  const BOOKING_LIMITS = {
+    'Club Wyndham Harbortown Point': [{ text: 'This resort requires full week stays with a Sunday check-in.' }], /* p. 41 */
+    'Club Wyndham Resort at Fairfield Mountains': [{ text: 'Some associations require a 7-night stay in all seasons.' }], /* p. 130 */
+    'Club Wyndham Fairfield Harbour': [{ text: 'Some associations require a 7-night stay in all seasons.' }], /* p. 131 */
+    'Club Wyndham Resort at Fairfield Sapphire Valley': [{ text: SAPPHIRE_7 }], /* p. 132, Fairway Forest & Foxhunt chart */
+    'Foxhunt at Sapphire Valley': [{ text: SAPPHIRE_7 }], /* p. 132 */
+    'Club Wyndham Emerald Grande™ at Destin': [{ text: 'The Advance Reservation Priority window is available for stays between February and December. Reservation requests are not available for stays in January.' }], /* p. 60 */
+    'Club Wyndham Oceanside Pier Resort': [{ text: 'The Advance Reservation Priority window is available for stays between Labor Day and May 31. From May 31 to Labor Day, reservations may be requested during the Standard Reservation Window.' }], /* p. 34 */
+    'Club Wyndham Smugglers’ Notch Vermont®': [{ text: 'The Advance Reservation Priority window currently has limited availability for the month of July. Reservations are currently not available for stays between December 16 and December 31.' }], /* p. 178 */
+    'Club Wyndham Canterbury': [{ text: ACCESS_LIMITED }], /* p. 37 */
+    'Club Wyndham Royal Vista': [{ text: ACCESS_LIMITED }], /* p. 66 */
+    'Club Wyndham Ocean Boulevard': [{ text: ACCESS_LIMITED }], /* p. 151 */
+    'Club Wyndham SeaWatch Resort': [{ text: ACCESS_LIMITED }] /* p. 155 */
+  };
+  /* The resort card's title goes on two rows: the collection name (Club Wyndham, WorldMark, Margaritaville Vacation Club by Wyndham) on the first, the resort on the second, so long names don't wrap at an odd place on a phone. Names like "Club Wyndham at Majestic Sun" stay on one row, because "at Majestic Sun" alone reads oddly. */
+  const titleHtml = name => { const m = name.match(/^(Club Wyndham|WorldMark|Margaritaville Vacation Club by Wyndham)(?: - | )(?!at )(.+)$/);
+    return m ? '<span class="brand">' + esc(m[1]) + '</span><span class="rname">' + esc(m[2]) + '</span>' : esc(name); };
+
   /* ---- Resort details ---- */
   /* Resort card (owner, 2026-10-17): full address and phone at the top, the directory's printed page only (the search bar
      page stays in the link and in the code comments), and no points tables: the directory page and Club Wyndham's own chart
      already have them. */
   function openDetail(row) {
     const s = row.s, ref = refOf(s), ps = pointsBySchedule.get(s.id) || [];
-    $('detailTitle').textContent = officialName(s.name);
+    $('detailTitle').innerHTML = titleHtml(officialName(s.name));
     const addr = String(ref.address || s.location || [s.city, s.state, s.country].filter(Boolean).join(', ')).split(/\n/).map(esc).join('<br>');
     const phone = s.phone || ref.phone;
-    let h = '<dl><dt>Address</dt><dd>' + addr + '</dd>';
+    let h = '<p class="addr">' + addr + '</p><dl>';
     if (phone) h += '<dt>Phone</dt><dd><a href="tel:' + esc(String(phone).replace(/[^0-9+]/g, '')) + '">' + esc(phone) + '</a></dd>';
     if (s.multiple) h += '<dt>Chart</dt><dd>' + esc(s.schedule) + '</dd>';
     h += '<dt>Collection</dt><dd>' + esc(COLLECTION_LABEL[s.collection] || s.collection) + '</dd>';
     if (ref.vip_benefits) h += '<dt>VIP Benefits</dt><dd>' + esc(ref.vip_benefits === 'Conditional' ? (ref.program_notes || 'In some cases') : ref.vip_benefits) + '</dd>';
-    if (ref.club_wyndham_access === 'Yes') h += '<dt>Club Wyndham Access</dt><dd>Yes</dd>';
+    if (ref.club_wyndham_access === 'Yes') h += '<dt>CWA</dt><dd>Yes</dd>';
     const pages = [...new Set([].concat(s.pages || [], ...ps.map(p => p.pages || [])))].sort((a, b) => a - b);
-    if (pages.length) h += '<dt>Club Wyndham Directory</dt><dd>' + pages.map(cite).join('<br>') + '</dd>';
+    if (pages.length) h += '<dt>Directory Pg</dt><dd>' + pages.map(cite).join(', ') + '</dd>';
     if (s.cp) h += '<dt>Points Chart</dt><dd><a href="' + esc(s.cp.pdf) + '" target="_blank" rel="noopener">Club Wyndham’s Chart (PDF)</a>' + (s.cp.pdfExtra || []).map(u => '<br><a href="' + esc(u.url) + '" target="_blank" rel="noopener">' + esc(u.label) + '</a>').join('') + '</dd>';
     h += '</dl>';
     if (s.cp) { const src = s.cp.notes.filter(n => /^Source:/.test(n)).map(n => esc(n.replace(/\s*\(CW search bar page \d+\)/g, ''))); if (src.length) h += '<p class="hint">' + src.join('<br>') + '</p>'; }
     if (!s.cp && !ps.length) h += '<p><strong>' + NO_CHART + '.</strong> ' + esc(noChartTip(s)) + '.</p>';
     if (NOTICES[s.name]) h += '<p class="alert">⚠ ' + esc(NOTICE_TEXT) + ' Club Wyndham explains it in <a href="https://clubwyndham.wyndhamdestinations.com/us/en/resorts/resort-news/2025/your-resort-portfolio-refresh" target="_blank" rel="noopener">Your Resort Portfolio Is Getting A Refresh</a>. Court updates: <a href="' + NOTICES[s.name].url + '" target="_blank" rel="noopener">' + esc(NOTICES[s.name].site) + '</a>.</p>';
+    const lim = BOOKING_LIMITS[s.name] || [];
+    if (lim.length) h += '<h3>Booking Limits</h3><ul class="limits">' + lim.map(l => '<li>' + esc(l.text) + '</li>').join('') + '</ul>';
     if (s.note) h += '<p class="hint">' + esc(s.note) + '</p>';
     if (WEEK53[s.name]) h += '<p class="hint">This resort’s chart lists week 53 as ' + WEEK53[s.name] + '.</p>';
     $('detailBody').innerHTML = h;

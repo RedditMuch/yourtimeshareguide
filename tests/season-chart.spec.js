@@ -905,10 +905,26 @@ test("season chart v2 resort card shows the full address and phone, the printed 
   await page.locator("#grid tbody .res-name", { hasText: "Anaheim" }).first().click();
   const body = page.locator("#detailBody");
   await expect(body).toBeVisible();
-  await expect(body.locator("dt").first()).toHaveText("Address");
-  await expect(body.locator("dd").first()).toContainText(/Anaheim, CA \d{5}/);
+  await expect(body.locator("dt", { hasText: "Address" })).toHaveCount(0);
+  await expect(body.locator(".addr")).toContainText("201 West Katella Avenue");
+  await expect(body.locator(".addr")).toContainText(/Anaheim, CA \d{5}/);
   await expect(body.locator('a[href^="tel:"]')).toHaveCount(1);
-  await expect(body).toContainText(/Page \d+/);
+  await expect(body.locator("dt", { hasText: "Directory Pg" })).toHaveCount(1);
   await expect(body).not.toContainText("search bar");
   await expect(body.locator("table")).toHaveCount(0);
+});
+
+test("season chart v2 resort card puts the collection name on its own row and lists the booking limits", async ({ page }) => {
+  await page.goto("/52weeks/seasons-v2.html");
+  await expect(page.locator("#grid tbody .res-name").first()).toBeVisible();
+  await page.locator("#search").fill("Harbortown");
+  await page.locator("#grid tbody .res-name", { hasText: "Harbortown" }).first().click();
+  await expect(page.locator("#detailTitle .brand")).toHaveText("Club Wyndham");
+  await expect(page.locator("#detailTitle .rname")).toHaveText("Harbortown Point");
+  await expect(page.locator("#detailBody h3", { hasText: "Booking Limits" })).toBeVisible();
+  await expect(page.locator("#detailBody ul.limits")).toContainText("Sunday check-in");
+  await page.locator("#closeDetail").click();
+  await page.locator("#search").fill("Anaheim");
+  await page.locator("#grid tbody .res-name", { hasText: "Anaheim" }).first().click();
+  await expect(page.locator("#detailBody ul.limits")).toHaveCount(0);
 });
