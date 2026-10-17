@@ -879,3 +879,18 @@ test.describe("season chart v2 WorldMark St. George and Balboa Park (2023-2024 d
     await expect(page.locator("#grid")).not.toContainText(/coming soon|No Points Chart Available/i);
   });
 });
+
+test.describe("season chart v2 WorldMark Inn at the Park uses the WorldMark colors", () => {
+  test("three purple tiers, with the printed names kept; Club Wyndham Inn at the Park keeps its own colors", async ({ page }) => {
+    await chartRows(page, { query: "Inn at the Park", size: "all", collections: ["Club Pass", "Club Wyndham"] });
+    const r = await page.evaluate(() => { const out = {}; let cur = null;
+      for (const tr of document.querySelectorAll("#grid tbody tr")) { const th = tr.querySelector("th.res"); if (th) cur = th.querySelector(".res-name").textContent; const c = tr.querySelector("td.c.sel"); if (c && cur) (out[cur] ||= new Set()).add([...c.classList].find(x => /^(w|s)-/.test(x))); }
+      return Object.fromEntries(Object.entries(out).map(([k, v]) => [k, [...v]])); });
+    const wm = Object.entries(r).find(([k]) => k.startsWith("WorldMark Inn at the Park"));
+    expect(wm[1].every(c => /^w-/.test(c))).toBe(true);
+    const cp = await page.evaluate(() => window.CLUB_PASS_POINTS.resorts["WorldMark Inn at the Park"].tables[0].bands.map(b => [b.season, b.tier, b.label]));
+    expect(cp).toEqual([[null, "High", "Prime"], [null, "Medium", "High"], [null, "Low", "Value"]]);
+    const cw = Object.entries(r).find(([k]) => k.startsWith("Inn at the Park") || k.startsWith("Club Wyndham Inn"));
+    if (cw) expect(cw[1].every(c => /^s-/.test(c))).toBe(true);
+  });
+});
