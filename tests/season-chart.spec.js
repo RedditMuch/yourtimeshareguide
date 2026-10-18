@@ -821,7 +821,7 @@ test.describe("season chart v2 nightly points for several rates in one season", 
           if (!x || 2 * x[0] + 5 * x[1] !== wp) fails.push(p.id + " week " + w); } }
       return { checked, byWeek, fails };
     });
-    expect(r.byWeek).toBe(70); // 33 several-rate rows, 36 lockoffs built from their two components, Desert Rose 2 BR (High week = 236,000, calculated from its printed nightly points because the book prints 234,000)
+    expect(r.byWeek).toBe(71); // 33 several-rate rows, 37 lockoffs (36 + the Sapphire Valley Fairway Forest & Foxhunt lockoff) built from their two components, Desert Rose 2 BR (High week = 236,000, calculated from its printed nightly points because the book prints 234,000)
     expect(r.fails).toEqual([]);
   });
 });
@@ -836,20 +836,35 @@ test.describe("season chart v2 lockoffs and weekly-only rows", () => {
         for (let w = 1; w <= 52; w++) { if (d.weeklyPoints[w - 1] == null) continue; const x = get(d, w), cs = d.components.map(c => get(by(c), w));
           if (!x || cs.some(c => !c) || x[0] !== cs.reduce((a, c) => a + c[0], 0) || x[1] !== cs.reduce((a, c) => a + c[1], 0)) fails.push(d.id + " week " + w); } }
       return { lockoffs, fails }; });
-    expect(r.lockoffs).toBe(36);
+    expect(r.lockoffs).toBe(37);
     expect(r.fails).toEqual([]);
   });
 
-  test("Fairfield Sapphire Valley says Not Published (weekly points only) instead of …", async ({ page }) => {
+  test("Fairfield Sapphire Valley: Fairway Forest & Foxhunt use Mountain Laurel's nightly points, so nothing says Not Published or …", async ({ page }) => {
     await chartRows(page, { query: "Sapphire Valley", size: "all", collections: ["Club Wyndham"] });
     const cells = await page.locator("#grid tbody td.nt").allTextContents();
-    expect(cells.filter(t => t.trim() === "Not Published").length).toBeGreaterThanOrEqual(8);
-    expect(cells.filter(t => t.trim() === "…")).toEqual([]);
-    await expect(page.locator("#grid tbody td.nt span[title*='weekly points only']").first()).toBeAttached();
-    // the label (smaller text, wraps if needed) stays inside its column, so it is never cut off
-    const fit = await page.locator("#grid tbody td.nt span.np").evaluateAll(sp => sp.map(x => { const td = x.parentElement; return x.scrollWidth <= td.clientWidth + 1 && x.getBoundingClientRect().right <= td.getBoundingClientRect().right + 1; }));
-    expect(fit.length).toBeGreaterThanOrEqual(8);
-    expect(fit.every(Boolean)).toBe(true);
+    expect(cells.length).toBeGreaterThanOrEqual(16);
+    expect(cells.filter(t => /Not Published|…/.test(t))).toEqual([]);
+    // every row: 5 x Sun-Thur + 2 x Fri-Sat = its weekly points, in every week
+    const bad = await page.evaluate(() => { const out = [];
+      for (const id of ["p136-1c1", "p136-1c2", "p136-1c3", "d025"]) { const row = window.WEEKLY_POINTS.rows.find(r => r.id === id), n = window.NIGHTLY_POINTS[id];
+        for (let w = 0; w < 52; w++) { const x = n.byWeek ? n.byWeek[w] : [n[row.weeks[w]].friSat, n[row.weeks[w]].sunThu]; if (5 * x[1] + 2 * x[0] !== row.weeklyPoints[w]) out.push(id + " week " + (w + 1)); } }
+      return out; });
+    expect(bad).toEqual([]);
+    // the same nightly points as Mountain Laurel's printed rows (p. 133)
+    const same = await page.evaluate(() => { const N = window.NIGHTLY_POINTS; return JSON.stringify(N["p136-1c1"]) === JSON.stringify(N["p137-1c1"]) && JSON.stringify(N["p136-1c2"]) === JSON.stringify(N["p137-1c2"]); });
+    expect(same).toBe(true);
+  });
+
+  test("Fairfield Sapphire Valley card: 7-night minimum, Friday or Saturday check-in, and where the nightly points come from", async ({ page }) => {
+    await page.goto("/52weeks/seasons-v2.html");
+    await expect(page.locator("#grid tbody .res-name").first()).toBeVisible();
+    await page.locator("#search").fill("Sapphire Valley");
+    await page.locator("#grid tbody .res-name", { hasText: "Fairfield Sapphire" }).first().click();
+    const lim = page.locator("#detailBody ul.limits");
+    await expect(lim).toContainText("Fairway Forest and Foxhunt: a 7-night minimum stay is required in all seasons");
+    await expect(lim).toContainText("check-in and check-out on Friday or Saturday");
+    await expect(lim).toContainText("Mountain Laurel");
   });
 });
 
@@ -934,4 +949,20 @@ test("season chart v2 has no Sydney Suites anywhere (owner could not verify it e
   const hits = await page.evaluate(() => JSON.stringify([window.CLUB_PASS_POINTS, window.WEEKLY_POINTS, window.DIRECTORY]).match(/Sydney Suites|sydney-suites/gi) || []);
   expect(hits).toEqual([]);
   expect(await page.locator("body").innerText()).not.toContain("Sydney Suites");
+});
+
+test("season chart v2 WorldMark Grand Palms loads the 2023-2024 directory chart (Page 264)", async ({ page }) => {
+  await page.goto("/52weeks/seasons-v2.html");
+  await expect(page.locator("#grid tbody tr").first()).toBeVisible();
+  const r = await page.evaluate(() => {
+    const c = window.CLUB_PASS_POINTS.resorts["WorldMark Grand Palms"], seen = {}; let bad = 0;
+    for (const t of c.tables) for (const b of t.bands) { for (const w of b.weeks) seen[w] = (seen[w] || 0) + 1; for (const col of t.columns) { const [f, s, u] = b.rates[col]; if (2 * f + 5 * s !== u) bad++; } }
+    return { cols: c.tables[0].columns, bad, missing: Array.from({ length: 52 }, (_, i) => i + 1).filter(w => seen[w] !== 1), notes: c.notes.join(" "), prime: c.tables[0].bands[0].rates["2 BR Loft"] };
+  });
+  expect(r.cols).toEqual(["Studio", "1 BR", "1 BR Deluxe", "1 BR Loft", "2 BR", "2 BR Deluxe", "2 BR Loft", "3 BR Plus"]);
+  expect(r.bad).toBe(0);
+  expect(r.missing).toEqual([]);
+  expect(r.prime).toEqual([38000, 22600, 189000]);
+  expect(r.notes).toContain("Page 264 (CW search bar page 266)");
+  expect(r.notes).not.toContain("not covered");
 });
