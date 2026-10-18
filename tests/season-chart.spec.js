@@ -968,6 +968,6 @@ test("season chart v2 WorldMark Grand Palms shows no points, says the charts dis
   await expect(body).toContainText("Club Wyndham’s online and printed points charts disagree");
   await expect(body.locator("a[href$='grand-palms/club-pass-grand-palms-pc.pdf']")).toHaveCount(1);
   await expect(body.locator("a[href$='credit-value-charts/2026-2027/wbw-grand-palms-pc-2027.pdf']")).toHaveCount(1);
-  await expect(body).toContainText("2023-2024 Directory, Page 264");
+  await expect(body.locator("a[href='https://media.travelandleisure.com/WD/email/2022/0876-2022/index.html#p=266']")).toContainText("2023-2024 Directory, Page 264");
   await expect(body.locator("a[href*='0625-2025/cw-directory/index.html#p=232']")).toHaveCount(1);
 });
