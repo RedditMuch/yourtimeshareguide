@@ -238,7 +238,7 @@ test.describe("season chart v2 Collections filters (2026-10-12)", () => {
     await chartRows(page, { size: null });
     await expect(page.locator("#placeChecks")).toHaveCount(0);
     const labels = await page.locator("#collectionChecks .lbl").allTextContents();
-    expect(labels.map(l => l.replace(/No Points Chart Available|Points coming soon|\(Australia & New Zealand\)|Australia & New Zealand/, "").trim())).toEqual(["Club Wyndham", "Affiliate", "WorldMark / Club Pass", "Margaritaville", "Associate"]);
+    expect(labels.map(l => l.replace(/Accurate Points Chart Unavailable|Points coming soon|\(Australia & New Zealand\)|Australia & New Zealand/, "").trim())).toEqual(["Club Wyndham", "Affiliate", "WorldMark / Club Pass", "Margaritaville", "Associate"]);
     await expect(page.locator("#collectionChecks .coll-sep")).toHaveCount(1);
   });
 
@@ -708,7 +708,7 @@ test.describe("season chart v2 every room type is selectable (2026-10-16)", () =
       await page.evaluate(q => { const s = document.querySelector("#search"); s.value = q; s.dispatchEvent(new Event("input")); }, q);
       await page.waitForTimeout(400); await settled(page);
       const shown = await page.evaluate(() => [...document.querySelectorAll("#grid td.typ")].map(td => td.textContent.trim()));
-      for (const t of shown) if (t && !/Not Offered|coming soon|No Points Chart Available|Select a valid/i.test(t)) expect(labels.has(key(t)), q + ": " + t).toBe(true);
+      for (const t of shown) if (t && !/Not Offered|coming soon|Accurate Points Chart Unavailable|Select a valid/i.test(t)) expect(labels.has(key(t)), q + ": " + t).toBe(true);
     }
   });
 
@@ -892,10 +892,10 @@ test.describe("season chart v2 WorldMark St. George and Balboa Park (2023-2024 d
     }
   });
 
-  test("no resort says coming soon, and only WorldMark Grand Palms says No Points Chart Available (owner, 10/18/26: its charts disagree)", async ({ page }) => {
+  test("no resort says coming soon, and only WorldMark Grand Palms says Accurate Points Chart Unavailable (owner, 10/18/26: its charts disagree)", async ({ page }) => {
     await chartRows(page, { size: "all" });
     await expect(page.locator("#grid")).not.toContainText(/coming soon/i);
-    const gap = page.locator("#grid tbody tr", { has: page.locator("td.typ.gap", { hasText: "No Points Chart Available" }) });
+    const gap = page.locator("#grid tbody tr", { has: page.locator("td.typ.gap", { hasText: "Accurate Points Chart Unavailable" }) });
     await expect(gap).toHaveCount(1);
     await expect(gap.locator(".res-name")).toContainText("Grand Palms");
   });
@@ -959,12 +959,12 @@ test("season chart v2 WorldMark Grand Palms shows no points, says the charts dis
   await expect(page.locator("#grid tbody tr").first()).toBeVisible();
   expect(await page.evaluate(() => !!window.CLUB_PASS_POINTS.resorts["WorldMark Grand Palms"])).toBe(false);
   await chartRows(page, { query: "Grand Palms", size: "all", collections: ["Club Pass", "Club Wyndham"] });
-  const gap = page.locator("#grid tbody tr", { has: page.locator("td.typ.gap", { hasText: "No Points Chart Available" }) });
+  const gap = page.locator("#grid tbody tr", { has: page.locator("td.typ.gap", { hasText: "Accurate Points Chart Unavailable" }) });
   await expect(gap).toHaveCount(1);
   const name = gap.locator(".res-name");
   await name.click();
   const body = page.locator("#detailBody");
-  await expect(body).toContainText("No Points Chart Available");
+  await expect(body).toContainText("Accurate Points Chart Unavailable");
   await expect(body).toContainText("Club Wyndham’s online and printed points charts disagree");
   await expect(body.locator("a[href$='grand-palms/club-pass-grand-palms-pc.pdf']")).toHaveCount(1);
   await expect(body.locator("a[href$='credit-value-charts/2026-2027/wbw-grand-palms-pc-2027.pdf']")).toHaveCount(1);

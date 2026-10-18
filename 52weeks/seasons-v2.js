@@ -252,7 +252,7 @@
   /* Rows whose nightly points the directory does not print say "Not Published" instead of …. None today: Fairway Forest & Foxhunt (Sapphire Valley) print weekly points only, and since 10/18/26 (owner) they use the nightly points printed for Mountain Laurel, so people can compare. */
   const NOT_PUBLISHED = new Set(), NOT_PUBLISHED_TIP = 'The directory prints weekly points only for this room type';
   /* Resorts without a published points chart say so (owner, 2026-10-16); the tooltip says why. */
-  const NO_CHART = 'No Points Chart Available', NO_CHART_WHY = { 'WorldMark Grand Palms': 'Club Wyndham’s online and printed points charts disagree' };
+  const NO_CHART = 'Accurate Points Chart Unavailable', NO_CHART_WHY = { 'WorldMark Grand Palms': 'Club Wyndham’s online and printed points charts disagree' };
   /* Charts to link on a resort's card when its own points are left out (owner, 2026-10-18: WorldMark Grand Palms) */
   const CHART_LINKS = { 'WorldMark Grand Palms': [
     { label: 'Club Wyndham’s Online Points Chart (PDF)', url: 'https://clubwyndham.wyndhamdestinations.com/content/dam/wyndham/wyndham-vacation-clubs/resorts/grand-palms/club-pass-grand-palms-pc.pdf' },
@@ -319,7 +319,7 @@
     $('collectionChecks').innerHTML = collections.map(c => {
       const label = COLLECTION_LABEL[c] || c, dot = c === 'Affiliate' ? '<i class="dot aff"></i>' : c === 'Associate' ? '<i class="dot assoc"></i>' : '';
       const m = label.match(/^(\S+) \((.*)\)$/), name = c === 'Associate' && m ? esc(m[1]) + dot + '<span class="sub">' + esc(m[2]) + '</span>' : esc(label) + dot;
-      const soon = c === 'Associate' || D.rows.some(s => s.collection === c && hasChart(s)) ? '' : '<span class="hint soon">No Points Chart Available</span>';
+      const soon = c === 'Associate' || D.rows.some(s => s.collection === c && hasChart(s)) ? '' : '<span class="hint soon">Accurate Points Chart Unavailable</span>';
       return (c === COLLECTION_AFTER_SEPARATOR ? '<hr class="sep coll-sep">' : '') + '<label class="check"><input type="checkbox" value="' + esc(c) + '"><span class="lbl">' + name + soon + '</span></label>';
     }).join('');
     $('countryList').innerHTML = COUNTRIES.map(c => '<li><button type="button" class="link" data-country="' + esc(c[0]) + '">' + esc(c[0]) + '</button></li>').join('');
