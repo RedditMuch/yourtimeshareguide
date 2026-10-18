@@ -1,0 +1,61 @@
+---
+layout: layouts/base.njk
+title: Club Wyndham Access Resorts
+lead: Every resort in the Club Wyndham Access program, with its address, phone number and directory page.
+description: A numbered list of every Club Wyndham Access resort with address, phone and a link to its page in the official directory.
+checked: 2026-10-18
+scripts:
+  - geo-data.js
+  - geo.js
+  - cwaresorts.js
+---
+{%- import "components.njk" as ui -%}
+{#- Planning #25. The rows come from _data/cwaResorts.js; cwaresorts.js only filters them.
+    geo-data.js and geo.js (read only, shared with the season chart) give the city
+    positions for the "Within" search. -#}
+<form class="ytg-form" id="cwa-search" role="search" onsubmit="return false">
+  {{ ui.selectField({ id: "cwa-by", label: "Search By", options: [
+    { value: "name", label: "Resort Name" },
+    { value: "city", label: "City" },
+    { value: "state", label: "State or Province" },
+    { value: "radius", label: "Distance From a City or State" }
+  ], selected: "name" }) }}
+  <div class="ytg-field">
+    <label class="ytg-field__label" for="cwa-q" id="cwa-q-label">Resort Name</label>
+    <input class="ytg-input" type="search" id="cwa-q" list="cwa-places" autocomplete="off">
+    <datalist id="cwa-places"></datalist>
+  </div>
+  <div id="cwa-radius-field" hidden>
+    {{ ui.selectField({ id: "cwa-radius", label: "Within", options: [
+      { value: "25", label: "25 miles" },
+      { value: "50", label: "50 miles" },
+      { value: "100", label: "100 miles" },
+      { value: "250", label: "250 miles" },
+      { value: "500", label: "500 miles" }
+    ], selected: "100", after: "of the place", inline: true }) }}
+  </div>
+  {{ ui.button("Reset", { type: "reset" }) }}
+</form>
+<p id="cwa-count" role="status" aria-live="polite">{{ cwaResorts.resorts.length }} of {{ cwaResorts.resorts.length }} resorts</p>
+<p id="cwa-message" role="status" aria-live="polite"></p>
+
+{% call ui.tableWrap("Club Wyndham Access resorts") %}
+<table class="ytg-table" id="cwa-table">
+  <thead>
+    <tr><th scope="col">No.</th><th scope="col">Resort</th><th scope="col">Address</th><th scope="col">Phone</th><th scope="col">Directory Page</th></tr>
+  </thead>
+  <tbody>
+  {%- for r in cwaResorts.resorts %}
+    <tr data-id="{{ r.id }}" data-name="{{ r.name }}" data-city="{{ r.city }}" data-state="{{ r.state }}" data-code="{{ r.stateCode }}" data-country="{{ r.country }}">
+      <td>{{ r.number }}</td>
+      <th scope="row">{{ r.name }}</th>
+      <td>{{ r.address }}</td>
+      <td><a href="tel:{{ r.phone | replace('-', '') }}">{{ r.phone | replace("-", "‑") }}</a></td>
+      <td>{{ ui.citation(r.bookPage, cwaResorts.directoryUrl + "#p=" + (r.bookPage + cwaResorts.searchBarOffset), cwaResorts.searchBarOffset) }}</td>
+    </tr>
+  {%- endfor %}
+  </tbody>
+</table>
+{% endcall %}
+
+<p>Source: Club Wyndham Member's Directory {{ cwaResorts.edition }}. Page links open the official online directory.</p>
