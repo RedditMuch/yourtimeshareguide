@@ -12,5 +12,6 @@ export default {
     { title: "Find a stay", url: "/52weeks/planner.html" },
     { title: "Resorts", url: "/52weeks/resorts.html" },
     { title: "Fees", url: "/52weeks/fees.html" },
+    { title: "At a Glance", url: "/52weeks/ataglance.html" },
   ],
 };
