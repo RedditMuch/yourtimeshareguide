@@ -1,0 +1,37 @@
+---
+layout: layouts/base.njk
+title: Coming Soon and Recently Departed Resorts
+lead: Which resorts are joining the system, and which have left.
+description: Resorts joining Club Wyndham's system soon and resorts that recently left, each with its source.
+checked: 2026-10-18
+---
+{%- import "components.njk" as ui -%}
+{#- Planning #22. Rows are data in _data/resortChanges.js; add new ones there. -#}
+{% call ui.callout("This List Is Still Growing", "") %}
+<p>We add resorts here as news comes in. Anything we could not confirm says so. The Resort History tab of <a href="ataglance.html">At a Glance</a> has more detail on every resort.</p>
+{% endcall %}
+
+<h2>Coming Soon</h2>
+{% call ui.tableWrap("Resorts coming soon") %}
+<table class="ytg-table">
+  <thead><tr><th scope="col">Resort</th><th scope="col">Location</th><th scope="col">What We Know</th><th scope="col">Source</th></tr></thead>
+  <tbody>
+  {%- for r in resortChanges.comingSoon %}
+    <tr><th scope="row">{{ r.name }}</th><td>{{ r.location }}</td><td>{{ r.what }}</td><td>{% if r.source.url %}<a href="{{ r.source.url }}">{{ r.source.label }}</a>{% else %}{{ r.source.label }}{% endif %}</td></tr>
+  {%- endfor %}
+  </tbody>
+</table>
+{% endcall %}
+
+<h2>Recently Departed</h2>
+<p>{{ resortChanges.departed.length }} resorts. Most closed when their owners' associations voted to cease operations at the end of 2025.</p>
+{% call ui.tableWrap("Recently departed resorts") %}
+<table class="ytg-table">
+  <thead><tr><th scope="col">Resort</th><th scope="col">Location</th><th scope="col">Left</th><th scope="col">What We Know</th><th scope="col">Source</th></tr></thead>
+  <tbody>
+  {%- for r in resortChanges.departed %}
+    <tr><th scope="row">{{ r.name }}</th><td>{{ r.location }}</td><td>{{ r.when }}</td><td>{{ r.what }}</td><td>{% if r.source.url %}<a href="{{ r.source.url }}">{{ r.source.label }}</a>{% else %}{{ r.source.label }}{% endif %}</td></tr>
+  {%- endfor %}
+  </tbody>
+</table>
+{% endcall %}
