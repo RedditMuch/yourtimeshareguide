@@ -818,11 +818,10 @@ test.describe("season chart v2 nightly points for several rates in one season", 
       for (const p of rows) { const n = N[p.id]; if (!n) continue; if (n.byWeek) byWeek++;
         for (let w = 1; w <= 52; w++) { const wp = p.weeklyPoints[w - 1]; if (wp == null) continue;
           const x = n.byWeek ? n.byWeek[w - 1] : (n[p.weeks[w - 1]] ? [n[p.weeks[w - 1]].friSat, n[p.weeks[w - 1]].sunThu] : null); checked++;
-          if (!x && p.id === "p129-1c2") continue; /* Desert Rose 2 BR High: misprint in the book, left blank */
           if (!x || 2 * x[0] + 5 * x[1] !== wp) fails.push(p.id + " week " + w); } }
       return { checked, byWeek, fails };
     });
-    expect(r.byWeek).toBe(70); // 33 several-rate rows, 36 lockoffs built from their two components, Desert Rose 2 BR
+    expect(r.byWeek).toBe(70); // 33 several-rate rows, 36 lockoffs built from their two components, Desert Rose 2 BR (High week = 236,000, calculated from its printed nightly points because the book prints 234,000)
     expect(r.fails).toEqual([]);
   });
 });
