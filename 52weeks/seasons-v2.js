@@ -252,7 +252,12 @@
   /* Rows whose nightly points the directory does not print say "Not Published" instead of …. None today: Fairway Forest & Foxhunt (Sapphire Valley) print weekly points only, and since 10/18/26 (owner) they use the nightly points printed for Mountain Laurel, so people can compare. */
   const NOT_PUBLISHED = new Set(), NOT_PUBLISHED_TIP = 'The directory prints weekly points only for this room type';
   /* Resorts without a published points chart say so (owner, 2026-10-16); the tooltip says why. */
-  const NO_CHART = 'No Points Chart Available', NO_CHART_WHY = {};
+  const NO_CHART = 'No Points Chart Available', NO_CHART_WHY = { 'WorldMark Grand Palms': 'Club Wyndham’s online and printed points charts disagree' };
+  /* Charts to link on a resort's card when its own points are left out (owner, 2026-10-18: WorldMark Grand Palms) */
+  const CHART_LINKS = { 'WorldMark Grand Palms': [
+    { label: 'Club Wyndham’s Online Points Chart (PDF)', url: 'https://clubwyndham.wyndhamdestinations.com/content/dam/wyndham/wyndham-vacation-clubs/resorts/grand-palms/club-pass-grand-palms-pc.pdf' },
+    { label: 'WorldMark’s Credit Chart, 3 Seasons (PDF)', url: 'https://worldmark.wyndhamdestinations.com/content/dam/wyndham/wyndham-vacation-clubs/worldmark/credit-value-charts/2026-2027/wbw-grand-palms-pc-2027.pdf' }
+  ] };
   const noChartTip = s => NO_CHART_WHY[s.name] || 'No points chart is published';
   const unpublished = r => !!(r.p && NOT_PUBLISHED.has(r.p.id));
   function nightly(row, w, weekend) {
@@ -783,6 +788,8 @@
     h += '</dl>';
     if (s.cp) { const src = s.cp.notes.filter(n => /^Source:/.test(n)).map(n => esc(n.replace(/\s*\(CW search bar page \d+\)/g, ''))); if (src.length) h += '<p class="hint">' + src.join('<br>') + '</p>'; }
     if (!s.cp && !ps.length) h += '<p><strong>' + NO_CHART + '.</strong> ' + esc(noChartTip(s)) + '.</p>';
+    const links = CHART_LINKS[s.name] || [];
+    if (links.length) h += '<h3>Points Charts</h3><ul class="limits">' + links.map(l => '<li><a href="' + esc(l.url) + '" target="_blank" rel="noopener">' + esc(l.label) + '</a></li>').join('') + '<li>Printed chart: 2023-2024 Directory, Page 264</li></ul>';
     if (NOTICES[s.name]) h += '<p class="alert">⚠ ' + esc(NOTICE_TEXT) + ' Club Wyndham explains it in <a href="https://clubwyndham.wyndhamdestinations.com/us/en/resorts/resort-news/2025/your-resort-portfolio-refresh" target="_blank" rel="noopener">Your Resort Portfolio Is Getting A Refresh</a>. Court updates: <a href="' + NOTICES[s.name].url + '" target="_blank" rel="noopener">' + esc(NOTICES[s.name].site) + '</a>.</p>';
     const lim = BOOKING_LIMITS[s.name] || [];
     if (lim.length) h += '<h3>Booking Limits</h3><ul class="limits">' + lim.map(l => '<li>' + esc(l.text) + '</li>').join('') + '</ul>';

@@ -892,9 +892,12 @@ test.describe("season chart v2 WorldMark St. George and Balboa Park (2023-2024 d
     }
   });
 
-  test("no resort says coming soon or No Points Chart Available", async ({ page }) => {
+  test("no resort says coming soon, and only WorldMark Grand Palms says No Points Chart Available (owner, 10/18/26: its charts disagree)", async ({ page }) => {
     await chartRows(page, { size: "all" });
-    await expect(page.locator("#grid")).not.toContainText(/coming soon|No Points Chart Available/i);
+    await expect(page.locator("#grid")).not.toContainText(/coming soon/i);
+    const gap = page.locator("#grid tbody tr", { has: page.locator("td.typ.gap", { hasText: "No Points Chart Available" }) });
+    await expect(gap).toHaveCount(1);
+    await expect(gap.locator(".res-name")).toContainText("Grand Palms");
   });
 });
 
@@ -951,18 +954,20 @@ test("season chart v2 has no Sydney Suites anywhere (owner could not verify it e
   expect(await page.locator("body").innerText()).not.toContain("Sydney Suites");
 });
 
-test("season chart v2 WorldMark Grand Palms loads the 2023-2024 directory chart (Page 264)", async ({ page }) => {
+test("season chart v2 WorldMark Grand Palms shows no points, says the charts disagree, and links the three charts", async ({ page }) => {
   await page.goto("/52weeks/seasons-v2.html");
   await expect(page.locator("#grid tbody tr").first()).toBeVisible();
-  const r = await page.evaluate(() => {
-    const c = window.CLUB_PASS_POINTS.resorts["WorldMark Grand Palms"], seen = {}; let bad = 0;
-    for (const t of c.tables) for (const b of t.bands) { for (const w of b.weeks) seen[w] = (seen[w] || 0) + 1; for (const col of t.columns) { const [f, s, u] = b.rates[col]; if (2 * f + 5 * s !== u) bad++; } }
-    return { cols: c.tables[0].columns, bad, missing: Array.from({ length: 52 }, (_, i) => i + 1).filter(w => seen[w] !== 1), notes: c.notes.join(" "), prime: c.tables[0].bands[0].rates["2 BR Loft"] };
-  });
-  expect(r.cols).toEqual(["Studio", "1 BR", "1 BR Deluxe", "1 BR Loft", "2 BR", "2 BR Deluxe", "2 BR Loft", "3 BR Plus"]);
-  expect(r.bad).toBe(0);
-  expect(r.missing).toEqual([]);
-  expect(r.prime).toEqual([38000, 22600, 189000]);
-  expect(r.notes).toContain("Page 264 (CW search bar page 266)");
-  expect(r.notes).not.toContain("not covered");
+  expect(await page.evaluate(() => !!window.CLUB_PASS_POINTS.resorts["WorldMark Grand Palms"])).toBe(false);
+  await chartRows(page, { query: "Grand Palms", size: "all", collections: ["Club Pass", "Club Wyndham"] });
+  const gap = page.locator("#grid tbody tr", { has: page.locator("td.typ.gap", { hasText: "No Points Chart Available" }) });
+  await expect(gap).toHaveCount(1);
+  const name = gap.locator(".res-name");
+  await name.click();
+  const body = page.locator("#detailBody");
+  await expect(body).toContainText("No Points Chart Available");
+  await expect(body).toContainText("Club Wyndham’s online and printed points charts disagree");
+  await expect(body.locator("a[href$='grand-palms/club-pass-grand-palms-pc.pdf']")).toHaveCount(1);
+  await expect(body.locator("a[href$='credit-value-charts/2026-2027/wbw-grand-palms-pc-2027.pdf']")).toHaveCount(1);
+  await expect(body).toContainText("2023-2024 Directory, Page 264");
+  await expect(body.locator("a[href*='0625-2025/cw-directory/index.html#p=232']")).toHaveCount(1);
 });
