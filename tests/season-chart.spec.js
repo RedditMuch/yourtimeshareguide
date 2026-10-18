@@ -231,7 +231,7 @@ test.describe("season chart v2 Collections filters (2026-10-12)", () => {
   test("Associate alone shows the 7 ANZ resorts", async ({ page }) => {
     await chartRows(page, { size: null, collections: ["Associate"] });
     expect(await resortTotal(page)).toBe(7);
-    await expect(page.locator("#grid tbody .dot.assoc")).toHaveCount(8); // Sydney is one resort with two charts (Sydney, and Sydney Suites as a building), so it has two listings and two dots (planning #40)
+    await expect(page.locator("#grid tbody .dot.assoc")).toHaveCount(7); // one listing and one dot per resort (Sydney Suites was removed 10/18/26: the owner could not verify it exists)
   });
 
   test("no Locations buttons; resort types are in the owner's order", async ({ page }) => {
@@ -927,4 +927,12 @@ test("season chart v2 resort card puts the collection name on its own row and li
   await page.locator("#search").fill("Anaheim");
   await page.locator("#grid tbody .res-name", { hasText: "Anaheim" }).first().click();
   await expect(page.locator("#detailBody ul.limits")).toHaveCount(0);
+});
+
+test("season chart v2 has no Sydney Suites anywhere (owner could not verify it exists, 10/18/26)", async ({ page }) => {
+  await page.goto("/52weeks/seasons-v2.html");
+  await expect(page.locator("#grid tbody tr").first()).toBeVisible();
+  const hits = await page.evaluate(() => JSON.stringify([window.CLUB_PASS_POINTS, window.WEEKLY_POINTS, window.DIRECTORY]).match(/Sydney Suites|sydney-suites/gi) || []);
+  expect(hits).toEqual([]);
+  expect(await page.locator("body").innerText()).not.toContain("Sydney Suites");
 });
