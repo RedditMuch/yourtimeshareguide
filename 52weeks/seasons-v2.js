@@ -249,10 +249,16 @@
     return { season: CLS[weeks[51]] ? weeks[51] : null, points: pts ? pts[51] : null, w53: CLS[weeks[51]] ? 'assumed' : undefined };
   }
   /* Nightly points (Fri–Sat and Sun–Thur) for a row in a given week. Not in the data yet: returns null until it's added (#24, Phase 2). */
-  /* Fairfield Sapphire Valley: the directory prints weekly points only (no Fri-Sat or Sun-Thur rows), so these rows say so instead of showing … (the 2 BR Lockoff is built from two of them). */
-  const NOT_PUBLISHED = new Set(['p136-1c1', 'p136-1c2', 'p136-1c3', 'd025']), NOT_PUBLISHED_TIP = 'The directory prints weekly points only for this room type';
+  /* Rows whose nightly points the directory does not print say "Not Published" instead of …. None today: Fairway Forest & Foxhunt (Sapphire Valley) print weekly points only, and since 10/18/26 (owner) they use the nightly points printed for Mountain Laurel, so people can compare. */
+  const NOT_PUBLISHED = new Set(), NOT_PUBLISHED_TIP = 'The directory prints weekly points only for this room type';
   /* Resorts without a published points chart say so (owner, 2026-10-16); the tooltip says why. */
-  const NO_CHART = 'No Points Chart Available', NO_CHART_WHY = {};
+  const NO_CHART = 'Accurate Points Chart Unavailable', NO_CHART_WHY = { 'WorldMark Grand Palms': 'Club Wyndham’s online and printed points charts disagree' };
+  /* Charts to link on a resort's card when its own points are left out (owner, 2026-10-18: WorldMark Grand Palms) */
+  const CHART_LINKS = { 'WorldMark Grand Palms': [
+    { label: 'Club Wyndham’s Online Points Chart (PDF)', url: 'https://clubwyndham.wyndhamdestinations.com/content/dam/wyndham/wyndham-vacation-clubs/resorts/grand-palms/club-pass-grand-palms-pc.pdf' },
+    { label: 'WorldMark’s Credit Chart, 3 Seasons (PDF)', url: 'https://worldmark.wyndhamdestinations.com/content/dam/wyndham/wyndham-vacation-clubs/worldmark/credit-value-charts/2026-2027/wbw-grand-palms-pc-2027.pdf' },
+    { label: 'Printed Chart: 2023-2024 Directory, Page 264', url: 'https://media.travelandleisure.com/WD/email/2022/0876-2022/index.html#p=266' } /* CW search bar page = printed page + 2 in that edition */
+  ] };
   const noChartTip = s => NO_CHART_WHY[s.name] || 'No points chart is published';
   const unpublished = r => !!(r.p && NOT_PUBLISHED.has(r.p.id));
   function nightly(row, w, weekend) {
@@ -314,7 +320,7 @@
     $('collectionChecks').innerHTML = collections.map(c => {
       const label = COLLECTION_LABEL[c] || c, dot = c === 'Affiliate' ? '<i class="dot aff"></i>' : c === 'Associate' ? '<i class="dot assoc"></i>' : '';
       const m = label.match(/^(\S+) \((.*)\)$/), name = c === 'Associate' && m ? esc(m[1]) + dot + '<span class="sub">' + esc(m[2]) + '</span>' : esc(label) + dot;
-      const soon = c === 'Associate' || D.rows.some(s => s.collection === c && hasChart(s)) ? '' : '<span class="hint soon">No Points Chart Available</span>';
+      const soon = c === 'Associate' || D.rows.some(s => s.collection === c && hasChart(s)) ? '' : '<span class="hint soon">Accurate Points Chart Unavailable</span>';
       return (c === COLLECTION_AFTER_SEPARATOR ? '<hr class="sep coll-sep">' : '') + '<label class="check"><input type="checkbox" value="' + esc(c) + '"><span class="lbl">' + name + soon + '</span></label>';
     }).join('');
     $('countryList').innerHTML = COUNTRIES.map(c => '<li><button type="button" class="link" data-country="' + esc(c[0]) + '">' + esc(c[0]) + '</button></li>').join('');
@@ -740,13 +746,16 @@
 
   /* Booking limits printed under or beside a resort's points chart in the Club Wyndham Member's Directory 2026/2027 (owner, 2026-10-17). Keyed by resort name (one card per row of the chart, so a resort with several charts shows the same lines on each). Printed page numbers in the comments. */
   const ACCESS_LIMITED = 'Only a limited amount of this resort’s inventory is part of Club Wyndham Access, so getting a reservation here during the 13 to 10 month Advance Reservation Priority window is limited and should not be anticipated.';
-  const SAPPHIRE_7 = 'On the Fairway Forest & Foxhunt chart, a 7-night minimum stay is required in all seasons, and full week stays require check-in and checkout on Friday or Saturday.';
+  const SAPPHIRE_7 = [
+    { text: 'Fairway Forest and Foxhunt: a 7-night minimum stay is required in all seasons. Full week stays require check-in and check-out on Friday or Saturday.' }, /* p. 132 */
+    { text: 'The directory prints weekly points only for Fairway Forest and Foxhunt. Their Fri-Sat and Sun-Thur nightly points shown on the chart are Mountain Laurel’s printed nightly points (p. 133), so the room types can be compared. They cannot be booked by the night.' }
+  ];
   const BOOKING_LIMITS = {
     'Club Wyndham Harbortown Point': [{ text: 'This resort requires full week stays with a Sunday check-in.' }], /* p. 41 */
     'Club Wyndham Resort at Fairfield Mountains': [{ text: 'Some associations require a 7-night stay in all seasons.' }], /* p. 130 */
     'Club Wyndham Fairfield Harbour': [{ text: 'Some associations require a 7-night stay in all seasons.' }], /* p. 131 */
-    'Club Wyndham Resort at Fairfield Sapphire Valley': [{ text: SAPPHIRE_7 }], /* p. 132, Fairway Forest & Foxhunt chart */
-    'Foxhunt at Sapphire Valley': [{ text: SAPPHIRE_7 }], /* p. 132 */
+    'Club Wyndham Resort at Fairfield Sapphire Valley': SAPPHIRE_7, /* p. 132, Fairway Forest & Foxhunt chart */
+    'Foxhunt at Sapphire Valley': [SAPPHIRE_7[0]], /* p. 132 */
     'Club Wyndham Emerald Grande™ at Destin': [{ text: 'The Advance Reservation Priority window is available for stays between February and December. Reservation requests are not available for stays in January.' }], /* p. 60 */
     'Club Wyndham Oceanside Pier Resort': [{ text: 'The Advance Reservation Priority window is available for stays between Labor Day and May 31. From May 31 to Labor Day, reservations may be requested during the Standard Reservation Window.' }], /* p. 34 */
     'Club Wyndham Smugglers’ Notch Vermont®': [{ text: 'The Advance Reservation Priority window currently has limited availability for the month of July. Reservations are currently not available for stays between December 16 and December 31.' }], /* p. 178 */
@@ -780,6 +789,8 @@
     h += '</dl>';
     if (s.cp) { const src = s.cp.notes.filter(n => /^Source:/.test(n)).map(n => esc(n.replace(/\s*\(CW search bar page \d+\)/g, ''))); if (src.length) h += '<p class="hint">' + src.join('<br>') + '</p>'; }
     if (!s.cp && !ps.length) h += '<p><strong>' + NO_CHART + '.</strong> ' + esc(noChartTip(s)) + '.</p>';
+    const links = CHART_LINKS[s.name] || [];
+    if (links.length) h += '<h3>Points Charts</h3><ul class="limits">' + links.map(l => '<li><a href="' + esc(l.url) + '" target="_blank" rel="noopener">' + esc(l.label) + '</a></li>').join('') + '</ul>';
     if (NOTICES[s.name]) h += '<p class="alert">⚠ ' + esc(NOTICE_TEXT) + ' Club Wyndham explains it in <a href="https://clubwyndham.wyndhamdestinations.com/us/en/resorts/resort-news/2025/your-resort-portfolio-refresh" target="_blank" rel="noopener">Your Resort Portfolio Is Getting A Refresh</a>. Court updates: <a href="' + NOTICES[s.name].url + '" target="_blank" rel="noopener">' + esc(NOTICES[s.name].site) + '</a>.</p>';
     const lim = BOOKING_LIMITS[s.name] || [];
     if (lim.length) h += '<h3>Booking Limits</h3><ul class="limits">' + lim.map(l => '<li>' + esc(l.text) + '</li>').join('') + '</ul>';

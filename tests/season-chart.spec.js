@@ -238,7 +238,7 @@ test.describe("season chart v2 Collections filters (2026-10-12)", () => {
     await chartRows(page, { size: null });
     await expect(page.locator("#placeChecks")).toHaveCount(0);
     const labels = await page.locator("#collectionChecks .lbl").allTextContents();
-    expect(labels.map(l => l.replace(/No Points Chart Available|Points coming soon|\(Australia & New Zealand\)|Australia & New Zealand/, "").trim())).toEqual(["Club Wyndham", "Affiliate", "WorldMark / Club Pass", "Margaritaville", "Associate"]);
+    expect(labels.map(l => l.replace(/Accurate Points Chart Unavailable|Points coming soon|\(Australia & New Zealand\)|Australia & New Zealand/, "").trim())).toEqual(["Club Wyndham", "Affiliate", "WorldMark / Club Pass", "Margaritaville", "Associate"]);
     await expect(page.locator("#collectionChecks .coll-sep")).toHaveCount(1);
   });
 
@@ -708,7 +708,7 @@ test.describe("season chart v2 every room type is selectable (2026-10-16)", () =
       await page.evaluate(q => { const s = document.querySelector("#search"); s.value = q; s.dispatchEvent(new Event("input")); }, q);
       await page.waitForTimeout(400); await settled(page);
       const shown = await page.evaluate(() => [...document.querySelectorAll("#grid td.typ")].map(td => td.textContent.trim()));
-      for (const t of shown) if (t && !/Not Offered|coming soon|No Points Chart Available|Select a valid/i.test(t)) expect(labels.has(key(t)), q + ": " + t).toBe(true);
+      for (const t of shown) if (t && !/Not Offered|coming soon|Accurate Points Chart Unavailable|Select a valid/i.test(t)) expect(labels.has(key(t)), q + ": " + t).toBe(true);
     }
   });
 
@@ -821,7 +821,7 @@ test.describe("season chart v2 nightly points for several rates in one season", 
           if (!x || 2 * x[0] + 5 * x[1] !== wp) fails.push(p.id + " week " + w); } }
       return { checked, byWeek, fails };
     });
-    expect(r.byWeek).toBe(70); // 33 several-rate rows, 36 lockoffs built from their two components, Desert Rose 2 BR (High week = 236,000, calculated from its printed nightly points because the book prints 234,000)
+    expect(r.byWeek).toBe(71); // 33 several-rate rows, 37 lockoffs (36 + the Sapphire Valley Fairway Forest & Foxhunt lockoff) built from their two components, Desert Rose 2 BR (High week = 236,000, calculated from its printed nightly points because the book prints 234,000)
     expect(r.fails).toEqual([]);
   });
 });
@@ -836,20 +836,35 @@ test.describe("season chart v2 lockoffs and weekly-only rows", () => {
         for (let w = 1; w <= 52; w++) { if (d.weeklyPoints[w - 1] == null) continue; const x = get(d, w), cs = d.components.map(c => get(by(c), w));
           if (!x || cs.some(c => !c) || x[0] !== cs.reduce((a, c) => a + c[0], 0) || x[1] !== cs.reduce((a, c) => a + c[1], 0)) fails.push(d.id + " week " + w); } }
       return { lockoffs, fails }; });
-    expect(r.lockoffs).toBe(36);
+    expect(r.lockoffs).toBe(37);
     expect(r.fails).toEqual([]);
   });
 
-  test("Fairfield Sapphire Valley says Not Published (weekly points only) instead of …", async ({ page }) => {
+  test("Fairfield Sapphire Valley: Fairway Forest & Foxhunt use Mountain Laurel's nightly points, so nothing says Not Published or …", async ({ page }) => {
     await chartRows(page, { query: "Sapphire Valley", size: "all", collections: ["Club Wyndham"] });
     const cells = await page.locator("#grid tbody td.nt").allTextContents();
-    expect(cells.filter(t => t.trim() === "Not Published").length).toBeGreaterThanOrEqual(8);
-    expect(cells.filter(t => t.trim() === "…")).toEqual([]);
-    await expect(page.locator("#grid tbody td.nt span[title*='weekly points only']").first()).toBeAttached();
-    // the label (smaller text, wraps if needed) stays inside its column, so it is never cut off
-    const fit = await page.locator("#grid tbody td.nt span.np").evaluateAll(sp => sp.map(x => { const td = x.parentElement; return x.scrollWidth <= td.clientWidth + 1 && x.getBoundingClientRect().right <= td.getBoundingClientRect().right + 1; }));
-    expect(fit.length).toBeGreaterThanOrEqual(8);
-    expect(fit.every(Boolean)).toBe(true);
+    expect(cells.length).toBeGreaterThanOrEqual(16);
+    expect(cells.filter(t => /Not Published|…/.test(t))).toEqual([]);
+    // every row: 5 x Sun-Thur + 2 x Fri-Sat = its weekly points, in every week
+    const bad = await page.evaluate(() => { const out = [];
+      for (const id of ["p136-1c1", "p136-1c2", "p136-1c3", "d025"]) { const row = window.WEEKLY_POINTS.rows.find(r => r.id === id), n = window.NIGHTLY_POINTS[id];
+        for (let w = 0; w < 52; w++) { const x = n.byWeek ? n.byWeek[w] : [n[row.weeks[w]].friSat, n[row.weeks[w]].sunThu]; if (5 * x[1] + 2 * x[0] !== row.weeklyPoints[w]) out.push(id + " week " + (w + 1)); } }
+      return out; });
+    expect(bad).toEqual([]);
+    // the same nightly points as Mountain Laurel's printed rows (p. 133)
+    const same = await page.evaluate(() => { const N = window.NIGHTLY_POINTS; return JSON.stringify(N["p136-1c1"]) === JSON.stringify(N["p137-1c1"]) && JSON.stringify(N["p136-1c2"]) === JSON.stringify(N["p137-1c2"]); });
+    expect(same).toBe(true);
+  });
+
+  test("Fairfield Sapphire Valley card: 7-night minimum, Friday or Saturday check-in, and where the nightly points come from", async ({ page }) => {
+    await page.goto("/52weeks/seasons-v2.html");
+    await expect(page.locator("#grid tbody .res-name").first()).toBeVisible();
+    await page.locator("#search").fill("Sapphire Valley");
+    await page.locator("#grid tbody .res-name", { hasText: "Fairfield Sapphire" }).first().click();
+    const lim = page.locator("#detailBody ul.limits");
+    await expect(lim).toContainText("Fairway Forest and Foxhunt: a 7-night minimum stay is required in all seasons");
+    await expect(lim).toContainText("check-in and check-out on Friday or Saturday");
+    await expect(lim).toContainText("Mountain Laurel");
   });
 });
 
@@ -877,9 +892,12 @@ test.describe("season chart v2 WorldMark St. George and Balboa Park (2023-2024 d
     }
   });
 
-  test("no resort says coming soon or No Points Chart Available", async ({ page }) => {
+  test("no resort says coming soon, and only WorldMark Grand Palms says Accurate Points Chart Unavailable (owner, 10/18/26: its charts disagree)", async ({ page }) => {
     await chartRows(page, { size: "all" });
-    await expect(page.locator("#grid")).not.toContainText(/coming soon|No Points Chart Available/i);
+    await expect(page.locator("#grid")).not.toContainText(/coming soon/i);
+    const gap = page.locator("#grid tbody tr", { has: page.locator("td.typ.gap", { hasText: "Accurate Points Chart Unavailable" }) });
+    await expect(gap).toHaveCount(1);
+    await expect(gap.locator(".res-name")).toContainText("Grand Palms");
   });
 });
 
@@ -934,4 +952,22 @@ test("season chart v2 has no Sydney Suites anywhere (owner could not verify it e
   const hits = await page.evaluate(() => JSON.stringify([window.CLUB_PASS_POINTS, window.WEEKLY_POINTS, window.DIRECTORY]).match(/Sydney Suites|sydney-suites/gi) || []);
   expect(hits).toEqual([]);
   expect(await page.locator("body").innerText()).not.toContain("Sydney Suites");
+});
+
+test("season chart v2 WorldMark Grand Palms shows no points, says the charts disagree, and links the three charts", async ({ page }) => {
+  await page.goto("/52weeks/seasons-v2.html");
+  await expect(page.locator("#grid tbody tr").first()).toBeVisible();
+  expect(await page.evaluate(() => !!window.CLUB_PASS_POINTS.resorts["WorldMark Grand Palms"])).toBe(false);
+  await chartRows(page, { query: "Grand Palms", size: "all", collections: ["Club Pass", "Club Wyndham"] });
+  const gap = page.locator("#grid tbody tr", { has: page.locator("td.typ.gap", { hasText: "Accurate Points Chart Unavailable" }) });
+  await expect(gap).toHaveCount(1);
+  const name = gap.locator(".res-name");
+  await name.click();
+  const body = page.locator("#detailBody");
+  await expect(body).toContainText("Accurate Points Chart Unavailable");
+  await expect(body).toContainText("Club Wyndham’s online and printed points charts disagree");
+  await expect(body.locator("a[href$='grand-palms/club-pass-grand-palms-pc.pdf']")).toHaveCount(1);
+  await expect(body.locator("a[href$='credit-value-charts/2026-2027/wbw-grand-palms-pc-2027.pdf']")).toHaveCount(1);
+  await expect(body.locator("a[href='https://media.travelandleisure.com/WD/email/2022/0876-2022/index.html#p=266']")).toContainText("2023-2024 Directory, Page 264");
+  await expect(body.locator("a[href*='0625-2025/cw-directory/index.html#p=232']")).toHaveCount(1);
 });
