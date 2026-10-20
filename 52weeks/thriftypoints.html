@@ -34,9 +34,9 @@ button:disabled{opacity:.5;cursor:default}
 .status{color:var(--mute);font-size:.9rem;margin:0 0 8px}
 .scroll{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
 table{border-collapse:collapse;width:100%;min-width:1000px;font-size:14px;table-layout:auto}
-td.res{min-width:140px;max-width:200px}td.nw{white-space:nowrap}td.n{white-space:nowrap;min-width:70px}
-td.rt{max-width:190px}td.rt small{display:block;color:var(--mute);font-size:.8em;line-height:1.25}
-th[data-h="1"],td:nth-child(2){min-width:90px}th[data-h="2"],td:nth-child(3){min-width:60px}th[data-h="3"],td:nth-child(4){min-width:120px}th[data-h="0"]{min-width:140px}
+td.res{min-width:130px;max-width:170px}td.nw{white-space:nowrap}td.n{white-space:nowrap;min-width:54px}td.bld{color:var(--mute);font-size:.9em;min-width:84px;max-width:110px}
+td.rt{max-width:160px}td.rt small{display:block;color:var(--mute);font-size:.8em;line-height:1.25}
+th[data-h="1"],td:nth-child(2){min-width:80px}th[data-h="2"],td:nth-child(3){min-width:60px}th[data-h="3"],td:nth-child(4){min-width:105px}th[data-h="0"]{min-width:130px}
 th,td{padding:6px 4px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
 th{background:var(--head);font-size:.82rem;white-space:nowrap;padding:0}
 th[aria-sort=ascending],th[aria-sort=descending]{background:#cfe0f3}
@@ -47,7 +47,8 @@ th.n button{text-align:center}
 th{vertical-align:bottom}
 th .tier{display:block;font-size:.78rem;font-weight:700;color:var(--stay);letter-spacing:.02em;margin-bottom:1px}
 th.n button{display:flex;flex-direction:column-reverse;align-items:center}
-th.n button .lbl{display:inline-flex;align-items:center}
+th.n button .lbl{display:inline-flex;flex-direction:column;align-items:center}
+th.n .arr{flex-direction:row;margin:3px 0 0}
 th button:hover{background:rgba(42,111,176,.18);text-decoration:underline}
 th button:focus-visible{outline:2px solid var(--stay);outline-offset:-2px}
 th .arr{display:inline-flex;flex-direction:column;gap:3px;vertical-align:middle;margin-left:6px}
@@ -190,6 +191,15 @@ rows.forEach(function (r) {
 var PFX = "Club Wyndham ", dispSeen = {};
 rows.forEach(function (r) { r._disp = r.name.indexOf(PFX) === 0 ? r.name.slice(PFX.length) : r.name; var k = r._disp + "|" + r._city + "|" + r._code; (dispSeen[k] = dispSeen[k] || {})[r.name] = 1; });
 rows.forEach(function (r) { if (r._disp !== r.name && Object.keys(dispSeen[r._disp + "|" + r._city + "|" + r._code]).length > 1) r._disp = r.name; r._dlow = r._disp.toLowerCase(); r._dflat = flat(r._disp); });
+/* The building goes in its own column: some room types are printed as "Room — Building" and some as "Building — Room"; the side that names a bedroom or studio is the room */
+function splitRoom(t) {
+  var p = String(t).split(' — ');
+  if (p.length !== 2) return [t, ''];
+  var isRoom = function (x) { return /bedroom|studio/i.test(x); };
+  if (isRoom(p[0]) && !isRoom(p[1])) return [p[0], p[1]];
+  if (isRoom(p[1]) && !isRoom(p[0])) return [p[1], p[0]];
+  return [t, ''];
+}
 /* Same resort and room type listed twice: drop the copy when every season price is identical, otherwise label each with its schedule */
 var grp = {};
 rows.forEach(function (r) { var k = r.name + '|' + r.roomType; (grp[k] = grp[k] || []).push(r); });
@@ -197,7 +207,7 @@ var keep = [];
 Object.keys(grp).forEach(function (k) {
   var a = grp[k], uniq = [], sig = {};
   a.forEach(function (r) { var g = JSON.stringify(r.weeks) + JSON.stringify(N[r.id]); if (!sig[g]) { sig[g] = 1; uniq.push(r); } });
-  uniq.forEach(function (r) { r._sch = uniq.length > 1 && r.schedule ? r.schedule : ''; r._room = r.roomType + (r._sch ? ' (' + r._sch + ')' : ''); keep.push(r); });
+  uniq.forEach(function (r) { r._sch = uniq.length > 1 && r.schedule ? r.schedule : ''; var sp = splitRoom(r.roomType); r._rt = sp[0]; r._bld = sp[1] || r._sch; r._room = r._rt + (r._bld ? ' (' + r._bld + ')' : ''); keep.push(r); });
 });
 rows = rows.filter(function (r) { return keep.indexOf(r) >= 0; });
 var fill = function (sel, items) { items.forEach(function (it) { var o = document.createElement('option'); o.value = it[0]; o.textContent = it[1]; sel.appendChild(o); }); };
@@ -243,7 +253,7 @@ var nightWeek = new Int16Array(NIGHTS), nightWknd = new Uint8Array(NIGHTS);
 
 /* ---- Search ---- */
 var SEASONS = ['Prime', 'High', 'Value', 'Quiet'];
-var sortKey = null, sortDir = 1, BASE_HEAD = ['Resort', 'City', 'State', 'Room Type', 'Check-In', 'Check-Out', 'Nights', 'Season', 'Full Price'];
+var sortKey = null, sortDir = 1, BASE_HEAD = ['Resort', 'City', 'State', 'Room Type', 'Building', 'Check-In', 'Check-Out', 'Nights', 'Season', 'Full Price'];
 var RATES = [], TIER_OF = {}, TIERS = [], VIS = [], VIS_TIER = null;  /* discounts read from reference-data.js, ascending */
 try { window.REFERENCE.vip.tiers.forEach(function (t) { var d = t.points_discount_within_2_months; if (typeof d === 'number' && d > 0 && d < 1) { if (RATES.indexOf(d) < 0) RATES.push(d); TIERS.push({ tier: t.tier, rate: d }); TIER_OF[d] = (TIER_OF[d] ? TIER_OF[d] + ' and ' : '') + t.tier; } }); } catch (e) { RATES = []; }
 RATES.sort(function (a, b) { return a - b; }); TIERS.sort(function (a, b) { return a.rate - b.rate; });
@@ -254,7 +264,7 @@ var tierOf = function (d) { return VIS_TIER || TIER_OF[d] || ''; };
 function setColumns() {
   var tr = $('tbl').querySelector('thead tr'), labels = BASE_HEAD.concat(VIS.map(colLabel));
   if (sortKey != null && sortKey >= labels.length) sortKey = null;
-  tr.innerHTML = labels.map(function (l, i) { var tier = i >= 9 ? tierOf(VIS[i - 9]) : ''; return '<th' + (i >= 8 ? ' class="n"' : i === 6 ? ' class="n"' : i === 7 ? ' class="sea"' : '') + ' data-h="' + i + '"' + '><button type="button" data-col="' + i + '">' + '<span class="lbl">' + esc(l) + '<span class="arr" aria-hidden="true"><i class="u"></i><i class="d"></i></span></span>' + (tier ? '<span class="tier"> ' + esc(tier) + '</span>' : '') + '</button></th>'; }).join('');
+  tr.innerHTML = labels.map(function (l, i) { var tier = i >= 10 ? tierOf(VIS[i - 10]) : ''; return '<th' + (i >= 9 ? ' class="n"' : i === 7 ? ' class="n"' : i === 8 ? ' class="sea"' : '') + ' data-h="' + i + '"' + '><button type="button" data-col="' + i + '">' + '<span class="lbl">' + esc(l) + '<span class="arr" aria-hidden="true"><i class="u"></i><i class="d"></i></span></span>' + (tier ? '<span class="tier"> ' + esc(tier) + '</span>' : '') + '</button></th>'; }).join('');
   sortUI();
 }
 var pctOf = function (d) { return Math.round(d * 1000) / 10 + '%'; };
@@ -276,11 +286,12 @@ function sortVal(x, c) {
   if (c === 1) return x.r._city.toLowerCase();
   if (c === 2) return x.r._code.toLowerCase();
   if (c === 3) return x.r._room.toLowerCase();
-  if (c === 4) return x.s;
-  if (c === 5) return x.s + x.n;
-  if (c === 6) return x.n;
-  if (c === 7) return SEASONS.indexOf(x.season) >= 0 ? SEASONS.indexOf(x.season) : null;
-  return x.prices[c - 8];
+  if (c === 4) return x.r._bld ? x.r._bld.toLowerCase() : null;
+  if (c === 5) return x.s;
+  if (c === 6) return x.s + x.n;
+  if (c === 7) return x.n;
+  if (c === 8) return SEASONS.indexOf(x.season) >= 0 ? SEASONS.indexOf(x.season) : null;
+  return x.prices[c - 9];
 }
 function ordered() {
   if (sortKey == null) return results;
@@ -337,15 +348,15 @@ function search(cfg) {
 /* ---- Output ---- */
 function rowData(x) {
   var t = CAL_START + x.s * DAY;
-  return [x.r._disp, x.r._city, x.r._code, x.r._room, fmtDate(t), fmtDate(t + x.n * DAY), x.n, x.season || ''].concat(x.prices);
+  return [x.r._disp, x.r._city, x.r._code, x.r._rt, x.r._bld || '', fmtDate(t), fmtDate(t + x.n * DAY), x.n, x.season || ''].concat(x.prices);
 }
 function render() {
-  var list = ordered().slice(0, shown), budget = lastInfo.points, html = '', cols = 9 + lastInfo.rates.length;
+  var list = ordered().slice(0, shown), budget = lastInfo.points, html = '', cols = 10 + lastInfo.rates.length;
   list.forEach(function (x) {
     var d = rowData(x);
-    html += '<tr><td class="res">' + esc(d[0]) + '</td><td>' + esc(d[1]) + '</td><td>' + esc(d[2]) + '</td><td class="rt">' + esc(x.r.roomType) + (x.r._sch ? '<small>' + esc(x.r._sch) + '</small>' : '') + '</td><td class="nw">' + esc(d[4]) + '</td><td class="nw">' + esc(d[5]) + '</td><td class="n">' + d[6] + '</td>';
+    html += '<tr><td class="res">' + esc(d[0]) + '</td><td>' + esc(d[1]) + '</td><td>' + esc(d[2]) + '</td><td class="rt">' + esc(d[3]) + '</td><td class="bld">' + esc(d[4]) + '</td><td class="nw">' + esc(d[5]) + '</td><td class="nw">' + esc(d[6]) + '</td><td class="n">' + d[7] + '</td>';
     html += '<td class="sea' + (x.season ? ' s' + x.season : '') + '" data-season="' + esc(x.season) + '"' + '>' + esc(x.season) + '</td>';
-    for (var k = 8; k < d.length; k++) {
+    for (var k = 9; k < d.length; k++) {
       var v = d[k], fit = v != null && v <= budget;
       html += '<td class="n' + (fit ? ' fit' : '') + '" data-fit="' + fit + '">' + (v == null ? '—' : NUM.format(v)) + '</td>';
     }
@@ -398,7 +409,7 @@ $('pdf').addEventListener('click', function () { window.print(); });
 /* ---- Exports (Excel loads only when selected; CSV if the library fails) ---- */
 var HEAD = function () { return BASE_HEAD.concat(lastInfo.rates.map(colLabel)); };
 function exportRows() {
-  return ordered().slice(0, shown).map(function (x) { return rowData(x).map(function (v, i) { return i === 7 ? (v || '—') : i >= 8 && v == null ? '—' : v; }); });
+  return ordered().slice(0, shown).map(function (x) { return rowData(x).map(function (v, i) { return i === 8 ? (v || '—') : i >= 9 && v == null ? '—' : v; }); });
 }
 function metaRows() {
   return [['Thrifty Points'], ['Total Points', lastInfo.points], ['VIP Level', lastInfo.vipLabel], ['Area', lastInfo.area], ['State', lastInfo.stateName], ['Resort', lastInfo.resort || 'All'], ['Room Size', lastInfo.size || 'All'],
@@ -431,7 +442,7 @@ $('xlsx').addEventListener('click', function () {
   var btn = this, xe = $('xerr'); xe.hidden = true; btn.disabled = true;
   loadXlsx().then(function () {
     var meta = metaRows(), ws = XLSX.utils.aoa_to_sheet(meta.concat([HEAD()], exportRows()));
-    ws['!cols'] = [{ wch: 38 }, { wch: 20 }, { wch: 8 }, { wch: 22 }, { wch: 12 }, { wch: 12 }, { wch: 8 }, { wch: 9 }, { wch: 12 }].concat(lastInfo.rates.map(function () { return { wch: 12 }; }));
+    ws['!cols'] = [{ wch: 38 }, { wch: 20 }, { wch: 8 }, { wch: 22 }, { wch: 22 }, { wch: 12 }, { wch: 12 }, { wch: 8 }, { wch: 9 }, { wch: 12 }].concat(lastInfo.rates.map(function () { return { wch: 12 }; }));
     var wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Thrifty Points');
     XLSX.writeFile(wb, 'thrifty-points.xlsx');
   }).catch(function () {
