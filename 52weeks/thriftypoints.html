@@ -65,6 +65,7 @@ td.sPrime{background:var(--prime)}td.sHigh{background:var(--high)}td.sValue{back
 .chips{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:.8rem;color:var(--mute);margin:0 0 6px}
 .chips span.chip{display:inline-flex;align-items:center;gap:5px;color:var(--ink)}
 .chips i{display:inline-block;width:14px;height:14px;border-radius:3px;border:1px solid rgba(0,0,0,.35)}
+td.pPrime{background:rgba(229,127,118,.34)}td.pHigh{background:rgba(239,156,76,.34)}td.pValue{background:rgba(247,226,151,.55)}td.pQuiet{background:rgba(140,207,176,.34)}
 td.fit{background:#d4efe0;font-weight:700;box-shadow:inset 3px 0 0 var(--good)}
 @media (prefers-color-scheme:dark){td.fit{background:#1d4a31}}
 .notes{background:var(--warn)}
@@ -358,7 +359,7 @@ function render() {
     html += '<td class="sea' + (x.season ? ' s' + x.season : '') + '" data-season="' + esc(x.season) + '"' + '>' + esc(x.season) + '</td>';
     for (var k = 9; k < d.length; k++) {
       var v = d[k], fit = v != null && v <= budget;
-      html += '<td class="n' + (fit ? ' fit' : '') + '" data-fit="' + fit + '">' + (v == null ? '—' : NUM.format(v)) + '</td>';
+      html += '<td class="n' + (fit ? ' fit' : x.season ? ' p' + x.season : '') + '" data-fit="' + fit + '">' + (v == null ? '—' : NUM.format(v)) + '</td>';
     }
     html += '</tr>';
   });
