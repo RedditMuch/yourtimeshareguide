@@ -152,6 +152,8 @@ var $ = function (id) { return document.getElementById(id); };
 var esc = function (s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
 var NUM = new Intl.NumberFormat('en-US');
 var DAY = 864e5, VIP_DAYS = 60;
+/* Resort search ignores case and punctuation, so "Palm Aire" finds Palm-Aire. */
+function flat(s) { return String(s).toLowerCase().replace(/[’‘'`]/g, "").replace(/[^a-z0-9]+/g, " ").trim(); }
 
 /* ---- Chart calendar, same rule as season chart v2: week 1 starts on the first Friday of January; week 53 exists when Dec 31 is a Friday ---- */
 var firstFriday = function (y) { var d = new Date(Date.UTC(y, 0, 1)).getUTCDay(); return Date.UTC(y, 0, 1 + ((5 - d + 7) % 7)); };
@@ -176,12 +178,12 @@ rows.forEach(function (r) {
   r._city = r.city || (r.location || '').split(',')[0] || r.name;
   r._area = EAST.indexOf(r._code) >= 0 ? 'East Coast' : WESTC.indexOf(r._code) >= 0 ? 'West Coast' : r._code === 'HI' ? 'Hawaii' : 'Other';
   r._size = sizeOf(r);
-  r._low = (r.name || '').toLowerCase();
+  r._low = flat(r.name || '');
 });
 /* Display name: drop an exact leading Club Wyndham prefix unless that would give two resorts the same name in one city and state */
 var PFX = "Club Wyndham ", dispSeen = {};
 rows.forEach(function (r) { r._disp = r.name.indexOf(PFX) === 0 ? r.name.slice(PFX.length) : r.name; var k = r._disp + "|" + r._city + "|" + r._code; (dispSeen[k] = dispSeen[k] || {})[r.name] = 1; });
-rows.forEach(function (r) { if (r._disp !== r.name && Object.keys(dispSeen[r._disp + "|" + r._city + "|" + r._code]).length > 1) r._disp = r.name; r._dlow = r._disp.toLowerCase(); });
+rows.forEach(function (r) { if (r._disp !== r.name && Object.keys(dispSeen[r._disp + "|" + r._city + "|" + r._code]).length > 1) r._disp = r.name; r._dlow = r._disp.toLowerCase(); r._dflat = flat(r._disp); });
 /* Same resort and room type listed twice: drop the copy when every season price is identical, otherwise label each with its schedule */
 var grp = {};
 rows.forEach(function (r) { var k = r.name + '|' + r.roomType; (grp[k] = grp[k] || []).push(r); });
@@ -290,13 +292,13 @@ function search(cfg) {
   var out = [], t0 = performance.now();
   var a = Math.round((cfg.from - CAL_START) / DAY), b = Math.round((cfg.to - CAL_START) / DAY); /* nights a..b-1 may be used */
   a = Math.max(0, a); b = Math.min(NIGHTS, b);
-  var q = cfg.resort.toLowerCase();
+  var q = flat(cfg.resort);
   var pre = new Float64Array(NIGHTS + 1), miss = new Int32Array(NIGHTS + 1);
   rows.forEach(function (r) {
     if (cfg.area !== 'Everywhere' && r._area !== cfg.area) return;
     if (cfg.state && r._code !== cfg.state) return;
     if (cfg.size && r._size !== cfg.size) return;
-    if (q && r._low.indexOf(q) < 0 && r._dlow.indexOf(q) < 0) return;
+    if (q && r._low.indexOf(q) < 0 && r._dflat.indexOf(q) < 0) return;
     var nb = N[r.id];
     for (var i = a; i < b; i++) {
       var s = seasonOf(r, nightWeek[i]), band = s && nb[s], p = band ? (nightWknd[i] ? band.friSat : band.sunThu) : null;
