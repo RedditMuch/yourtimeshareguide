@@ -416,3 +416,7 @@ select option{padding:1px 8px;min-height:0;line-height:1.2;font-size:13.5px}
 .timebox input[type=date]{min-width:0;max-width:100%}
 @supports (-webkit-touch-callout:none){.timebox input[type=date]{-webkit-appearance:none;appearance:none;text-align:left}.timebox input[type=date]::-webkit-date-and-time-value{text-align:left}}
 @media (max-width:600px){.timebox #dateBox{column-gap:14px}}
+
+/* Chart height (owner, 2026-10-19): on a computer seasons-v2.js sets --gw-max so the whole chart box fits the window
+   under the header; without it (or on a phone) the heights above apply. */
+@media (min-width:821px){.grid-wrap{max-height:var(--gw-max,calc(100svh - 40px))}}

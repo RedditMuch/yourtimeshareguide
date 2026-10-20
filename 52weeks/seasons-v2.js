@@ -894,3 +894,25 @@
   wireTip();
   render();
 })();
+
+/* Chart height (owner, 2026-10-19): on a computer the chart box was one screen tall but starts below the header and
+   filters, so its bottom edge and sideways scroll bar sat off screen until the page was scrolled. This sizes the box to
+   the space left under whatever sits above it, so the whole box fits the window at the top of the page. Phones keep the
+   CSS heights (80svh), so nothing changes there. */
+(() => {
+  const wrap = document.getElementById('gridWrap'), root = document.documentElement;
+  if (!wrap) return;
+  const desktop = window.matchMedia('(min-width:821px)');
+  const fit = () => {
+    if (!desktop.matches) { root.style.removeProperty('--gw-max'); return; }
+    const top = wrap.getBoundingClientRect().top + window.scrollY;
+    root.style.setProperty('--gw-max', Math.max(240, Math.floor(window.innerHeight - top - 14)) + 'px');
+  };
+  fit();
+  window.addEventListener('resize', fit);
+  desktop.addEventListener('change', fit);
+  if (window.ResizeObserver) {
+    const ro = new ResizeObserver(fit);
+    for (const el of document.querySelectorAll('header.top, .main > :not(#gridWrap)')) ro.observe(el);
+  }
+})();
