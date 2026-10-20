@@ -822,6 +822,10 @@
       if (!state.types.size && state.sort.key !== 'resort') state.sort = { key: 'resort', dir: 1 };
       render();
     });
+    // Select All and Clear next to Bedrooms (owner, 2026-10-20): Select All = every room type (Bedrooms = ALL); Clear = None (season colors only)
+    const pickBedrooms = v => { const s = $('bedrooms'); s.value = v; s.dispatchEvent(new Event('change')); };
+    $('bedAll').addEventListener('click', () => pickBedrooms('all'));
+    $('bedClear').addEventListener('click', () => pickBedrooms(''));
     $('typeTree').addEventListener('change', e => {
       const i = e.target;
       if (i.dataset.group) { for (const id of typeSet(i.dataset.group)) i.checked ? state.types.add(id) : state.types.delete(id); }
