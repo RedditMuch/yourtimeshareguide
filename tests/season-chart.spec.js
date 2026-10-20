@@ -971,3 +971,18 @@ test("season chart v2 WorldMark Grand Palms shows no points, says the charts dis
   await expect(body.locator("a[href='https://media.travelandleisure.com/WD/email/2022/0876-2022/index.html#p=266']")).toContainText("2023-2024 Directory, Page 264");
   await expect(body.locator("a[href*='0625-2025/cw-directory/index.html#p=232']")).toHaveCount(1);
 });
+
+// ---- Owner, 2026-10-20: Select All / Clear next to Bedrooms ----
+test("season chart v2 Bedrooms Select All picks every room type and Clear sets None", async ({ page }) => {
+  await chartRows(page, { size: null });
+  await page.evaluate(() => { document.getElementById("filterBox").open = true; });
+  await expect(page.locator("#bedAll")).toHaveText("Select All");
+  await expect(page.locator("#bedClear")).toHaveText("Clear");
+  await page.locator("#bedAll").click(); await settled(page);
+  await expect(page.locator("#bedrooms")).toHaveValue("all");
+  const on = await page.locator("#typeTree input[value]").evaluateAll(els => els.map(e => e.checked));
+  expect(on.length).toBeGreaterThan(0); expect(on.every(Boolean)).toBe(true);
+  await page.locator("#bedClear").click(); await settled(page);
+  await expect(page.locator("#bedrooms")).toHaveValue("");
+  expect(await page.locator("#typeTree input:checked").count()).toBe(0);
+});
