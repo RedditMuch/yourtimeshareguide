@@ -916,3 +916,21 @@
     for (const el of document.querySelectorAll('header.top, .main > :not(#gridWrap)')) ro.observe(el);
   }
 })();
+
+/* Wheel hand-off (owner, 2026-10-19): with the page scrolled so the chart box is partly off screen (for example at the
+   very bottom of the page), the wheel scrolled the rows inside the box and left the page, so the header row stayed cut
+   off. Now, on a computer, the wheel moves the page first until the whole box is on screen, then moves the rows. */
+(() => {
+  const wrap = document.getElementById('gridWrap');
+  if (!wrap) return;
+  const desktop = window.matchMedia('(min-width:821px)');
+  wrap.addEventListener('wheel', e => {
+    if (!desktop.matches || e.ctrlKey || e.shiftKey || e.deltaX || !e.deltaY) return;
+    const px = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * window.innerHeight : e.deltaY;
+    const r = wrap.getBoundingClientRect();
+    const hidden = px < 0 ? -r.top : r.bottom - window.innerHeight;
+    if (hidden < 1) return;
+    e.preventDefault();
+    window.scrollBy(0, px < 0 ? -Math.min(-px, hidden) : Math.min(px, hidden));
+  }, { passive: false });
+})();
