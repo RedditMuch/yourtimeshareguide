@@ -102,7 +102,6 @@ td.fit{background:#d4efe0;font-weight:700;box-shadow:inset 3px 0 0 var(--good)}
 <div><label for="maxN">Maximum Nights per Stay</label><input id="maxN" type="number" min="1" max="30" value="14"></div>
 </div>
 <div class="btns"><button type="submit" id="go">Find Stays</button></div>
-<p class="hint" id="win"></p>
 <p class="msg err" id="err" role="alert" hidden></p>
 <p class="msg err" id="ratenote" role="status" hidden></p>
 </form>
@@ -112,7 +111,7 @@ td.fit{background:#d4efe0;font-weight:700;box-shadow:inset 3px 0 0 var(--good)}
 <h2 id="rh">Results</h2>
 <div class="printonly" id="printInfo"></div>
 <p class="status" id="status" aria-live="polite"></p>
-<p class="hint" id="legend">Highlighted prices (green fill and bold) are at or below your total points. Read down the column for your VIP level. A dash means the discount is not available because check-in is more than 60 days away.</p>
+<p class="hint" id="legend">Highlighted prices (green fill and bold) are at or below your total points. Read down the column for your VIP level.</p>
 <p class="hint" id="levels"></p>
 <p class="hint noprint">Select any column heading to sort.</p>
 <div class="scroll" id="scroll" tabindex="0" role="region" aria-label="Best stays for your points, scrollable table">
@@ -131,7 +130,7 @@ td.fit{background:#d4efe0;font-weight:700;box-shadow:inset 3px 0 0 var(--good)}
 <section class="card notes" aria-labelledby="nh">
 <h2 id="nh">Notes and Limits</h2>
 <p>Points shown are from the 2026/2027 directory charts. Availability is not checked, so a stay listed here may not be bookable.</p>
-<p>VIP discounts apply only to eligible new reservations made within 2 months (60 days) before check-in. A stay is shown with discounted prices only when its check-in date falls within 60 days after today. Eligibility and availability are not verified. Discounted prices are rounded up to the next whole point; Wyndham's booking rounding is not confirmed.</p>
+<p>VIP discounts apply only to eligible new reservations made within 2 months (60 days) before check-in. Discounted prices are shown for every stay so you can plan ahead. Eligibility and availability are not verified. Discounted prices are rounded up to the next whole point; Wyndham's booking rounding is not confirmed.</p>
 <p>Source: Club Wyndham Member's Directory 2026/2027, VIP benefits chart, printed pages 266–270 (Club Wyndham search bar pages 270–274).</p>
 <p>Housekeeping Credits ($185 each when you run out) and Reservation Transactions are not included.</p>
 <p id="left"></p>
@@ -256,8 +255,6 @@ var pctOf = function (d) { return Math.round(d * 1000) / 10 + '%'; };
   $('levels').textContent = RATES.length ? 'VIP levels: ' + RATES.map(function (d) { return pctOf(d) + ' ' + TIER_OF[d]; }).join(', ') + '.' : '';
   if (!RATES.length) { $('ratenote').textContent = 'The VIP discount percentages could not be read from the reference data, so only full prices are shown.'; $('ratenote').hidden = false; }
 })();
-var winEnd = todayUTC + VIP_DAYS * DAY;
-$('win').textContent = 'VIP discount window: stays with a check-in date from ' + fmtDate(todayUTC) + ' through ' + fmtDate(winEnd) + ' (today plus 60 days) show discounted prices. Later stays show the full price only.';
 var results = [], shown = 50, lastInfo = null;
 function sortUI() {
   var ths = $('tbl').querySelectorAll('thead th');
@@ -306,14 +303,14 @@ function search(cfg) {
     }
     var best = null;
     for (var s0 = a; s0 < b; s0++) {
-      var ci = CAL_START + s0 * DAY, inWin = ci >= cfg.today && ci <= cfg.today + VIP_DAYS * DAY;
+      var ci = CAL_START + s0 * DAY;
       var maxLen = Math.min(cfg.maxN, b - s0);
       for (var n = cfg.minN; n <= maxLen; n++) {
         var e = s0 + n;
         if (miss[e] - miss[s0]) continue;
         var full = pre[e] - pre[s0], prices = [full], used = full <= cfg.points ? full : -1, low = full;
         for (var k = 0; k < cfg.rates.length; k++) {
-          var dp = inWin ? Math.ceil(Math.round(full * (1 - cfg.rates[k]) * 1e6) / 1e6) : null;
+          var dp = Math.ceil(Math.round(full * (1 - cfg.rates[k]) * 1e6) / 1e6);
           prices.push(dp);
           if (dp != null) { if (dp < low) low = dp; if (dp <= cfg.points && dp > used) used = dp; }
         }
@@ -354,7 +351,7 @@ function render() {
   $('all').hidden = results.length <= shown;
   $('resCard').hidden = false;
   $('xlsx').disabled = $('pdf').disabled = !list.length;
-  $('printInfo').innerHTML = '<p>Total Points: ' + NUM.format(budget) + ' | VIP Level: ' + esc(lastInfo.vipLabel) + ' | VIP Discount Window: ' + esc(lastInfo.win) + ' | Area: ' + esc(lastInfo.area) + ' | State: ' + esc(lastInfo.stateName) + ' | Resort: ' + esc(lastInfo.resort || 'All') + ' | Room Size: ' + esc(lastInfo.size || 'All') + '<br>Check-In From: ' + esc(lastInfo.from) + ' | Check-Out By: ' + esc(lastInfo.to) + ' | Nights per Stay: ' + lastInfo.minN + ' to ' + lastInfo.maxN + '<br>Generated: ' + fmtDate(todayUTC) + '</p>';
+  $('printInfo').innerHTML = '<p>Total Points: ' + NUM.format(budget) + ' | VIP Level: ' + esc(lastInfo.vipLabel) + ' | Area: ' + esc(lastInfo.area) + ' | State: ' + esc(lastInfo.stateName) + ' | Resort: ' + esc(lastInfo.resort || 'All') + ' | Room Size: ' + esc(lastInfo.size || 'All') + '<br>Check-In From: ' + esc(lastInfo.from) + ' | Check-Out By: ' + esc(lastInfo.to) + ' | Nights per Stay: ' + lastInfo.minN + ' to ' + lastInfo.maxN + '<br>Generated: ' + fmtDate(todayUTC) + '</p>';
   document.documentElement.setAttribute('data-search-ms', String(Math.round(lastInfo.ms)));
 }
 function fail(m) { var e = $('err'); e.textContent = m; e.hidden = !m; }
@@ -378,7 +375,7 @@ $('f').addEventListener('submit', function (ev) {
   var cfg = { points: pts, rates: VIS.slice(), today: todayUTC, from: from, to: to, minN: minN, maxN: Math.min(maxN, 60), area: $('area').value, state: st.value, size: $('size').value, resort: $('resort').value.trim() };
   var res = search(cfg);
   results = res.list; shown = 50;
-  lastInfo = { rates: VIS.slice(), vipLabel: vs.options[vs.selectedIndex].text, win: fmtDate(todayUTC) + ' through ' + fmtDate(winEnd), points: pts, ms: res.ms, area: cfg.area, stateName: st.value ? st.options[st.selectedIndex].text : 'All', resort: cfg.resort, size: cfg.size, from: fmtDate(from), to: fmtDate(to), minN: minN, maxN: cfg.maxN };
+  lastInfo = { rates: VIS.slice(), vipLabel: vs.options[vs.selectedIndex].text, points: pts, ms: res.ms, area: cfg.area, stateName: st.value ? st.options[st.selectedIndex].text : 'All', resort: cfg.resort, size: cfg.size, from: fmtDate(from), to: fmtDate(to), minN: minN, maxN: cfg.maxN };
   render();
 });
 $('vip').addEventListener('change', function () { sortKey = null; sortDir = 1; if (lastInfo) $('f').requestSubmit(); });
@@ -398,7 +395,7 @@ function exportRows() {
   return ordered().slice(0, shown).map(function (x) { return rowData(x).map(function (v, i) { return i === 7 ? (v || '—') : i >= 8 && v == null ? '—' : v; }); });
 }
 function metaRows() {
-  return [['Thrifty Points'], ['Total Points', lastInfo.points], ['VIP Level', lastInfo.vipLabel], ['VIP Discount Window', lastInfo.win], ['Area', lastInfo.area], ['State', lastInfo.stateName], ['Resort', lastInfo.resort || 'All'], ['Room Size', lastInfo.size || 'All'],
+  return [['Thrifty Points'], ['Total Points', lastInfo.points], ['VIP Level', lastInfo.vipLabel], ['Area', lastInfo.area], ['State', lastInfo.stateName], ['Resort', lastInfo.resort || 'All'], ['Room Size', lastInfo.size || 'All'],
     ['Check-In From', lastInfo.from], ['Check-Out By', lastInfo.to], ['Nights per Stay', lastInfo.minN + ' to ' + lastInfo.maxN], ['Generated', fmtDate(todayUTC)],
     ['Points are from the 2026/2027 directory charts. VIP discounts (' + RATES.map(function (d) { return pctOf(d) + ' ' + TIER_OF[d]; }).join(', ') + ') apply only to eligible new reservations made within 2 months (60 days) of check-in and are rounded up to the next whole point; eligibility and availability are not verified, and Wyndham\'s booking rounding is not confirmed. Source: Club Wyndham Member\'s Directory 2026/2027, VIP benefits chart, printed pages 266–270.'],['Availability is not checked. Housekeeping Credits and Reservation Transactions are not included.'], []];
 }

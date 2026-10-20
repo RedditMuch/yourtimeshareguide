@@ -36,7 +36,7 @@ test("thriftypoints: the VIP Level dropdown tailors the columns and re-renders w
   for (const row of await rows(page)) {
     expect(row.length).toBe(10);
     expect(row.slice(8).some(c => !isDash(c.t) && num(c.t) <= 60000)).toBe(true);
-    if (daysOut(row) > 60) expect(isDash(row[9].t)).toBe(true);
+    expect(isDash(row[9].t)).toBe(false);
   }
   await page.selectOption("#vip", { label: "Show All Discounts" });
   await expect.poll(async () => (await heads(page)).length).toBe(all.length);
@@ -57,19 +57,20 @@ test("thriftypoints: every row has a price at most 60,000 and highlights match e
   }
 });
 
-test("thriftypoints: inside the window 35% Off is the rounded-up full price times 0.65; later stays show dashes", async ({ page }) => {
+test("thriftypoints: 35% Off is the rounded-up full price times 0.65 for every stay, near or far; no dashes", async ({ page }) => {
   await search(page, { points: "150,000" });
   await page.click("#all").catch(() => {});
   const col = (await heads(page)).findIndex(t => /^35%/.test(t));
   expect(col).toBeGreaterThan(6);
-  let inside = 0, outside = 0;
+  let near = 0, far = 0;
   for (const row of await rows(page)) {
     const d = daysOut(row);
-    if (d >= 0 && d <= 60) { inside++; expect(num(row[col].t)).toBe(Math.ceil(num(row[8].t) * 0.65 - 1e-6)); }
-    else if (d > 60) { outside++; for (const c of row.slice(9)) expect(isDash(c.t)).toBe(true); }
+    expect(num(row[col].t)).toBe(Math.ceil(num(row[8].t) * 0.65 - 1e-6));
+    for (const c of row.slice(9)) expect(isDash(c.t)).toBe(false);
+    if (d <= 60) near++; else far++;
   }
-  expect(inside).toBeGreaterThan(0);
-  expect(outside).toBeGreaterThan(0);
+  expect(near).toBeGreaterThan(0);
+  expect(far).toBeGreaterThan(0);
 });
 
 test("thriftypoints: results stay inside the chosen date range", async ({ page }) => {
