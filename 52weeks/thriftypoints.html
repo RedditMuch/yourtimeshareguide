@@ -34,20 +34,29 @@ button:disabled{opacity:.5;cursor:default}
 .status{color:var(--mute);font-size:.9rem;margin:0 0 8px}
 .scroll{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
 table{border-collapse:collapse;width:100%;min-width:1000px;font-size:14px;table-layout:auto}
-td.res{min-width:140px;max-width:200px}td.nw{white-space:nowrap}td.n{white-space:nowrap;min-width:70px}
-td.rt{max-width:190px}td.rt small{display:block;color:var(--mute);font-size:.8em;line-height:1.25}
-th[data-h="1"],td:nth-child(2){min-width:90px}th[data-h="2"],td:nth-child(3){min-width:60px}th[data-h="3"],td:nth-child(4){min-width:120px}th[data-h="0"]{min-width:140px}
+td.res{min-width:130px;max-width:170px}td.nw{white-space:nowrap}td.n{white-space:nowrap;min-width:54px}td.bld{color:var(--mute);font-size:.9em;min-width:84px;max-width:110px}
+td.rt{max-width:160px}td.rt small{display:block;color:var(--mute);font-size:.8em;line-height:1.25}
+th[data-h="1"],td:nth-child(2){min-width:80px}th[data-h="2"],td:nth-child(3){min-width:60px}th[data-h="3"],td:nth-child(4){min-width:105px}th[data-h="0"]{min-width:130px}
 th,td{padding:6px 4px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
 th{background:var(--head);font-size:.82rem;white-space:nowrap;padding:0}
 th[aria-sort=ascending],th[aria-sort=descending]{background:#cfe0f3}
 @media (prefers-color-scheme:dark){th[aria-sort=ascending],th[aria-sort=descending]{background:#2f4a66}}
-td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+td.n,th.n{text-align:center;font-variant-numeric:tabular-nums}
 th button{all:unset;box-sizing:border-box;display:block;width:100%;padding:8px 4px;cursor:pointer;font:inherit;font-size:.82rem;font-weight:700;white-space:nowrap;color:var(--ink)}
-th.n button{text-align:right}
+th.n button{text-align:center}
+th{vertical-align:bottom}
+th .tier{display:block;font-size:.78rem;font-weight:700;color:var(--stay);letter-spacing:.02em;margin-bottom:1px}
+th.n button{display:flex;flex-direction:column-reverse;align-items:center}
+th.n button .lbl{display:inline-flex;flex-direction:column;align-items:center}
+th.n .arr{flex-direction:row;margin:3px 0 0}
 th button:hover{background:rgba(42,111,176,.18);text-decoration:underline}
 th button:focus-visible{outline:2px solid var(--stay);outline-offset:-2px}
-th .arr{display:inline-block;min-width:1.1em;margin-left:4px;font-size:.8em;opacity:.55}
-th[aria-sort=ascending] .arr,th[aria-sort=descending] .arr{opacity:1;font-size:.95em}
+th .arr{display:inline-flex;flex-direction:column;gap:3px;vertical-align:middle;margin-left:6px}
+th .arr i{display:block;width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;opacity:.4}
+th .arr .u{border-bottom:7px solid currentColor}
+th .arr .d{border-top:7px solid currentColor}
+th[aria-sort=ascending] .arr .u,th[aria-sort=descending] .arr .d{opacity:1;color:var(--stay)}
+th[aria-sort=ascending] .arr .d,th[aria-sort=descending] .arr .u{opacity:.15}
 :root{--prime:#e57f76;--high:#ef9c4c;--value:#f7e297;--quiet:#8ccfb0;--cellink:#1b2a33}
 td.sea{width:62px;min-width:62px;padding:6px 4px;text-align:center;white-space:nowrap;color:#1b2a33;border:1px solid rgba(0,0,0,.4);position:relative}
 th.sea button{text-align:center}
@@ -102,7 +111,6 @@ td.fit{background:#d4efe0;font-weight:700;box-shadow:inset 3px 0 0 var(--good)}
 <div><label for="maxN">Maximum Nights per Stay</label><input id="maxN" type="number" min="1" max="30" value="14"></div>
 </div>
 <div class="btns"><button type="submit" id="go">Find Stays</button></div>
-<p class="hint" id="win"></p>
 <p class="msg err" id="err" role="alert" hidden></p>
 <p class="msg err" id="ratenote" role="status" hidden></p>
 </form>
@@ -112,8 +120,7 @@ td.fit{background:#d4efe0;font-weight:700;box-shadow:inset 3px 0 0 var(--good)}
 <h2 id="rh">Results</h2>
 <div class="printonly" id="printInfo"></div>
 <p class="status" id="status" aria-live="polite"></p>
-<p class="hint" id="legend">Highlighted prices (green fill and bold) are at or below your total points. Read down the column for your VIP level. A dash means the discount is not available because check-in is more than 60 days away.</p>
-<p class="hint" id="levels"></p>
+<p class="hint" id="legend">Highlighted prices (green fill and bold) are at or below your total points.</p>
 <p class="hint noprint">Select any column heading to sort.</p>
 <div class="scroll" id="scroll" tabindex="0" role="region" aria-label="Best stays for your points, scrollable table">
 <table id="tbl"><thead><tr></tr></thead><tbody id="body"></tbody></table>
@@ -131,7 +138,7 @@ td.fit{background:#d4efe0;font-weight:700;box-shadow:inset 3px 0 0 var(--good)}
 <section class="card notes" aria-labelledby="nh">
 <h2 id="nh">Notes and Limits</h2>
 <p>Points shown are from the 2026/2027 directory charts. Availability is not checked, so a stay listed here may not be bookable.</p>
-<p>VIP discounts apply only to eligible new reservations made within 2 months (60 days) before check-in. A stay is shown with discounted prices only when its check-in date falls within 60 days after today. Eligibility and availability are not verified. Discounted prices are rounded up to the next whole point; Wyndham's booking rounding is not confirmed.</p>
+<p>VIP discounts apply only to eligible new reservations made within 2 months (60 days) before check-in. Discounted prices are shown for every stay so you can plan ahead. Eligibility and availability are not verified. Discounted prices are rounded up to the next whole point; Wyndham's booking rounding is not confirmed.</p>
 <p>Source: Club Wyndham Member's Directory 2026/2027, VIP benefits chart, printed pages 266–270 (Club Wyndham search bar pages 270–274).</p>
 <p>Housekeeping Credits ($185 each when you run out) and Reservation Transactions are not included.</p>
 <p id="left"></p>
@@ -152,6 +159,8 @@ var $ = function (id) { return document.getElementById(id); };
 var esc = function (s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); };
 var NUM = new Intl.NumberFormat('en-US');
 var DAY = 864e5, VIP_DAYS = 60;
+/* Resort search ignores case and punctuation, so "Palm Aire" finds Palm-Aire. */
+function flat(s) { return String(s).toLowerCase().replace(/[’‘'`]/g, "").replace(/[^a-z0-9]+/g, " ").trim(); }
 
 /* ---- Chart calendar, same rule as season chart v2: week 1 starts on the first Friday of January; week 53 exists when Dec 31 is a Friday ---- */
 var firstFriday = function (y) { var d = new Date(Date.UTC(y, 0, 1)).getUTCDay(); return Date.UTC(y, 0, 1 + ((5 - d + 7) % 7)); };
@@ -176,12 +185,21 @@ rows.forEach(function (r) {
   r._city = r.city || (r.location || '').split(',')[0] || r.name;
   r._area = EAST.indexOf(r._code) >= 0 ? 'East Coast' : WESTC.indexOf(r._code) >= 0 ? 'West Coast' : r._code === 'HI' ? 'Hawaii' : 'Other';
   r._size = sizeOf(r);
-  r._low = (r.name || '').toLowerCase();
+  r._low = flat(r.name || '');
 });
 /* Display name: drop an exact leading Club Wyndham prefix unless that would give two resorts the same name in one city and state */
 var PFX = "Club Wyndham ", dispSeen = {};
 rows.forEach(function (r) { r._disp = r.name.indexOf(PFX) === 0 ? r.name.slice(PFX.length) : r.name; var k = r._disp + "|" + r._city + "|" + r._code; (dispSeen[k] = dispSeen[k] || {})[r.name] = 1; });
-rows.forEach(function (r) { if (r._disp !== r.name && Object.keys(dispSeen[r._disp + "|" + r._city + "|" + r._code]).length > 1) r._disp = r.name; r._dlow = r._disp.toLowerCase(); });
+rows.forEach(function (r) { if (r._disp !== r.name && Object.keys(dispSeen[r._disp + "|" + r._city + "|" + r._code]).length > 1) r._disp = r.name; r._dlow = r._disp.toLowerCase(); r._dflat = flat(r._disp); });
+/* The building goes in its own column: some room types are printed as "Room — Building" and some as "Building — Room"; the side that names a bedroom or studio is the room */
+function splitRoom(t) {
+  var p = String(t).split(' — ');
+  if (p.length !== 2) return [t, ''];
+  var isRoom = function (x) { return /bedroom|studio/i.test(x); };
+  if (isRoom(p[0]) && !isRoom(p[1])) return [p[0], p[1]];
+  if (isRoom(p[1]) && !isRoom(p[0])) return [p[1], p[0]];
+  return [t, ''];
+}
 /* Same resort and room type listed twice: drop the copy when every season price is identical, otherwise label each with its schedule */
 var grp = {};
 rows.forEach(function (r) { var k = r.name + '|' + r.roomType; (grp[k] = grp[k] || []).push(r); });
@@ -189,7 +207,7 @@ var keep = [];
 Object.keys(grp).forEach(function (k) {
   var a = grp[k], uniq = [], sig = {};
   a.forEach(function (r) { var g = JSON.stringify(r.weeks) + JSON.stringify(N[r.id]); if (!sig[g]) { sig[g] = 1; uniq.push(r); } });
-  uniq.forEach(function (r) { r._sch = uniq.length > 1 && r.schedule ? r.schedule : ''; r._room = r.roomType + (r._sch ? ' (' + r._sch + ')' : ''); keep.push(r); });
+  uniq.forEach(function (r) { r._sch = uniq.length > 1 && r.schedule ? r.schedule : ''; var sp = splitRoom(r.roomType); r._rt = sp[0]; r._bld = sp[1] || r._sch; r._room = r._rt + (r._bld ? ' (' + r._bld + ')' : ''); keep.push(r); });
 });
 rows = rows.filter(function (r) { return keep.indexOf(r) >= 0; });
 var fill = function (sel, items) { items.forEach(function (it) { var o = document.createElement('option'); o.value = it[0]; o.textContent = it[1]; sel.appendChild(o); }); };
@@ -235,34 +253,31 @@ var nightWeek = new Int16Array(NIGHTS), nightWknd = new Uint8Array(NIGHTS);
 
 /* ---- Search ---- */
 var SEASONS = ['Prime', 'High', 'Value', 'Quiet'];
-var sortKey = null, sortDir = 1, BASE_HEAD = ['Resort', 'City', 'State', 'Room Type', 'Check-In', 'Check-Out', 'Nights', 'Season', 'Full Price'];
+var sortKey = null, sortDir = 1, BASE_HEAD = ['Resort', 'City', 'State', 'Room Type', 'Building', 'Check-In', 'Check-Out', 'Nights', 'Season', 'Full Price'];
 var RATES = [], TIER_OF = {}, TIERS = [], VIS = [], VIS_TIER = null;  /* discounts read from reference-data.js, ascending */
 try { window.REFERENCE.vip.tiers.forEach(function (t) { var d = t.points_discount_within_2_months; if (typeof d === 'number' && d > 0 && d < 1) { if (RATES.indexOf(d) < 0) RATES.push(d); TIERS.push({ tier: t.tier, rate: d }); TIER_OF[d] = (TIER_OF[d] ? TIER_OF[d] + ' and ' : '') + t.tier; } }); } catch (e) { RATES = []; }
 RATES.sort(function (a, b) { return a - b; }); TIERS.sort(function (a, b) { return a.rate - b.rate; });
 TIERS.forEach(function (t) { var o = document.createElement('option'); o.value = t.tier; o.textContent = 'VIP ' + t.tier; $('vip').appendChild(o); });
 VIS = RATES.slice();
-var colLabel = function (d) { return pctOf(d) + ' Off' + (VIS_TIER ? ' (' + VIS_TIER + ')' : ''); };
+var colLabel = function (d) { return pctOf(d) + ' Off'; };
+var tierOf = function (d) { return VIS_TIER || TIER_OF[d] || ''; };
 function setColumns() {
   var tr = $('tbl').querySelector('thead tr'), labels = BASE_HEAD.concat(VIS.map(colLabel));
   if (sortKey != null && sortKey >= labels.length) sortKey = null;
-  tr.innerHTML = labels.map(function (l, i) { return '<th' + (i >= 8 ? ' class="n"' : i === 6 ? ' class="n"' : i === 7 ? ' class="sea"' : '') + ' data-h="' + i + '"' + '><button type="button" data-col="' + i + '">' + esc(l) + '<span class="arr" aria-hidden="true">\u21C5</span></button></th>'; }).join('');
+  tr.innerHTML = labels.map(function (l, i) { var tier = i >= 10 ? tierOf(VIS[i - 10]) : ''; return '<th' + (i >= 9 ? ' class="n"' : i === 7 ? ' class="n"' : i === 8 ? ' class="sea"' : '') + ' data-h="' + i + '"' + '><button type="button" data-col="' + i + '">' + '<span class="lbl">' + esc(l) + '<span class="arr" aria-hidden="true"><i class="u"></i><i class="d"></i></span></span>' + (tier ? '<span class="tier"> ' + esc(tier) + '</span>' : '') + '</button></th>'; }).join('');
   sortUI();
 }
 var pctOf = function (d) { return Math.round(d * 1000) / 10 + '%'; };
 (function () {
   setColumns();
-  $('levels').textContent = RATES.length ? 'VIP levels: ' + RATES.map(function (d) { return pctOf(d) + ' ' + TIER_OF[d]; }).join(', ') + '.' : '';
   if (!RATES.length) { $('ratenote').textContent = 'The VIP discount percentages could not be read from the reference data, so only full prices are shown.'; $('ratenote').hidden = false; }
 })();
-var winEnd = todayUTC + VIP_DAYS * DAY;
-$('win').textContent = 'VIP discount window: stays with a check-in date from ' + fmtDate(todayUTC) + ' through ' + fmtDate(winEnd) + ' (today plus 60 days) show discounted prices. Later stays show the full price only.';
 var results = [], shown = 50, lastInfo = null;
 function sortUI() {
   var ths = $('tbl').querySelectorAll('thead th');
   for (var i = 0; i < ths.length; i++) {
     var on = i === sortKey;
     ths[i].setAttribute('aria-sort', on ? (sortDir > 0 ? 'ascending' : 'descending') : 'none');
-    ths[i].querySelector('.arr').textContent = on ? (sortDir > 0 ? '\u25B2' : '\u25BC') : '\u21C5';
   }
   $('reset').hidden = sortKey == null;
 }
@@ -271,11 +286,12 @@ function sortVal(x, c) {
   if (c === 1) return x.r._city.toLowerCase();
   if (c === 2) return x.r._code.toLowerCase();
   if (c === 3) return x.r._room.toLowerCase();
-  if (c === 4) return x.s;
-  if (c === 5) return x.s + x.n;
-  if (c === 6) return x.n;
-  if (c === 7) return SEASONS.indexOf(x.season) >= 0 ? SEASONS.indexOf(x.season) : null;
-  return x.prices[c - 8];
+  if (c === 4) return x.r._bld ? x.r._bld.toLowerCase() : null;
+  if (c === 5) return x.s;
+  if (c === 6) return x.s + x.n;
+  if (c === 7) return x.n;
+  if (c === 8) return SEASONS.indexOf(x.season) >= 0 ? SEASONS.indexOf(x.season) : null;
+  return x.prices[c - 9];
 }
 function ordered() {
   if (sortKey == null) return results;
@@ -290,13 +306,13 @@ function search(cfg) {
   var out = [], t0 = performance.now();
   var a = Math.round((cfg.from - CAL_START) / DAY), b = Math.round((cfg.to - CAL_START) / DAY); /* nights a..b-1 may be used */
   a = Math.max(0, a); b = Math.min(NIGHTS, b);
-  var q = cfg.resort.toLowerCase();
+  var q = flat(cfg.resort);
   var pre = new Float64Array(NIGHTS + 1), miss = new Int32Array(NIGHTS + 1);
   rows.forEach(function (r) {
     if (cfg.area !== 'Everywhere' && r._area !== cfg.area) return;
     if (cfg.state && r._code !== cfg.state) return;
     if (cfg.size && r._size !== cfg.size) return;
-    if (q && r._low.indexOf(q) < 0 && r._dlow.indexOf(q) < 0) return;
+    if (q && r._low.indexOf(q) < 0 && r._dflat.indexOf(q) < 0) return;
     var nb = N[r.id];
     for (var i = a; i < b; i++) {
       var s = seasonOf(r, nightWeek[i]), band = s && nb[s], p = band ? (nightWknd[i] ? band.friSat : band.sunThu) : null;
@@ -304,14 +320,14 @@ function search(cfg) {
     }
     var best = null;
     for (var s0 = a; s0 < b; s0++) {
-      var ci = CAL_START + s0 * DAY, inWin = ci >= cfg.today && ci <= cfg.today + VIP_DAYS * DAY;
+      var ci = CAL_START + s0 * DAY;
       var maxLen = Math.min(cfg.maxN, b - s0);
       for (var n = cfg.minN; n <= maxLen; n++) {
         var e = s0 + n;
         if (miss[e] - miss[s0]) continue;
         var full = pre[e] - pre[s0], prices = [full], used = full <= cfg.points ? full : -1, low = full;
         for (var k = 0; k < cfg.rates.length; k++) {
-          var dp = inWin ? Math.ceil(Math.round(full * (1 - cfg.rates[k]) * 1e6) / 1e6) : null;
+          var dp = Math.ceil(Math.round(full * (1 - cfg.rates[k]) * 1e6) / 1e6);
           prices.push(dp);
           if (dp != null) { if (dp < low) low = dp; if (dp <= cfg.points && dp > used) used = dp; }
         }
@@ -332,15 +348,15 @@ function search(cfg) {
 /* ---- Output ---- */
 function rowData(x) {
   var t = CAL_START + x.s * DAY;
-  return [x.r._disp, x.r._city, x.r._code, x.r._room, fmtDate(t), fmtDate(t + x.n * DAY), x.n, x.season || ''].concat(x.prices);
+  return [x.r._disp, x.r._city, x.r._code, x.r._rt, x.r._bld || '', fmtDate(t), fmtDate(t + x.n * DAY), x.n, x.season || ''].concat(x.prices);
 }
 function render() {
-  var list = ordered().slice(0, shown), budget = lastInfo.points, html = '', cols = 9 + lastInfo.rates.length;
+  var list = ordered().slice(0, shown), budget = lastInfo.points, html = '', cols = 10 + lastInfo.rates.length;
   list.forEach(function (x) {
     var d = rowData(x);
-    html += '<tr><td class="res">' + esc(d[0]) + '</td><td>' + esc(d[1]) + '</td><td>' + esc(d[2]) + '</td><td class="rt">' + esc(x.r.roomType) + (x.r._sch ? '<small>' + esc(x.r._sch) + '</small>' : '') + '</td><td class="nw">' + esc(d[4]) + '</td><td class="nw">' + esc(d[5]) + '</td><td class="n">' + d[6] + '</td>';
+    html += '<tr><td class="res">' + esc(d[0]) + '</td><td>' + esc(d[1]) + '</td><td>' + esc(d[2]) + '</td><td class="rt">' + esc(d[3]) + '</td><td class="bld">' + esc(d[4]) + '</td><td class="nw">' + esc(d[5]) + '</td><td class="nw">' + esc(d[6]) + '</td><td class="n">' + d[7] + '</td>';
     html += '<td class="sea' + (x.season ? ' s' + x.season : '') + '" data-season="' + esc(x.season) + '"' + '>' + esc(x.season) + '</td>';
-    for (var k = 8; k < d.length; k++) {
+    for (var k = 9; k < d.length; k++) {
       var v = d[k], fit = v != null && v <= budget;
       html += '<td class="n' + (fit ? ' fit' : '') + '" data-fit="' + fit + '">' + (v == null ? '—' : NUM.format(v)) + '</td>';
     }
@@ -352,7 +368,7 @@ function render() {
   $('all').hidden = results.length <= shown;
   $('resCard').hidden = false;
   $('xlsx').disabled = $('pdf').disabled = !list.length;
-  $('printInfo').innerHTML = '<p>Total Points: ' + NUM.format(budget) + ' | VIP Level: ' + esc(lastInfo.vipLabel) + ' | VIP Discount Window: ' + esc(lastInfo.win) + ' | Area: ' + esc(lastInfo.area) + ' | State: ' + esc(lastInfo.stateName) + ' | Resort: ' + esc(lastInfo.resort || 'All') + ' | Room Size: ' + esc(lastInfo.size || 'All') + '<br>Check-In From: ' + esc(lastInfo.from) + ' | Check-Out By: ' + esc(lastInfo.to) + ' | Nights per Stay: ' + lastInfo.minN + ' to ' + lastInfo.maxN + '<br>Generated: ' + fmtDate(todayUTC) + '</p>';
+  $('printInfo').innerHTML = '<p>Total Points: ' + NUM.format(budget) + ' | VIP Level: ' + esc(lastInfo.vipLabel) + ' | Area: ' + esc(lastInfo.area) + ' | State: ' + esc(lastInfo.stateName) + ' | Resort: ' + esc(lastInfo.resort || 'All') + ' | Room Size: ' + esc(lastInfo.size || 'All') + '<br>Check-In From: ' + esc(lastInfo.from) + ' | Check-Out By: ' + esc(lastInfo.to) + ' | Nights per Stay: ' + lastInfo.minN + ' to ' + lastInfo.maxN + '<br>Generated: ' + fmtDate(todayUTC) + '</p>';
   document.documentElement.setAttribute('data-search-ms', String(Math.round(lastInfo.ms)));
 }
 function fail(m) { var e = $('err'); e.textContent = m; e.hidden = !m; }
@@ -376,7 +392,7 @@ $('f').addEventListener('submit', function (ev) {
   var cfg = { points: pts, rates: VIS.slice(), today: todayUTC, from: from, to: to, minN: minN, maxN: Math.min(maxN, 60), area: $('area').value, state: st.value, size: $('size').value, resort: $('resort').value.trim() };
   var res = search(cfg);
   results = res.list; shown = 50;
-  lastInfo = { rates: VIS.slice(), vipLabel: vs.options[vs.selectedIndex].text, win: fmtDate(todayUTC) + ' through ' + fmtDate(winEnd), points: pts, ms: res.ms, area: cfg.area, stateName: st.value ? st.options[st.selectedIndex].text : 'All', resort: cfg.resort, size: cfg.size, from: fmtDate(from), to: fmtDate(to), minN: minN, maxN: cfg.maxN };
+  lastInfo = { rates: VIS.slice(), vipLabel: vs.options[vs.selectedIndex].text, points: pts, ms: res.ms, area: cfg.area, stateName: st.value ? st.options[st.selectedIndex].text : 'All', resort: cfg.resort, size: cfg.size, from: fmtDate(from), to: fmtDate(to), minN: minN, maxN: cfg.maxN };
   render();
 });
 $('vip').addEventListener('change', function () { sortKey = null; sortDir = 1; if (lastInfo) $('f').requestSubmit(); });
@@ -393,10 +409,10 @@ $('pdf').addEventListener('click', function () { window.print(); });
 /* ---- Exports (Excel loads only when selected; CSV if the library fails) ---- */
 var HEAD = function () { return BASE_HEAD.concat(lastInfo.rates.map(colLabel)); };
 function exportRows() {
-  return ordered().slice(0, shown).map(function (x) { return rowData(x).map(function (v, i) { return i === 7 ? (v || '—') : i >= 8 && v == null ? '—' : v; }); });
+  return ordered().slice(0, shown).map(function (x) { return rowData(x).map(function (v, i) { return i === 8 ? (v || '—') : i >= 9 && v == null ? '—' : v; }); });
 }
 function metaRows() {
-  return [['Thrifty Points'], ['Total Points', lastInfo.points], ['VIP Level', lastInfo.vipLabel], ['VIP Discount Window', lastInfo.win], ['Area', lastInfo.area], ['State', lastInfo.stateName], ['Resort', lastInfo.resort || 'All'], ['Room Size', lastInfo.size || 'All'],
+  return [['Thrifty Points'], ['Total Points', lastInfo.points], ['VIP Level', lastInfo.vipLabel], ['Area', lastInfo.area], ['State', lastInfo.stateName], ['Resort', lastInfo.resort || 'All'], ['Room Size', lastInfo.size || 'All'],
     ['Check-In From', lastInfo.from], ['Check-Out By', lastInfo.to], ['Nights per Stay', lastInfo.minN + ' to ' + lastInfo.maxN], ['Generated', fmtDate(todayUTC)],
     ['Points are from the 2026/2027 directory charts. VIP discounts (' + RATES.map(function (d) { return pctOf(d) + ' ' + TIER_OF[d]; }).join(', ') + ') apply only to eligible new reservations made within 2 months (60 days) of check-in and are rounded up to the next whole point; eligibility and availability are not verified, and Wyndham\'s booking rounding is not confirmed. Source: Club Wyndham Member\'s Directory 2026/2027, VIP benefits chart, printed pages 266–270.'],['Availability is not checked. Housekeeping Credits and Reservation Transactions are not included.'], []];
 }
@@ -426,7 +442,7 @@ $('xlsx').addEventListener('click', function () {
   var btn = this, xe = $('xerr'); xe.hidden = true; btn.disabled = true;
   loadXlsx().then(function () {
     var meta = metaRows(), ws = XLSX.utils.aoa_to_sheet(meta.concat([HEAD()], exportRows()));
-    ws['!cols'] = [{ wch: 38 }, { wch: 20 }, { wch: 8 }, { wch: 22 }, { wch: 12 }, { wch: 12 }, { wch: 8 }, { wch: 9 }, { wch: 12 }].concat(lastInfo.rates.map(function () { return { wch: 12 }; }));
+    ws['!cols'] = [{ wch: 38 }, { wch: 20 }, { wch: 8 }, { wch: 22 }, { wch: 22 }, { wch: 12 }, { wch: 12 }, { wch: 8 }, { wch: 9 }, { wch: 12 }].concat(lastInfo.rates.map(function () { return { wch: 12 }; }));
     var wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Thrifty Points');
     XLSX.writeFile(wb, 'thrifty-points.xlsx');
   }).catch(function () {
