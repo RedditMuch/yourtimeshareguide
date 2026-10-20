@@ -41,13 +41,21 @@ th,td{padding:6px 4px;text-align:left;border-bottom:1px solid var(--line);vertic
 th{background:var(--head);font-size:.82rem;white-space:nowrap;padding:0}
 th[aria-sort=ascending],th[aria-sort=descending]{background:#cfe0f3}
 @media (prefers-color-scheme:dark){th[aria-sort=ascending],th[aria-sort=descending]{background:#2f4a66}}
-td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+td.n,th.n{text-align:center;font-variant-numeric:tabular-nums}
 th button{all:unset;box-sizing:border-box;display:block;width:100%;padding:8px 4px;cursor:pointer;font:inherit;font-size:.82rem;font-weight:700;white-space:nowrap;color:var(--ink)}
-th.n button{text-align:right}
+th.n button{text-align:center}
+th{vertical-align:bottom}
+th .tier{display:block;font-size:.78rem;font-weight:700;color:var(--stay);letter-spacing:.02em;margin-bottom:1px}
+th.n button{display:flex;flex-direction:column-reverse;align-items:center}
+th.n button .lbl{display:inline-flex;align-items:center}
 th button:hover{background:rgba(42,111,176,.18);text-decoration:underline}
 th button:focus-visible{outline:2px solid var(--stay);outline-offset:-2px}
-th .arr{display:inline-block;min-width:1.1em;margin-left:4px;font-size:.8em;opacity:.55}
-th[aria-sort=ascending] .arr,th[aria-sort=descending] .arr{opacity:1;font-size:.95em}
+th .arr{display:inline-flex;flex-direction:column;gap:3px;vertical-align:middle;margin-left:6px}
+th .arr i{display:block;width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;opacity:.4}
+th .arr .u{border-bottom:7px solid currentColor}
+th .arr .d{border-top:7px solid currentColor}
+th[aria-sort=ascending] .arr .u,th[aria-sort=descending] .arr .d{opacity:1;color:var(--stay)}
+th[aria-sort=ascending] .arr .d,th[aria-sort=descending] .arr .u{opacity:.15}
 :root{--prime:#e57f76;--high:#ef9c4c;--value:#f7e297;--quiet:#8ccfb0;--cellink:#1b2a33}
 td.sea{width:62px;min-width:62px;padding:6px 4px;text-align:center;white-space:nowrap;color:#1b2a33;border:1px solid rgba(0,0,0,.4);position:relative}
 th.sea button{text-align:center}
@@ -111,8 +119,7 @@ td.fit{background:#d4efe0;font-weight:700;box-shadow:inset 3px 0 0 var(--good)}
 <h2 id="rh">Results</h2>
 <div class="printonly" id="printInfo"></div>
 <p class="status" id="status" aria-live="polite"></p>
-<p class="hint" id="legend">Highlighted prices (green fill and bold) are at or below your total points. Read down the column for your VIP level.</p>
-<p class="hint" id="levels"></p>
+<p class="hint" id="legend">Highlighted prices (green fill and bold) are at or below your total points.</p>
 <p class="hint noprint">Select any column heading to sort.</p>
 <div class="scroll" id="scroll" tabindex="0" role="region" aria-label="Best stays for your points, scrollable table">
 <table id="tbl"><thead><tr></tr></thead><tbody id="body"></tbody></table>
@@ -242,17 +249,17 @@ try { window.REFERENCE.vip.tiers.forEach(function (t) { var d = t.points_discoun
 RATES.sort(function (a, b) { return a - b; }); TIERS.sort(function (a, b) { return a.rate - b.rate; });
 TIERS.forEach(function (t) { var o = document.createElement('option'); o.value = t.tier; o.textContent = 'VIP ' + t.tier; $('vip').appendChild(o); });
 VIS = RATES.slice();
-var colLabel = function (d) { return pctOf(d) + ' Off' + (VIS_TIER ? ' (' + VIS_TIER + ')' : ''); };
+var colLabel = function (d) { return pctOf(d) + ' Off'; };
+var tierOf = function (d) { return VIS_TIER || TIER_OF[d] || ''; };
 function setColumns() {
   var tr = $('tbl').querySelector('thead tr'), labels = BASE_HEAD.concat(VIS.map(colLabel));
   if (sortKey != null && sortKey >= labels.length) sortKey = null;
-  tr.innerHTML = labels.map(function (l, i) { return '<th' + (i >= 8 ? ' class="n"' : i === 6 ? ' class="n"' : i === 7 ? ' class="sea"' : '') + ' data-h="' + i + '"' + '><button type="button" data-col="' + i + '">' + esc(l) + '<span class="arr" aria-hidden="true">\u21C5</span></button></th>'; }).join('');
+  tr.innerHTML = labels.map(function (l, i) { var tier = i >= 9 ? tierOf(VIS[i - 9]) : ''; return '<th' + (i >= 8 ? ' class="n"' : i === 6 ? ' class="n"' : i === 7 ? ' class="sea"' : '') + ' data-h="' + i + '"' + '><button type="button" data-col="' + i + '">' + '<span class="lbl">' + esc(l) + '<span class="arr" aria-hidden="true"><i class="u"></i><i class="d"></i></span></span>' + (tier ? '<span class="tier"> ' + esc(tier) + '</span>' : '') + '</button></th>'; }).join('');
   sortUI();
 }
 var pctOf = function (d) { return Math.round(d * 1000) / 10 + '%'; };
 (function () {
   setColumns();
-  $('levels').textContent = RATES.length ? 'VIP levels: ' + RATES.map(function (d) { return pctOf(d) + ' ' + TIER_OF[d]; }).join(', ') + '.' : '';
   if (!RATES.length) { $('ratenote').textContent = 'The VIP discount percentages could not be read from the reference data, so only full prices are shown.'; $('ratenote').hidden = false; }
 })();
 var results = [], shown = 50, lastInfo = null;
@@ -261,7 +268,6 @@ function sortUI() {
   for (var i = 0; i < ths.length; i++) {
     var on = i === sortKey;
     ths[i].setAttribute('aria-sort', on ? (sortDir > 0 ? 'ascending' : 'descending') : 'none');
-    ths[i].querySelector('.arr').textContent = on ? (sortDir > 0 ? '\u25B2' : '\u25BC') : '\u21C5';
   }
   $('reset').hidden = sortKey == null;
 }
