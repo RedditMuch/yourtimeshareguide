@@ -175,7 +175,20 @@
 <footer class="foot">
   <p><strong>Your Timeshare Guide</strong> is an independent site run by a Club Wyndham owner. It is not affiliated with, endorsed by, or sponsored by Club Wyndham, Wyndham Destinations, or Travel + Leisure Co. "Club Wyndham" and related names are trademarks of their owners.</p>
   <p>It is not legal or financial advice. Rules and points change; always confirm with Club Wyndham before you book or decide.</p>
+  <p class="visits" id="visits" hidden>Visitors: <span></span></p>
 </footer>
+<script data-goatcounter="https://dagoat.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+<script>
+/* Visitor counter (owner, 2026-10-24): GoatCounter (site code dagoat) counts visits and the total shows in the
+   footer's bottom-right corner. It stays hidden until GoatCounter has a number to give. */
+(() => {
+  const el = document.getElementById('visits');
+  fetch('https://dagoat.goatcounter.com/counter/TOTAL.json')
+    .then(r => r.ok ? r.json() : null)
+    .then(d => { if (d && d.count) { el.querySelector('span').textContent = d.count; el.hidden = false; } })
+    .catch(() => {});
+})();
+</script>
 <script>
 /* First load (planning #36): the 52-week band fills as each file the chart needs arrives, weighted by its size (KB). */
 (() => {
