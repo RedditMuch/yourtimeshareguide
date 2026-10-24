@@ -177,17 +177,20 @@
   <p>It is not legal or financial advice. Rules and points change; always confirm with Club Wyndham before you book or decide.</p>
   <p class="visits" id="visits" hidden>Visitors: <span></span></p>
 </footer>
-<script data-goatcounter="https://dagoat.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 <script>
 /* Visitor counter (owner, 2026-10-24): GoatCounter (site code dagoat) counts visits and the total shows in the
-   footer's bottom-right corner. It stays hidden until GoatCounter has a number to give. */
-(() => {
+   footer's bottom-right corner. Live site only (not previews or tests), loaded after the chart so it can't slow it;
+   the line stays hidden until GoatCounter has a number to give. */
+if (location.hostname === 'yourtimeshareguide.com') addEventListener('load', () => {
+  const s = document.createElement('script');
+  s.async = true; s.src = 'https://gc.zgo.at/count.js'; s.dataset.goatcounter = 'https://dagoat.goatcounter.com/count';
+  document.body.append(s);
   const el = document.getElementById('visits');
   fetch('https://dagoat.goatcounter.com/counter/TOTAL.json')
     .then(r => r.ok ? r.json() : null)
-    .then(d => { if (d && d.count) { el.querySelector('span').textContent = d.count; el.hidden = false; } })
+    .then(d => { if (d && d.count && d.count !== '0') { el.querySelector('span').textContent = d.count; el.hidden = false; } })
     .catch(() => {});
-})();
+});
 </script>
 <script>
 /* First load (planning #36): the 52-week band fills as each file the chart needs arrives, weighted by its size (KB). */
