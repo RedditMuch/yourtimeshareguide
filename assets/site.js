@@ -102,7 +102,7 @@
       + '<span class="ts-e" title="Club Wyndham runs on Eastern Time"><span id="etClock">' + et.time + '</span> Eastern</span>'
       + '<span class="ts-w">Week ' + wk.week + '</span>'
       + (LIVE ? "" : '<div class="search"><a href="' + ROOT + 'sitemap/"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13 13l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Search the Guide</a></div>') + '</div>'
-      + '<p class="logo-tag">Charts, Calculators and Resources for Club Wyndham and WorldMark Owners</p>'
+      + '<p class="logo-tag">Charts, Calculators and Resources for Club Wyndham Owners</p>'
       + '</div>'
       + '<nav class="nav" id="nav" aria-label="Main">'
       + '<div class="wrap nav-row">'
