@@ -2,10 +2,10 @@
 # normalized to LF. Matches the next protected snapshot tag, season-chart-v2-2026-10-11-speed
 # (owner-approved changes: "select" wording, #35; softer season colors, #37;
 # resort, building and room-type names, planning #38; Collections filters, planning #39;
-# faster chart with a loading indicator, planning #36; filters round, owner 2026-10-12; affiliate dot, Angel Fire, Villas at Fairfield, owner 2026-10-12; last rows visible on iPhone, Weekday and Weekend headers stay at the top on phones, trip-totals note removed, filters open on phones, no blank space under filters, date fields fit on phones, resort card with address and printed page only, owner 2026-10-17; Select All and Clear next to Bedrooms, owner 2026-10-20; visitor counter in the bottom-right corner, owner 2026-10-24).
+# faster chart with a loading indicator, planning #36; filters round, owner 2026-10-12; affiliate dot, Angel Fire, Villas at Fairfield, owner 2026-10-12; last rows visible on iPhone, Weekday and Weekend headers stay at the top on phones, trip-totals note removed, filters open on phones, no blank space under filters, date fields fit on phones, resort card with address and printed page only, owner 2026-10-17; Select All and Clear next to Bedrooms, owner 2026-10-20; visitor counter in the bottom-right corner, owner 2026-10-24; moved to /52weeks/ (52weeks/index.html) with the short black and gold site header, owner 2026-10-24).
 # Change this list only when the owner asks for a change to season chart v2,
 # in the same pull request as that change.
-2717f2a36de02afcdda2710a1965137b8cb1d005c3c380c8aa6402ee0e5c2b34  52weeks/seasons-v2.html
+0e88ede12b77ab4bf898f0903f6ad850a9a78294a30dd897d36b27831682119e  52weeks/index.html
 e167e25c4aa985ca1c6a13a7eb0602fa05a911d62b79e7b3940641a9a6300340  52weeks/seasons-v2.css
 43629d63c65b191d35642557a8b8b82cd022ea9d20d96305c878716bb40b7c0a  52weeks/seasons-v2.js
 031965c8a14c772ad7b53034551091247d954c565621df2e28ae6a97edf2bbb1  52weeks/club-pass-points.js

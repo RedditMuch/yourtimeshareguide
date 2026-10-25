@@ -43,7 +43,7 @@ export function writeFinding(kind, project, page, data) {
 /** Pages that are slow to draw and screenshot; they get a longer timeout (test.slow()) instead of raising it for every page. */
 export const HEAVY_PAGES = new Set([
   "52weeks/seasons.html",
-  "52weeks/seasons-v2.html",
+  "52weeks/index.html",
   "52weeks/resorts.html",
   "52weeks/fees.html",
   "52weeks/planner.html",

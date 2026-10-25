@@ -2,12 +2,12 @@
 
 // Folders whose files are published. .njk pages may also live at the
 // repository root (see ROOT_NJK_FILES below).
-export const SITE_FOLDERS = ["52weeks", "starburst", "assets"];
+export const SITE_FOLDERS = ["52weeks", "starburst", "assets", "cancelknight", "contact"];
 
 // .njk files at the repository root that build to a root-level page
 // (index.njk -> the root index.html). scripts/check-build.mjs checks each
 // one actually built, the same way it checks .njk files inside SITE_FOLDERS.
-export const ROOT_NJK_FILES = ["index.njk"];
+export const ROOT_NJK_FILES = [];
 
 // Files at the repository root that are published if they exist.
 export const ROOT_FILES = ["index.html", "comingsoon.html", "CNAME", "404.html", "robots.txt", "favicon.ico", "sitemap.xml", "site.webmanifest"];

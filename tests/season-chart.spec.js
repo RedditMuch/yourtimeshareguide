@@ -10,7 +10,7 @@ test("season chart v2 loads and draws the chart", async ({ page, baseURL }) => {
     if (msg.type() === "error" && (!url || url.startsWith(origin))) errors.push(`console: ${msg.text()}`);
   });
 
-  const response = await page.goto("/52weeks/seasons-v2.html", { waitUntil: "load" });
+  const response = await page.goto("/52weeks/", { waitUntil: "load" });
   expect(response.status()).toBe(200);
   await expect(page.locator("h1")).toHaveText("52-week season chart");
 
@@ -34,7 +34,7 @@ const ALL_COLLECTIONS = ["Club Wyndham", "Margaritaville Vacation Club", "Club P
 async function chartRows(page, { collections = ALL_COLLECTIONS, query = "", cwa = false, size = "all", showAll = true } = {}) {
   const state = { collections: { set: collections }, cwaOnly: cwa, query, span: 0, showAll };
   await page.addInitScript(s => localStorage.setItem("ytg-season-chart-v2", s), JSON.stringify(state));
-  await page.goto("/52weeks/seasons-v2.html");
+  await page.goto("/52weeks/");
   await expect(page.locator("#grid tbody tr").first()).toBeVisible();
   await page.evaluate(() => { document.getElementById("filterBox").open = true; }); // folded on a phone
   if (size === "all") { await page.evaluate(() => { const s = document.querySelector("#bedrooms"); s.value = "all"; s.dispatchEvent(new Event("change")); }); await settled(page); }
@@ -101,7 +101,7 @@ test.describe("season chart v2 names (planning #38)", () => {
   });
 
   test("Angel Fire Resort: the 1 BR Deluxe Lockoff costs a Hotel Studio plus a Hotel Room Deluxe", async ({ page }) => {
-    await page.goto("/52weeks/seasons-v2.html"); // chart note: "A Hotel Studio and a Hotel Room Deluxe equals total point value for a 1 BR Deluxe Lockoff"
+    await page.goto("/52weeks/"); // chart note: "A Hotel Studio and a Hotel Room Deluxe equals total point value for a 1 BR Deluxe Lockoff"
     const sums = await page.evaluate(() => { const r = window.CLUB_PASS_POINTS.resorts["Angel Fire Resort"].tables[0];
       return r.bands.map(b => [b.rates["Eagle Wing Suites 1 BR Deluxe Lockoff"].join(), b.rates["Eagle Wing Suites Hotel Studio"].map((x, i) => x + b.rates["Eagle Wing Suites Hotel Room Deluxe"][i]).join()]); });
     expect(sums).toHaveLength(4);
@@ -515,7 +515,7 @@ test.describe("season chart v2 round 5 (2026-10-13)", () => {
 
 test.describe("season chart v2 weekday and weekend columns (planning #47)", () => {
   test("By Week shows Weekday and Weekend columns after the weeks; By Dates shows Total instead", async ({ page }) => {
-    await page.goto("/52weeks/seasons-v2.html", { waitUntil: "load" });
+    await page.goto("/52weeks/", { waitUntil: "load" });
     await expect(page.locator("#grid tbody tr").first()).toBeVisible();
     const heads = await page.locator("#grid thead th").allTextContents();
     expect(heads.slice(-2).map(t => t.slice(0, 7))).toEqual(["Weekday", "Weekend"]);
@@ -531,7 +531,7 @@ test.describe("season chart v2 weekday and weekend columns (planning #47)", () =
 
 test.describe("season chart v2 week 53 follows week 52 (planning #48)", () => {
   test("week 53 shows week 52 values with a slashed overlay and a note", async ({ page }) => {
-    await page.goto("/52weeks/seasons-v2.html", { waitUntil: "load" });
+    await page.goto("/52weeks/", { waitUntil: "load" });
     await expect(page.locator("#grid tbody tr").first()).toBeVisible();
     await page.locator("#week").selectOption({ label: (await page.locator("#week option").allTextContents()).find(t => /^Week 53/.test(t.trim())) });
     await expect(page.locator("#grid td.w53").first()).toBeAttached();
@@ -549,7 +549,7 @@ test.describe("season chart v2 week 53 follows week 52 (planning #48)", () => {
 
 test.describe("season chart v2 nightly points for Club Wyndham (planning #52)", () => {
   test("most Club Wyndham rows now show Weekday and Weekend nightly points that add up to the weekly points", async ({ page }) => {
-    await page.goto("/52weeks/seasons-v2.html", { waitUntil: "load" });
+    await page.goto("/52weeks/", { waitUntil: "load" });
     await expect(page.locator("#grid tbody tr").first()).toBeVisible();
     const r = await page.evaluate(() => {
       const rows = [...document.querySelectorAll("#grid tbody tr")], num = t => { const m = /^([\d.]+)k$/.exec(t.trim()); return m ? Math.round(parseFloat(m[1]) * 1000) : null; };
@@ -572,7 +572,7 @@ test.describe("season chart v2 nightly data fallback (planning #52)", () => {
     const errors = [];
     page.on("pageerror", e => errors.push(e.message));
     await page.route("**/nightlydata.js", route => route.abort());
-    await page.goto("/52weeks/seasons-v2.html", { waitUntil: "load" });
+    await page.goto("/52weeks/", { waitUntil: "load" });
     await expect(page.locator("#grid tbody tr").first()).toBeVisible();
     const cw = await page.locator("#grid tbody td.nt.wd").evaluateAll(tds => tds.filter(t => t.textContent.trim() === "…").length);
     expect(cw).toBeGreaterThan(50);
@@ -583,7 +583,7 @@ test.describe("season chart v2 nightly data fallback (planning #52)", () => {
 // ---- Planning #44 and #43 (c): select a week from its header, sortable Weekday and Weekend, room types smallest to largest ----
 test.describe("season chart v2 requests of 2026-10-15", () => {
   test("selecting a week header selects that week and updates the drop-down", async ({ page }) => {
-    await page.goto("/52weeks/seasons-v2.html", { waitUntil: "load" });
+    await page.goto("/52weeks/", { waitUntil: "load" });
     await expect(page.locator("#grid tbody tr").first()).toBeVisible();
     const before = await page.locator("#week").inputValue();
     const buttons = page.locator("#grid thead .wk-btn");
@@ -606,7 +606,7 @@ test.describe("season chart v2 requests of 2026-10-15", () => {
   });
 
   test("By Dates week headers are not buttons", async ({ page }) => {
-    await page.goto("/52weeks/seasons-v2.html", { waitUntil: "load" });
+    await page.goto("/52weeks/", { waitUntil: "load" });
     await expect(page.locator("#grid tbody tr").first()).toBeVisible();
     await page.locator(".mode-opt", { hasText: "By Dates" }).click(); await settled(page);
     expect(await page.locator("#grid thead th.wk").count()).toBeGreaterThan(0);
@@ -617,7 +617,7 @@ test.describe("season chart v2 requests of 2026-10-15", () => {
 
   const nums = async (page, cls) => (await page.locator("#grid tbody td.nt." + cls).allTextContents()).map(t => t.trim()).map(t => t === "…" || t === "Not Published" || t === "" ? null : parseFloat(t));
   test("Weekday and Weekend sort both ways, with … last", async ({ page }) => {
-    await page.goto("/52weeks/seasons-v2.html", { waitUntil: "load" });
+    await page.goto("/52weeks/", { waitUntil: "load" });
     await expect(page.locator("#grid tbody tr").first()).toBeVisible();
     for (const [key, cls] of [["wkday", "wd"], ["wkend", "we"]]) {
       const btn = page.locator(`#grid thead .sort[data-sort=${key}]`);
@@ -642,7 +642,7 @@ test.describe("season chart v2 requests of 2026-10-15", () => {
     const GROUPS = ["Hotel", "Studio", "1 Bedroom", "2 Bedroom", "3 Bedroom", "4 Bedroom", "5 Bedroom"];
     const state = { collections: { set: ALL_COLLECTIONS }, span: 0, showAll: false };
     await page.addInitScript(s => localStorage.setItem("ytg-season-chart-v2", s), JSON.stringify(state));
-    await page.goto("/52weeks/seasons-v2.html", { waitUntil: "load" });
+    await page.goto("/52weeks/", { waitUntil: "load" });
     await expect(page.locator("#grid tbody tr").first()).toBeVisible();
     await page.evaluate(() => { const s = document.querySelector("#bedrooms"); s.value = "all"; s.dispatchEvent(new Event("change")); }); await settled(page);
     const rows = await page.evaluate(() => { const P = window.WEEKLY_POINTS, grp = new Map(P.classifications.map(c => [c.id, c.group]));
@@ -713,7 +713,7 @@ test.describe("season chart v2 every room type is selectable (2026-10-16)", () =
   });
 
   test("a filter saved before (every category selected) still means ALL, with a true count", async ({ page }) => {
-    await page.goto("/52weeks/seasons-v2.html");
+    await page.goto("/52weeks/");
     await expect(page.locator("#grid tbody tr").first()).toBeVisible();
     await page.evaluate(() => { const ids = window.WEEKLY_POINTS.classifications.map(c => c.id); localStorage.setItem("ytg-season-chart-v2", JSON.stringify({ collections: { set: ["Club Wyndham"] }, types: { set: ids }, span: 0, showAll: true })); });
     await page.reload();
@@ -739,7 +739,7 @@ test.describe("season chart v2 Associate resorts show points (planning #40)", ()
   });
 
   test("each chart adds up (Full Week = 2 x Fri-Sat + 5 x Sun-Thur) and covers weeks 1 to 52", async ({ page }) => {
-    await page.goto("/52weeks/seasons-v2.html");
+    await page.goto("/52weeks/");
     await expect(page.locator("#grid tbody tr").first()).toBeVisible();
     const r = await page.evaluate(() => {
       const cp = window.CLUB_PASS_POINTS.resorts, out = [];
@@ -812,7 +812,7 @@ test.describe("season chart v2 nightly points for several rates in one season", 
   });
 
   test("every nightly row adds up: 2 x Fri-Sat + 5 x Sun-Thur equals the weekly points for every week", async ({ page }) => {
-    await page.goto("/52weeks/seasons-v2.html");
+    await page.goto("/52weeks/");
     const r = await page.evaluate(() => {
       const N = window.NIGHTLY_POINTS, rows = window.WEEKLY_POINTS.rows; let checked = 0, byWeek = 0; const fails = [];
       for (const p of rows) { const n = N[p.id]; if (!n) continue; if (n.byWeek) byWeek++;
@@ -828,7 +828,7 @@ test.describe("season chart v2 nightly points for several rates in one season", 
 
 test.describe("season chart v2 lockoffs and weekly-only rows", () => {
   test("a lockoff's nights are the sum of its two components' nights, every week", async ({ page }) => {
-    await page.goto("/52weeks/seasons-v2.html");
+    await page.goto("/52weeks/");
     const r = await page.evaluate(() => { const N = window.NIGHTLY_POINTS, rows = window.WEEKLY_POINTS.rows, by = id => rows.find(p => p.id === id);
       const get = (p, w) => { const n = N[p.id]; if (!n) return null; if (n.byWeek) return n.byWeek[w - 1]; const s = n[p.weeks[w - 1]]; return s ? [s.friSat, s.sunThu] : null; };
       let lockoffs = 0; const fails = [];
@@ -857,7 +857,7 @@ test.describe("season chart v2 lockoffs and weekly-only rows", () => {
   });
 
   test("Fairfield Sapphire Valley card: 7-night minimum, Friday or Saturday check-in, and where the nightly points come from", async ({ page }) => {
-    await page.goto("/52weeks/seasons-v2.html");
+    await page.goto("/52weeks/");
     await expect(page.locator("#grid tbody .res-name").first()).toBeVisible();
     await page.locator("#search").fill("Sapphire Valley");
     await page.locator("#grid tbody .res-name", { hasText: "Fairfield Sapphire" }).first().click();
@@ -871,7 +871,7 @@ test.describe("season chart v2 lockoffs and weekly-only rows", () => {
 
 test.describe("season chart v2 WorldMark St. George and Balboa Park (2023-2024 directory charts)", () => {
   test("both show room types, nightly points and every week 1 to 52, and the sums add up", async ({ page }) => {
-    await page.goto("/52weeks/seasons-v2.html");
+    await page.goto("/52weeks/");
     await expect(page.locator("#grid tbody tr").first()).toBeVisible();
     const r = await page.evaluate(() => {
       const out = {};
@@ -917,7 +917,7 @@ test.describe("season chart v2 WorldMark Inn at the Park uses the WorldMark colo
 });
 
 test("season chart v2 resort card shows the full address and phone, the printed page only, and no points tables", async ({ page }) => {
-  await page.goto("/52weeks/seasons-v2.html");
+  await page.goto("/52weeks/");
   await expect(page.locator("#grid tbody .res-name").first()).toBeVisible();
   await page.locator("#grid tbody .res-name", { hasText: "Anaheim" }).first().click();
   const body = page.locator("#detailBody");
@@ -932,7 +932,7 @@ test("season chart v2 resort card shows the full address and phone, the printed 
 });
 
 test("season chart v2 resort card puts the collection name on its own row and lists the booking limits", async ({ page }) => {
-  await page.goto("/52weeks/seasons-v2.html");
+  await page.goto("/52weeks/");
   await expect(page.locator("#grid tbody .res-name").first()).toBeVisible();
   await page.locator("#search").fill("Harbortown");
   await page.locator("#grid tbody .res-name", { hasText: "Harbortown" }).first().click();
@@ -947,7 +947,7 @@ test("season chart v2 resort card puts the collection name on its own row and li
 });
 
 test("season chart v2 has no Sydney Suites anywhere (owner could not verify it exists, 10/18/26)", async ({ page }) => {
-  await page.goto("/52weeks/seasons-v2.html");
+  await page.goto("/52weeks/");
   await expect(page.locator("#grid tbody tr").first()).toBeVisible();
   const hits = await page.evaluate(() => JSON.stringify([window.CLUB_PASS_POINTS, window.WEEKLY_POINTS, window.DIRECTORY]).match(/Sydney Suites|sydney-suites/gi) || []);
   expect(hits).toEqual([]);
@@ -955,7 +955,7 @@ test("season chart v2 has no Sydney Suites anywhere (owner could not verify it e
 });
 
 test("season chart v2 WorldMark Grand Palms shows no points, says the charts disagree, and links the three charts", async ({ page }) => {
-  await page.goto("/52weeks/seasons-v2.html");
+  await page.goto("/52weeks/");
   await expect(page.locator("#grid tbody tr").first()).toBeVisible();
   expect(await page.evaluate(() => !!window.CLUB_PASS_POINTS.resorts["WorldMark Grand Palms"])).toBe(false);
   await chartRows(page, { query: "Grand Palms", size: "all", collections: ["Club Pass", "Club Wyndham"] });

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Your Timeshare Guide</title>
+<meta name="description" content="Charts, calculators and resources to help Club Wyndham owners plan their next stay and get the most from the points they already own.">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,700;1,600&family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,800;0,900;1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<style>
+  /* Home page only: the Welcome banner and the page cards */
+  .hero{background:var(--ink);color:var(--paper);text-align:center;padding:26px 0 30px;border-bottom:3px solid var(--mustard)}
+  .hero-h{margin:0}
+  .hero svg{display:block;width:min(560px,100%);height:auto;margin:0 auto}
+  .hero .wl{font-family:var(--serif);font-style:italic;font-weight:800;font-size:112px;fill:var(--mustard);letter-spacing:2px}
+  .hero .rule{display:flex;align-items:center;justify-content:center;gap:12px;margin:2px auto 0;width:min(420px,80%)}
+  .hero .rule::before,.hero .rule::after{content:"";flex:1;height:1.5px;background:var(--mustard)}
+  .hero .rule span{width:9px;height:9px;background:var(--mustard);transform:rotate(45deg)}
+  .hello{max-width:44em;margin:8px auto 44px;font-size:1.12rem;line-height:1.65;text-align:center}
+  .hello p{margin:0 0 14px}
+  @media (max-width:760px){.hello .hb{display:none}}
+  .hello .sig{font-family:var(--logo);font-style:italic;font-weight:600;font-size:1.5rem}
+  .guides-h{font-family:var(--serif);text-align:center;font-size:1.8rem;margin:30px 0 18px}
+  .guides{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-bottom:40px}
+  .guide{display:flex;flex-direction:column;background:var(--card);border:2px solid var(--ink);box-shadow:8px 8px 0 var(--mustard);text-decoration:none;color:var(--ink)}
+  .guide:hover{background:var(--card);box-shadow:8px 8px 0 var(--ink)}
+  .guide img{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;object-position:top left;border-bottom:2px solid var(--ink)}
+  .guide .gb{padding:16px 18px 18px;display:flex;flex-direction:column;gap:8px;flex:1}
+  .guide h3{font-family:var(--serif);font-size:1.5rem;margin:0}
+  .guide p{margin:0;line-height:1.55}
+  .guide .gbtn{margin-top:auto;align-self:flex-start;font-weight:800;background:var(--ink);color:var(--mustard);padding:8px 18px}
+  .guide:hover .gbtn{background:var(--mustard);color:var(--ink)}
+  @media (max-width:760px){.guides{grid-template-columns:1fr}.hero .wl{font-size:120px}}
+</style>
+</head>
+<body data-tab="home">
+<div id="site-header"></div>
+<main>
+  <section class="hero" aria-label="Welcome">
+    <h1 class="hero-h"><svg viewBox="0 0 600 170" role="img" aria-label="Welcome">
+      <path id="wl-arc" d="M40 150 Q300 52 560 150" fill="none"/>
+      <text class="wl" text-anchor="middle"><textPath href="#wl-arc" startOffset="50%">Welcome</textPath></text>
+    </svg></h1>
+    <div class="rule" aria-hidden="true"><span></span></div>
+  </section>
+  <div class="wrap">
+    <h2 class="guides-h">Finished Guides and Charts</h2>
+    <div class="guides">
+      <a class="guide" href="52weeks/">
+        <img src="assets/preview52weeks.jpg" alt="The 52 Weeks season chart" width="1280" height="720" loading="lazy">
+        <div class="gb">
+          <h3>52 Weeks</h3>
+          <p>Every Club Wyndham resort's seasons and points, week by week, all year. Filter by place, bedrooms and room type to find the weeks that fit your points.</p>
+          <span class="gbtn">Open the Chart</span>
+        </div>
+      </a>
+      <a class="guide" href="cancelknight/">
+        <img src="assets/previewknightmove.jpg" alt="The Cancellation Knight Move calendar" width="1280" height="720" loading="lazy">
+        <div class="gb">
+          <h3>The Cancellation Knight Move</h3>
+          <p>Find the last day you can cancel a reservation, using one simple chess move on a calendar. Type your check-in date or watch the short video.</p>
+          <span class="gbtn">Learn the Move</span>
+        </div>
+      </a>
+    </div>
+    <div class="hello">
+      <p>Creating a website to help other Club Wyndham owners<br class="hb"> has been a goal of mine for quite a while.</p>
+      <p>As a Club Wyndham owner of 25+ years, I want to help you get the most<br class="hb"> from your timeshare ownership.</p>
+      <p>I will continue to grow this site and provide valuable resources and tools<br class="hb"> to help you understand your Club Wyndham ownership.</p>
+      <p>I welcome your feedback.<br class="hb"> Please let me know what you are struggling with or would like me to cover.</p>
+      <p><a class="go" href="contact/">Send Me a Message</a></p>
+    </div>
+  </div>
+</main>
+<div id="site-footer"></div>
+<script src="assets/site.js"></script>
+</body>
+</html>

@@ -195,7 +195,7 @@ function whenText(d) {
   return `${time} ${days === 0 ? "today" : days === 1 ? "tomorrow" : "on " + d.toLocaleDateString("en-US", { weekday: "long" })}`;
 }
 
-const link = `${url}/52weeks/index.html`;
+const link = `${url}/`;
 const message = [
   "Hi! Here is a private preview of the timeshare guide website. I would love your feedback.",
   "",
