@@ -20,6 +20,9 @@ h2{font-size:1.1rem;margin:0 0 10px}
 .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 @media (max-width:760px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:480px){.grid{grid-template-columns:minmax(0,1fr)}}
+.span2{grid-column:span 2}
+@media (max-width:480px){.span2{grid-column:auto}}
+select:disabled{opacity:.6}
 label{display:block;font-size:.85rem;color:var(--mute);line-height:1.25}
 input,select{display:block;width:100%;height:40px;margin-top:3px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit;padding:6px 8px;outline:0}
 input:focus,select:focus,button:focus-visible,.scroll:focus-visible{outline:2px solid var(--stay);outline-offset:1px}
@@ -36,7 +39,7 @@ button:disabled{opacity:.5;cursor:default}
 table{border-collapse:collapse;width:100%;min-width:1000px;font-size:14px;table-layout:auto}
 td.res{min-width:130px;max-width:170px}td.nw{white-space:nowrap}td.n{white-space:nowrap;min-width:54px}td.bld{color:var(--mute);font-size:.9em;min-width:84px;max-width:110px}
 td.rt{max-width:160px}td.rt small{display:block;color:var(--mute);font-size:.8em;line-height:1.25}
-th[data-h="1"],td:nth-child(2){min-width:80px}th[data-h="2"],td:nth-child(3){min-width:60px}th[data-h="3"],td:nth-child(4){min-width:105px}th[data-h="0"]{min-width:130px}
+th[data-h="3"],td:nth-child(4){min-width:80px}th[data-h="4"],td:nth-child(5){min-width:60px}th[data-h="5"],td:nth-child(6){min-width:105px}th[data-h="2"]{min-width:130px}
 th,td{padding:6px 4px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
 th{background:var(--head);font-size:.82rem;white-space:nowrap;padding:0}
 th[aria-sort=ascending],th[aria-sort=descending]{background:#cfe0f3}
@@ -100,11 +103,9 @@ td.fit{background:#d4efe0;font-weight:700;box-shadow:inset 3px 0 0 var(--good)}
 <div class="grid">
 <div><label for="pts">Total Points</label><input id="pts" inputmode="numeric" autocomplete="off" placeholder="60,000" value="60,000"></div>
 <div><label for="vip">VIP Level</label><select id="vip"><option value="all">Show All Discounts</option><option value="none">Non-VIP</option></select></div>
-<div><label for="area">Area</label><select id="area"><option>Everywhere</option><option>East Coast</option><option>West Coast</option><option>Hawaii</option><option>Other</option></select></div>
-<div><label for="state">State</label><select id="state"><option value="">All States</option></select></div>
-<div><label for="resort">Resort</label><input id="resort" list="resorts" autocomplete="off" placeholder="Search by Name"><datalist id="resorts"></datalist></div>
 <div><label for="size">Room Size</label><select id="size"><option value="">All Sizes</option></select></div>
-<div></div>
+<div class="span2"><label for="loc">Location</label><input id="loc" type="search" list="places" autocomplete="off" placeholder="e.g. Bay Club, Maine, Canada"><datalist id="places"></datalist><p class="hint">City and State, Resort Name, State or Country.</p></div>
+<div><label for="radius">Search Radius</label><select id="radius" disabled></select><p class="hint" id="radHint">The search radius needs a city and state, such as Orlando, Florida.</p></div>
 <div><label for="from">Earliest Check-In</label><input id="from" type="date"></div>
 <div><label for="to">Latest Check-Out</label><input id="to" type="date"></div>
 <div></div>
@@ -140,7 +141,8 @@ td.fit{background:#d4efe0;font-weight:700;box-shadow:inset 3px 0 0 var(--good)}
 <h2 id="nh">Notes and Limits</h2>
 <p>Points shown are from the 2026/2027 directory charts. Availability is not checked, so a stay listed here may not be bookable.</p>
 <p>VIP discounts apply only to eligible new reservations made within 2 months (60 days) before check-in. Discounted prices are shown for every stay so you can plan ahead. Eligibility and availability are not verified. Discounted prices are rounded up to the next whole point; Wyndham's booking rounding is not confirmed.</p>
-<p>Source: Club Wyndham Member's Directory 2026/2027, VIP benefits chart, printed pages 266–270 (Club Wyndham search bar pages 270–274).</p>
+<p>The VIP Discount Date column shows the first day the VIP discount can apply: 60 days before check-in. "Now" means that day has already come.</p>
+<p>Source: 26/27 Directory - Pages 266-270</p>
 <p>Housekeeping Credits ($185 each when you run out) and Reservation Transactions are not included.</p>
 <p id="left"></p>
 <p>Each night is priced with the season of the chart week that contains it. Friday and Saturday nights use the weekend rate and the other nights use the Sunday to Thursday rate. Each result is one stay at one resort.</p>
@@ -178,15 +180,18 @@ var allRows = P.rows, rows = allRows.filter(function (r) { return N[r.id]; });
 $('left').textContent = 'Resorts without nightly points are not listed: ' + (allRows.length - rows.length) + ' of ' + allRows.length + ' room type rows in the charts are left out (only Club Wyndham and Margaritaville rows with nightly points are searched).';
 var groupOf = {}; P.classifications.forEach(function (c) { groupOf[c.id] = c.group; });
 var sizeOf = function (r) { var g = groupOf[r.category] || 'Other'; return /^[345] Bedroom$/.test(g) ? '3 Bedroom and Larger' : g === 'Hotel' ? 'Hotel Room' : g; };
-var EAST = 'ME NH MA RI CT NY NJ PA DE MD DC VA NC SC GA FL'.split(' '), WESTC = ['CA', 'OR', 'WA'];
+/* Resort names as Club Wyndham's website writes them, same list as season chart v2 */
+var WEBSITE_NAMES = { 'WorldMark Lake House': 'WorldMark Chelan - Lake House', 'Club Wyndham Holua Resort at Mauna Loa Village': 'Club Wyndham Holua Resort at the Mauna Loa Village',
+  'Club Wyndham Kauai Coast Resort at The Beachboy': 'Club Wyndham Kauai Coast Resort at the Beachboy', 'Club Wyndham Waikiki Marina Resort at The Ilikai': 'Club Wyndham Waikiki Marina Resort at the Ilikai' };
+var officialName = function (n) { return (WEBSITE_NAMES[n] || n.replace(/^Margaritaville Vacation Club - /, 'Margaritaville Vacation Club by Wyndham - ')).replace(/[‘’]/g, "'"); };
 rows.forEach(function (r) {
   var m = /, ([A-Z]{2})$/.exec(r.location || '');
   r._code = m ? m[1] : (r.state || r.country || 'Other'); if (r._code === 'U.S. Virgin Islands') r._code = 'VI';
-  r._stateName = m ? (r.state || m[1]) : (r.state || r.country || 'Other');
   r._city = r.city || (r.location || '').split(',')[0] || r.name;
-  r._area = EAST.indexOf(r._code) >= 0 ? 'East Coast' : WESTC.indexOf(r._code) >= 0 ? 'West Coast' : r._code === 'HI' ? 'Hawaii' : 'Other';
+  r._region = r.country === 'United States' ? r.state : r.country;
   r._size = sizeOf(r);
   r._low = flat(r.name || '');
+  r._words = flat([r.name, officialName(r.name), r._city, r.state, r.country, r.schedule].join(' '));
 });
 /* Display name: drop an exact leading Club Wyndham prefix unless that would give two resorts the same name in one city and state */
 var PFX = "Club Wyndham ", dispSeen = {};
@@ -212,12 +217,47 @@ Object.keys(grp).forEach(function (k) {
 });
 rows = rows.filter(function (r) { return keep.indexOf(r) >= 0; });
 var fill = function (sel, items) { items.forEach(function (it) { var o = document.createElement('option'); o.value = it[0]; o.textContent = it[1]; sel.appendChild(o); }); };
-var states = {}; rows.forEach(function (r) { states[r._code] = r._stateName; });
-fill($('state'), Object.keys(states).sort(function (a, b) { return states[a].localeCompare(states[b]); }).map(function (k) { return [k, states[k]]; }));
 var SIZES = ['Studio', '1 Bedroom', '2 Bedroom', '3 Bedroom and Larger', 'Hotel Room'];
 fill($('size'), SIZES.filter(function (s) { return rows.some(function (r) { return r._size === s; }); }).map(function (s) { return [s, s]; }));
-var names = []; rows.forEach(function (r) { if (names.indexOf(r._disp) < 0) names.push(r._disp); });
-names.sort(function (a, b) { return a.toLowerCase() < b.toLowerCase() ? -1 : a.toLowerCase() > b.toLowerCase() ? 1 : 0; }); $('resorts').innerHTML = names.map(function (n) { return '<option value="' + esc(n) + '">'; }).join('');
+/* ---- Location: same search as season chart v2 (a state or country, a resort name, or a city and state with a radius) ---- */
+var COUNTRIES = [['Australia', 'Australia'], ['Canada', 'Canada'], ['Fiji', 'Fiji'], ['Mexico', 'Mexico'], ['New Zealand', 'New Zealand'], ['Puerto Rico', 'Puerto Rico'], ['United States', 'United States'], ['US Virgin Islands', 'U.S. Virgin Islands']];
+var COUNTRY_ALIASES = { 'pr': 'Puerto Rico', 'nz': 'New Zealand', 'usvi': 'U.S. Virgin Islands', 'us virgin islands': 'U.S. Virgin Islands', 'u s virgin islands': 'U.S. Virgin Islands', 'virgin islands': 'U.S. Virgin Islands',
+  'us': 'United States', 'usa': 'United States', 'u s a': 'United States', 'united states': 'United States', 'united states of america': 'United States' };
+var RADII = [10, 25, 35, 50, 75, 100, 150, 200, 250, 350, 500, 750, 1000];
+$('radius').innerHTML = RADII.map(function (r) { return '<option value="' + r + '"' + (r === 35 ? ' selected' : '') + '>' + NUM.format(r) + ' Miles</option>'; }).join('');
+var regions = []; rows.forEach(function (r) { if (r._region && regions.indexOf(r._region) < 0) regions.push(r._region); }); regions.sort();
+var regionOf = function (q) { var n = flat(q); return regions.filter(function (r) { return flat(r) === n; })[0] || null; };
+var countryOf = function (q) { var n = flat(q); return COUNTRY_ALIASES[n] || (COUNTRIES.filter(function (c) { return flat(c[0]) === n; })[0] || [])[1] || null; };
+var names = []; rows.forEach(function (r) { var n = officialName(r.name); if (names.indexOf(n) < 0) names.push(n); }); names.sort();
+$('places').innerHTML = regions.concat(COUNTRIES.map(function (c) { return c[0]; })).filter(function (r, i, a) { return a.indexOf(r) === i && r !== 'U.S. Virgin Islands'; })
+  .concat(names).map(function (n) { return '<option value="' + esc(n) + '"></option>'; }).join('');
+/* City positions (geo-data.js, a large file) load only when a place search needs them */
+var GEO = null, geoLoad = null;
+var loadScript = function (src) { return new Promise(function (ok, no) { var e = document.createElement('script'); e.src = src; e.onload = ok; e.onerror = no; document.head.appendChild(e); }); };
+function loadGeo() {
+  return geoLoad || (geoLoad = loadScript('geo-data.js').then(function () { return loadScript('geo.js'); }).then(function () {
+    GEO = window.ResortGeo; $('places').insertAdjacentHTML('beforeend', GEO.options()); placeUI();
+  }, function () { /* without it, a place search matches names as text */ }));
+}
+function placeFilter(q, radius) {
+  if (!q) return { test: function () { return true; }, label: 'Anywhere' };
+  var country = countryOf(q);
+  if (country) return { test: function (r) { return r.country === country; }, label: q };
+  var region = regionOf(q);
+  if (region) return { test: function (r) { return r._region === region; }, label: region };
+  var center = GEO ? GEO.resolve(q) : null;
+  if (center) return { city: true, test: function (r) { var d = GEO.distance(r, center); return d !== null && d <= radius; }, label: 'Within ' + NUM.format(radius) + ' miles of ' + center.label };
+  var words = flat(q).split(' ').filter(Boolean);
+  return { test: function (r) { return words.every(function (w) { return r._words.indexOf(w) >= 0; }); }, label: q };
+}
+function placeUI() {
+  var q = $('loc').value.trim(), center = q && GEO && !countryOf(q) && !regionOf(q) ? GEO.resolve(q) : null;
+  $('radius').disabled = !center;
+  $('radHint').textContent = center ? 'Within ' + NUM.format(+$('radius').value) + ' miles of ' + center.label + ', in a straight line.' : 'The search radius needs a city and state, such as Orlando, Florida.';
+}
+$('loc').addEventListener('focus', loadGeo);
+$('loc').addEventListener('input', placeUI);
+$('radius').addEventListener('change', placeUI);
 
 /* ---- Dates ---- */
 var iso = function (t) { return new Date(t).toISOString().slice(0, 10); };
@@ -254,7 +294,10 @@ var nightWeek = new Int16Array(NIGHTS), nightWknd = new Uint8Array(NIGHTS);
 
 /* ---- Search ---- */
 var SEASONS = ['Prime', 'High', 'Value', 'Quiet'];
-var sortKey = null, sortDir = 1, BASE_HEAD = ['Resort', 'City', 'State', 'Room Type', 'Building', 'Check-In', 'Check-Out', 'Nights', 'Season', 'Full Price'];
+/* Columns: Season and Full Price first (owner, 2026-10-25); the VIP Discount Date column (60 days before check-in) shows only when VIP prices are shown */
+var sortKey = null, sortDir = 1, BASE_HEAD = ['Season', 'Full Price', 'Resort', 'City', 'State', 'Room Type', 'Building', 'Check-In', 'Check-Out', 'Nights'];
+var firstRate = function (rates) { return BASE_HEAD.length + (rates.length ? 1 : 0); };
+var headOf = function (rates) { return BASE_HEAD.concat(rates.length ? ['VIP Discount Date'] : [], rates.map(colLabel)); };
 var RATES = [], TIER_OF = {}, TIERS = [], VIS = [], VIS_TIER = null;  /* discounts read from reference-data.js, ascending */
 try { window.REFERENCE.vip.tiers.forEach(function (t) { var d = t.points_discount_within_2_months; if (typeof d === 'number' && d > 0 && d < 1) { if (RATES.indexOf(d) < 0) RATES.push(d); TIERS.push({ tier: t.tier, rate: d }); TIER_OF[d] = (TIER_OF[d] ? TIER_OF[d] + ' and ' : '') + t.tier; } }); } catch (e) { RATES = []; }
 RATES.sort(function (a, b) { return a - b; }); TIERS.sort(function (a, b) { return a.rate - b.rate; });
@@ -263,9 +306,9 @@ VIS = RATES.slice();
 var colLabel = function (d) { return pctOf(d) + ' Off'; };
 var tierOf = function (d) { return VIS_TIER || TIER_OF[d] || ''; };
 function setColumns() {
-  var tr = $('tbl').querySelector('thead tr'), labels = BASE_HEAD.concat(VIS.map(colLabel));
+  var tr = $('tbl').querySelector('thead tr'), labels = headOf(VIS), r0 = firstRate(VIS);
   if (sortKey != null && sortKey >= labels.length) sortKey = null;
-  tr.innerHTML = labels.map(function (l, i) { var tier = i >= 10 ? tierOf(VIS[i - 10]) : ''; return '<th' + (i >= 9 ? ' class="n"' : i === 7 ? ' class="n"' : i === 8 ? ' class="sea"' : '') + ' data-h="' + i + '"' + '><button type="button" data-col="' + i + '">' + '<span class="lbl">' + esc(l) + '<span class="arr" aria-hidden="true"><i class="u"></i><i class="d"></i></span></span>' + (tier ? '<span class="tier"> ' + esc(tier) + '</span>' : '') + '</button></th>'; }).join('');
+  tr.innerHTML = labels.map(function (l, i) { var tier = i >= r0 ? tierOf(VIS[i - r0]) : ''; return '<th' + (i === 0 ? ' class="sea"' : i === 1 || i === 9 || i >= r0 ? ' class="n"' : '') + ' data-h="' + i + '"' + '><button type="button" data-col="' + i + '">' + '<span class="lbl">' + esc(l) + '<span class="arr" aria-hidden="true"><i class="u"></i><i class="d"></i></span></span>' + (tier ? '<span class="tier"> ' + esc(tier) + '</span>' : '') + '</button></th>'; }).join('');
   sortUI();
 }
 var pctOf = function (d) { return Math.round(d * 1000) / 10 + '%'; };
@@ -283,16 +326,17 @@ function sortUI() {
   $('reset').hidden = sortKey == null;
 }
 function sortVal(x, c) {
-  if (c === 0) return x.r._dlow;
-  if (c === 1) return x.r._city.toLowerCase();
-  if (c === 2) return x.r._code.toLowerCase();
-  if (c === 3) return x.r._room.toLowerCase();
-  if (c === 4) return x.r._bld ? x.r._bld.toLowerCase() : null;
-  if (c === 5) return x.s;
-  if (c === 6) return x.s + x.n;
-  if (c === 7) return x.n;
-  if (c === 8) return SEASONS.indexOf(x.season) >= 0 ? SEASONS.indexOf(x.season) : null;
-  return x.prices[c - 9];
+  if (c === 0) return SEASONS.indexOf(x.season) >= 0 ? SEASONS.indexOf(x.season) : null;
+  if (c === 1) return x.prices[0];
+  if (c === 2) return x.r._dlow;
+  if (c === 3) return x.r._city.toLowerCase();
+  if (c === 4) return x.r._code.toLowerCase();
+  if (c === 5) return x.r._room.toLowerCase();
+  if (c === 6) return x.r._bld ? x.r._bld.toLowerCase() : null;
+  if (c === 7 || c === 10 && lastInfo.rates.length) return x.s;
+  if (c === 8) return x.s + x.n;
+  if (c === 9) return x.n;
+  return x.prices[c - firstRate(lastInfo.rates) + 1];
 }
 function ordered() {
   if (sortKey == null) return results;
@@ -307,13 +351,10 @@ function search(cfg) {
   var out = [], t0 = performance.now();
   var a = Math.round((cfg.from - CAL_START) / DAY), b = Math.round((cfg.to - CAL_START) / DAY); /* nights a..b-1 may be used */
   a = Math.max(0, a); b = Math.min(NIGHTS, b);
-  var q = flat(cfg.resort);
   var pre = new Float64Array(NIGHTS + 1), miss = new Int32Array(NIGHTS + 1);
   rows.forEach(function (r) {
-    if (cfg.area !== 'Everywhere' && r._area !== cfg.area) return;
-    if (cfg.state && r._code !== cfg.state) return;
     if (cfg.size && r._size !== cfg.size) return;
-    if (q && r._low.indexOf(q) < 0 && r._dflat.indexOf(q) < 0) return;
+    if (!cfg.place.test(r)) return;
     var nb = N[r.id];
     for (var i = a; i < b; i++) {
       var s = seasonOf(r, nightWeek[i]), band = s && nb[s], p = band ? (nightWknd[i] ? band.friSat : band.sunThu) : null;
@@ -348,19 +389,20 @@ function search(cfg) {
 
 /* ---- Output ---- */
 function rowData(x) {
-  var t = CAL_START + x.s * DAY;
-  return [x.r._disp, x.r._city, x.r._code, x.r._rt, x.r._bld || '', fmtDate(t), fmtDate(t + x.n * DAY), x.n, x.season || ''].concat(x.prices);
+  var t = CAL_START + x.s * DAY, vipDay = t - VIP_DAYS * DAY;
+  return [x.season || '', x.prices[0], x.r._disp, x.r._city, x.r._code, x.r._rt, x.r._bld || '', fmtDate(t), fmtDate(t + x.n * DAY), x.n]
+    .concat(lastInfo.rates.length ? [vipDay <= todayUTC ? 'Now' : fmtDate(vipDay)] : [], x.prices.slice(1));
 }
 function render() {
-  var list = ordered().slice(0, shown), budget = lastInfo.points, html = '', cols = 10 + lastInfo.rates.length;
+  var list = ordered().slice(0, shown), budget = lastInfo.points, html = '', cols = headOf(lastInfo.rates).length;
+  var priceCell = function (x, v) { var fit = v != null && v <= budget; return '<td class="n' + (fit ? ' fit' : x.season ? ' p' + x.season : '') + '" data-fit="' + fit + '">' + (v == null ? '—' : NUM.format(v)) + '</td>'; };
   list.forEach(function (x) {
     var d = rowData(x);
-    html += '<tr><td class="res">' + esc(d[0]) + '</td><td>' + esc(d[1]) + '</td><td>' + esc(d[2]) + '</td><td class="rt">' + esc(d[3]) + '</td><td class="bld">' + esc(d[4]) + '</td><td class="nw">' + esc(d[5]) + '</td><td class="nw">' + esc(d[6]) + '</td><td class="n">' + d[7] + '</td>';
-    html += '<td class="sea' + (x.season ? ' s' + x.season : '') + '" data-season="' + esc(x.season) + '"' + '>' + esc(x.season) + '</td>';
-    for (var k = 9; k < d.length; k++) {
-      var v = d[k], fit = v != null && v <= budget;
-      html += '<td class="n' + (fit ? ' fit' : x.season ? ' p' + x.season : '') + '" data-fit="' + fit + '">' + (v == null ? '—' : NUM.format(v)) + '</td>';
-    }
+    html += '<tr><td class="sea' + (x.season ? ' s' + x.season : '') + '" data-season="' + esc(x.season) + '"' + '>' + esc(x.season) + '</td>' + priceCell(x, d[1]);
+    html += '<td class="res">' + esc(d[2]) + '</td><td>' + esc(d[3]) + '</td><td>' + esc(d[4]) + '</td><td class="rt">' + esc(d[5]) + '</td><td class="bld">' + esc(d[6]) + '</td><td class="nw">' + esc(d[7]) + '</td><td class="nw">' + esc(d[8]) + '</td><td class="n">' + d[9] + '</td>';
+    var k = 10;
+    if (lastInfo.rates.length) html += '<td class="nw">' + esc(d[k++]) + '</td>';
+    for (; k < d.length; k++) html += priceCell(x, d[k]);
     html += '</tr>';
   });
   if (!list.length) html = '<tr><td colspan="' + cols + '">No stay fits these settings. Try more points, a wider date range or fewer filters.</td></tr>';
@@ -369,7 +411,7 @@ function render() {
   $('all').hidden = results.length <= shown;
   $('resCard').hidden = false;
   $('xlsx').disabled = $('pdf').disabled = !list.length;
-  $('printInfo').innerHTML = '<p>Total Points: ' + NUM.format(budget) + ' | VIP Level: ' + esc(lastInfo.vipLabel) + ' | Area: ' + esc(lastInfo.area) + ' | State: ' + esc(lastInfo.stateName) + ' | Resort: ' + esc(lastInfo.resort || 'All') + ' | Room Size: ' + esc(lastInfo.size || 'All') + '<br>Check-In From: ' + esc(lastInfo.from) + ' | Check-Out By: ' + esc(lastInfo.to) + ' | Nights per Stay: ' + lastInfo.minN + ' to ' + lastInfo.maxN + '<br>Generated: ' + fmtDate(todayUTC) + '</p>';
+  $('printInfo').innerHTML = '<p>Total Points: ' + NUM.format(budget) + ' | VIP Level: ' + esc(lastInfo.vipLabel) + ' | Location: ' + esc(lastInfo.place) + ' | Room Size: ' + esc(lastInfo.size || 'All') + '<br>Check-In From: ' + esc(lastInfo.from) + ' | Check-Out By: ' + esc(lastInfo.to) + ' | Nights per Stay: ' + lastInfo.minN + ' to ' + lastInfo.maxN + '<br>Generated: ' + fmtDate(todayUTC) + '</p>';
   document.documentElement.setAttribute('data-search-ms', String(Math.round(lastInfo.ms)));
 }
 function fail(m) { var e = $('err'); e.textContent = m; e.hidden = !m; }
@@ -382,7 +424,9 @@ $('f').addEventListener('submit', function (ev) {
   if (isNaN(from) || isNaN(to) || to <= from) return fail('Enter an earliest check-in date that comes before the latest check-out date.');
   if (!(minN >= 1) || !(maxN >= minN)) return fail('Enter a minimum number of nights of at least 1 and a maximum that is not smaller.');
   fail('');
-  var st = $('state'), vs = $('vip'), sel = vs.value, note = '';
+  var q = $('loc').value.trim();
+  if (q && !GEO && !countryOf(q) && !regionOf(q)) { $('go').disabled = true; loadGeo().then(function () { $('go').disabled = false; $('f').requestSubmit(); }); return; }
+  var vs = $('vip'), sel = vs.value, note = '';
   VIS_TIER = null;
   if (sel === 'all') VIS = RATES.slice();
   else if (sel === 'none') VIS = [];
@@ -390,10 +434,10 @@ $('f').addEventListener('submit', function (ev) {
   if (!RATES.length) note = $('ratenote').textContent;
   $('ratenote').textContent = note; $('ratenote').hidden = !note;
   setColumns();
-  var cfg = { points: pts, rates: VIS.slice(), today: todayUTC, from: from, to: to, minN: minN, maxN: Math.min(maxN, 60), area: $('area').value, state: st.value, size: $('size').value, resort: $('resort').value.trim() };
+  var cfg = { points: pts, rates: VIS.slice(), today: todayUTC, from: from, to: to, minN: minN, maxN: Math.min(maxN, 60), size: $('size').value, place: placeFilter(q, +$('radius').value) };
   var res = search(cfg);
   results = res.list; shown = 50;
-  lastInfo = { rates: VIS.slice(), vipLabel: vs.options[vs.selectedIndex].text, points: pts, ms: res.ms, area: cfg.area, stateName: st.value ? st.options[st.selectedIndex].text : 'All', resort: cfg.resort, size: cfg.size, from: fmtDate(from), to: fmtDate(to), minN: minN, maxN: cfg.maxN };
+  lastInfo = { rates: VIS.slice(), vipLabel: vs.options[vs.selectedIndex].text, points: pts, ms: res.ms, place: cfg.place.label, size: cfg.size, from: fmtDate(from), to: fmtDate(to), minN: minN, maxN: cfg.maxN };
   render();
 });
 $('vip').addEventListener('change', function () { sortKey = null; sortDir = 1; if (lastInfo) $('f').requestSubmit(); });
@@ -408,12 +452,12 @@ $('all').addEventListener('click', function () { shown = results.length; render(
 $('pdf').addEventListener('click', function () { window.print(); });
 
 /* ---- Exports (Excel loads only when selected; CSV if the library fails) ---- */
-var HEAD = function () { return BASE_HEAD.concat(lastInfo.rates.map(colLabel)); };
+var HEAD = function () { return headOf(lastInfo.rates); };
 function exportRows() {
-  return ordered().slice(0, shown).map(function (x) { return rowData(x).map(function (v, i) { return i === 8 ? (v || '—') : i >= 9 && v == null ? '—' : v; }); });
+  return ordered().slice(0, shown).map(function (x) { return rowData(x).map(function (v, i) { return i === 0 ? (v || '—') : v == null ? '—' : v; }); });
 }
 function metaRows() {
-  return [['Thrifty Points'], ['Total Points', lastInfo.points], ['VIP Level', lastInfo.vipLabel], ['Area', lastInfo.area], ['State', lastInfo.stateName], ['Resort', lastInfo.resort || 'All'], ['Room Size', lastInfo.size || 'All'],
+  return [['Thrifty Points'], ['Total Points', lastInfo.points], ['VIP Level', lastInfo.vipLabel], ['Location', lastInfo.place], ['Room Size', lastInfo.size || 'All'],
     ['Check-In From', lastInfo.from], ['Check-Out By', lastInfo.to], ['Nights per Stay', lastInfo.minN + ' to ' + lastInfo.maxN], ['Generated', fmtDate(todayUTC)],
     ['Points are from the 2026/2027 directory charts. VIP discounts (' + RATES.map(function (d) { return pctOf(d) + ' ' + TIER_OF[d]; }).join(', ') + ') apply only to eligible new reservations made within 2 months (60 days) of check-in and are rounded up to the next whole point; eligibility and availability are not verified, and Wyndham\'s booking rounding is not confirmed. Source: Club Wyndham Member\'s Directory 2026/2027, VIP benefits chart, printed pages 266–270.'],['Availability is not checked. Housekeeping Credits and Reservation Transactions are not included.'], []];
 }
@@ -443,7 +487,7 @@ $('xlsx').addEventListener('click', function () {
   var btn = this, xe = $('xerr'); xe.hidden = true; btn.disabled = true;
   loadXlsx().then(function () {
     var meta = metaRows(), ws = XLSX.utils.aoa_to_sheet(meta.concat([HEAD()], exportRows()));
-    ws['!cols'] = [{ wch: 38 }, { wch: 20 }, { wch: 8 }, { wch: 22 }, { wch: 22 }, { wch: 12 }, { wch: 12 }, { wch: 8 }, { wch: 9 }, { wch: 12 }].concat(lastInfo.rates.map(function () { return { wch: 12 }; }));
+    ws['!cols'] = [{ wch: 9 }, { wch: 12 }, { wch: 38 }, { wch: 20 }, { wch: 8 }, { wch: 22 }, { wch: 22 }, { wch: 12 }, { wch: 12 }, { wch: 8 }].concat(lastInfo.rates.length ? [{ wch: 16 }] : [], lastInfo.rates.map(function () { return { wch: 12 }; }));
     var wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Thrifty Points');
     XLSX.writeFile(wb, 'thrifty-points.xlsx');
   }).catch(function () {
