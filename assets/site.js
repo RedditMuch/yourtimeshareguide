@@ -77,7 +77,14 @@
   }
 
   var current = LIVE ? (location.pathname.split("/")[1] || "home").toLowerCase() : (document.body.getAttribute("data-tab") || "").toLowerCase();
-  var now = today(), wk = weekOf(now);
+  // Club Wyndham runs on Eastern Time (owner, 2026-10-25), so the masthead's date, week and clock are Eastern.
+  function eastern() {
+    var p = {};
+    new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", year: "numeric", month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" })
+      .formatToParts(new Date()).forEach(function (x) { p[x.type] = x.value; });
+    return { date: new Date(+p.year, +p.month - 1, +p.day), time: p.hour + ":" + p.minute + " " + p.dayPeriod };
+  }
+  var et = eastern(), now = today(), wk = weekOf(et.date);
 
   function header() {
     var cur = TABS.filter(function (t) { return t.id === current; })[0];
@@ -88,9 +95,9 @@
     return '<a class="skip" href="#main">Skip to Content</a>'
       + '<header class="mast">'
       + '<div class="wrap mast-top">'
-      + '<div class="mast-side left">' + longDate(now) + '<br><strong>The ' + now.getFullYear() + ' Owner\'s Almanac</strong></div>'
+      + '<div class="mast-side left"><span class="ts-t">Today:</span> <span class="ts-d">' + longDate(et.date) + '</span><span class="ts-w">Week ' + wk.week + '</span></div>'
       + '<a href="' + ROOT + '" class="logo" aria-label="Your Timeshare Guide, Home">' + LOGO_SVG + '<span class="logo-your">Your</span><span class="logo-main">Timeshare Guide</span></a>'
-      + '<div class="mast-side right"><a class="pill" href="' + ROOT + (LIVE ? '52weeks/' : '#almanac') + '" title="Club Wyndham week numbers: week 1 starts on the first Friday of January">Week ' + wk.week + ' of ' + wk.of + '</a>'
+      + '<div class="mast-side right" title="Club Wyndham runs on Eastern Time"><span class="ts-t">Eastern Time:</span><span class="ts-w" id="etClock">' + et.time + '</span>'
       + (LIVE ? "" : '<div class="search"><a href="' + ROOT + 'sitemap/"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13 13l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Search the Guide</a></div>') + '</div>'
       + '<p class="logo-tag">Charts, Calculators and Resources for Club Wyndham and WorldMark Owners</p>'
       + '</div>'
@@ -134,6 +141,9 @@
       .then(function (d) { if (d && d.count && d.count !== "0") copy.insertAdjacentHTML("beforeend", " &nbsp;&middot;&nbsp; Visitors: " + esc(d.count)); })
       .catch(function () {});
   });
+
+  var clock = document.getElementById("etClock");
+  if (clock) setInterval(function () { clock.textContent = eastern().time; }, 15000);
 
   var main = document.querySelector("main");
   if (main && !main.id) main.id = "main";
