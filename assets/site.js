@@ -110,9 +110,8 @@
       + '<ul>' + FOOT_LINKS.map(function (l) { return '<li><a href="' + ROOT + l[1] + '">' + l[0] + "</a></li>"; }).join("") + "</ul>"
       + "</div>"
       + '<section class="notice" aria-labelledby="notice-h"><h2 id="notice-h">Important Notice</h2><div class="notice-lines">'
-      + "<p><b>No Bookings Here.</b> This site is for information only. To book or change a reservation, use your official owner account or contact your club.</p>"
-      + "<p><b>Confirm Before You Decide.</b> Information can change and errors can happen. Check the current Member's Directory, the official owner website and your contract. If they differ from this site, they control.</p>"
-      + "<p><b>Your Decisions Are Your Own.</b> You use this information at your own discretion. Your Timeshare Guide is not responsible for any loss or cost that results from relying on it.</p>"
+      + "<p><b>No Bookings Here.</b> This site is for information only. To book or change a reservation, use your official owner account or contact Club Wyndham.</p>"
+      + "<p><b>Confirm Before You Decide.</b> Information can change and errors can happen. Check the current Member's Directory, the official owner website and your contract before making any decisions. Use this information at your own discretion. Your Timeshare Guide is not responsible for any loss or cost that results from relying on it.</p>"
       + "<p><b>Independent and Unofficial.</b> Not affiliated with or endorsed by Club Wyndham, WorldMark, RCI, Travel + Leisure Co. or Wyndham Destinations. Trademarks belong to their owners. Nothing here is legal, financial or tax advice.</p>"
       + "</div></section>"
       + '<div class="copy">&copy; ' + now.getFullYear() + ' Your Timeshare Guide' + (LIVE ? "" : ' &nbsp;&middot;&nbsp; <a href="' + ROOT + 'terms/">Terms of Use</a>') + '</div>'
