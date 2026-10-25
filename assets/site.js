@@ -110,12 +110,12 @@
       + '<ul>' + FOOT_LINKS.map(function (l) { return '<li><a href="' + ROOT + l[1] + '">' + l[0] + "</a></li>"; }).join("") + "</ul>"
       + "</div>"
       + '<section class="notice" aria-labelledby="notice-h"><h2 id="notice-h">Important Notice</h2><div class="notice-lines">'
-      + "<p><b>No Bookings on This Site.</b> Your Timeshare Guide is an information resource only. No reservations, purchases or account changes can be made here. To book a stay, sign in to your official owner account or contact your club directly.</p>"
-      + "<p><b>Confirm Before You Decide.</b> We work hard to keep every chart, fee and date correct and up to date, but information can change without notice and errors can happen. Before making any decision, confirm the details against the current Club Wyndham Member's Directory or WorldMark Resort Directory, the official owner website and your own contract. If anything here differs from those sources, the official sources control.</p>"
-      + "<p><b>Your Decisions Are Your Own.</b> This site is a guide to help you along your ownership journey. Every reservation, purchase and other decision is made at your own discretion. Your Timeshare Guide is not responsible for any loss, cost or missed opportunity that results from relying on the information here.</p>"
-      + "<p><b>Independent and Unofficial.</b> Your Timeshare Guide is not affiliated with, endorsed by or officially connected to Club Wyndham, WorldMark, RCI, Travel + Leisure Co. or Wyndham Destinations. All trademarks belong to their owners. Nothing here is legal, financial or tax advice.</p>"
+      + "<p><b>No Bookings Here.</b> This site is for information only. To book or change a reservation, use your official owner account or contact your club.</p>"
+      + "<p><b>Confirm Before You Decide.</b> Information can change and errors can happen. Check the current Member's Directory, the official owner website and your contract. If they differ from this site, they control.</p>"
+      + "<p><b>Your Decisions Are Your Own.</b> You use this information at your own discretion. Your Timeshare Guide is not responsible for any loss or cost that results from relying on it.</p>"
+      + "<p><b>Independent and Unofficial.</b> Not affiliated with or endorsed by Club Wyndham, WorldMark, RCI, Travel + Leisure Co. or Wyndham Destinations. Trademarks belong to their owners. Nothing here is legal, financial or tax advice.</p>"
       + "</div></section>"
-      + '<div class="copy">&copy; ' + now.getFullYear() + ' Your Timeshare Guide &nbsp;&middot;&nbsp; Owners Helping Owners' + (LIVE ? "" : ' &nbsp;&middot;&nbsp; <a href="' + ROOT + 'terms/">Terms of Use</a>') + '</div>'
+      + '<div class="copy">&copy; ' + now.getFullYear() + ' Your Timeshare Guide' + (LIVE ? "" : ' &nbsp;&middot;&nbsp; <a href="' + ROOT + 'terms/">Terms of Use</a>') + '</div>'
       + "</div></footer>";
   }
 
