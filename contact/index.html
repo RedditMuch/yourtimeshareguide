@@ -64,13 +64,14 @@
     e.preventDefault();
     if (!form.reportValidity()) return;
     err.hidden = true;
-    var data = Object.fromEntries(new FormData(form));
-    data.access_key = ACCESS_KEY;
-    data.subject = "Your Timeshare Guide: " + (data.subject || "New Message");
-    data.from_name = "Your Timeshare Guide";
-    data.replyto = data.email;
+    // Sent as form data, not JSON, so the browser makes one plain request (no permission check first).
+    var data = new FormData(form);
+    data.set("access_key", ACCESS_KEY);
+    data.set("subject", "Your Timeshare Guide: " + (data.get("subject") || "New Message"));
+    data.set("from_name", "Your Timeshare Guide");
+    data.set("replyto", data.get("email"));
     btn.disabled = true; btn.textContent = "Sending...";
-    fetch("https://api.web3forms.com/submit", { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify(data) })
+    fetch("https://api.web3forms.com/submit", { method: "POST", headers: { Accept: "application/json" }, body: data })
       .then(function (r) { return r.json(); })
       .then(function (res) {
         if (!res.success) throw new Error(res.message);
