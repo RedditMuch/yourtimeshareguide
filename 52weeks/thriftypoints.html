@@ -41,7 +41,7 @@ button:disabled{opacity:.5;cursor:default}
 table{border-collapse:collapse;width:100%;min-width:1000px;font-size:14px;table-layout:auto}
 td.res{min-width:130px;max-width:170px}td.nw{white-space:nowrap}td.n{white-space:nowrap;min-width:54px}td.bld{color:var(--mute);font-size:.9em;min-width:84px;max-width:110px}
 td.rt{max-width:160px}td.rt small{display:block;color:var(--mute);font-size:.8em;line-height:1.25}
-th[data-h="3"],td:nth-child(4){min-width:80px}th[data-h="4"],td:nth-child(5){min-width:60px}th[data-h="5"],td:nth-child(6){min-width:105px}th[data-h="2"]{min-width:130px}
+th[data-h="4"],td:nth-child(5){min-width:80px}th[data-h="5"],td:nth-child(6){min-width:60px}th[data-h="6"],td:nth-child(7){min-width:105px}th[data-h="3"]{min-width:130px}
 th,td{padding:6px 4px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
 th{background:var(--head);font-size:.82rem;white-space:nowrap;padding:0}
 th[aria-sort=ascending],th[aria-sort=descending]{background:#cfe0f3}
@@ -81,8 +81,7 @@ td.fit{background:#d4efe0;font-weight:700;box-shadow:inset 3px 0 0 var(--good)}
 button.more{all:unset;display:block;margin-top:4px;font-size:.8rem;font-weight:700;color:var(--stay);cursor:pointer;text-decoration:underline}
 button.more:focus-visible{outline:2px solid var(--stay);outline-offset:1px}
 tr.sub td{background:var(--head);font-size:.92em}tr.sub td.res{padding-left:14px;color:var(--mute)}
-td.left{white-space:nowrap}
-th.wrap button,th.wrap button .lbl{white-space:normal;line-height:1.15}th.wrap{min-width:62px;max-width:78px}
+td.left{white-space:nowrap}
 .notes p{margin:0 0 8px}.notes p:last-child{margin:0}
 .foot{color:var(--mute);font-size:.85rem;text-align:center;margin-top:20px}
 .printonly{display:none}
@@ -325,7 +324,7 @@ var tierOf = function (d) { return VIS_TIER || TIER_OF[d] || ''; };
 function setColumns() {
   var tr = $('tbl').querySelector('thead tr'), labels = headOf(VIS), r0 = firstRate(VIS);
   if (sortKey != null && sortKey >= labels.length) sortKey = null;
-  tr.innerHTML = labels.map(function (l, i) { var tier = i >= r0 ? tierOf(VIS[i - r0]) : ''; return '<th' + (i === 0 ? ' class="sea"' : i === 2 ? ' class="n wrap"' : i === 11 && r0 === 12 ? ' class="wrap"' : i === 1 || i === 10 || i >= r0 ? ' class="n"' : '') + ' data-h="' + i + '"' + '><button type="button" data-col="' + i + '">' + '<span class="lbl">' + esc(l) + '<span class="arr" aria-hidden="true"><i class="u"></i><i class="d"></i></span></span>' + (tier ? '<span class="tier"> ' + esc(tier) + '</span>' : '') + '</button></th>'; }).join('');
+  tr.innerHTML = labels.map(function (l, i) { var tier = i >= r0 ? tierOf(VIS[i - r0]) : ''; return '<th' + (i === 0 ? ' class="sea"' : i === 2 ? ' class="n"' : i === 1 || i === 10 || i >= r0 ? ' class="n"' : '') + ' data-h="' + i + '"' + '><button type="button" data-col="' + i + '">' + '<span class="lbl">' + ({ 'Points Left Over': 'Points<br>Left Over', 'VIP Discount Date': 'VIP Discount<br>Date' }[l] || esc(l)) + '<span class="arr" aria-hidden="true"><i class="u"></i><i class="d"></i></span></span>' + (tier ? '<span class="tier"> ' + esc(tier) + '</span>' : '') + '</button></th>'; }).join('');
   sortUI();
 }
 var pctOf = function (d) { return Math.round(d * 1000) / 10 + '%'; };

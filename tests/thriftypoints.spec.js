@@ -18,7 +18,7 @@ async function search(page, { points = "60,000", from, to, vip = "Show All Disco
 // Columns as rows() and heads() return them (they skip Points Left Over, the 3rd column on the page, and the More Dates button):
 // 0 Season, 1 Full Price, 2 Resort, 3 City, 4 State, 5 Room Type, 6 Building, 7 Check-In, 8 Check-Out, 9 Nights, 10 VIP Discount Date (only with VIP prices), 11.. discount columns
 const rows = page => page.$$eval("#body tr:not(.sub)", trs => trs.map(tr => [...tr.children].filter(td => !td.classList.contains("left")).map(td => { const c = td.cloneNode(true); c.querySelectorAll("button").forEach(b => b.remove()); return { t: c.textContent.trim(), fit: td.dataset.fit, cls: td.className }; })));
-const heads = page => page.$$eval("#tbl thead th", ths => ths.map(th => th.textContent.replace(/[▲▼⇅]/g, "").trim()).filter(t => t !== "Points Left Over"));
+const heads = page => page.$$eval("#tbl thead th", ths => ths.map(th => th.innerText.replace(/[▲▼⇅]/g, "").replace(/\s+/g, " ").trim()).filter(t => t !== "Points Left Over"));
 const col = (page, i) => page.locator('#tbl thead button[data-col="' + (i >= 2 ? i + 1 : i) + '"]');   // page column for a heads() index
 const sortOf = (page, i) => page.locator("#tbl thead th").nth(i >= 2 ? i + 1 : i).getAttribute("aria-sort");
 const daysOut = c => { const n = new Date(); return Math.round((dateOf(c[7].t) - Date.UTC(n.getFullYear(), n.getMonth(), n.getDate())) / 864e5); };
@@ -314,7 +314,7 @@ test("thriftypoints: starts for a new owner: Not VIP, 2 to 7 nights, Points Left
   await page.fill("#pts", "60,000");
   await page.click("#go");
   await expect(page.locator("#body tr").first()).toBeVisible();
-  const h = await page.$$eval("#tbl thead th", ths => ths.map(th => th.textContent.replace(/[▲▼⇅]/g, "").trim()));
+  const h = await page.$$eval("#tbl thead th", ths => ths.map(th => th.innerText.replace(/[▲▼⇅]/g, "").replace(/\s+/g, " ").trim()));
   expect(h.slice(0, 3)).toEqual(["Season", "Full Price", "Points Left Over"]);
   expect(h).not.toContain("VIP Discount Date");
   const cells = await page.$$eval("#body tr:not(.sub)", trs => trs.map(tr => [tr.children[1].textContent, tr.children[2].textContent, tr.children[10].textContent]));
