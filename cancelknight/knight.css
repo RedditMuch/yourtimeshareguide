@@ -1,0 +1,406 @@
+/* The Knight Move */
+.kn-idea{font-size:1.15rem;line-height:1.5;max-width:46rem;margin:0 0 16px}
+.kn-form{display:flex;flex-wrap:wrap;gap:12px 18px;align-items:flex-end;background:var(--card);border:2px solid var(--ink);padding:16px;margin:0 0 18px}
+.kn .field{flex:0 1 220px}
+.kn .field label{display:block;font-weight:700;font-size:1.05rem;margin-bottom:4px}
+.kn .field input{display:block;width:100%;min-height:50px;font:inherit;font-size:1.1rem;color:var(--ink);background:#fff;border:2px solid var(--ink);border-radius:0;padding:8px 12px}
+.kn .actions{display:flex;gap:10px;flex-wrap:wrap}
+.kn-btn{font:inherit;font-weight:800;min-height:50px;padding:8px 20px;border:2px solid var(--ink);background:var(--card);color:var(--ink);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center}
+.kn-btn.primary{background:var(--mustard)}
+.kn-btn:hover{background:var(--mustard-pale)}
+.kn-btn.primary:hover{background:var(--mustard-soft)}
+.kn-btn:disabled{opacity:.45;cursor:default}
+.kn-btn:focus-visible,.kn input:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+
+.kn-stage{background:#fff;border:2px solid var(--ink);padding:18px;box-shadow:8px 8px 0 var(--mustard);margin-bottom:22px}
+.kn-cap{margin:0 0 14px;min-height:3.2em;font-family:var(--serif);font-weight:800;font-size:1.35rem;line-height:1.25;color:var(--ink)}
+.kn-cap b{color:var(--red)}
+.kn-board-wrap{position:relative;max-width:720px;margin:0 auto}
+.kn-board{display:grid;grid-template-columns:minmax(52px,.95fr) minmax(34px,1fr) repeat(7,minmax(0,1.35fr));border:3px solid var(--ink);background:var(--ink);gap:0}
+.kn-h{background:var(--ink);color:var(--mustard-soft);font-weight:700;font-size:.82rem;text-align:center;padding:6px 1px;display:flex;align-items:center;justify-content:center;min-height:34px;line-height:1.1}
+.kn-h .short{display:none}
+.kn-h.edge{font-size:.68rem;background:#4a463e;color:#fff}
+.kn-lab{background:var(--paper2);color:var(--ink);font-weight:700;font-size:.72rem;line-height:1.15;display:flex;align-items:center;justify-content:center;text-align:center;padding:2px;border-top:1px solid var(--ink)}
+.kn-c{position:relative;height:78px;border-top:1px solid var(--ink);color:var(--ink)}
+.kn-c.lt{background:var(--mustard-pale)}
+.kn-c.dk{background:var(--mustard)}
+.kn-c.gr{background:#b9b5ab;color:#22211e;background-image:repeating-linear-gradient(135deg,rgba(34,33,30,.14) 0 5px,transparent 5px 10px)}
+.kn-n{position:absolute;left:5px;top:3px;font-weight:800;font-size:1.05rem;line-height:1}
+.kn-m{position:absolute;right:4px;bottom:3px;font-size:.62rem;font-weight:700;line-height:1}
+.kn-c.chk{outline:3px solid var(--ink);outline-offset:-3px}
+.kn-c.land{background:#ffd54a;box-shadow:inset 0 0 0 4px var(--red);animation:kn-glow 1.1s ease-in-out infinite alternate}
+.kn-c.land.gr{background:#ffd54a}
+@keyframes kn-glow{from{box-shadow:inset 0 0 0 4px var(--red),0 0 6px 2px rgba(255,213,74,.6)}to{box-shadow:inset 0 0 0 4px var(--red),0 0 18px 8px rgba(255,213,74,.95)}}
+
+.kn-path{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.kn-path path{fill:none;stroke:var(--red);stroke-width:4;stroke-dasharray:2 9;stroke-linecap:round}
+.kn-knight{position:absolute;left:0;top:0;width:0;height:0;pointer-events:none;opacity:0;transition:left .4s ease,top .4s ease,opacity .25s}
+.kn-knight svg{position:absolute;width:var(--kz,40px);height:var(--kz,40px);left:calc(var(--kz,40px) / -2 + 4px);top:calc(var(--kz,40px) / -2 + 5px);background:var(--ink);border-radius:50%;padding:3px;box-sizing:border-box;box-shadow:0 2px 5px rgba(0,0,0,.4);overflow:visible}
+.kn-knight.on{opacity:1}
+.kn-edge-note{margin:14px 0 0;font-size:.95rem;color:var(--ink2)}
+.kn-edge-note .sw{display:inline-block;width:14px;height:14px;background:#b9b5ab;border:1px solid var(--ink);vertical-align:-2px}
+.kn-text{margin-bottom:22px}
+.kn-text h2,.kn-more h2,.kn-gif h2{font-size:1.5rem;font-weight:800;border-bottom:2px solid var(--ink);padding-bottom:3px;margin:20px 0 8px}
+.kn-text ol{font-size:1.1rem;line-height:1.5;padding-left:1.4rem}
+.kn-text li{margin:6px 0}
+.kn-text .sub{margin:0 0 6px;color:var(--ink2)}
+.kn-warn{background:var(--red-pale);border:2px solid var(--red);padding:10px 14px;margin:14px 0}
+.kn-warn p{margin:0}
+.kn-more li{margin:6px 0;font-size:1.05rem}
+.kn-gif p{margin:0;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+
+/* Frame mode: used only to take the pictures for the animated file */
+body.kn-frame .mast,body.kn-frame footer,body.kn-frame nav,body.kn-frame .nav,body.kn-frame .crumb,body.kn-frame .tool-head,body.kn-frame .kn-idea,body.kn-frame .kn-form,body.kn-frame .kn-text,body.kn-frame .kn-more,body.kn-frame .kn-gif,body.kn-frame .kn-edge-note{display:none!important}
+body.kn-frame{background:#fff}
+body.kn-frame .wrap{padding:0;max-width:none}
+body.kn-frame .kn-stage{box-shadow:none;border:0;padding:10px 12px;margin:0;width:640px}
+body.kn-frame .kn-cap{font-size:1.2rem;min-height:2.6em;margin-bottom:8px}
+body.kn-frame .kn-board-wrap{max-width:none}
+body.kn-frame .kn-c{height:78px}
+body.kn-frame *{animation:none!important;transition:none!important}
+
+@media (max-width:600px){
+  .kn-stage{padding:10px;box-shadow:5px 5px 0 var(--mustard)}
+  .kn-cap{font-size:1.1rem}
+  .kn-h{font-size:.62rem;letter-spacing:-.02em}
+  .kn-h.edge{font-size:.52rem}
+  .kn-lab{font-size:.58rem}
+  .kn-n{font-size:.85rem;left:3px}
+  .kn-m{font-size:.5rem}
+  .kn-c{height:54px}
+  .kn-h .long{display:none}
+  .kn-h .short{display:inline}
+  .kn-btn{padding:8px 12px;min-height:46px}
+  .kn .field{flex:1 1 100%}
+}
+@media (prefers-reduced-motion:reduce){
+  .kn-knight{transition:none}
+  .kn-c.land{animation:none}
+}
+@media print{.kn-stage{box-shadow:none}.kn-c.land{animation:none}}
+body.kn-frame .kn-board{grid-template-columns:76px 60px repeat(7,minmax(0,1fr))}
+body.kn-frame .kn-stage{box-sizing:border-box}
+
+/* Labels inside the two squares */
+.kn-c.chk::after,.kn-c.land::after{position:absolute;left:0;right:0;bottom:3px;text-align:center;font-weight:800;font-size:.68rem;line-height:1.05;color:var(--ink)}
+.kn-c.chk::after{content:"Check-In"}
+.kn-c.land::after{content:"By 11:59 PM";color:#a8321f}
+.kn-c.chk .kn-m,.kn-c.land .kn-m{display:none}
+@media (max-width:600px){.kn-c.chk::after,.kn-c.land::after{font-size:.47rem;bottom:1px;letter-spacing:-.02em}}
+
+/* Four month view */
+.kn4 h2{font-size:1.5rem;font-weight:800;margin:0 0 6px}
+.kn4 .k4-intro{margin:0 0 12px;font-size:1.05rem}
+.kn4 .k4-ui{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 12px}
+.kn4 .kn-cap{min-height:2.6em;position:sticky;top:0;background:#fff;z-index:2;padding:4px 0}
+.k4-months{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.k4-m h3{margin:0 0 4px;font-family:var(--serif);font-size:1.15rem}
+.k4-g{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border:2px solid var(--ink);background:var(--ink);gap:1px}
+.k4-h{background:var(--ink);color:var(--mustard-soft);font-weight:700;font-size:.72rem;text-align:center;padding:3px 0}
+.k4-h .short{display:none}
+.k4-e{background:var(--paper2)}
+.k4-c{position:relative;background:var(--mustard-pale);height:46px;color:var(--ink)}
+.k4-c.we{background:#f1e2b0}
+.k4-c span{position:absolute;left:3px;top:2px;font-weight:800;font-size:.85rem;line-height:1}
+.k4-c.in{outline:3px solid var(--ink);outline-offset:-3px;z-index:1}
+.k4-c.out{background:#ffd54a;box-shadow:inset 0 0 0 3px var(--red);z-index:1}
+.k4-c.out.cur{animation:kn-glow 1.1s ease-in-out infinite alternate}
+.k4-c.in::after,.k4-c.out::after{position:absolute;left:0;right:0;bottom:2px;text-align:center;font-weight:800;font-size:.58rem;line-height:1.05}
+.k4-c.in::after{content:"Check-In"}
+.k4-c.out::after{content:"By 11:59 PM";color:#a8321f}
+.kn4 .kn-path path.old{stroke-width:2;opacity:.45}
+.kn4 .kn-path path{stroke-width:3}
+.k4-legend{margin:12px 0 0;font-size:.95rem;color:var(--ink2);display:flex;gap:16px;flex-wrap:wrap}
+.k4-legend .a,.k4-legend .b{display:inline-block;width:16px;height:16px;vertical-align:-3px;margin-right:4px;border:2px solid var(--ink);background:var(--mustard-pale)}
+.k4-legend .b{background:#ffd54a;border-color:var(--red)}
+@media (max-width:700px){
+  .k4-months{grid-template-columns:1fr;gap:12px}
+  .k4-c{height:44px}
+  .kn4 .kn-cap{font-size:1rem}
+  .k4-c.in::after,.k4-c.out::after{font-size:.5rem;bottom:1px;letter-spacing:-.02em}
+}
+.kn-video{margin-bottom:22px}
+.kn-video h2{font-size:1.5rem;font-weight:800;border-bottom:2px solid var(--ink);padding-bottom:3px;margin:20px 0 8px}
+.kn-video video{display:block;width:100%;max-width:720px;height:auto;background:#22211e;border:2px solid var(--ink)}
+.kn-video .links{display:flex;gap:12px;flex-wrap:wrap;margin:12px 0}
+.kn-video details{max-width:46rem;border:2px solid var(--ink);background:var(--card);padding:8px 14px}
+.kn-video summary{font-weight:800;cursor:pointer;min-height:36px;display:flex;align-items:center}
+.kn-video details p{margin:8px 0;line-height:1.5}
+
+/* Video frames: the same view, larger, for the explainer video */
+body.kn-frame .kn-video,body.kn-frame .kn4 .k4-ui,body.kn-frame .kn4 h2,body.kn-frame .kn4 .k4-intro{display:none!important}
+body.kn-frame:not(.kn-four) .kn4{display:none!important}
+body.kn-four #kn-main{display:none!important}
+body.kn-vid{margin:0;overflow:hidden;background:#f7f3e9}
+body.kn-vid .kn-stage{width:1280px;height:720px;background:transparent;padding:22px 36px}
+body.kn-vid .kn-cap{font-size:2.3rem;min-height:2.5em;margin-bottom:10px;text-align:center}
+body.kn-vid .kn-board{grid-template-columns:128px 112px repeat(7,minmax(0,1fr))}
+body.kn-vid .kn-h{font-size:1.05rem;min-height:46px}
+body.kn-vid .kn-h.edge{font-size:.85rem}
+body.kn-vid .kn-lab{font-size:.95rem}
+body.kn-vid .kn-c{height:128px}
+body.kn-vid .kn-n{font-size:1.7rem;left:9px;top:6px}
+body.kn-vid .kn-m{font-size:.9rem}
+body.kn-vid .kn-c.chk::after,body.kn-vid .kn-c.land::after{font-size:1.05rem;bottom:6px}
+body.kn-vid .kn-vfoot{margin:22px 0 0;text-align:center;font-family:var(--serif);font-weight:700;font-size:2rem;color:var(--ink);min-height:1.3em}
+body.kn-vid .kn-vfoot .r{color:var(--red)}
+body.kn-vid.kn-four .kn4{display:block!important;padding:14px 30px}
+body.kn-vid.kn-four .kn-cap{font-size:1.9rem;min-height:1.5em;margin:0 0 8px;position:static}
+body.kn-vid.kn-four .k4-months{gap:10px 28px}
+body.kn-vid.kn-four .k4-m h3{font-size:1.1rem;margin:0 0 2px}
+body.kn-vid.kn-four .k4-h{font-size:.8rem;padding:2px 0}
+body.kn-vid.kn-four .k4-c{height:39px}
+body.kn-vid.kn-four .k4-c span{font-size:.9rem}
+body.kn-vid.kn-four .k4-c.in::after,body.kn-vid.kn-four .k4-c.out::after{font-size:.68rem;bottom:2px}
+body.kn-vid.kn-four .k4-legend{margin-top:8px;justify-content:center;font-size:1.05rem}
+.kn4 .kn-knight{z-index:4}.kn4 .kn-path{z-index:3}
+body.kn-vid.kn-four .kn-cap{background:transparent}
+
+/* Four month view as one running calendar (replaces the month boxes) */
+.k4-cal{display:grid;grid-template-columns:minmax(30px,.8fr) repeat(7,minmax(0,1fr));border:2px solid var(--ink);background:var(--ink);gap:1px}
+.k4-cal .k4-h{background:var(--ink)}
+.k4-gut{background:#fff;position:relative}
+.k4-gut.ghost{background:#b9b5ab;background-image:repeating-linear-gradient(135deg,rgba(34,33,30,.14) 0 5px,transparent 5px 10px);outline:2px dashed var(--red);outline-offset:-3px}
+.k4-gut span{position:absolute;left:0;right:0;top:50%;margin-top:-.6em;text-align:center;font-weight:800;font-size:1.1rem;line-height:1.2;color:var(--red);animation:k4-pop .45s ease-out}
+@keyframes k4-pop{0%{transform:scale(0)}70%{transform:scale(1.5)}100%{transform:scale(1)}}
+.k4-cal .k4-c{height:40px}
+.k4-c.m1{background:#f1e2b0}
+.k4-c.off{background:var(--paper2);color:#8a857a}
+.k4-c.first{box-shadow:inset 3px 0 0 var(--ink),inset 0 3px 0 var(--ink)}
+.k4-c em{position:absolute;right:2px;top:2px;font-style:normal;font-size:.6rem;font-weight:800;line-height:1;background:var(--ink);color:var(--mustard-soft);padding:2px 4px;letter-spacing:.04em}
+.k4-c.in em,.k4-c.out em{display:none}
+@media (max-width:700px){.k4-cal .k4-c{height:38px}.k4-c em{font-size:.5rem;padding:1px 2px}}
+@media (prefers-reduced-motion:reduce){.k4-gut span{animation:none}}
+.k4-c.out.first{box-shadow:inset 0 0 0 3px var(--red)}
+
+/* Plain calendar look for the four month view (2026-10-22): no outlines, dots or colors except the brief flash */
+.k4-cal{grid-template-columns:repeat(7,minmax(0,1fr));border:1px solid #c9c4b8;background:#c9c4b8;margin-left:12%}
+.k4-cal .k4-h{background:#fff;color:var(--ink);font-weight:700;font-size:.8rem;padding:6px 0}
+.k4-cal .k4-c{background:#fff;height:44px;box-shadow:none}
+.k4-cal .k4-c.off{background:#fff;color:#b5b0a5}
+.k4-cal .k4-c span{font-weight:600;font-size:.9rem}
+.k4-cal .k4-c.flash{animation:k4-flash 1.1s ease-in-out}
+@keyframes k4-flash{25%,60%{background:#ffd54a}}
+.k4-cal .k4-c.lin::after,.k4-cal .k4-c.lout::after{position:absolute;left:0;right:0;bottom:3px;text-align:center;font-weight:800;font-size:.66rem;line-height:1.05;color:var(--ink)}
+.k4-cal .k4-c.lin::after{content:"Check-In"}
+.k4-cal .k4-c.lout::after{content:"By 11:59 PM"}
+.k4-ghost{position:absolute;box-sizing:border-box;border:2px dashed #b5b0a5;color:#8a857a;font-weight:700;font-size:.9rem;padding:2px 4px;animation:k4-pop .4s ease-out}
+.k4-ghost[hidden]{display:none}
+.kn4 .kn-path path.k4-arrow{stroke:var(--ink);stroke-width:2.5;stroke-dasharray:none;fill:none}
+.kn4 .kn-path marker path{fill:var(--ink);stroke:none}
+@media (max-width:700px){.k4-cal{margin-left:14%}.k4-cal .k4-c{height:40px}.k4-cal .k4-c.lin::after,.k4-cal .k4-c.lout::after{font-size:.5rem;bottom:1px}}
+@media (prefers-reduced-motion:reduce){.k4-cal .k4-c.flash{animation:none;background:#ffd54a}}
+
+/* Three months (2026-10-22): squarer cells so the labels show, light shading on every other month */
+#kn4-wrap{max-width:540px}
+.k4-cal .k4-c{height:60px}
+.k4-cal .k4-c.m1{background:#f6edd2}
+.k4-cal .k4-c.lin::after,.k4-cal .k4-c.lout::after{font-size:.74rem;bottom:4px;z-index:5}
+@media (max-width:700px){.k4-cal .k4-c{height:50px}.k4-cal .k4-c.lin::after,.k4-cal .k4-c.lout::after{font-size:.56rem;bottom:2px;letter-spacing:-.02em}}
+
+/* Last day label: red, smaller, one line (2026-10-22) */
+.k4-cal .k4-c.lout::after{color:#a8321f;font-size:.64rem;white-space:nowrap;letter-spacing:-.01em}
+@media (max-width:700px){.k4-cal .k4-c.lout::after{font-size:.48rem;letter-spacing:-.03em}}
+
+/* Last day label: "Cancel" over "by 11:59 PM", red, small (2026-10-22) */
+.k4-cal .k4-c.lout::after{content:"Cancel\A by 11:59 PM";white-space:pre;line-height:1.1;font-size:.62rem}
+@media (max-width:700px){.k4-cal .k4-c.lout::after{font-size:.48rem}}
+.kn4 .kn-path path:not(.k4-arrow){stroke-width:3;stroke-dasharray:2 7}
+
+/* Page title like the video's title card: knight badge, and a red proofreader insert mark adding "Cancellation" (2026-10-22) */
+.tool-head.kn-hero{display:block;text-align:center;padding-bottom:18px}
+.kn-badge{width:84px;height:84px;margin:4px auto 0;border-radius:50%;background:var(--ink);box-shadow:6px 6px 0 var(--mustard);padding:8px;box-sizing:border-box}
+.kn-badge svg{display:block;width:100%;height:100%}
+.kn-hero h1{font-size:clamp(2.3rem,7.5vw,4rem);line-height:1;padding-top:.8em}
+.kn-hero .lead{margin:16px auto 0;font-size:1.25rem;font-weight:600;color:var(--ink)}
+.kn-ins{position:relative;display:inline-block;width:.25em}
+.kn-caret{position:absolute;left:50%;top:-.18em;width:.34em;height:.3em;margin-left:-.17em;overflow:visible}
+.kn-caret path{fill:none;stroke:var(--red);stroke-width:5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:80;animation:kn-draw .4s ease-out .5s both}
+.kn-insw{position:absolute;left:50%;bottom:1.1em;transform:translateX(-62%) rotate(-4deg);font-family:Caveat,cursive;font-weight:700;font-size:.73em;line-height:1;color:var(--red);white-space:nowrap;animation:kn-write 1s ease-out .9s both}
+@keyframes kn-draw{from{stroke-dashoffset:80}to{stroke-dashoffset:0}}
+@keyframes kn-write{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+@media (prefers-reduced-motion:reduce){.kn-caret path,.kn-insw{animation:none}}
+
+/* Answer box next to the date: the last day to cancel, right away (2026-10-22) */
+.kn-result{flex:0 1 auto;min-height:50px;border:2px solid var(--red);background:#fff;padding:6px 16px;display:flex;flex-direction:column;justify-content:center;line-height:1.2}
+.kn-result span{font-size:.85rem;font-weight:700;color:var(--ink2)}
+.kn-result span:first-child{text-transform:none;color:var(--ink)}
+.kn-result b{font-family:var(--serif);font-size:1.45rem;font-weight:800;color:var(--red)}
+@media (max-width:600px){.kn-result{flex:1 1 100%}}
+
+/* Shorter header: knight badge beside the title, not above it; intro paragraph uses the full width (2026-10-22) */
+.tool-head.kn-hero{display:grid;grid-template-columns:auto auto;justify-content:center;align-items:center;column-gap:24px;text-align:left;padding-bottom:14px}
+.kn-hero .kn-badge{grid-row:1 / span 2;margin:0;align-self:end}
+.kn-hero h1{padding-top:.7em}
+.kn-hero .lead{margin:8px 0 0}
+.kn-idea{max-width:none}
+@media (max-width:600px){
+  .tool-head.kn-hero{column-gap:12px}
+  .kn-hero .kn-badge{width:56px;height:56px;padding:5px;box-shadow:4px 4px 0 var(--mustard)}
+  .kn-hero h1{font-size:2rem}
+  .kn-hero .lead{font-size:1rem}
+}
+
+/* ---- Layout pass (2026-10-23) ---- */
+/* Title: caret a bit higher, the word a bit to the right, subtitle centered under the title */
+.kn-caret{top:-.3em}
+.kn-insw{transform:translateX(-44%) rotate(-4deg)}
+.kn-hero .lead{text-align:center}
+
+/* Answer: its label sits above the box like the Check-In Date label; the date and time centered inside */
+.kn-answer{flex:0 1 240px}
+.kn-alabel{display:block;font-weight:700;font-size:1.05rem;margin-bottom:4px}
+.kn-result{text-align:center;align-items:center;padding:4px 14px}
+.kn-result b{line-height:1.1}
+.kn-result span{font-size:.85rem;font-weight:700;color:var(--ink2)}
+
+/* The one button: black and gold like the site's Menu button, with a small knight */
+.kn-btn.go{background:var(--ink);color:#f9edc8;border-color:var(--ink);gap:10px;padding:8px 22px 8px 16px}
+.kn-btn.go::before{content:"";width:26px;height:26px;flex:none;background:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 45 45'%3E%3Cg fill='%23e0a81e' stroke='%23e0a81e' stroke-width='1.2' stroke-linejoin='round'%3E%3Cpath d='M22 10c10.5 1 16.5 8 16 29H15c0-9 10-6.5 8-21'/%3E%3Cpath d='M24 18c.38 2.91-5.55 7.37-8 9-3 2-2.82 4.34-5 4-1.04-.94 1.41-3.04 0-3-1 0 .19 1.23-1 2-1 0-4.003 1-4-4 0-2 6-12 6-12s1.89-1.9 2-3.5c-.73-.994-.5-2-.5-3 1-1 3 2.5 3 2.5h2s.78-1.992 2.5-3c1 0 1 3 1 3'/%3E%3C/g%3E%3C/svg%3E")}
+.kn-btn.go:hover{background:#3a3832;color:#fff}
+
+/* Board on the left, the words on the right */
+.kn-main{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:16px 26px;align-items:start}
+.kn-main .kn-board-wrap{max-width:none}
+.kn-main .kn-c{height:68px}
+.kn-side .kn-cap{min-height:2.6em;margin:0 0 10px;font-size:1.25rem}
+.kn-side h2{font-size:1.2rem;border-bottom:2px solid var(--ink);margin:6px 0 6px;padding-bottom:2px}
+.kn-side ol{font-size:1rem;margin:0;padding-left:1.3rem}
+.kn-side li{margin:5px 0;padding:2px 6px;border-left:4px solid transparent}
+.kn-side li.on{background:var(--mustard-pale);border-left-color:var(--red)}
+.kn-side .kn-warn{font-size:.95rem;margin:12px 0 8px}
+.kn-side .cite{font-size:.85rem;margin:0}
+.kn-text{margin-bottom:0}
+
+/* More Practice and the video side by side */
+.kn-pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;align-items:start;margin-bottom:22px}
+.kn-pair .kn-stage{margin-bottom:0}
+.kn-pair #kn4-wrap{max-width:100%}
+.kn-video h2{border:0;margin:0 0 10px;padding:0}
+.kn-video video{max-width:none;margin-bottom:12px}
+
+@media (max-width:980px){
+  .kn-main,.kn-pair{grid-template-columns:minmax(0,1fr)}
+  .kn-pair{gap:0}
+  .kn-pair .kn-stage{margin-bottom:22px}
+}
+@media (max-width:600px){
+  .kn-answer{flex:1 1 100%}
+  .kn-main .kn-c{height:54px}
+}
+/* Caption: beside the board on wide screens, above it on phones so it stays in view */
+.kn-main{grid-template-areas:"board cap" "board side";grid-template-rows:auto 1fr}
+.kn-main .kn-left{grid-area:board}
+.kn-main > .kn-cap{grid-area:cap;min-height:2.6em;margin:0;font-size:1.25rem}
+.kn-main .kn-side{grid-area:side}
+@media (max-width:980px){.kn-main{grid-template-areas:"cap" "board" "side";grid-template-rows:auto}}
+/* Form: labels on one line, button at the bottom */
+.kn-form{align-items:flex-start}
+.kn .actions{align-self:flex-end}
+.kn-result{box-sizing:border-box;min-height:54px}
+/* Show Me the Trick sits in the board's box, centered under the board (2026-10-23) */
+.kn-go{display:flex;justify-content:center;margin:14px 0 0}
+/* Header: knight badge and title on one line; the old subtitle is now the heading of the paragraph (2026-10-23) */
+.tool-head.kn-hero{display:flex;justify-content:center;align-items:flex-end;gap:22px;padding-bottom:16px}
+.kn-hero .kn-badge{width:76px;height:76px;flex:none;margin:0 0 -2px}
+.kn-idea-h{font-size:1.5rem;font-weight:800;margin:0 0 6px}
+@media (max-width:600px){
+  .tool-head.kn-hero{gap:12px}
+  .kn-hero .kn-badge{width:50px;height:50px;padding:5px}
+  .kn-idea-h{font-size:1.25rem}
+}
+/* Date and answer live in the board's box, top of the right column (2026-10-23) */
+.kn-main{grid-template-areas:"board form" "board cap" "board side";grid-template-rows:auto auto 1fr}
+.kn-main .kn-form{grid-area:form;background:none;border:0;padding:0 0 12px;margin:0;border-bottom:2px solid var(--ink);gap:12px 14px}
+.kn-main .kn-form .field{flex:1 1 150px}
+.kn-main .kn-answer{flex:1 1 170px}
+.kn-main > .kn-cap{min-height:0}
+@media (max-width:980px){.kn-main{grid-template-areas:"form" "cap" "board" "side";grid-template-rows:auto}}
+.kn-main .kn-form .field,.kn-main .kn-answer{flex:1 1 100%}
+.kn-main .kn-result b{white-space:nowrap}
+
+/* ---- Layout pass 2 (2026-10-23) ---- */
+/* Title: no double rule under it; caret skinnier and closer to "Cancellation" */
+.tool-head.kn-hero{border-bottom:0;padding-bottom:0;margin-bottom:26px}
+.kn-caret{top:-.42em}
+.kn-idea-h{margin-top:0}
+
+/* Board box: left = date, answer, button, caption, board; right = the steps; the video goes under the board (after the steps when one column) */
+.kn-main{grid-template-areas:none;grid-template-rows:auto;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)}
+.kn-main .kn-left,.kn-main .kn-side{grid-area:auto}
+.kn-main .kn-form{grid-area:auto;border-bottom:0;padding:0;margin:0 0 12px;display:flex;flex-wrap:wrap;gap:12px 18px;align-items:flex-start}
+.kn-main .kn-form .field{flex:1 1 200px}
+.kn-main .kn-answer{flex:1 1 220px}
+.kn-go{margin:0 0 12px}
+.kn-left > .kn-cap{min-height:2.6em;margin:0 0 10px;font-size:1.25rem;text-align:center}
+.kn-main .kn-video{margin:22px 0 0}
+.kn-main .kn-video h2{font-size:1.3rem;margin:0 0 8px}
+.kn-main .kn-video video{max-width:none;width:100%}
+.kn-side h2:first-child{margin-top:0}
+@media (max-width:980px){.kn-main{grid-template-columns:minmax(0,1fr)}}
+
+/* More Practice: full width, Play beside the heading, calendar centered in the box */
+.k4-top{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin:0 0 6px}
+.k4-top h2{margin:0}
+.kn-btn.go.small{min-height:38px;padding:4px 16px 4px 12px;font-size:.95rem}
+.kn-btn.go.small::before{width:20px;height:20px}
+#kn4-wrap{max-width:660px;margin:0 auto;padding:0 78px;box-sizing:border-box}
+.k4-cal{margin-left:0}
+@media (max-width:700px){#kn4-wrap{padding:0 13%}.k4-cal{margin-left:0}}
+
+/* Caret pass (2026-10-23): higher, centered in the gap between "The" and "Knight" */
+.kn-caret{top:-.72em;margin-left:-.05em}
+
+/* More Practice: the check-in day stays yellow from before the knight arrives until the next example (2026-10-23) */
+.k4-cal .k4-c.hl{background:#ffd54a;transition:background .2s}
+
+/* Calculator panel (2026-10-23): its own pale box with numbered steps, so the date box reads as something to fill in */
+.kn-calc{background:var(--mustard-pale);border:2px solid var(--ink);box-shadow:5px 5px 0 var(--mustard);padding:14px 18px 16px;margin:0 0 24px}
+.kn-calc-h{font-family:var(--serif);font-weight:800;font-size:1.35rem;line-height:1.2;margin:0 0 12px}
+.kn-main .kn-calc .kn-form{margin:0;flex-wrap:nowrap;align-items:flex-end;gap:12px 14px}
+.kn-step{display:inline-flex;align-items:center;justify-content:center;width:1.55em;height:1.55em;border-radius:50%;background:var(--ink);color:#f9edc8;font-size:.8rem;font-weight:800;margin-right:7px;vertical-align:2px}
+.kn-calc .field input{border-width:3px;box-shadow:inset 0 2px 5px rgba(0,0,0,.14);font-size:1.2rem;font-weight:600;min-height:54px;cursor:pointer}
+.kn-calc .field input:hover{background:#fffdf3}
+.kn-arrow{flex:none;align-self:flex-end;font-size:1.9rem;font-weight:800;line-height:54px}
+.kn-calc .kn-result{background:#fff}
+.kn-calc .kn-go{margin:14px 0 0}
+@media (max-width:600px){.kn-main .kn-calc .kn-form{flex-wrap:wrap}.kn-arrow{display:none}.kn-calc{padding:12px}}
+
+/* Good news box (points come back) in green above the red forfeit box; sources listed one per line (2026-10-23) */
+.kn-good{background:#e9f3ea;border:2px solid var(--green);padding:10px 14px;margin:12px 0 8px;font-size:.95rem}
+.kn-good p{margin:0}
+.kn-good strong{color:var(--green)}
+.kn-side .kn-good + .kn-warn{margin-top:0}
+.kn-side .cite{line-height:1.7}
+.kn-src-h{display:block;font-weight:700;color:var(--ink)}
+.kn-calc-h{margin-bottom:2px}
+.kn-calc-how{margin:0 0 12px;font-size:1rem;color:var(--ink2)}
+
+/* Empty date box: grey mm/dd/yyyy and a grey prompt in the answer box; trick button under its own heading (2026-10-23) */
+.kn-calc .field input.empty{color:#9a958a;font-weight:500}
+.kn-none{font-size:1rem!important;font-weight:600!important;color:#6b665b!important}
+.kn-trick{text-align:center;margin:0 0 6px}
+.kn-trick-h{font-family:var(--serif);font-weight:800;font-size:1.35rem;margin:0 0 10px}
+.kn-trick .kn-go{margin:0}
+.kn-calc .field input{margin:0}
+.kn-trick{text-align:left}
+.kn-trick .kn-go{justify-content:flex-start}
+.kn-trick{padding-left:20px}
+
+/* Typed date box (mm/dd/yy) with a calendar button; the real date picker is a hidden date box under the button (2026-10-23) */
+.kn-dbox{position:relative}
+.kn-calc .field .kn-dbox input#kn-date{padding-right:52px}
+.kn-calc .field input::placeholder{color:#9a958a;opacity:1;font-weight:500}
+.kn-pick{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:42px;height:42px;display:flex;align-items:center;justify-content:center;background:none;border:0;cursor:pointer;color:var(--ink);padding:0}
+.kn-pick:hover{background:var(--mustard-pale)}
+.kn-pick:focus-visible{outline:3px solid var(--red);outline-offset:0}
+.kn-pick svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.kn-calc .field input.kn-pickin{position:absolute;right:0;bottom:0;width:42px!important;height:1px;min-height:0;padding:0;border:0;opacity:0;pointer-events:none;box-shadow:none}
+.kn-trick-h{line-height:1.2}
+
+/* Exceptions for late bookings (26/27 Directory - Page 282), under the red box (2026-10-23) */
+.kn-exc{background:var(--mustard-pale);border:2px solid var(--ink);padding:10px 14px;margin:0 0 8px;font-size:.95rem}
+.kn-exc-h{font-weight:800;margin:0 0 4px}
+.kn-exc ul{margin:0;padding-left:1.2rem}
+.kn-exc li{margin:4px 0}
+.kn-side .kn-warn{margin-bottom:8px}

@@ -2,7 +2,7 @@
 // city data is still loading, and a generous speed check.
 import { test, expect } from "@playwright/test";
 
-const URL = "/52weeks/seasons-v2.html";
+const URL = "/52weeks/";
 const slow = (page, file, ms) => page.route(`**/52weeks/${file}`, async route => { await new Promise(r => setTimeout(r, ms)); await route.continue(); });
 const settled = page => page.waitForFunction(() => document.getElementById("gridWrap").getAttribute("aria-busy") !== "true");
 

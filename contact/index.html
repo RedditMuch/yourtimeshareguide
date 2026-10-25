@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Contact | Your Timeshare Guide</title>
+<meta name="description" content="Send the owner of Your Timeshare Guide a question or a correction.">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,700;1,600&family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,800;0,900;1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/site.css">
+<style>
+  /* Contact form */
+  .cf{display:grid;gap:14px;max-width:640px}
+  .cf label{display:block;font-weight:700;margin-bottom:4px}
+  .cf .req{color:var(--ink2);font-weight:500;font-size:.9rem}
+  .cf input,.cf textarea{font:inherit;font-size:1rem;color:var(--ink);background:var(--card);border:1.5px solid var(--ink);padding:8px 10px;border-radius:0;width:100%;box-sizing:border-box}
+  .cf textarea{min-height:170px;resize:vertical}
+  .cf .send{justify-self:start;font:inherit;font-weight:800;font-size:1rem;background:var(--ink);color:var(--mustard);border:2px solid var(--ink);padding:10px 26px;cursor:pointer}
+  .cf .send:hover{background:var(--mustard);color:var(--ink)}
+  .cf-done{display:none}
+  .cf-done.on{display:block}
+  .cf-err{color:var(--red);font-weight:700;margin:12px 0 0}
+</style>
+</head>
+<body data-tab="contact">
+<div id="site-header"></div>
+<main>
+  <div class="wrap">
+    <div class="page-head">
+      <h1>Contact</h1>
+      <div class="question">Spotted a mistake? Have a question?</div>
+    </div>
+    <div class="card gold">
+      <form class="cf" id="cf" novalidate>
+        <input type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" style="display:none">
+        <div><label for="cf-name">Your Name <span class="req">(Required)</span></label><input id="cf-name" name="name" autocomplete="name" required></div>
+        <div><label for="cf-email">Your Email Address <span class="req">(Required)</span></label><input id="cf-email" name="email" type="email" autocomplete="email" required></div>
+        <div><label for="cf-subject">Subject</label><input id="cf-subject" name="subject"></div>
+        <div><label for="cf-message">Message <span class="req">(Required)</span></label><textarea id="cf-message" name="message" required></textarea></div>
+        <button type="submit" class="send">Send Message</button>
+      </form>
+      <p class="cf-err" id="cf-err" role="alert" hidden></p>
+      <div class="cf-done" id="cf-done" role="status">
+        <h2>Thank You</h2>
+        <p>Your message was sent. We'll reply to the email address you gave.</p>
+      </div>
+    </div>
+    <div class="prose">
+      <p>This site cannot book, change or look up reservations. Please don't send your owner number, password or payment details. For your own account, contact Club Wyndham directly through <a href="https://clubwyndham.wyndhamdestinations.com/us/en/help" target="_blank" rel="noopener">Club Wyndham Help</a>.</p>
+    </div>
+  </div>
+</main>
+<div id="site-footer"></div>
+<script src="../assets/site.js"></script>
+<script>
+  // Messages go to the owner by email through Web3Forms (web3forms.com). The access key only lets this form send to the
+  // owner's address; it is not a password. Replace ACCESS_KEY with the key from the Web3Forms account.
+  var ACCESS_KEY = "PASTE-WEB3FORMS-KEY-HERE";
+  var form = document.getElementById("cf"), err = document.getElementById("cf-err"), btn = form.querySelector(".send");
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (!form.reportValidity()) return;
+    err.hidden = true;
+    var data = Object.fromEntries(new FormData(form));
+    data.access_key = ACCESS_KEY;
+    data.subject = "Your Timeshare Guide: " + (data.subject || "New Message");
+    data.from_name = "Your Timeshare Guide";
+    data.replyto = data.email;
+    btn.disabled = true; btn.textContent = "Sending...";
+    fetch("https://api.web3forms.com/submit", { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify(data) })
+      .then(function (r) { return r.json(); })
+      .then(function (res) {
+        if (!res.success) throw new Error(res.message);
+        form.style.display = "none";
+        document.getElementById("cf-done").classList.add("on");
+      })
+      .catch(function () {
+        err.textContent = "Sorry, your message could not be sent. Please try again in a few minutes.";
+        err.hidden = false;
+        btn.disabled = false; btn.textContent = "Send Message";
+      });
+  });
+</script>
+</body>
+</html>

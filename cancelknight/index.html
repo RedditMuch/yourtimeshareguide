@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>The Cancellation Knight Move | Your Timeshare Guide</title>
+<meta name="description" content="How do I find my last day to cancel? Put a chess knight on your check-in day, move it up two rows and left one square.">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Cormorant+Garamond:ital,wght@0,700;1,600&family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,800;0,900;1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/site.css">
+<link rel="stylesheet" href="knight.css">
+</head>
+<body class="kn" data-tab="planastay">
+<div id="site-header"></div>
+<main>
+  <div class="wrap">
+    <p class="crumb"><a href="../">Home</a> &rsaquo; The Cancellation Knight Move</p>
+    <div class="tool-head kn-hero">
+      <div class="kn-badge" aria-hidden="true"><svg viewBox="0 0 45 45" focusable="false"><g fill="#f9edc8" stroke="#f9edc8" stroke-width="1.2" stroke-linejoin="round"><path d="M22 10c10.5 1 16.5 8 16 29H15c0-9 10-6.5 8-21"/><path d="M24 18c.38 2.91-5.55 7.37-8 9-3 2-2.82 4.34-5 4-1.04-.94 1.41-3.04 0-3-1 0 .19 1.23-1 2-1 0-4.003 1-4-4 0-2 6-12 6-12s1.89-1.9 2-3.5c-.73-.994-.5-2-.5-3 1-1 3 2.5 3 2.5h2s.78-1.992 2.5-3c1 0 1 3 1 3"/></g><circle cx="9.5" cy="25.5" r="1.4" fill="#22211e"/><circle cx="14" cy="15.7" r="1.2" fill="#22211e"/></svg></div>
+      <h1>The<span class="kn-ins"><svg class="kn-caret" viewBox="0 0 40 34" aria-hidden="true" focusable="false"><path d="M11 31 L20 4 L29 31"/></svg> <span class="kn-insw">Cancellation</span></span> Knight Move</h1>
+    </div>
+
+    <h2 class="kn-idea-h">How Do I Find My Last Day to Cancel?</h2>
+    <p class="kn-idea">Use the calendar like a chess board. Put your knight on the check-in day. Move it the way a knight moves: up two rows and left one square. That square is the last day to cancel, by 11:59 p.m. ET. Up two rows is 14 days earlier, and left one is one more day, so it is always 15 days before check-in.</p>
+
+    <section class="kn-stage kn-main" id="kn-main" aria-label="Calendar Chess Board">
+      <div class="kn-left">
+        <div class="kn-calc no-print">
+        <p class="kn-calc-h">Find Your Last Day to Cancel</p>
+        <p class="kn-calc-how">Choose your check-in date.</p>
+        <form class="kn-form" id="kn-form" novalidate aria-label="Check-In Date" onsubmit="return false">
+          <div class="field"><label for="kn-date"><span class="kn-step" aria-hidden="true">1</span>Enter Your Check-In Date</label><div class="kn-dbox"><input type="text" id="kn-date" inputmode="numeric" placeholder="mm/dd/yy" autocomplete="off" maxlength="10"><button type="button" class="kn-pick" id="kn-pickbtn" aria-label="Pick a Date From a Calendar" title="Pick a Date From a Calendar"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="1.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></button><input type="date" id="kn-pick" class="kn-pickin" tabindex="-1" aria-hidden="true"></div></div>
+          <div class="kn-arrow" aria-hidden="true">&rarr;</div>
+          <div class="field kn-answer"><span class="kn-alabel" id="kn-alabel"><span class="kn-step" aria-hidden="true">2</span>Your Last Day to Cancel</span><div class="kn-result" id="kn-result" role="status" aria-live="polite" aria-labelledby="kn-alabel"></div></div>
+        </form>
+        </div>
+        <div class="kn-trick no-print">
+          <h2 class="kn-trick-h">Skip the Counting: Use the Knight Move</h2>
+          <div class="kn-go"><button type="button" class="kn-btn go" id="kn-play">Watch the Knight Move</button></div>
+        </div>
+        <p class="kn-cap" id="kn-cap" role="status" aria-live="polite"></p>
+        <div class="kn-board-wrap" id="kn-wrap">
+          <div class="kn-board" id="kn-board"></div>
+          <svg class="kn-path" id="kn-path" aria-hidden="true" focusable="false"></svg>
+          <div class="kn-knight" id="kn-knight" aria-hidden="true"><svg viewBox="0 0 45 45" focusable="false"><g fill="#f9edc8" stroke="#f9edc8" stroke-width="1.2" stroke-linejoin="round"><path d="M22 10c10.5 1 16.5 8 16 29H15c0-9 10-6.5 8-21"/><path d="M24 18c.38 2.91-5.55 7.37-8 9-3 2-2.82 4.34-5 4-1.04-.94 1.41-3.04 0-3-1 0 .19 1.23-1 2-1 0-4.003 1-4-4 0-2 6-12 6-12s1.89-1.9 2-3.5c-.73-.994-.5-2-.5-3 1-1 3 2.5 3 2.5h2s.78-1.992 2.5-3c1 0 1 3 1 3"/></g><circle cx="9.5" cy="25.5" r="1.4" fill="#22211e"/><circle cx="14" cy="15.7" r="1.2" fill="#22211e"/></svg></div>
+        </div>
+        <p class="kn-edge-note"><span class="sw"></span> Saturday From the Week Before: a knight cannot wrap around the board, so the grey edge holds the Saturday that sits just off the left side.</p>
+      </div>
+      <div class="kn-side kn-text">
+        <h2 id="kn-th">The Steps</h2>
+        <p class="sub" id="kn-sub"></p>
+        <ol id="kn-steps"></ol>
+        <div class="kn-good"><p><strong>Cancel 15 days or more before check-in, by 11:59 p.m. ET,</strong> and the points go back to the Use Year they came from.</p></div>
+        <div class="kn-warn"><p><strong>Cancel 14 days or less before check-in and the points are forfeited.</strong></p></div>
+        <div class="kn-exc">
+          <p class="kn-exc-h">Booked Inside the 14 Days?</p>
+          <ul>
+            <li><strong>Booked within 14 days of check-in:</strong> cancel within 24 hours of booking and the points come back.</li>
+            <li><strong>Booked on the day of check-in:</strong> cancel by 11:59 p.m. ET that day and the points come back.</li>
+          </ul>
+        </div>
+        <p class="cite" id="kn-cite"></p>
+      </div>
+      <div class="kn-video no-print">
+        <h2 id="kn-vh">Watch the Video</h2>
+        <video controls playsinline preload="metadata" poster="knight-move-poster.jpg" src="knight-move-narrated.mp4">Your browser cannot play this video.</video>
+      </div>
+    </section>
+
+    <section class="kn-stage kn4" id="kn4" aria-labelledby="kn4-h">
+      <div class="k4-top"><h2 id="kn4-h">More Practice</h2><button type="button" class="kn-btn go small no-print" id="kn4-play">Play</button></div>
+      <p class="k4-intro">The same move on a regular calendar. Watch the knight start on a check-in day, jump up two rows and left one, and land on the last day to cancel. A Sunday check-in steps off the left edge, so the knight goes to the Saturday at the end of the row above.</p>
+      <p class="kn-cap" id="kn4-cap" role="status" aria-live="off"></p>
+      <div class="kn-board-wrap" id="kn4-wrap">
+        <div class="k4-cal" id="kn4-months"></div>
+        <svg class="kn-path" id="kn4-path" aria-hidden="true" focusable="false"></svg>
+        <div class="k4-ghost" id="kn4-ghost" aria-hidden="true" hidden></div>
+        <div class="kn-knight" id="kn4-knight" aria-hidden="true"></div>
+      </div>
+    </section>
+
+    <section class="kn-more no-print" aria-labelledby="kn-mh">
+      <h2 id="kn-mh">Keep Going</h2>
+      <ul>
+        <li><a href="../52weeks/">52 Weeks</a>: every Club Wyndham resort's seasons and points, week by week.</li>
+      </ul>
+    </section>
+  </div>
+</main>
+<div id="site-footer"></div>
+<script src="knight.js"></script>
+<script src="../assets/site.js"></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Your Timeshare Guide logo: an open book with two resort pictures under a gold rising sun">
+<style>.k{fill:#22211e}.g{fill:#e0a81e}.p{fill:#f7f3e9}</style>
+<g stroke="#e0a81e" stroke-width="2.6" stroke-linecap="round"><line x1="32" y1="6" x2="32" y2="12"/><line x1="17.5" y1="12.5" x2="21" y2="16.5"/><line x1="46.5" y1="12.5" x2="43" y2="16.5"/><line x1="8.6" y1="22.6" x2="13.4" y2="24.9"/><line x1="55.4" y1="22.6" x2="50.6" y2="24.9"/></g>
+<path class="g" d="M20 35a12 12 0 0 1 24 0z"/>
+<path class="k" d="M2 35C12 31.5 22 32.5 30.5 37.5V58C22 53 12 52 2 55Z"/>
+<path class="k" d="M62 35C52 31.5 42 32.5 33.5 37.5V58C42 53 52 52 62 55Z"/>
+<g fill="none" stroke="#f7f3e9" stroke-width=".9" opacity=".85"><path d="M18 40.4C20.97 39.7 23.94 40.4 27 41.7"/><path d="M18 43.6C20.97 42.9 23.94 43.6 27 44.9"/><path d="M18 46.8C20.97 46.1 23.94 46.8 27 48.1"/><path d="M6 50.6C13 48.4 20 49.1 27 52.4"/><path d="M58 39.5C51 37.3 44 38 37 41.3"/><path d="M58 43.2C51 41 44 41.7 37 45"/><path d="M46 48.2C43.03 47.5 40.06 48.2 37 49.5"/><path d="M46 51.4C43.03 50.7 40.06 51.4 37 52.7"/></g>
+<rect class="p" x="6" y="38.6" width="10" height="7.4"/><path class="k" d="M6.6 45.4L9.6 41.6L11.6 43.6L13 42.3L15.4 45.4Z"/><circle class="g" cx="13.4" cy="40.6" r="1"/>
+<rect class="p" x="48" y="45.6" width="10" height="7.4"/><path d="M48.4 52.2C50.5 51.2 52.5 51.2 54.6 52.2C56 52.9 57 52.7 57.6 52.4" fill="none" stroke="#e0a81e" stroke-width=".8"/><path d="M53.6 52C53.4 50 53.6 48.6 54.4 47.6" fill="none" stroke="#22211e" stroke-width=".8" stroke-linecap="round"/><path d="M54.4 47.6C53.2 47.1 51.9 47.5 51.2 48.4M54.4 47.6C55.6 47 56.9 47.4 57.4 48.3M54.4 47.6C54 46.6 53 46.2 52.2 46.4M54.4 47.6C55 46.6 56 46.3 56.8 46.6" fill="none" stroke="#22211e" stroke-width=".75" stroke-linecap="round"/>
+</svg>

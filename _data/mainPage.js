@@ -15,7 +15,7 @@ export default {
       text: "The Owner Atlas pages. This is the version being built out.",
       featured: {
         title: "Season chart v2",
-        href: "seasons-v2.html",
+        href: "./",
         tag: { text: "In progress", tone: "success" },
         desc: "Every resort's seasons and points, week by week, with filters for collection, place, bedrooms and room type.",
       },
