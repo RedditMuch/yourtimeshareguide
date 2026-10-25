@@ -97,8 +97,10 @@
       + '<div class="wrap mast-top">'
       + '<div class="mast-side left"></div>'
       + '<a href="' + ROOT + '" class="logo" aria-label="Your Timeshare Guide, Home">' + LOGO_SVG + '<span class="logo-your">Your</span><span class="logo-main">Timeshare Guide</span></a>'
-      + '<div class="mast-side right"><span class="ts-t">Today:</span> <span class="ts-d">' + longDate(et.date) + '</span><span class="ts-w">Week ' + wk.week + '</span>'
-      + '<span class="ts-e" title="Club Wyndham runs on Eastern Time"><span class="ts-t">Eastern Time:</span> <span id="etClock">' + et.time + '</span></span>'
+      // Owner's layout (2026-10-25): "TODAY: Sunday October 25, 2026", then "12:17 AM Eastern", then "Week 43".
+      + '<div class="mast-side right"><span class="ts-t">Today:</span> <span class="ts-d">' + DAYS[et.date.getDay()] + " " + MONTHS[et.date.getMonth()] + " " + et.date.getDate() + ", " + et.date.getFullYear() + '</span>'
+      + '<span class="ts-e" title="Club Wyndham runs on Eastern Time"><span id="etClock">' + et.time + '</span> Eastern</span>'
+      + '<span class="ts-w">Week ' + wk.week + '</span>'
       + (LIVE ? "" : '<div class="search"><a href="' + ROOT + 'sitemap/"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13 13l5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Search the Guide</a></div>') + '</div>'
       + '<p class="logo-tag">Charts, Calculators and Resources for Club Wyndham and WorldMark Owners</p>'
       + '</div>'
