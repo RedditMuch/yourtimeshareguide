@@ -132,7 +132,7 @@
   if (h) h.outerHTML = header();
   if (f) f.outerHTML = footer();
   // Visitor counter (owner, 2026-10-24): GoatCounter (site code dagoat) counts visits on the live site only, after the page
-  // has loaded. The home page footer shows the site's total once GoatCounter has a number to give.
+  // has loaded. The home page footer shows the site's total, as a plain number at the right (owner, 2026-10-25), once GoatCounter has a number to give.
   if (location.hostname === "yourtimeshareguide.com") addEventListener("load", function () {
     var gc = document.createElement("script");
     gc.async = true; gc.src = "https://gc.zgo.at/count.js"; gc.setAttribute("data-goatcounter", "https://dagoat.goatcounter.com/count");
@@ -141,7 +141,7 @@
     if (current !== "home" || !copy) return;
     fetch("https://dagoat.goatcounter.com/counter/TOTAL.json")
       .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (d) { if (d && d.count && d.count !== "0") copy.insertAdjacentHTML("beforeend", " &nbsp;&middot;&nbsp; Visitors: " + esc(d.count)); })
+      .then(function (d) { if (d && d.count && d.count !== "0") copy.insertAdjacentHTML("beforeend", "<span class=\"vc\" title=\"Visitors\"><span class=\"sr\">Visitors: </span>" + esc(d.count) + "</span>"); })
       .catch(function () {});
   });
 

@@ -353,7 +353,8 @@ footer.site-foot{background:var(--ink);color:#e9e4d6;padding:34px 0 30px;border-
 .notice-lines p{margin:0 0 12px;line-height:1.65;max-width:52rem;color:#d9d3c3;font-size:.96rem}
 .notice-lines p:last-child{margin-bottom:0}
 .notice-lines b{color:#fff;font-weight:700}
-.copy{grid-column:1/-1;border-top:1px solid rgba(255,255,255,.18);padding-top:14px;color:#bdb6a4;font-size:.9rem;text-align:center}
+.copy{position:relative;grid-column:1/-1;border-top:1px solid rgba(255,255,255,.18);padding-top:14px;color:#bdb6a4;font-size:.9rem;text-align:center}
+.copy .vc{position:absolute;right:0;bottom:0;font-variant-numeric:tabular-nums}
 
 /* ---------- Responsive ---------- */
 @media (max-width:1000px){
