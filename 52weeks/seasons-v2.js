@@ -104,6 +104,7 @@
   const shortName = s => officialName(s).replace(/^Club Wyndham /, '');
   const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const norm = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+  const DISCOVERY = new Set(((window.DISCOVERY || {}).names || []).map(n => norm(n)));
   const crownSvg = cls => '<svg class="crown' + (cls ? ' ' + cls : '') + '" viewBox="0 0 16 12" aria-hidden="true"><path d="M1 10 2 3l4 3 2-5 2 5 4-3 1 7z"/></svg>';
 
   /* ---- RCI calendar: week 1 starts on the first Friday of January; week 53 exists when Dec 31 is a Friday ---- */
@@ -278,7 +279,7 @@
     mode: 'week', idx: todayIdx >= 0 ? todayIdx : WEEKS.findIndex(x => x.y === startYear), span: 10, start: null, end: null,
     season: '', colorsOnly: false, types: typeSet('1 Bedroom'), lastGroup: '1 Bedroom',
     query: '', radius: 35, collections: new Set(collections.filter(c => !COLLECTION_OFF.includes(c))),
-    cwaOnly: false, showAll: true, sort: { key: 'resort', dir: 1 }
+    cwaOnly: false, discOnly: false, showAll: true, sort: { key: 'resort', dir: 1 }
   });
   /* Remember the reader's filters in this browser (localStorage), so a refresh or a later visit keeps them */
   const STORE = 'ytg-season-chart-v2';
@@ -350,9 +351,9 @@
     if (document.activeElement !== $('search')) $('search').value = state.query;
     $('radius').value = String(state.radius);
     for (const i of $('collectionChecks').querySelectorAll('input')) i.checked = state.collections.has(i.value);
-    $('cwaOnly').checked = state.cwaOnly;
+    $('cwaOnly').checked = state.cwaOnly; $('discOnly').checked = state.discOnly;
     // Shown only when no box in the whole Collections section is selected; it sits below the section, so it stays visible when Collections is folded
-    const ch = !state.collections.size && !state.cwaOnly ? 'No collections are selected, so all collections are shown.' : '';
+    const ch = !state.collections.size && !state.cwaOnly && !state.discOnly ? 'No collections are selected, so all collections are shown.' : '';
     $('collectionHint').hidden = !ch; $('collectionHint').textContent = ch;
     for (const b of $('spanButtons').querySelectorAll('button')) b.setAttribute('aria-pressed', String(Number(b.dataset.span) === state.span));
     if (document.activeElement !== $('startDate')) $('startDate').value = state.start ? iso(state.start) : '';
@@ -383,9 +384,10 @@
     for (const s of D.rows) {
       // Collections (2026-10-12): the resort types and the CWA Trust are boxes of one list, so a resort shows when ANY ticked box includes it
       // (before, CWA was a separate AND filter and a ticked CWA hid every non-CWA resort, whatever else was ticked). Nothing ticked = all.
-      if (state.collections.size || state.cwaOnly) {
-        const byType = state.collections.has(s.collection), byTrust = state.cwaOnly && refOf(s).club_wyndham_access === 'Yes';
-        if (!byType && !byTrust) continue;
+      // Club Wyndham Discovery (owner, 2026-10-25) is one more box of the same list: the resorts on Club Wyndham's Discovery list (discovery-data.js)
+      if (state.collections.size || state.cwaOnly || state.discOnly) {
+        const byType = state.collections.has(s.collection), byTrust = state.cwaOnly && refOf(s).club_wyndham_access === 'Yes', byDisc = state.discOnly && DISCOVERY.has(norm(s.name));
+        if (!byType && !byTrust && !byDisc) continue;
       }
       if (!place.test(s)) continue;
       if (!pointsOn()) { rows.push({ s, p: null, gap: hasChart(s) ? '' : 'chart' }); continue; }
@@ -521,12 +523,12 @@
   };
   const withState = (patch, fn) => { const old = {}; for (const k in patch) { old[k] = state[k]; state[k] = patch[k]; } try { return fn(); } finally { Object.assign(state, old); } };
   const extra = (relaxed, now) => { const x = []; for (const [k, c] of relaxed) if (!now.has(k)) x.push(c); return x; };
-  const allCollectionsOn = () => !state.cwaOnly && !state.collections.size || collections.every(c => state.collections.has(c));
+  const allCollectionsOn = () => !state.cwaOnly && !state.discOnly && !state.collections.size || collections.every(c => state.collections.has(c));
   const plural = n => n + ' resort' + (n === 1 ? '' : 's');
   function renderMore(m, sz) {
     const wk = m.wk, now = keysOf(m.cand, state.season, wk), chips = [];
-    if (state.collections.size || state.cwaOnly) {
-      const x = withState({ collections: new Set(), cwaOnly: false }, () => extra(keysOf(candidateRows(m.place), state.season, wk), now));
+    if (state.collections.size || state.cwaOnly || state.discOnly) {
+      const x = withState({ collections: new Set(), cwaOnly: false, discOnly: false }, () => extra(keysOf(candidateRows(m.place), state.season, wk), now));
       if (x.length) chips.push({ act: 'collections', need: [...new Set(x)], n: x.length, text: 'in other collections', go: 'Add them' });
     }
     if (state.season) {
@@ -802,7 +804,7 @@
 
   /* "Reset" next to the Filters heading (owner, 2026-10-12): Club Wyndham + Affiliate, All seasons, search cleared, Bedrooms = 1 BR. Week and dates stay. */
   function reset() { const d = DEFAULTS();
-    Object.assign(state, { collections: new Set(RESET_COLLECTIONS.filter(c => collections.includes(c))), cwaOnly: false, season: '', query: '', types: d.types, lastGroup: d.lastGroup, colorsOnly: false });
+    Object.assign(state, { collections: new Set(RESET_COLLECTIONS.filter(c => collections.includes(c))), cwaOnly: false, discOnly: false, season: '', query: '', types: d.types, lastGroup: d.lastGroup, colorsOnly: false });
     $('search').value = ''; render(); }
   const parseDate = v => v ? Date.parse(v + 'T00:00:00Z') : null;
 
@@ -839,9 +841,10 @@
     $('radius').addEventListener('change', e => { state.radius = Number(e.target.value); render(); });
     $('collectionChecks').addEventListener('change', e => { e.target.checked ? state.collections.add(e.target.value) : state.collections.delete(e.target.value); render(); });
     $('cwaOnly').addEventListener('change', e => { state.cwaOnly = e.target.checked; render(); });
-    // Select All turns on every Collections box except CWA; Clear turns them all off, CWA included (owner, 2026-10-13)
+    $('discOnly').addEventListener('change', e => { state.discOnly = e.target.checked; render(); });
+    // Select All turns on every Collections box except CWA and Discovery; Clear turns them all off, CWA and Discovery included (owner, 2026-10-13)
     $('collAll').addEventListener('click', () => { state.collections = new Set(collections); render(); });
-    $('collClear').addEventListener('click', () => { state.collections = new Set(); state.cwaOnly = false; render(); });
+    $('collClear').addEventListener('click', () => { state.collections = new Set(); state.cwaOnly = false; state.discOnly = false; render(); });
     $('spanButtons').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { state.span = Number(b.dataset.span); render(); } });
     const openPicker = e => { try { e.target.showPicker(); } catch (_) {} };
     $('startDate').addEventListener('click', openPicker);
@@ -868,7 +871,7 @@
     document.addEventListener('click', e => { if (!tipWrap.contains(e.target)) showTip(false); });
     tip.addEventListener('click', e => { const b = e.target.closest('[data-country]'); if (!b) return; state.query = b.dataset.country; $('search').value = state.query;
       // Choosing a country also selects the collections its resorts need (never removes any), so results show
-      const c = countryOfQuery(state.query); if (c && (state.collections.size || state.cwaOnly)) for (const s of D.rows) if (s.country === c) state.collections.add(s.collection);
+      const c = countryOfQuery(state.query); if (c && (state.collections.size || state.cwaOnly || state.discOnly)) for (const s of D.rows) if (s.country === c) state.collections.add(s.collection);
       showTip(false); render(); });
     /* "To see more resorts" chips act like the user changing the filter */
     $('more').addEventListener('click', e => {

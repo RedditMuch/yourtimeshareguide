@@ -210,6 +210,16 @@ test.describe("season chart v2 Collections filters (2026-10-12)", () => {
     expect(names(rows)).not.toContain("WorldMark Scottsdale");
   });
 
+  test("Club Wyndham Discovery alone shows the Discovery resorts that have charts (owner, 2026-10-25)", async ({ page }) => {
+    await page.addInitScript(() => localStorage.setItem("ytg-season-chart-v2", JSON.stringify({ collections: { set: [] }, discOnly: true, span: 0, showAll: true })));
+    await page.goto("/52weeks/");
+    await expect(page.locator("#grid tbody tr").first()).toBeVisible();
+    await expect(page.locator("#discOnly")).toBeChecked();
+    expect(await resortTotal(page)).toBe(74);
+    await tick(page, "#discOnly");
+    expect(await resortTotal(page)).toBeGreaterThan(200);
+  });
+
   test("CWA is one more box in the list: with every collection ticked, ticking or unticking it changes nothing", async ({ page }) => {
     // Root cause of the 79 / 79 vs 220 / 225 report: CWA used to be a separate AND filter, so a ticked CWA hid every non-CWA resort
     // even with all collections ticked.
@@ -246,7 +256,7 @@ test.describe("season chart v2 Collections filters (2026-10-12)", () => {
     await chartRows(page, { size: null });
     await page.evaluate(() => { document.getElementById("filterBox").open = true; });
     const boxes = await page.locator("#collectionBox input[type=checkbox]").evaluateAll(els => els.map(e => { const r = e.getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)]; }));
-    expect(boxes).toHaveLength(6);
+    expect(boxes).toHaveLength(7); // six before Club Wyndham Discovery (owner, 2026-10-25)
     for (const b of boxes) expect(b).toEqual(boxes[0]);
   });
 });

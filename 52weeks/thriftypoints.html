@@ -23,6 +23,8 @@ h2{font-size:1.1rem;margin:0 0 10px}
 .span2{grid-column:span 2}
 @media (max-width:480px){.span2{grid-column:auto}}
 select:disabled{opacity:.6}
+label.chk{display:inline-flex;align-items:center;gap:8px;margin-top:8px;font-size:.95rem;color:var(--ink);cursor:pointer}
+label.chk input{width:18px;height:18px;margin:0}
 label{display:block;font-size:.85rem;color:var(--mute);line-height:1.25}
 input,select{display:block;width:100%;height:40px;margin-top:3px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit;padding:6px 8px;outline:0}
 input:focus,select:focus,button:focus-visible,.scroll:focus-visible{outline:2px solid var(--stay);outline-offset:1px}
@@ -104,7 +106,7 @@ td.fit{background:#d4efe0;font-weight:700;box-shadow:inset 3px 0 0 var(--good)}
 <div><label for="pts">Total Points</label><input id="pts" inputmode="numeric" autocomplete="off" placeholder="60,000" value="60,000"></div>
 <div><label for="vip">VIP Level</label><select id="vip"><option value="all">Show All Discounts</option><option value="none">Non-VIP</option></select></div>
 <div><label for="size">Room Size</label><select id="size"><option value="">All Sizes</option></select></div>
-<div class="span2"><label for="loc">Location</label><input id="loc" type="search" list="places" autocomplete="off" placeholder="e.g. Bay Club, Maine, Canada"><datalist id="places"></datalist><p class="hint">City and State, Resort Name, State or Country.</p></div>
+<div class="span2"><label for="loc">Location</label><input id="loc" type="search" list="places" autocomplete="off" placeholder="e.g. Bay Club, Maine, Canada"><datalist id="places"></datalist><p class="hint">City and State, Resort Name, State or Country.</p><label class="chk"><input type="checkbox" id="disc"> Discovery Resorts Only</label></div>
 <div><label for="radius">Search Radius</label><select id="radius" disabled></select><p class="hint" id="radHint">The search radius needs a city and state, such as Orlando, Florida.</p></div>
 <div><label for="from">Earliest Check-In</label><input id="from" type="date"></div>
 <div><label for="to">Latest Check-Out</label><input id="to" type="date"></div>
@@ -155,6 +157,7 @@ td.fit{background:#d4efe0;font-weight:700;box-shadow:inset 3px 0 0 var(--good)}
 <script src="reference-data.js"></script>
 <script src="points-data.js"></script>
 <script src="nightlydata.js"></script>
+<script src="discovery-data.js"></script>
 <script>
 (function () {
 'use strict';
@@ -183,6 +186,8 @@ var sizeOf = function (r) { var g = groupOf[r.category] || 'Other'; return /^[34
 /* Resort names as Club Wyndham's website writes them, same list as season chart v2 */
 var WEBSITE_NAMES = { 'WorldMark Lake House': 'WorldMark Chelan - Lake House', 'Club Wyndham Holua Resort at Mauna Loa Village': 'Club Wyndham Holua Resort at the Mauna Loa Village',
   'Club Wyndham Kauai Coast Resort at The Beachboy': 'Club Wyndham Kauai Coast Resort at the Beachboy', 'Club Wyndham Waikiki Marina Resort at The Ilikai': 'Club Wyndham Waikiki Marina Resort at the Ilikai' };
+/* Club Wyndham Discovery resorts (discovery-data.js, owner 2026-10-25) */
+var DISC = {}; ((window.DISCOVERY || {}).names || []).forEach(function (n) { DISC[flat(n)] = 1; });
 var officialName = function (n) { return (WEBSITE_NAMES[n] || n.replace(/^Margaritaville Vacation Club - /, 'Margaritaville Vacation Club by Wyndham - ')).replace(/[‘’]/g, "'"); };
 rows.forEach(function (r) {
   var m = /, ([A-Z]{2})$/.exec(r.location || '');
@@ -192,6 +197,7 @@ rows.forEach(function (r) {
   r._size = sizeOf(r);
   r._low = flat(r.name || '');
   r._words = flat([r.name, officialName(r.name), r._city, r.state, r.country, r.schedule].join(' '));
+  r._disc = DISC[flat(r.name)] === 1;
 });
 /* Display name: drop an exact leading Club Wyndham prefix unless that would give two resorts the same name in one city and state */
 var PFX = "Club Wyndham ", dispSeen = {};
@@ -355,6 +361,7 @@ function search(cfg) {
   rows.forEach(function (r) {
     if (cfg.size && r._size !== cfg.size) return;
     if (!cfg.place.test(r)) return;
+    if (cfg.disc && !r._disc) return;
     var nb = N[r.id];
     for (var i = a; i < b; i++) {
       var s = seasonOf(r, nightWeek[i]), band = s && nb[s], p = band ? (nightWknd[i] ? band.friSat : band.sunThu) : null;
@@ -434,10 +441,10 @@ $('f').addEventListener('submit', function (ev) {
   if (!RATES.length) note = $('ratenote').textContent;
   $('ratenote').textContent = note; $('ratenote').hidden = !note;
   setColumns();
-  var cfg = { points: pts, rates: VIS.slice(), today: todayUTC, from: from, to: to, minN: minN, maxN: Math.min(maxN, 60), size: $('size').value, place: placeFilter(q, +$('radius').value) };
+  var cfg = { points: pts, rates: VIS.slice(), today: todayUTC, from: from, to: to, minN: minN, maxN: Math.min(maxN, 60), size: $('size').value, place: placeFilter(q, +$('radius').value), disc: $('disc').checked };
   var res = search(cfg);
   results = res.list; shown = 50;
-  lastInfo = { rates: VIS.slice(), vipLabel: vs.options[vs.selectedIndex].text, points: pts, ms: res.ms, place: cfg.place.label, size: cfg.size, from: fmtDate(from), to: fmtDate(to), minN: minN, maxN: cfg.maxN };
+  lastInfo = { rates: VIS.slice(), vipLabel: vs.options[vs.selectedIndex].text, points: pts, ms: res.ms, place: cfg.place.label + (cfg.disc ? ' (Discovery Resorts Only)' : ''), size: cfg.size, from: fmtDate(from), to: fmtDate(to), minN: minN, maxN: cfg.maxN };
   render();
 });
 $('vip').addEventListener('change', function () { sortKey = null; sortDir = 1; if (lastInfo) $('f').requestSubmit(); });

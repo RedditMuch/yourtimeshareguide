@@ -281,3 +281,19 @@ test("thriftypoints: Location finds a state, a resort name and a city with a rad
   await expect.poll(async () => (await heads(page)).length).toBe(10);
   expect(await heads(page)).not.toContain("VIP Discount Date");
 });
+
+test("thriftypoints: Discovery Resorts Only shows only resorts on Club Wyndham's Discovery list (owner, 2026-10-25)", async ({ page }) => {
+  await page.goto(URL);
+  await page.fill("#pts", "150,000");
+  await page.fill("#loc", "Nevada");
+  await page.check("#disc");
+  await page.click("#go");
+  await expect(page.locator("#body tr").first()).toBeVisible();
+  const list = await page.evaluate(() => window.DISCOVERY.names.map(n => n.toLowerCase().replace(/['’]/g, "").replace(/[^a-z0-9]+/g, " ").trim()));
+  const names = [...new Set((await rows(page)).map(c => c[2].t))];
+  expect(names.length).toBeGreaterThan(0);
+  for (const n of names) expect(list.some(l => l.endsWith(n.toLowerCase().replace(/['’]/g, "").replace(/[^a-z0-9]+/g, " ").trim()))).toBe(true);
+  await page.uncheck("#disc");
+  await page.click("#go");
+  await expect.poll(async () => new Set((await rows(page)).map(c => c[2].t)).size).toBeGreaterThan(names.length);
+});
