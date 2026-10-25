@@ -48,6 +48,7 @@ h1,h2,h3,.num,.n,.cat-num,.mast-side strong{font-variant-numeric:lining-nums}
 .mast-side .ts-t{font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink)}
 .mast-side .ts-d{color:var(--ink)}
 .mast-side .ts-w{display:block;font-size:1.45rem;font-weight:800;line-height:1.25;color:var(--ink);font-variant-numeric:tabular-nums}
+.mast-side .ts-e{display:block;color:var(--ink);font-variant-numeric:tabular-nums}
 .logo{--k:#22211e;--g:#e0a81e;--p:#f7f3e9;display:flex;flex-direction:column;align-items:center;text-decoration:none;color:var(--ink);gap:4px}
 .logo:hover{background:none}
 .logo-mk{width:78px;height:78px}
