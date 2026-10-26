@@ -571,7 +571,10 @@ function maxWarn() { $('maxWarn').hidden = !($('wkn').checked && parseInt($('max
 $('maxN').addEventListener('input', maxWarn); $('wkn').addEventListener('change', maxWarn); maxWarn();
 /* A weeknight-only stay can't check in on Friday or Saturday: checking the box turns those days off, and turning either back on unchecks it (owner, 2026-10-25) */
 var weekendDays = [].filter.call(dayBtns, function (x) { return +x.getAttribute('data-d') >= 5; });
-$('wkn').addEventListener('change', function () { if (this.checked) weekendDays.forEach(function (x) { x.setAttribute('aria-pressed', 'false'); }); });
+/* ...and selects the check-in days whose Min Nights stay still ends by Friday morning: Sun to Wed for 2 nights, Sun to Thu for 1 (owner, 2026-10-25) */
+function weeknightDays() { var last = 5 - Math.max(1, Math.min(5, parseInt($('minN').value, 10) || 1)); for (var i = 0; i < dayBtns.length; i++) dayBtns[i].setAttribute('aria-pressed', String(+dayBtns[i].getAttribute('data-d') <= last)); }
+$('wkn').addEventListener('change', function () { if (this.checked) weeknightDays(); });
+$('minN').addEventListener('input', function () { if ($('wkn').checked) weeknightDays(); });
 document.querySelector('.daygrid').addEventListener('click', function () { if ($('wkn').checked && weekendDays.some(function (x) { return x.getAttribute('aria-pressed') === 'true'; })) { $('wkn').checked = false; maxWarn(); } });
 $('body').addEventListener('click', function (ev) {
   var b = ev.target.closest('button.more'); if (!b) return;

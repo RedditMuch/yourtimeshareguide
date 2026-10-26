@@ -502,12 +502,15 @@ test("pointsbudget: day buttons are solid green when on and red-outlined with gr
   await expect(page.locator("#maxWarn")).toBeHidden();
 });
 
-test("pointsbudget: weeknights only turns off Fri and Sat; picking Weekend again unchecks it (owner, 2026-10-25)", async ({ page }) => {
+test("pointsbudget: weeknights only selects Sun to Wed for 2 night stays (Sun to Tue for 3); picking Weekend again unchecks it (owner, 2026-10-25)", async ({ page }) => {
   await page.goto(URL);
+  const on = () => page.$$eval("button.day[aria-pressed=true]", bs => bs.map(b => b.textContent).join(","));
   await page.check("#wkn");
-  await expect(page.locator('button.day[data-d="5"]')).toHaveAttribute("aria-pressed", "false");
-  await expect(page.locator('button.day[data-d="6"]')).toHaveAttribute("aria-pressed", "false");
-  await expect(page.locator("button.day[aria-pressed=true]")).toHaveCount(5);
+  expect(await on()).toBe("Sun,Mon,Tue,Wed");
+  await page.fill("#minN", "3");
+  expect(await on()).toBe("Sun,Mon,Tue");
+  await page.fill("#minN", "1");
+  expect(await on()).toBe("Sun,Mon,Tue,Wed,Thu");
   await page.click('button.grpday[data-days="5,6"]');
   await expect(page.locator("#wkn")).not.toBeChecked();
   await expect(page.locator("button.day[aria-pressed=true]")).toHaveCount(2);
