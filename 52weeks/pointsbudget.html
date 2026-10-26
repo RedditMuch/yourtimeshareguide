@@ -95,7 +95,7 @@ td.fit{background:#d4efe0;font-weight:700;box-shadow:inset 3px 0 0 var(--good)}
 button.more{all:unset;display:block;margin-top:4px;font-size:.8rem;font-weight:700;color:var(--stay);cursor:pointer;text-decoration:underline}
 button.more:focus-visible{outline:2px solid var(--stay);outline-offset:1px}
 tr.sub td{background:var(--head);font-size:.92em}tr.sub td.res{padding-left:14px;color:var(--mute)}
-td.left{white-space:nowrap}td.left small{display:block;font-size:.75em;color:var(--mute);line-height:1.2}
+td.left{white-space:nowrap}td.left small{display:block;font-size:.75em;color:var(--mute);line-height:1.2}
 .notes p{margin:0 0 8px}.notes p:last-child{margin:0}.notes ul{margin:0;padding-left:20px}.notes li{margin:0 0 6px}.notes li:last-child{margin:0}.notes a{color:var(--stay)}
 .notes{border-left:5px solid #d08a00}
 .foot{color:var(--mute);font-size:.85rem;text-align:center;margin-top:20px}
@@ -142,11 +142,11 @@ td.left{white-space:nowrap}td.left small{display:block;font-size:.75em;color:var
 <div class="grid">
 <div><label for="from">Earliest Check-In</label><input id="from" type="date"></div>
 <div><label for="to">Latest Check-Out</label><input id="to" type="date"></div>
-<div class="pair"><div><label for="minN">Fewest Nights</label><input id="minN" type="number" min="1" max="30" value="2"></div><div><label for="maxN">Most Nights</label><input id="maxN" type="number" min="1" max="30" value="7"></div></div>
+<div class="pair"><div><label for="minN">Min. Nights</label><input id="minN" type="number" min="1" max="30" value="2"></div><div><label for="maxN">Max Nights</label><input id="maxN" type="number" min="1" max="30" value="7"></div></div>
 <div class="span3"><span class="lab" id="dayLbl">Check-In Day</span>
 <div class="days" role="group" aria-labelledby="dayLbl"><button type="button" class="day" data-d="0" aria-pressed="true">Sun</button><button type="button" class="day" data-d="1" aria-pressed="true">Mon</button><button type="button" class="day" data-d="2" aria-pressed="true">Tue</button><button type="button" class="day" data-d="3" aria-pressed="true">Wed</button><button type="button" class="day" data-d="4" aria-pressed="true">Thu</button><button type="button" class="day" data-d="5" aria-pressed="true">Fri</button><button type="button" class="day" data-d="6" aria-pressed="true">Sat</button>
 <span class="daytools"><button type="button" class="link" data-days="5,6">Weekend</button><button type="button" class="link" data-days="0,1,2,3,4">Weekday</button><button type="button" class="link" data-days="0,1,2,3,4,5,6">Any Day</button></span></div>
-<label class="chk"><input type="checkbox" id="wkn"> Weeknights Only: no Friday or Saturday nights (fewer points)</label>
+<label class="chk"><input type="checkbox" id="wkn"> Show results with only weeknight stays. (Max Nights: 5)</label>
 <p class="msg err" id="oneNight" role="status" hidden>For information only: Club Wyndham's minimum booking is 2 nights.</p></div>
 </div>
 </fieldset>
@@ -524,7 +524,7 @@ $('f').addEventListener('submit', function (ev) {
   if (!(minN >= 1) || !(maxN >= minN)) return fail('Enter a minimum number of nights of at least 1 and a maximum that is not smaller.');
   var days = readDays();
   if (days.indexOf(true) < 0) return fail('Pick at least one check-in day.');
-  if ($('wkn').checked && minN > 5) return fail('Weeknights Only allows up to 5 nights in a row (Sunday to Thursday). Lower the Fewest Nights.');
+  if ($('wkn').checked && minN > 5) return fail('Weeknight stays are 5 nights at most (Sunday to Thursday). Lower the Min. Nights.');
   fail('');
   var q = $('loc').value.trim();
   if (q && !GEO && !countryOf(q) && !regionOf(q)) { $('go').disabled = true; loadGeo().then(function () { $('go').disabled = false; $('f').requestSubmit(); }); return; }
@@ -539,7 +539,7 @@ $('f').addEventListener('submit', function (ev) {
   var cfg = { points: pts, rates: VIS.slice(), today: todayUTC, from: from, to: to, minN: minN, maxN: Math.min(maxN, 60), size: $('size').value, place: placeFilter(q, +$('radius').value), disc: $('disc').checked, days: days, weeknights: $('wkn').checked };
   var res = search(cfg);
   results = res.list; shown = 50; open = new Map();
-  lastInfo = { rates: VIS.slice(), vipLabel: vs.options[vs.selectedIndex].text, points: pts, ms: res.ms, every: res.every, total: res.total, cfg: cfg, dayLabel: dayLabel(days) + (cfg.weeknights ? ', Weeknights Only' : ''), place: cfg.place.label + (cfg.disc ? ' (Discovery Resorts Only)' : ''), size: cfg.size, from: fmtDate(from), to: fmtDate(to), minN: minN, maxN: cfg.maxN };
+  lastInfo = { rates: VIS.slice(), vipLabel: vs.options[vs.selectedIndex].text, points: pts, ms: res.ms, every: res.every, total: res.total, cfg: cfg, dayLabel: dayLabel(days) + (cfg.weeknights ? ', Weeknight Stays Only' : ''), place: cfg.place.label + (cfg.disc ? ' (Discovery Resorts Only)' : ''), size: cfg.size, from: fmtDate(from), to: fmtDate(to), minN: minN, maxN: cfg.maxN };
   render();
 });
 $('vip').addEventListener('change', function () { sortKey = null; sortDir = 1; if (lastInfo) $('f').requestSubmit(); });
