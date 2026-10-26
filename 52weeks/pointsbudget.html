@@ -41,10 +41,14 @@ button.day[aria-pressed="true"]::before{content:"\2713";color:#15803d;font-weigh
 .dayhint{font-size:.78rem;font-style:italic;margin-left:4px}
 button.link{all:unset;cursor:pointer;color:var(--stay);font-weight:700;text-decoration:underline}button.link:focus-visible{outline:2px solid var(--stay);outline-offset:2px}
 .presets{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 16px;padding:0 0 14px;border-bottom:1px solid var(--line)}.presets .lab{margin-right:4px}.presets button{min-height:34px;padding:5px 12px;font-size:.9rem}
+.dbox{position:relative;width:180px;max-width:100%}.dbox input[type=text]{padding-right:42px}
+.pickbtn{all:unset;position:absolute;right:4px;top:50%;transform:translateY(-50%);margin-top:1px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink);border-radius:6px}
+.pickbtn:hover{background:var(--head)}.pickbtn:focus-visible{outline:2px solid var(--stay)}.pickbtn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+input.pickin{position:absolute;right:0;bottom:0;width:34px;height:1px;min-height:0;margin:0;padding:0;border:0;opacity:0;pointer-events:none}
 .where{background:var(--head);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
 .radrow{display:flex;align-items:center;gap:10px;margin-top:8px}.radrow label{white-space:nowrap}.radrow select{margin-top:0}
 #pts{width:150px}#vip{width:220px}#size{width:230px}#radius{width:150px}#from,#to{width:180px}#minN,#maxN{width:90px}
-#pts,#vip,#size,#radius,#from,#to,#minN,#maxN{max-width:100%}
+#pts,#vip,#size,#radius,#minN,#maxN{max-width:100%}#from,#to{width:100%}
 td.nw small{display:block;font-size:.75em;color:var(--mute);line-height:1.2}
 @media (max-width:480px){.span2{grid-column:auto}}
 select:disabled{opacity:.6}
@@ -151,8 +155,8 @@ td.left{white-space:nowrap}td.left small{display:block;font-size:.75em;color:var
 <p class="hint" id="radHint">Type a resort name, state or country. For a radius, type a city and state, such as Orlando, Florida.</p></div>
 </div>
 <div class="col">
-<div><label for="from">Earliest Check-In</label><input id="from" type="date"></div>
-<div><label for="to">Latest Check-Out</label><input id="to" type="date"><p class="hint"><button type="button" class="link small" id="clearTo">Leave blank</button> to check in on the Earliest Check-In date only.</p></div>
+<div><label for="from">Earliest Check-In</label><div class="dbox"><input id="from" type="text" inputmode="numeric" autocomplete="off" placeholder="mm/dd/yy"><button type="button" class="pickbtn" data-for="from" aria-label="Pick Earliest Check-In From a Calendar" title="Pick From a Calendar"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="1.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></button><input type="date" class="pickin" tabindex="-1" aria-hidden="true" data-for="from"></div><p class="msg err" id="fromErr" role="status" hidden>Type a date like 10/25/26 or 102526.</p></div>
+<div><label for="to">Latest Check-Out</label><div class="dbox"><input id="to" type="text" inputmode="numeric" autocomplete="off" placeholder="mm/dd/yy"><button type="button" class="pickbtn" data-for="to" aria-label="Pick Latest Check-Out From a Calendar" title="Pick From a Calendar"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="1.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></button><input type="date" class="pickin" tabindex="-1" aria-hidden="true" data-for="to"></div><p class="msg err" id="toErr" role="status" hidden>Type a date like 10/25/26 or 102526.</p><p class="hint"><button type="button" class="link small" id="clearTo">Leave blank</button> to check in on the Earliest Check-In date only.</p></div>
 <div><label for="minN">Min Nights</label><input id="minN" type="number" min="1" max="30" value="2"><p class="msg err" id="oneNight" role="status" hidden>Note: Club Wyndham min. booking is 2 nights.</p></div>
 <div><label for="maxN">Max Nights</label><input id="maxN" type="number" min="1" max="30" value="7"><p class="msg err" id="maxWarn" role="status" hidden>Max Nights needs to be 5 or less for weeknight-only stays.</p></div>
 <div><span class="lab" id="dayLbl">Check-In Day: <span class="dayhint">click a day to turn it on or off</span></span>
@@ -336,9 +340,43 @@ var iso = function (t) { return new Date(t).toISOString().slice(0, 10); };
 var parse = function (s) { var m = /^(\d{4})-(\d\d)-(\d\d)$/.exec(s); return m ? Date.UTC(+m[1], +m[2] - 1, +m[3]) : NaN; };
 var fmtDate = function (t) { var d = new Date(t), p = function (n) { return (n < 10 ? '0' : '') + n; }; return p(d.getUTCMonth() + 1) + '/' + p(d.getUTCDate()) + '/' + p(d.getUTCFullYear() % 100); };
 var today = new Date(); var todayUTC = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
-$('from').value = iso(Math.max(CAL_START, todayUTC));
-$('to').value = iso(CAL_END);
-$('from').min = $('to').min = iso(CAL_START); $('from').max = $('to').max = iso(CAL_END);
+/* Dates are typed freely (owner, 2026-10-25): 10/25/26, 102526, 10252026, 10-25-2026, 10.25.26, 1/5/27, or 10/25 for the next 10/25.
+   Leaving the box writes the date as mm/dd/yy. A calendar button opens the browser's date picker on a hidden date box. */
+function readTyped(v) {
+  v = String(v || '').trim(); if (!v) return NaN;
+  var m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(v), mo, d, y;
+  if (m) { y = +m[1]; mo = +m[2]; d = +m[3]; }
+  else if ((m = /^(\d{1,2})[\/.\- ]+(\d{1,2})(?:[\/.\- ]+(\d{2}|\d{4}))?$/.exec(v))) { mo = +m[1]; d = +m[2]; y = m[3] ? +m[3] : null; }
+  else if (/^\d+$/.test(v)) {
+    var L = v.length;
+    if (L === 8) { mo = +v.slice(0, 2); d = +v.slice(2, 4); y = +v.slice(4); }
+    else if (L === 6) { mo = +v.slice(0, 2); d = +v.slice(2, 4); y = +v.slice(4); }
+    else if (L === 4) { mo = +v.slice(0, 2); d = +v.slice(2, 4); y = null; }
+    else if (L === 7) { mo = +v.slice(0, 1); d = +v.slice(1, 3); y = +v.slice(3); }
+    else if (L === 5) { mo = +v.slice(0, 1); d = +v.slice(1, 3); y = +v.slice(3); }
+    else if (L === 3) { mo = +v.slice(0, 1); d = +v.slice(1, 3); y = null; }
+    else return NaN;
+  } else return NaN;
+  if (y != null && y < 100) y += 2000;
+  var make = function (yy) { var t = Date.UTC(yy, mo - 1, d), x = new Date(t); return x.getUTCMonth() === mo - 1 && x.getUTCDate() === d ? t : NaN; };
+  if (!(mo >= 1 && mo <= 12 && d >= 1 && d <= 31)) return NaN;
+  if (y == null) { var ty = new Date(todayUTC).getUTCFullYear(), t0 = make(ty); return isNaN(t0) || t0 >= todayUTC ? t0 : make(ty + 1); }   /* no year: the next one coming up */
+  return make(y);
+}
+var readDate = function (id) { return readTyped($(id).value); };
+var setDate = function (id, t) { $(id).value = isNaN(t) ? '' : fmtDate(t); $(id + 'Err').hidden = true; };
+setDate('from', Math.max(CAL_START, todayUTC));
+setDate('to', CAL_END);
+['from', 'to'].forEach(function (id) {
+  var inp = $(id), pick = document.querySelector('input.pickin[data-for="' + id + '"]');
+  inp.addEventListener('blur', function () { var t = readTyped(inp.value); if (!isNaN(t)) setDate(id, t); else $(id + 'Err').hidden = !inp.value.trim(); });
+  inp.addEventListener('input', function () { $(id + 'Err').hidden = true; });
+  document.querySelector('button.pickbtn[data-for="' + id + '"]').addEventListener('click', function () {
+    var t = readTyped(inp.value); pick.value = isNaN(t) ? '' : iso(t); pick.min = iso(CAL_START); pick.max = iso(CAL_END);
+    try { pick.showPicker(); } catch (e) { pick.focus(); pick.click(); }
+  });
+  pick.addEventListener('change', function () { var t = parse(pick.value); if (!isNaN(t)) { setDate(id, t); lowMode = false; } });
+});
 
 /* ---- Thousands separators as you type ---- */
 $('pts').addEventListener('input', function () {
@@ -531,13 +569,15 @@ function fail(m) { var e = $('err'); e.textContent = m; e.hidden = !m; }
 
 $('f').addEventListener('submit', function (ev) {
   ev.preventDefault();
-  var pts = +($('pts').value.replace(/\D/g, '') || 0), from = parse($('from').value), to = parse($('to').value);
+  var pts = +($('pts').value.replace(/\D/g, '') || 0), from = readDate('from'), to = readDate('to');
   var minN = parseInt($('minN').value, 10), maxN = parseInt($('maxN').value, 10);
   if (!(pts > 0)) return fail('Enter your total points.');
-  var oneDay = !$('to').value;
-  if (isNaN(from)) return fail('Enter an earliest check-in date.');
+  var oneDay = !$('to').value.trim();
+  if (isNaN(from)) return fail('Enter an earliest check-in date, such as 10/25/26.');
+  if (from < CAL_START || from >= CAL_END || (!oneDay && !isNaN(to) && to > CAL_END)) return fail('The points charts cover ' + fmtDate(CAL_START) + ' to ' + fmtDate(CAL_END) + '. Pick dates in that range.');
   if (oneDay) to = Math.min(CAL_END, from + 60 * DAY);   /* room for the longest stay */
-  else if (isNaN(to) || to <= from) return fail('Enter an earliest check-in date that comes before the latest check-out date.');
+  else if (isNaN(to) || to <= from) return fail('Enter a latest check-out date, such as 01/07/28, that comes after the earliest check-in date.');
+  setDate('from', from); if (!oneDay) setDate('to', to);
   if (!(minN >= 1) || !(maxN >= minN)) return fail('Enter a minimum number of nights of at least 1 and a maximum that is not smaller.');
   var days = readDays();
   if (days.indexOf(true) < 0) return fail('Pick at least one check-in day.');
@@ -587,7 +627,7 @@ function allDays() { for (var i = 0; i < dayBtns.length; i++) dayBtns[i].setAttr
 document.querySelector('.presets').addEventListener('click', function (ev) {
   var b = ev.target.closest('button[data-preset]'); if (!b) return;
   var p = b.getAttribute('data-preset');
-  $('from').value = iso(Math.max(CAL_START, todayUTC)); $('to').value = iso(CAL_END); allDays(); lowMode = false;
+  setDate('from', Math.max(CAL_START, todayUTC)); setDate('to', CAL_END); allDays(); lowMode = false;
   if (p === 'low') { $('loc').value = ''; $('minN').value = 1; $('maxN').value = 1; lowMode = true; }
   else { $('minN').value = 2; $('maxN').value = 7; }
   if (p === 'bonnet') $('loc').value = 'Club Wyndham Bonnet Creek';
@@ -625,7 +665,7 @@ $('body').addEventListener('click', function (ev) {
 });
 $('many').addEventListener('click', function (ev) {
   var b = ev.target.closest('button[data-fix]'); if (!b) return;
-  { var f = parse($('from').value); $('to').value = iso(Math.min(CAL_END, (isNaN(f) ? todayUTC : f) + 90 * DAY)); }
+  { var f = readDate('from'); setDate('to', Math.min(CAL_END, (isNaN(f) ? todayUTC : f) + 90 * DAY)); }
   $('f').requestSubmit();
 });
 $('pdf').addEventListener('click', function () { window.print(); });

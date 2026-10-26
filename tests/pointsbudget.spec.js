@@ -578,3 +578,17 @@ test("pointsbudget: Leave blank clears Latest Check-Out; More Dates opens 25, th
   await page.locator("#body button.more[data-step]").click();
   await expect(page.locator("#body tr.sub")).toHaveCount(others);
 });
+
+test("pointsbudget: dates can be typed freely and are written back as mm/dd/yy; bad dates get a note (owner, 2026-10-25)", async ({ page }) => {
+  await page.goto(URL);
+  for (const [typed, shown] of [["10/25/26", "10/25/26"], ["102526", "10/25/26"], ["10252026", "10/25/26"], ["10-25-2026", "10/25/26"], ["10.25.26", "10/25/26"], ["1/5/27", "01/05/27"], ["10527", "01/05/27"], ["2027-03-14", "03/14/27"]]) {
+    await page.fill("#from", typed);
+    await page.locator("#from").blur();
+    await expect(page.locator("#from")).toHaveValue(shown);
+    await expect(page.locator("#fromErr")).toBeHidden();
+  }
+  await page.fill("#from", "2/30/27");
+  await page.locator("#from").blur();
+  await expect(page.locator("#fromErr")).toBeVisible();
+  await expect(page.locator("button.pickbtn")).toHaveCount(2);
+});
