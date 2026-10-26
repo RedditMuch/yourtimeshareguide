@@ -68,6 +68,8 @@
     ].map(([b, t]) => [b + ' — ' + t, { type: t.replace('Bedroom', 'BR'), bldg: b === 'Peregrine' ? 'Peregrine Townhomes' : b }])) },
     /* Directory Page 132 (CW search bar page 136) "Fairway Forest & Foxhunt" and Page 133 (CW search bar page 137) "Mountain Laurel" */
     'Club Wyndham Resort at Fairfield Sapphire Valley': { charts: { 'Chart 1': 'Mountain Laurel' } },
+    /* SeaWatch's second chart (2026/2027 Directory Page 155) prints no building; the 2023/2024 directory names it Villas (owner, 2026-10-25) */
+    'Club Wyndham SeaWatch Resort': { charts: { 'Chart 1': 'Villas' } },
     /* Directory Page 98 (CW search bar page 102) and Page 99 (CW search bar page 103): one chart each, no building named */
     'Makai Club': { charts: { 'All listed suites': '' } },
     'Makai Club Cottages': { charts: { 'All listed suites': '' } },

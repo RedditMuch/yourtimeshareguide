@@ -996,3 +996,10 @@ test("season chart v2 Bedrooms Select All picks every room type and Clear sets N
   await expect(page.locator("#bedrooms")).toHaveValue("");
   expect(await page.locator("#typeTree input:checked").count()).toBe(0);
 });
+
+test("season chart v2 SeaWatch's second chart shows the building Villas, as the 2023/2024 directory names it (owner, 2026-10-25)", async ({ page }) => {
+  const rows = await chartRows(page, { query: "SeaWatch" });
+  const blds = new Set(rows.filter(r => /SeaWatch/.test(r.resort)).flatMap(r => r.buildings));
+  expect(blds.has("Villas")).toBe(true);
+  expect([...blds].some(b => /^Chart \d/.test(b))).toBe(false);
+});

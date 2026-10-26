@@ -217,7 +217,7 @@ rows.forEach(function (r) { if (r._disp !== r.name && Object.keys(dispSeen[r._di
    "Room — Building" or "Building — Room" (the side that names a bedroom or studio is the room), "Building: Room" (Smugglers' Notch)
    and "Room (Building)" (Palm-Aire, Sea Gardens). "Studio-J (Asian Inspired)" is a room name, not a building (Directory Page 107). */
 /* A chart's name is a building only when it isn't a placeholder ("Chart 1", "All listed suites"), the same rule as season chart v2.
-   SeaWatch's second chart (Directory Page 155) is its Villas: Brad Hessler's workbook calls it "Seawatch Villas" (owner, 2026-10-25). */
+   SeaWatch's second chart (Directory Page 155) is its Villas, as the 2023/2024 directory names it (owner, 2026-10-25); season chart v2 uses the same name. */
 var CHART_NAMES = { 'Club Wyndham SeaWatch Resort|Chart 1': 'Villas' };
 var chartName = function (r) { var n = CHART_NAMES[r.name + '|' + r.schedule]; return n || (r.schedule && !/^(Chart \d+|All listed suites)$/i.test(r.schedule) ? r.schedule : ''); };
 var ROOM_NAMES = { 'Studio-J (Asian Inspired)': 1 };
