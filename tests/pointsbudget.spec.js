@@ -32,7 +32,7 @@ test("pointsbudget: the VIP Level dropdown tailors the columns and re-renders wh
   const pcts = all.slice(11).map(num);
   expect(pcts).toEqual([...pcts].sort((a, b) => a - b));
   expect(pcts).toContain(35);
-  await page.selectOption("#vip", { label: "Not VIP" });
+  await page.selectOption("#vip", { label: "Non-VIP" });
   await expect.poll(async () => (await heads(page)).length).toBe(10);
   expect((await rows(page)).length).toBeGreaterThan(0);
   await page.selectOption("#vip", { label: "VIP Gold" });
@@ -283,7 +283,7 @@ test("pointsbudget: Location finds a state, a resort name and a city with a radi
   r = await rows(page);
   expect(r.length).toBeGreaterThan(0);
   expect(r.every(c => c[4].t === "FL")).toBe(true);
-  await page.selectOption("#vip", { label: "Not VIP" });
+  await page.selectOption("#vip", { label: "Non-VIP" });
   await expect.poll(async () => (await heads(page)).length).toBe(10);
   expect(await heads(page)).not.toContain("VIP Discount Date");
 });
@@ -309,7 +309,7 @@ test("pointsbudget: starts for a new owner: Not VIP, 1 Bedroom, 2 to 7 nights, P
   await expect(page.locator("#size option:checked")).toHaveText("1 Bedroom");
   await expect(page.locator("#size option").last()).toHaveText("All Sizes");
   await expect(page.locator("#vip option").last()).toHaveText("Show All Discounts");
-  await expect(page.locator("#vip option:checked")).toHaveText("Not VIP");
+  await expect(page.locator("#vip option:checked")).toHaveText("Non-VIP");
   await expect(page.locator("#minN")).toHaveValue("2");
   await expect(page.locator("#maxN")).toHaveValue("7");
   await expect(page.locator("h1")).toHaveText("Where Can My Points Take Me?");

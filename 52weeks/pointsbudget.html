@@ -22,7 +22,7 @@ h2{font-size:1.1rem;margin:0 0 10px}
 @media (max-width:480px){.grid{grid-template-columns:minmax(0,1fr)}}
 .span2{grid-column:span 2}.span3{grid-column:1/-1}
 .cols{display:grid;grid-template-columns:1fr 1fr;gap:0 28px}
-@media (max-width:760px){.cols{grid-template-columns:1fr}}
+@media (max-width:760px){.cols{grid-template-columns:1fr;gap:12px}}
 .col{display:flex;flex-direction:column;gap:12px;min-width:0}
 .lab{display:block;font-size:.85rem;color:var(--mute);line-height:1.25}
 .daygrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-top:6px;max-width:440px}
@@ -33,6 +33,10 @@ button.day{min-height:38px;padding:4px 0;background:transparent;color:#6b7280;bo
 button.day[aria-pressed="true"]{background:#15803d;border-color:#15803d;color:#fff}
 .maxn{margin-left:10px;font-weight:700;color:var(--mute)}
 .col .msg{margin-top:6px}
+.sethead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px 16px;margin:0 0 10px}
+.sethead h2{margin:0}.sethead label.chk{margin-top:0;font-size:.9rem;color:var(--mute)}
+.where{background:var(--head);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.radrow{display:flex;align-items:center;gap:10px;margin-top:8px}.radrow label{white-space:nowrap}.radrow select{margin-top:0}
 #pts{width:150px}#vip{width:220px}#size{width:230px}#radius{width:150px}#from,#to{width:180px}#minN,#maxN{width:90px}
 #pts,#vip,#size,#radius,#from,#to,#minN,#maxN{max-width:100%}
 td.nw small{display:block;font-size:.75em;color:var(--mute);line-height:1.2}
@@ -124,15 +128,17 @@ td.left{white-space:nowrap}td.left small{display:block;font-size:.75em;color:var
 <p class="sub noprint">Find resorts, travel dates and room types that fit your Club Wyndham points budget.</p>
 
 <section class="card noprint" id="setCard" aria-labelledby="sh">
-<h2 id="sh">Search Settings</h2>
+<div class="sethead"><h2 id="sh">Search Settings</h2><label class="chk"><input type="checkbox" id="disc"> Discovery Resorts Only</label></div>
 <form id="f" novalidate>
 <div class="cols">
 <div class="col">
-<div><label for="pts">Total Points</label><input id="pts" inputmode="numeric" autocomplete="off" placeholder="60,000" value="60,000"></div>
-<div><label for="vip">VIP Level</label><select id="vip"><option value="none">Not VIP</option><option value="all">Show All Discounts</option></select></div>
+<div><label for="pts">How Many Points Do You Want to Use?</label><input id="pts" inputmode="numeric" autocomplete="off" placeholder="60,000" value="60,000"></div>
+<div><label for="vip">VIP Level</label><select id="vip"><option value="none">Non-VIP</option><option value="all">Show All Discounts</option></select></div>
 <div><label for="size">Room Size</label><select id="size"></select></div>
-<div><label for="loc">Location</label><input id="loc" type="search" list="places" autocomplete="off" placeholder="e.g. Bay Club, Maine, Canada"><datalist id="places"></datalist><p class="hint">City and State, Resort Name, State or Country.</p><label class="chk"><input type="checkbox" id="disc"> Discovery Resorts Only</label></div>
-<div><label for="radius">Search Radius</label><select id="radius" disabled></select><p class="hint" id="radHint">The search radius needs a city and state, such as Orlando, Florida.</p></div>
+<div class="where"><label for="loc">Location</label><input id="loc" type="search" list="places" autocomplete="off" placeholder="e.g. Bay Club, Maine, Canada">
+<datalist id="places"></datalist>
+<div class="radrow"><label for="radius">Search Radius</label><select id="radius" disabled></select></div>
+<p class="hint" id="radHint">Type a resort name, state or country. For a radius, type a city and state, such as Orlando, Florida.</p></div>
 </div>
 <div class="col">
 <div><label for="from">Earliest Check-In</label><input id="from" type="date"></div>
@@ -307,7 +313,7 @@ function placeFilter(q, radius) {
 function placeUI() {
   var q = $('loc').value.trim(), center = q && GEO && !countryOf(q) && !regionOf(q) ? GEO.resolve(q) : null;
   $('radius').disabled = !center;
-  $('radHint').textContent = center ? 'Within ' + NUM.format(+$('radius').value) + ' miles of ' + center.label + ', in a straight line.' : 'The search radius needs a city and state, such as Orlando, Florida.';
+  $('radHint').textContent = center ? 'Within ' + NUM.format(+$('radius').value) + ' miles of ' + center.label + ', in a straight line.' : 'Type a resort name, state or country. For a radius, type a city and state, such as Orlando, Florida.';
 }
 $('loc').addEventListener('focus', loadGeo);
 $('loc').addEventListener('input', placeUI);
