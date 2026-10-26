@@ -21,11 +21,8 @@ h2{font-size:1.1rem;margin:0 0 10px}
 @media (max-width:760px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:480px){.grid{grid-template-columns:minmax(0,1fr)}}
 .span2{grid-column:span 2}.span3{grid-column:1/-1}
-.cols{display:grid;grid-template-columns:1fr 1fr;gap:0 28px}
-@media (max-width:760px){.cols{grid-template-columns:1fr;gap:12px}}
-.col{display:flex;flex-direction:column;gap:12px;min-width:0}
 .lab{display:block;font-size:.85rem;color:var(--mute);line-height:1.25}
-.daygrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-top:6px;max-width:440px}
+.daygrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-top:6px}
 button.grpday{all:unset;cursor:pointer;text-align:center;font-size:.85rem;font-weight:700;color:var(--stay);text-decoration:underline;border-bottom:2px solid var(--line);padding:0 0 3px}
 button.grpday:hover{text-decoration-thickness:2px}button.grpday:focus-visible{outline:2px solid var(--stay);outline-offset:2px}
 button.wkday{grid-column:1/6}button.wkend{grid-column:6/8}
@@ -35,32 +32,32 @@ button.day[aria-pressed="true"]{background:#fff;color:var(--ink);border:1.5px so
 button.day[aria-pressed="true"]::before{content:"\2713";color:#15803d;font-weight:800}
 @media (prefers-color-scheme:dark){button.day{background:#212c38;color:#6b7785;border-color:#3a4654}button.day[aria-pressed="true"]{background:#19212b;color:var(--ink);border-color:#9aa6b5}button.day[aria-pressed="true"]::before{color:#4ade80}}
 .maxn{margin-left:10px;font-weight:700;color:var(--mute)}
-.col .msg{margin-top:6px}
 .sethead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px 16px;margin:0 0 10px}
 .sethead h2{margin:0}.sethead label.chk{margin-top:0;font-size:.9rem;color:var(--mute)}
 .dayhint{font-size:.78rem;font-style:italic;margin-left:4px}
 button.link{all:unset;cursor:pointer;color:var(--stay);font-weight:700;text-decoration:underline}button.link:focus-visible{outline:2px solid var(--stay);outline-offset:2px}
 .presets{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 16px;padding:0 0 14px;border-bottom:1px solid var(--line)}.presets .lab{margin-right:4px}.presets button{min-height:34px;padding:5px 12px;font-size:.9rem}
-.dbox{position:relative;width:180px;max-width:100%}.dbox input[type=text]{padding-right:42px}
+/* One cohesive form (owner, 2026-10-26) */
+.ptsc{text-align:center;margin:2px 0 18px}
+.ptslabel{display:block;font-size:1.3rem;font-weight:700;color:var(--ink);margin:0 0 6px}
+#pts{width:260px;max-width:100%;height:58px;margin:0 auto;font-size:1.8rem;font-weight:700;text-align:center}
+.minor{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px 18px;margin-top:10px}.minor>label:first-child{margin-right:-10px}
+.minor label,.minor label.chk{display:inline-flex;margin:0;font-size:.8rem;color:#8b929b}.minor .dot{color:#b8bec6}
+#vip{width:auto;height:26px;margin:0;padding:0 4px;font-size:.78rem;color:#6b7280;background:#eef0f2;border:1px solid #d6dbe1;border-radius:6px}
+.minor input[type=checkbox]{width:14px;height:14px;accent-color:#8b929b}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px 22px;max-width:760px;margin:0 auto}
+.fgrid>div{min-width:0}.fgrid .full{grid-column:1/-1}.fgrid .rule{border-top:1px solid var(--line);margin:2px 0}
+.fgrid input:not([type=checkbox]):not(.pickin),.fgrid select{width:100%}
+.fgrid .msg{margin-top:6px}
+.btns.go{justify-content:center;margin-top:18px}
+.dbox{position:relative;width:100%}.dbox input[type=text]{padding-right:42px}
 .pickbtn{all:unset;position:absolute;right:4px;top:50%;transform:translateY(-50%);margin-top:1px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink);border-radius:6px}
 .pickbtn:hover{background:var(--head)}.pickbtn:focus-visible{outline:2px solid var(--stay)}.pickbtn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
 input.pickin{position:absolute;right:0;bottom:0;width:34px;height:1px;min-height:0;margin:0;padding:0;border:0;opacity:0;pointer-events:none}
-.twoup{display:grid;grid-template-columns:auto auto;justify-content:start;gap:0 20px;align-items:start}.twoup>div{min-width:0}
-.twoup>div:nth-child(2) .hint{white-space:normal;max-width:200px}
-@media (max-width:420px){.twoup{grid-template-columns:1fr 1fr;gap:0 12px}.dbox{width:100%}}
-.toprow{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:14px 28px;margin:0 0 18px}
-.ptsbox label{font-size:1.2rem;font-weight:700;color:var(--ink);margin-bottom:4px}
-#pts{width:240px;height:56px;font-size:1.7rem;font-weight:700;letter-spacing:.01em}
-.minor{display:flex;flex-direction:column;align-items:flex-end;gap:8px;padding-top:4px}
-.vipline{display:flex;align-items:center;gap:8px}.vipline label{font-size:.82rem;white-space:nowrap}
-.minor #vip{width:170px;height:34px;margin:0;padding:3px 6px;font-size:.88rem}.minor label.chk{margin:0;font-size:.88rem;color:var(--mute)}
-@media (max-width:480px){.minor{align-items:flex-start}.daygrid{gap:4px}button.day{font-size:.8rem;gap:1px;white-space:nowrap;letter-spacing:-.01em}button.day[aria-pressed="true"]::before{font-size:.75rem}}
+@media (max-width:480px){.daygrid{gap:4px}button.day{font-size:.8rem;gap:1px;white-space:nowrap;letter-spacing:-.01em}button.day[aria-pressed="true"]::before{font-size:.75rem}}
 .clickday{grid-column:1/-1;font-size:.78rem;font-style:italic;color:var(--mute);line-height:1;margin:2px 0 -2px}
-.wkbox{margin-top:12px;padding:6px 12px 8px;border:1px solid var(--line);border-radius:8px;background:var(--head);display:inline-block}.wkbox label.chk{margin:0}
-.where{background:var(--head);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
-.radrow{display:flex;align-items:center;gap:10px;margin-top:8px}.radrow label{white-space:nowrap}.radrow select{margin-top:0}
-#vip{width:220px}#size{width:230px}#radius{width:150px}#from,#to{width:180px}#minN,#maxN{width:90px}
-#pts,#vip,#size,#radius,#minN,#maxN{max-width:100%}#from,#to{width:100%}
+.wkbox{margin-top:12px;padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--head);display:inline-flex;align-items:center}.wkbox label.chk{margin:0;align-items:center}
+#wkn{accent-color:#15803d}
 td.nw small{display:block;font-size:.75em;color:var(--mute);line-height:1.2}
 @media (max-width:480px){.span2{grid-column:auto}}
 select:disabled{opacity:.6}
@@ -156,22 +153,21 @@ td.left{white-space:nowrap}td.left small{display:block;font-size:.75em;color:var
 <div class="presets"><span class="lab">Try an Example:</span>
 <button type="button" class="alt" data-preset="low">Lowest Points per Night</button><button type="button" class="alt" data-preset="bonnet">Bonnet Creek</button><button type="button" class="alt" data-preset="water">Water Park Resorts</button><button type="button" class="alt" data-preset="vegas">Las Vegas</button><button type="button" class="alt" data-preset="65">65,000 Points a Year</button>
 </div>
-<div class="toprow">
-<div class="ptsbox"><label for="pts">How Many Points Do You Want to Use?</label><input id="pts" inputmode="numeric" autocomplete="off" placeholder="60,000" value="60,000"></div>
-<div class="minor"><div class="vipline"><label for="vip">VIP Level</label><select id="vip"><option value="none">Non-VIP</option><option value="all">Show All Discounts</option></select></div><label class="chk"><input type="checkbox" id="disc"> Discovery Resorts Only</label></div>
+<div class="ptsc">
+<label for="pts" class="ptslabel">How Many Points Do You Want to Use?</label>
+<input id="pts" inputmode="numeric" autocomplete="off" placeholder="60,000" value="60,000">
+<div class="minor"><label for="vip">VIP Level</label><select id="vip"><option value="none">Non-VIP</option><option value="all">Show All</option></select><label class="chk"><input type="checkbox" id="disc"> Discovery Resorts Only</label></div>
 </div>
-<div class="cols">
-<div class="col">
+<div class="fgrid">
+<div class="full"><label for="loc">Location</label><input id="loc" type="search" list="places" autocomplete="off" placeholder="e.g. Bay Club, Maine, Canada"><datalist id="places"></datalist><p class="hint" id="radHint">Type a resort name, state or country. For a radius, type a city and state, such as Orlando, Florida.</p></div>
 <div><label for="size">Room Size</label><select id="size"></select></div>
-<div class="where"><label for="loc">Location</label><input id="loc" type="search" list="places" autocomplete="off" placeholder="e.g. Bay Club, Maine, Canada">
-<datalist id="places"></datalist>
-<div class="radrow"><label for="radius">Search Radius</label><select id="radius" disabled></select></div>
-<p class="hint" id="radHint">Type a resort name, state or country. For a radius, type a city and state, such as Orlando, Florida.</p></div>
-</div>
-<div class="col">
-<div class="twoup"><div><label for="from">Earliest Check-In</label><div class="dbox"><input id="from" type="text" inputmode="numeric" autocomplete="off" placeholder="mm/dd/yy"><button type="button" class="pickbtn" data-for="from" aria-label="Pick Earliest Check-In From a Calendar" title="Pick From a Calendar"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="1.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></button><input type="date" class="pickin" tabindex="-1" aria-hidden="true" data-for="from"></div><p class="msg err" id="fromErr" role="status" hidden>Type a date like 10/25/26 or 102526.</p></div><div><label for="to">Latest Check-Out</label><div class="dbox"><input id="to" type="text" inputmode="numeric" autocomplete="off" placeholder="mm/dd/yy"><button type="button" class="pickbtn" data-for="to" aria-label="Pick Latest Check-Out From a Calendar" title="Pick From a Calendar"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="1.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></button><input type="date" class="pickin" tabindex="-1" aria-hidden="true" data-for="to"></div><p class="msg err" id="toErr" role="status" hidden>Type a date like 10/25/26 or 102526.</p><p class="hint"><button type="button" class="link small" id="clearTo">Leave blank</button> to check in on the Earliest Check-In date only.</p></div></div>
-<div class="twoup"><div><label for="minN">Min Nights</label><input id="minN" type="number" min="1" max="30" value="2"><p class="msg err" id="oneNight" role="status" hidden>Note: Club Wyndham min. booking is 2 nights.</p></div><div><label for="maxN">Max Nights</label><input id="maxN" type="number" min="1" max="30" value="7"><p class="msg err" id="maxWarn" role="status" hidden>Max Nights needs to be 5 or less for weeknight-only stays.</p></div></div>
-<div><span class="lab" id="dayLbl">Check-In Day:</span>
+<div><label for="radius">Search Radius</label><select id="radius" disabled></select></div>
+<div class="rule full" aria-hidden="true"></div>
+<div><label for="from">Earliest Check-In</label><div class="dbox"><input id="from" type="text" inputmode="numeric" autocomplete="off" placeholder="mm/dd/yy"><button type="button" class="pickbtn" data-for="from" aria-label="Pick Earliest Check-In From a Calendar" title="Pick From a Calendar"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="1.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></button><input type="date" class="pickin" tabindex="-1" aria-hidden="true" data-for="from"></div><p class="msg err" id="fromErr" role="status" hidden>Type a date like 10/25/26 or 102526.</p></div>
+<div><label for="to">Latest Check-Out</label><div class="dbox"><input id="to" type="text" inputmode="numeric" autocomplete="off" placeholder="mm/dd/yy"><button type="button" class="pickbtn" data-for="to" aria-label="Pick Latest Check-Out From a Calendar" title="Pick From a Calendar"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="1.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></button><input type="date" class="pickin" tabindex="-1" aria-hidden="true" data-for="to"></div><p class="msg err" id="toErr" role="status" hidden>Type a date like 10/25/26 or 102526.</p><p class="hint"><button type="button" class="link small" id="clearTo">Leave blank</button> to check in on the Earliest Check-In date only.</p></div>
+<div><label for="minN">Min Nights</label><input id="minN" type="number" min="1" max="30" value="2"><p class="msg err" id="oneNight" role="status" hidden>Note: Club Wyndham min. booking is 2 nights.</p></div>
+<div><label for="maxN">Max Nights</label><input id="maxN" type="number" min="1" max="30" value="7"><p class="msg err" id="maxWarn" role="status" hidden>Max Nights needs to be 5 or less for weeknight-only stays.</p></div>
+<div class="full"><span class="lab" id="dayLbl">Check-In Day:</span>
 <div class="daygrid" role="group" aria-labelledby="dayLbl">
 <button type="button" class="grpday wkday" data-days="0,1,2,3,4">Weekday</button><button type="button" class="grpday wkend" data-days="5,6">Weekend</button>
 <span class="clickday">Click a day</span>
@@ -179,8 +175,7 @@ td.left{white-space:nowrap}td.left small{display:block;font-size:.75em;color:var
 </div>
 <div class="wkbox"><label class="chk"><input type="checkbox" id="wkn"> Use only weeknights for the stay (Max: 5 Nights)</label></div></div>
 </div>
-</div>
-<div class="btns"><button type="submit" id="go">Find Stays</button></div>
+<div class="btns go"><button type="submit" id="go">Find Stays</button></div>
 <p class="msg err" id="err" role="alert" hidden></p>
 <p class="msg err" id="ratenote" role="status" hidden></p>
 </form>
@@ -664,7 +659,7 @@ $('maxN').addEventListener('input', maxWarn); $('wkn').addEventListener('change'
 var weekendDays = [].filter.call(dayBtns, function (x) { return +x.getAttribute('data-d') >= 5; });
 /* ...and selects the check-in days whose Min Nights stay still ends by Friday morning: Sun to Wed for 2 nights, Sun to Thu for 1 (owner, 2026-10-25) */
 function weeknightDays() { var last = 5 - Math.max(1, Math.min(5, parseInt($('minN').value, 10) || 1)); for (var i = 0; i < dayBtns.length; i++) dayBtns[i].setAttribute('aria-pressed', String(+dayBtns[i].getAttribute('data-d') <= last)); }
-$('wkn').addEventListener('change', function () { if (this.checked) weeknightDays(); });
+$('wkn').addEventListener('change', function () { if (this.checked) { weeknightDays(); if (!(parseInt($('maxN').value, 10) <= 5)) $('maxN').value = 5; maxWarn(); } });
 $('minN').addEventListener('input', function () { if ($('wkn').checked) weeknightDays(); });
 document.querySelector('.daygrid').addEventListener('click', function () { if ($('wkn').checked && weekendDays.some(function (x) { return x.getAttribute('aria-pressed') === 'true'; })) { $('wkn').checked = false; maxWarn(); } });
 $('body').addEventListener('click', function (ev) {

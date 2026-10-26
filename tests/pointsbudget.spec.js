@@ -7,7 +7,7 @@ const num = t => parseInt(String(t).replace(/[^\d]/g, ""), 10);
 const isDash = t => !/\d/.test(t);
 const dateOf = s => { const m = /^(\d\d)\/(\d\d)\/(\d\d)$/.exec(s); return Date.UTC(2000 + +m[3], +m[1] - 1, +m[2]); };
 
-async function search(page, { points = "60,000", from, to, vip = "Show All Discounts" } = {}) {
+async function search(page, { points = "60,000", from, to, vip = "Show All" } = {}) {
   await open(page);
   await page.fill("#pts", points);
   if (vip) await page.selectOption("#vip", { label: vip });
@@ -47,7 +47,7 @@ test("pointsbudget: the VIP Level dropdown tailors the columns and re-renders wh
     expect([row[1], row[11]].some(c => !isDash(c.t) && num(c.t) <= 60000)).toBe(true);
     expect(isDash(row[11].t)).toBe(false);
   }
-  await page.selectOption("#vip", { label: "Show All Discounts" });
+  await page.selectOption("#vip", { label: "Show All" });
   await expect.poll(async () => (await heads(page)).length).toBe(all.length);
 });
 
@@ -233,7 +233,7 @@ test("pointsbudget: at 1366 and 1400 px wide the table fits without inner scroll
 
 test("pointsbudget: no duplicate resort and room type rows, short State codes, sort resets when the VIP Level changes", async ({ page }) => {
   await open(page);
-  await page.selectOption("#vip", { label: "Show All Discounts" });
+  await page.selectOption("#vip", { label: "Show All" });
   await page.fill("#pts", "400,000");
   await page.fill("#minN", "1");
   await page.click("#go");
@@ -256,7 +256,7 @@ test("pointsbudget: Location finds a state, a resort name and a city with a radi
   await expect(page.locator("#area")).toHaveCount(0);
   await expect(page.locator("#state")).toHaveCount(0);
   await expect(page.locator("#radius")).toBeDisabled();
-  await page.selectOption("#vip", { label: "Show All Discounts" });
+  await page.selectOption("#vip", { label: "Show All" });
   await page.fill("#pts", "150,000");
   await page.fill("#loc", "Tennessee");
   await page.click("#go");
@@ -306,7 +306,7 @@ test("pointsbudget: starts for a new owner: Not VIP, 1 Bedroom, 2 to 7 nights, P
   await page.goto(URL);
   await expect(page.locator("#size option:checked")).toHaveText("1 Bedroom");
   await expect(page.locator("#size option").last()).toHaveText("All Sizes");
-  await expect(page.locator("#vip option").last()).toHaveText("Show All Discounts");
+  await expect(page.locator("#vip option").last()).toHaveText("Show All");
   await expect(page.locator("#vip option:checked")).toHaveText("Non-VIP");
   await expect(page.locator("#minN")).toHaveValue("2");
   await expect(page.locator("#maxN")).toHaveValue("7");
@@ -495,6 +495,8 @@ test("pointsbudget: day buttons show a green check when on and are grey, dashed 
   await expect(sun).toHaveCSS("color", "rgb(163, 171, 181)");
   await expect(page.locator("#maxWarn")).toBeHidden();
   await page.check("#wkn");
+  await expect(page.locator("#maxN")).toHaveValue("5");   // checking weeknights sets Max Nights to 5
+  await page.fill("#maxN", "7");
   await expect(page.locator("#maxWarn")).toBeVisible();
   await expect(page.locator("#maxWarn")).toHaveText("Max Nights needs to be 5 or less for weeknight-only stays.");
   await page.fill("#maxN", "5");
