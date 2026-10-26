@@ -654,3 +654,12 @@ test("pointsbudget: Find Stays turns grey when a setting changes after a search,
   await page.click('button.day[data-d="3"]');
   await expect(page.locator("#go")).toHaveClass(/stale/);
 });
+
+test("pointsbudget: before a search a placeholder says where the stays will appear; it goes away after the search (owner, 2026-10-26)", async ({ page }) => {
+  await page.goto(URL);
+  await expect(page.locator("#emptyCard")).toBeVisible();
+  await expect(page.locator("#emptyCard h2")).toHaveText("Your Suggested Stays Will Appear Here");
+  await page.click("#go");
+  await expect(page.locator("#body tr").first()).toBeVisible();
+  await expect(page.locator("#emptyCard")).toBeHidden();
+});

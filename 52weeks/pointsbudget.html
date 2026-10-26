@@ -54,6 +54,9 @@ button.link{all:unset;cursor:pointer;color:var(--stay);font-weight:700;text-deco
 .where{background:var(--head);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
 .radrow{display:flex;align-items:center;gap:10px;margin-top:8px}.radrow label{white-space:nowrap;margin:0}.fgrid .radrow select{width:auto;min-width:150px;margin:0}
 .btns.go{justify-content:center;margin:18px 0 10px}
+#emptyCard{position:relative;border-style:dashed;overflow:hidden;min-height:220px}#emptyCard[hidden]{display:none}
+.ghost{padding:4px 0;opacity:.55}.grow{display:flex;gap:2%;padding:12px 4px;border-bottom:1px solid var(--line)}.grow i{display:block;height:10px;border-radius:5px;background:#e3dfd6}.ghead i{background:#d6d0c2;height:12px}
+.emptymsg{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:16px;background:radial-gradient(ellipse at center,var(--card) 35%,transparent 75%)}.emptymsg h2{margin:0 0 6px}.emptymsg p{margin:0;color:var(--mute)}
 #go.stale{background:#d9d6cf;border-color:#a8a29a;color:#5b574f;box-shadow:none}#go.stale:hover{background:#cfcbc2}
 .dbox{position:relative;width:100%}.dbox input[type=text]{padding-right:42px}
 .pickbtn{all:unset;position:absolute;right:4px;top:50%;transform:translateY(-50%);margin-top:1px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink);border-radius:6px}
@@ -184,6 +187,8 @@ td.left{white-space:nowrap}td.left small{display:block;font-size:.75em;color:var
 <p class="msg err" id="ratenote" role="status" hidden></p>
 </form>
 </section>
+
+<section class="card noprint" id="emptyCard" aria-labelledby="eh"><div class="ghost" aria-hidden="true"><div class="grow ghead"><i style="width:7%"></i><i style="width:6%"></i><i style="width:9%"></i><i style="width:13%"></i><i style="width:24%"></i><i style="width:12%"></i><i style="width:8%"></i></div><div class="grow"><i style="width:7%"></i><i style="width:6%"></i><i style="width:9%"></i><i style="width:13%"></i><i style="width:18%"></i><i style="width:12%"></i><i style="width:8%"></i></div><div class="grow"><i style="width:7%"></i><i style="width:6%"></i><i style="width:9%"></i><i style="width:13%"></i><i style="width:25%"></i><i style="width:12%"></i><i style="width:8%"></i></div><div class="grow"><i style="width:7%"></i><i style="width:6%"></i><i style="width:9%"></i><i style="width:13%"></i><i style="width:20%"></i><i style="width:12%"></i><i style="width:8%"></i></div><div class="grow"><i style="width:7%"></i><i style="width:6%"></i><i style="width:9%"></i><i style="width:13%"></i><i style="width:27%"></i><i style="width:12%"></i><i style="width:8%"></i></div><div class="grow"><i style="width:7%"></i><i style="width:6%"></i><i style="width:9%"></i><i style="width:13%"></i><i style="width:22%"></i><i style="width:12%"></i><i style="width:8%"></i></div></div><div class="emptymsg"><h2 id="eh">Your Suggested Stays Will Appear Here</h2><p>Enter how many points you want to use and select Find Stays, or try an example above.</p></div></section>
 
 <section class="card" id="resCard" aria-labelledby="rh" hidden>
 <h2 id="rh">Results</h2>
@@ -574,7 +579,7 @@ function render() {
   if (!many.hidden) many.innerHTML = '<p class="manytip"><strong>Want every stay in one list?</strong> Narrow your search to ' + NUM.format(LIMIT) + ' stays or fewer: type a city and pick a smaller radius, pick one room size, or choose fewer dates.' + (lastInfo.cfg.to - lastInfo.cfg.from <= 91 * DAY ? '' : ' <button type="button" class="alt" data-fix="90">Next 3 Months Only</button>') + '</p>' +
     '<p>Your settings match ' + NUM.format(lastInfo.total) + ' possible stays, so this list shows one stay for each of the ' + NUM.format(results.length) + ' resorts and room types: ' + (lastInfo.cfg.low ? 'the one that uses the fewest points.' : 'the one that uses the most of your points without going over (if two tie, the longer stay, then the earlier date).') + ' That may not be the best fit for your plans, so select More Dates on a row to see its other dates.</p>';
   $('status').textContent = !results.length ? 'No stays fit these settings.' : (lastInfo.every ? 'All ' + NUM.format(results.length) + ' stays that fit' : NUM.format(results.length) + ' resorts and room types') + (sortKey == null ? (lastInfo.cfg.low ? ', fewest points first.' : ', closest to ' + NUM.format(budget) + ' points first.') : ', sorted by ' + $('tbl').querySelectorAll('thead th')[sortKey].textContent.replace(/[\u25B2\u25BC\u21C5]/g, '') + (sortDir > 0 ? ' (ascending).' : ' (descending).'));
-  $('resCard').hidden = false;
+  $('resCard').hidden = false; $('emptyCard').hidden = true;
   $('xlsx').disabled = $('pdf').disabled = !list.length;
   $('printInfo').innerHTML = '<p>Total Points: ' + NUM.format(budget) + ' | VIP Level: ' + esc(lastInfo.vipLabel) + ' | Location: ' + esc(lastInfo.place) + ' | Room Size: ' + esc(lastInfo.size || 'All') + '<br>Check-In From: ' + esc(lastInfo.from) + ' | Check-Out By: ' + esc(lastInfo.to) + ' | Nights per Stay: ' + lastInfo.minN + ' to ' + lastInfo.maxN + ' | Check-In Day: ' + esc(lastInfo.dayLabel) + '<br>Generated: ' + fmtDate(todayUTC) + '</p>';
   document.documentElement.setAttribute('data-search-ms', String(Math.round(lastInfo.ms)));
