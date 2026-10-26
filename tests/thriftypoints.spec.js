@@ -400,3 +400,29 @@ test("thriftypoints: building names are split out of the room type in all three 
   expect(await look("Smugglers")).toContainEqual(["1 Bedroom Deluxe", "Mountain Laurels"]);
   expect(await look("Royal Garden at Waikiki")).toContainEqual(["Studio-J (Asian Inspired)", ""]);
 });
+
+test("thriftypoints: SeaWatch's second chart shows as Villas, and no Building is ever a placeholder like Chart 1 (owner, 2026-10-25)", async ({ page }) => {
+  await page.goto(URL);
+  await page.fill("#pts", "400,000");
+  await page.fill("#loc", "SeaWatch");
+  await page.click("#go");
+  await expect(page.locator("#body tr").first()).toBeVisible();
+  const r = await page.$$eval("#body tr:not(.sub)", trs => trs.map(tr => [tr.children[6].innerText.trim(), tr.children[7].innerText.trim()]));
+  expect(r).toContainEqual(["1 Bedroom Deluxe", "Villas"]);
+  expect(r).toContainEqual(["1 Bedroom Deluxe", "Towers & North Tower"]);
+  await page.fill("#loc", "");
+  await page.click("#go");
+  await page.click("#all").catch(() => {});
+  const blds = await page.$$eval("#body td.bld", tds => tds.map(td => td.innerText.trim()));
+  expect(blds.filter(b => /^(Chart \d+|All listed suites)$/i.test(b))).toEqual([]);
+});
+
+test("thriftypoints: rows with week-by-week nightly points are searched, e.g. Ocean Boulevard Towers 1 and 2 (owner, 2026-10-25)", async ({ page }) => {
+  await page.goto(URL);
+  await page.fill("#pts", "400,000");
+  await page.fill("#loc", "Ocean Boulevard");
+  await page.click("#go");
+  await expect(page.locator("#body tr").first()).toBeVisible();
+  const blds = new Set(await page.$$eval("#body tr:not(.sub) td.bld", tds => tds.map(td => td.innerText.trim())));
+  for (const t of ["Tower 1", "Tower 2", "Tower 3", "Tower 4"]) expect(blds.has(t)).toBe(true);
+});

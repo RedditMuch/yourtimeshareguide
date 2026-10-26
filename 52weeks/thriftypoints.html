@@ -216,6 +216,10 @@ rows.forEach(function (r) { if (r._disp !== r.name && Object.keys(dispSeen[r._di
 /* The building goes in its own column, the same way season chart v2 reads it. Room types come three ways:
    "Room — Building" or "Building — Room" (the side that names a bedroom or studio is the room), "Building: Room" (Smugglers' Notch)
    and "Room (Building)" (Palm-Aire, Sea Gardens). "Studio-J (Asian Inspired)" is a room name, not a building (Directory Page 107). */
+/* A chart's name is a building only when it isn't a placeholder ("Chart 1", "All listed suites"), the same rule as season chart v2.
+   SeaWatch's second chart (Directory Page 155) is its Villas: Brad Hessler's workbook calls it "Seawatch Villas" (owner, 2026-10-25). */
+var CHART_NAMES = { 'Club Wyndham SeaWatch Resort|Chart 1': 'Villas' };
+var chartName = function (r) { var n = CHART_NAMES[r.name + '|' + r.schedule]; return n || (r.schedule && !/^(Chart \d+|All listed suites)$/i.test(r.schedule) ? r.schedule : ''); };
 var ROOM_NAMES = { 'Studio-J (Asian Inspired)': 1 };
 function splitRoom(t) {
   t = String(t);
@@ -240,7 +244,7 @@ var keep = [];
 Object.keys(grp).forEach(function (k) {
   var a = grp[k], uniq = [], sig = {};
   a.forEach(function (r) { var g = JSON.stringify(r.weeks) + JSON.stringify(N[r.id]); if (!sig[g]) { sig[g] = 1; uniq.push(r); } });
-  uniq.forEach(function (r) { r._sch = (uniq.length > 1 || r.multiple) && r.schedule ? r.schedule : ''; var sp = splitRoom(r.roomType); r._rt = sp[0]; r._bld = sp[1] || r._sch;   /* a resort with several charts: the chart's building names fill in a blank Building */ r._room = r._rt + (r._bld ? ' (' + r._bld + ')' : ''); keep.push(r); });
+  uniq.forEach(function (r) { r._sch = (uniq.length > 1 || r.multiple) ? chartName(r) : ''; var sp = splitRoom(r.roomType); r._rt = sp[0]; r._bld = sp[1] || r._sch;   /* a resort with several charts: the chart's building names fill in a blank Building */ r._room = r._rt + (r._bld ? ' (' + r._bld + ')' : ''); keep.push(r); });
 });
 rows = rows.filter(function (r) { return keep.indexOf(r) >= 0; });
 var fill = function (sel, items) { items.forEach(function (it) { var o = document.createElement('option'); o.value = it[0]; o.textContent = it[1]; sel.appendChild(o); }); };
@@ -378,9 +382,13 @@ function ordered() {
 /* Every stay that fits, for one resort and room type: calls fit(start night, nights, points used, prices) */
 var LIMIT = 500;   /* up to this many stays that fit, every one is listed; above it, the best stay for each resort and room type (owner, 2026-10-25) */
 function eachFit(r, cfg, a, b, pre, miss, fit) {
-  var nb = N[r.id];
+  var nb = N[r.id], byWeek = nb.byWeek;
   for (var i = a; i < b; i++) {
-    var s = seasonOf(r, nightWeek[i]), band = s && nb[s], p = band ? (nightWknd[i] ? band.friSat : band.sunThu) : null;
+    var p;
+    if (byWeek) {   /* several rates inside one season, listed week by week as [weekend, weekday]; week 53 follows week 52 (same as season chart v2) */
+      var w = nightWeek[i], x = byWeek[w - 1] || (w === 53 ? byWeek[51] : null);
+      p = x ? (nightWknd[i] ? x[0] : x[1]) : null;
+    } else { var s = seasonOf(r, nightWeek[i]), band = s && nb[s]; p = band ? (nightWknd[i] ? band.friSat : band.sunThu) : null; }
     pre[i + 1] = pre[i] + (p == null ? 0 : p); miss[i + 1] = miss[i] + (p == null ? 1 : 0);
   }
   for (var s0 = a; s0 < b; s0++) {
