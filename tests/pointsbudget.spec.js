@@ -607,9 +607,11 @@ test("pointsbudget: clicking in a date box selects the whole date (owner, 2026-1
 test("pointsbudget: clicking in Min Nights or Max Nights selects the number (owner, 2026-10-26)", async ({ page }) => {
   await page.goto(URL);
   await page.click("#maxN");
+  await page.waitForTimeout(150);   // a person clicks, then types
   await page.keyboard.type("4");
   await expect(page.locator("#maxN")).toHaveValue("4");
   await page.click("#minN");
+  await page.waitForTimeout(150);
   await page.keyboard.type("3");
   await expect(page.locator("#minN")).toHaveValue("3");
 });
