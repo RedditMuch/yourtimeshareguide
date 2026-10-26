@@ -486,14 +486,16 @@ test("pointsbudget: one night shows the red note; the availability notice sits b
   expect(order).toBe(true);
 });
 
-test("pointsbudget: day buttons are solid green when on and red-outlined with grey text when off; Max Nights warns above 5 with weeknights (owner, 2026-10-25)", async ({ page }) => {
+test("pointsbudget: day buttons show a green check when on and are grey, dashed and crossed through when off; Max Nights warns above 5 with weeknights (owner, 2026-10-25)", async ({ page }) => {
   await page.goto(URL);
   const sun = page.locator('button.day[data-d="0"]');
-  await expect(sun).toHaveCSS("background-color", "rgb(21, 128, 61)");
+  await expect(sun).toHaveCSS("background-color", "rgb(255, 255, 255)");
+  expect(await sun.evaluate(b => getComputedStyle(b, "::before").content)).toBe('"\u2713"');
   await sun.click();
   await expect(sun).toHaveAttribute("aria-pressed", "false");
-  await expect(sun).toHaveCSS("border-top-color", "rgb(185, 28, 28)");
-  await expect(sun).toHaveCSS("color", "rgb(107, 114, 128)");
+  await expect(sun).toHaveCSS("border-top-style", "dashed");
+  await expect(sun).toHaveCSS("text-decoration-line", "line-through");
+  await expect(sun).toHaveCSS("color", "rgb(163, 171, 181)");
   await expect(page.locator("#maxWarn")).toBeHidden();
   await page.check("#wkn");
   await expect(page.locator("#maxWarn")).toBeVisible();

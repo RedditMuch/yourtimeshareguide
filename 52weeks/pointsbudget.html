@@ -29,8 +29,11 @@ h2{font-size:1.1rem;margin:0 0 10px}
 button.grpday{all:unset;cursor:pointer;text-align:center;font-size:.85rem;font-weight:700;color:var(--stay);text-decoration:underline;border-bottom:2px solid var(--line);padding:0 0 3px}
 button.grpday:hover{text-decoration-thickness:2px}button.grpday:focus-visible{outline:2px solid var(--stay);outline-offset:2px}
 button.wkday{grid-column:1/6}button.wkend{grid-column:6/8}
-button.day{min-height:38px;padding:4px 0;background:transparent;color:#6b7280;border:2px solid #b91c1c;font-weight:600}
-button.day[aria-pressed="true"]{background:#15803d;border-color:#15803d;color:#fff}
+/* Check-In Day buttons, option C (owner, 2026-10-25): on = white with a small green check; off = grey, dashed and crossed through */
+button.day{display:flex;align-items:center;justify-content:center;gap:3px;min-height:38px;padding:4px 0;background:#f3f4f6;color:#a3abb5;border:1.5px dashed #c9cfd6;font-weight:600;text-decoration:line-through}
+button.day[aria-pressed="true"]{background:#fff;color:var(--ink);border:1.5px solid #8a96a3;text-decoration:none}
+button.day[aria-pressed="true"]::before{content:"\2713";color:#15803d;font-weight:800}
+@media (prefers-color-scheme:dark){button.day{background:#212c38;color:#6b7785;border-color:#3a4654}button.day[aria-pressed="true"]{background:#19212b;color:var(--ink);border-color:#9aa6b5}button.day[aria-pressed="true"]::before{color:#4ade80}}
 .maxn{margin-left:10px;font-weight:700;color:var(--mute)}
 .col .msg{margin-top:6px}
 .sethead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px 16px;margin:0 0 10px}
