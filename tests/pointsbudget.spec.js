@@ -444,7 +444,7 @@ test("pointsbudget: Check-In Day buttons and Weeknights Only; the day shows unde
   const cells = () => page.$$eval("#body tr:not(.sub)", trs => trs.map(tr => [tr.children[8].innerText.trim().split("\n"), tr.children[9].innerText.trim().split("\n"), tr.children[10].innerText.trim()]));
   await open(page);
   await page.fill("#pts", "60,000");
-  await page.click('button.grpday[data-days="5,6"]');   // Weekend link: Fri and Sat only
+  await page.click('button.grpday[data-days="0,1,2,3,4"]');   // Weekday toggle: Sun to Thu off, Fri and Sat stay on
   await expect(page.locator("button.day[aria-pressed=true]")).toHaveCount(2);
   await page.click("#go");
   await expect(page.locator("#body tr").first()).toBeVisible();
@@ -453,8 +453,12 @@ test("pointsbudget: Check-In Day buttons and Weeknights Only; the day shows unde
     expect(ci[1]).toBe(dow(ci[0]));
     expect(co[1]).toBe(dow(co[0]));
   }
-  await page.click('button.grpday[data-days="0,1,2,3,4"]');   // Weekday link: Sun to Thu only
+  await page.click('button.grpday[data-days="0,1,2,3,4"]');   // Weekday toggle again: Sun to Thu back on
+  await expect(page.locator("button.day[aria-pressed=true]")).toHaveCount(7);
+  await page.click('button.grpday[data-days="5,6"]');   // Weekend toggle: Fri and Sat off, Sun to Thu stay on
   await expect(page.locator("button.day[aria-pressed=true]")).toHaveCount(5);
+  await page.click('button.grpday[data-days="5,6"]');
+  await expect(page.locator("button.day[aria-pressed=true]")).toHaveCount(7);
   await page.check("#wkn");
   await page.click("#go");
   await expect(page.locator("#body tr").first()).toBeVisible();
@@ -474,7 +478,7 @@ test("pointsbudget: one night shows the red note; the availability notice sits b
   await expect(page.locator("#oneNight")).toBeHidden();
   await page.fill("#minN", "1");
   await expect(page.locator("#oneNight")).toBeVisible();
-  await expect(page.locator("#oneNight")).toHaveText("For information only: Club Wyndham's minimum booking is 2 nights.");
+  await expect(page.locator("#oneNight")).toHaveText("Note: Club Wyndham min. booking is 2 nights.");
   await expect(page.locator("#oneNight")).toHaveCSS("color", "rgb(185, 28, 28)");
   await page.fill("#minN", "2");
   await expect(page.locator("#oneNight")).toBeHidden();
@@ -513,5 +517,5 @@ test("pointsbudget: weeknights only selects Sun to Wed for 2 night stays (Sun to
   expect(await on()).toBe("Sun,Mon,Tue,Wed,Thu");
   await page.click('button.grpday[data-days="5,6"]');
   await expect(page.locator("#wkn")).not.toBeChecked();
-  await expect(page.locator("button.day[aria-pressed=true]")).toHaveCount(2);
+  expect(await on()).toBe("Sun,Mon,Tue,Wed,Thu,Fri,Sat");
 });

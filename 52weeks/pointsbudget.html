@@ -143,7 +143,7 @@ td.left{white-space:nowrap}td.left small{display:block;font-size:.75em;color:var
 <div class="col">
 <div><label for="from">Earliest Check-In</label><input id="from" type="date"></div>
 <div><label for="to">Latest Check-Out</label><input id="to" type="date"></div>
-<div><label for="minN">Min Nights</label><input id="minN" type="number" min="1" max="30" value="2"><p class="msg err" id="oneNight" role="status" hidden>For information only: Club Wyndham's minimum booking is 2 nights.</p></div>
+<div><label for="minN">Min Nights</label><input id="minN" type="number" min="1" max="30" value="2"><p class="msg err" id="oneNight" role="status" hidden>Note: Club Wyndham min. booking is 2 nights.</p></div>
 <div><label for="maxN">Max Nights</label><input id="maxN" type="number" min="1" max="30" value="7"><p class="msg err" id="maxWarn" role="status" hidden>Max Nights needs to be 5 or less for weeknight-only stays.</p></div>
 <div><span class="lab" id="dayLbl">Check-In Day:</span>
 <div class="daygrid" role="group" aria-labelledby="dayLbl">
@@ -554,14 +554,18 @@ $('tbl').querySelector('thead').addEventListener('click', function (ev) {
 });
 $('reset').addEventListener('click', function () { sortKey = null; sortDir = 1; sortUI(); render(); });
 $('all').addEventListener('click', function () { shown = results.length; render(); });
-/* Check-In Day buttons (owner, 2026-10-25): pick any days; Weekday = Sun to Thu, Weekend = Fri and Sat. Off: red outline, grey text; on: green */
+/* Check-In Day buttons (owner, 2026-10-25): pick any days; Weekday (Sun to Thu) and Weekend (Fri and Sat) toggle their days. Off: red outline, grey text; on: green */
 var dayBtns = document.querySelectorAll('button.day');
 function readDays() { var d = []; for (var i = 0; i < dayBtns.length; i++) d[+dayBtns[i].getAttribute('data-d')] = dayBtns[i].getAttribute('aria-pressed') === 'true'; return d; }
 function dayLabel(d) { var on = DOW.filter(function (x, i) { return d[i]; }); return on.length === 7 ? 'Any Day' : on.join(', '); }
 document.querySelector('.daygrid').addEventListener('click', function (ev) {
   var b = ev.target.closest('button'); if (!b) return;
   if (b.classList.contains('day')) b.setAttribute('aria-pressed', String(b.getAttribute('aria-pressed') !== 'true'));
-  else { var want = b.getAttribute('data-days').split(','); for (var i = 0; i < dayBtns.length; i++) dayBtns[i].setAttribute('aria-pressed', String(want.indexOf(dayBtns[i].getAttribute('data-d')) >= 0)); }   /* Weekday or Weekend link: select just those days */
+  else {   /* Weekday or Weekend: a toggle for its own days; all on turns them off, otherwise on. The other days stay as they are (owner, 2026-10-25) */
+    var want = b.getAttribute('data-days').split(','), grp = [].filter.call(dayBtns, function (x) { return want.indexOf(x.getAttribute('data-d')) >= 0; });
+    var allOn = grp.every(function (x) { return x.getAttribute('aria-pressed') === 'true'; });
+    grp.forEach(function (x) { x.setAttribute('aria-pressed', String(!allOn)); });
+  }
 });
 /* One night: allowed for information, with a note (owner, 2026-10-25) */
 function oneNight() { $('oneNight').hidden = parseInt($('minN').value, 10) !== 1; }
