@@ -142,7 +142,7 @@ td.left{white-space:nowrap}td.left small{display:block;font-size:.75em;color:var
 <div class="sethead"><h2 id="sh">Search Settings</h2><label class="chk"><input type="checkbox" id="disc"> Discovery Resorts Only</label></div>
 <form id="f" novalidate>
 <div class="presets"><span class="lab">Try an Example:</span>
-<button type="button" class="alt" data-preset="low">Lowest Points per Night</button><button type="button" class="alt" data-preset="bonnet">Bonnet Creek</button><button type="button" class="alt" data-preset="water">Water Park Resorts</button><button type="button" class="alt" data-preset="vegas">Las Vegas</button><button type="button" class="alt" data-preset="210">210,000 Points a Year</button>
+<button type="button" class="alt" data-preset="low">Lowest Points per Night</button><button type="button" class="alt" data-preset="bonnet">Bonnet Creek</button><button type="button" class="alt" data-preset="water">Water Park Resorts</button><button type="button" class="alt" data-preset="vegas">Las Vegas</button><button type="button" class="alt" data-preset="65">65,000 Points a Year</button>
 </div>
 <div class="cols">
 <div class="col">
@@ -633,7 +633,7 @@ document.querySelector('.presets').addEventListener('click', function (ev) {
   if (p === 'bonnet') $('loc').value = 'Club Wyndham Bonnet Creek';
   if (p === 'water') $('loc').value = 'Water Park Resorts';
   if (p === 'vegas') $('loc').value = 'Las Vegas';
-  if (p === '210') { $('pts').value = '210,000'; $('loc').value = ''; }
+  if (p === '65') { $('pts').value = '65,000'; $('loc').value = ''; }
   oneNight(); placeUI(); sortKey = null; sortDir = 1;
   $('f').requestSubmit();
   setTimeout(function () { var rc = $('resCard'); if (!rc.hidden) rc.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 50);

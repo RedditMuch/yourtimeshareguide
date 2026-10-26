@@ -547,9 +547,9 @@ test("pointsbudget: example buttons fill in the settings and search (owner, 2026
   await expect.poll(names).toEqual(["Bonnet Creek"]);
   await page.click('button[data-preset="vegas"]');
   await expect.poll(async () => (await page.$$eval("#body tr:not(.sub)", trs => trs.map(tr => tr.children[8].innerText.trim()))).every(c => c === "Las Vegas")).toBe(true);
-  await page.click('button[data-preset="210"]');
-  await expect(page.locator("#pts")).toHaveValue("210,000");
-  await expect(page.locator("#status")).toContainText("closest to 210,000 points first");
+  await page.click('button[data-preset="65"]');
+  await expect(page.locator("#pts")).toHaveValue("65,000");
+  await expect(page.locator("#status")).toContainText("closest to 65,000 points first");
   await page.click('button[data-preset="low"]');
   await expect(page.locator("#status")).toContainText("fewest points first");
   const r = await rows(page);
