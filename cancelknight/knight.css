@@ -403,4 +403,9 @@ body.kn-vid.kn-four .kn-cap{background:transparent}
 .kn-exc-h{font-weight:800;margin:0 0 4px}
 .kn-exc ul{margin:0;padding-left:1.2rem}
 .kn-exc li{margin:4px 0}
+/* The box's source along its bottom edge (owner, 2026-10-26) */
+.kn-exc-src{margin:10px 0 0;padding-top:7px;border-top:1px dashed rgba(34,33,30,.4);font-size:.82rem;line-height:1.45;color:var(--ink2)}
+.kn-exc-src .kn-src-h{display:inline;margin-right:3px}
+.kn-exc-dot{margin:0 4px;color:var(--ink3)}
+.kn-exc-t{font-style:italic}
 .kn-side .kn-warn{margin-bottom:8px}

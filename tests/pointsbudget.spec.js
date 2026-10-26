@@ -311,7 +311,7 @@ test("pointsbudget: starts for a new owner: Not VIP, 1 Bedroom, 2 to 7 nights, P
   await expect(page.locator("#minN")).toHaveValue("2");
   await expect(page.locator("#maxN")).toHaveValue("7");
   await expect(page.locator("h1")).toHaveText("Where Can My Points Take Me?");
-  await expect(page.locator(".sub").first()).toHaveText("Find resorts, travel dates and room types that fit your Club Wyndham points budget.");
+  await expect(page.locator(".htext p")).toHaveText("Find resorts, travel dates and room types that fit your Club Wyndham points budget.");
   await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", "Find stays that fit your points and explore your options.");
   await expect(page.locator("#notice")).toContainText("Not Live Availability");
   await expect(page.locator("#notice a")).toHaveAttribute("href", /clubwyndham/);
