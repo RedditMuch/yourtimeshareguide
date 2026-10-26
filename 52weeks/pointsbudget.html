@@ -45,9 +45,21 @@ button.link{all:unset;cursor:pointer;color:var(--stay);font-weight:700;text-deco
 .pickbtn{all:unset;position:absolute;right:4px;top:50%;transform:translateY(-50%);margin-top:1px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink);border-radius:6px}
 .pickbtn:hover{background:var(--head)}.pickbtn:focus-visible{outline:2px solid var(--stay)}.pickbtn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
 input.pickin{position:absolute;right:0;bottom:0;width:34px;height:1px;min-height:0;margin:0;padding:0;border:0;opacity:0;pointer-events:none}
+.twoup{display:grid;grid-template-columns:auto auto;justify-content:start;gap:0 20px;align-items:start}.twoup>div{min-width:0}
+.twoup>div:nth-child(2) .hint{white-space:normal;max-width:200px}
+@media (max-width:420px){.twoup{grid-template-columns:1fr 1fr;gap:0 12px}.dbox{width:100%}}
+.toprow{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:14px 28px;margin:0 0 18px}
+.ptsbox label{font-size:1.2rem;font-weight:700;color:var(--ink);margin-bottom:4px}
+#pts{width:240px;height:56px;font-size:1.7rem;font-weight:700;letter-spacing:.01em}
+.minor{display:flex;flex-direction:column;align-items:flex-end;gap:8px;padding-top:4px}
+.vipline{display:flex;align-items:center;gap:8px}.vipline label{font-size:.82rem;white-space:nowrap}
+.minor #vip{width:170px;height:34px;margin:0;padding:3px 6px;font-size:.88rem}.minor label.chk{margin:0;font-size:.88rem;color:var(--mute)}
+@media (max-width:480px){.minor{align-items:flex-start}.daygrid{gap:4px}button.day{font-size:.8rem;gap:1px;white-space:nowrap;letter-spacing:-.01em}button.day[aria-pressed="true"]::before{font-size:.75rem}}
+.clickday{grid-column:1/-1;font-size:.78rem;font-style:italic;color:var(--mute);line-height:1;margin:2px 0 -2px}
+.wkbox{margin-top:12px;padding:6px 12px 8px;border:1px solid var(--line);border-radius:8px;background:var(--head);display:inline-block}.wkbox label.chk{margin:0}
 .where{background:var(--head);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
 .radrow{display:flex;align-items:center;gap:10px;margin-top:8px}.radrow label{white-space:nowrap}.radrow select{margin-top:0}
-#pts{width:150px}#vip{width:220px}#size{width:230px}#radius{width:150px}#from,#to{width:180px}#minN,#maxN{width:90px}
+#vip{width:220px}#size{width:230px}#radius{width:150px}#from,#to{width:180px}#minN,#maxN{width:90px}
 #pts,#vip,#size,#radius,#minN,#maxN{max-width:100%}#from,#to{width:100%}
 td.nw small{display:block;font-size:.75em;color:var(--mute);line-height:1.2}
 @media (max-width:480px){.span2{grid-column:auto}}
@@ -114,7 +126,7 @@ tr.sub td{background:var(--head);font-size:.92em}tr.sub td.res{padding-left:14px
 td.left{white-space:nowrap}td.left small{display:block;font-size:.75em;color:var(--mute);line-height:1.2}
 .notes p{margin:0 0 8px}.notes p:last-child{margin:0}.notes ul{margin:0;padding-left:20px}.notes li{margin:0 0 6px}.notes li:last-child{margin:0}.notes a{color:var(--stay)}
 .notes{border-left:5px solid #d08a00}
-.foot{color:var(--mute);font-size:.85rem;text-align:center;margin-top:20px}
+.foot{color:var(--mute);font-size:.85rem;text-align:center;max-width:1000px;margin:20px auto 0}
 .printonly{display:none}
 @media print{
  body{background:#fff;color:#000}
@@ -139,15 +151,17 @@ td.left{white-space:nowrap}td.left small{display:block;font-size:.75em;color:var
 <p class="sub noprint">Find resorts, travel dates and room types that fit your Club Wyndham points budget.</p>
 
 <section class="card noprint" id="setCard" aria-labelledby="sh">
-<div class="sethead"><h2 id="sh">Search Settings</h2><label class="chk"><input type="checkbox" id="disc"> Discovery Resorts Only</label></div>
+<div class="sethead"><h2 id="sh">Search Settings</h2></div>
 <form id="f" novalidate>
 <div class="presets"><span class="lab">Try an Example:</span>
 <button type="button" class="alt" data-preset="low">Lowest Points per Night</button><button type="button" class="alt" data-preset="bonnet">Bonnet Creek</button><button type="button" class="alt" data-preset="water">Water Park Resorts</button><button type="button" class="alt" data-preset="vegas">Las Vegas</button><button type="button" class="alt" data-preset="65">65,000 Points a Year</button>
 </div>
+<div class="toprow">
+<div class="ptsbox"><label for="pts">How Many Points Do You Want to Use?</label><input id="pts" inputmode="numeric" autocomplete="off" placeholder="60,000" value="60,000"></div>
+<div class="minor"><div class="vipline"><label for="vip">VIP Level</label><select id="vip"><option value="none">Non-VIP</option><option value="all">Show All Discounts</option></select></div><label class="chk"><input type="checkbox" id="disc"> Discovery Resorts Only</label></div>
+</div>
 <div class="cols">
 <div class="col">
-<div><label for="pts">How Many Points Do You Want to Use?</label><input id="pts" inputmode="numeric" autocomplete="off" placeholder="60,000" value="60,000"></div>
-<div><label for="vip">VIP Level</label><select id="vip"><option value="none">Non-VIP</option><option value="all">Show All Discounts</option></select></div>
 <div><label for="size">Room Size</label><select id="size"></select></div>
 <div class="where"><label for="loc">Location</label><input id="loc" type="search" list="places" autocomplete="off" placeholder="e.g. Bay Club, Maine, Canada">
 <datalist id="places"></datalist>
@@ -155,16 +169,15 @@ td.left{white-space:nowrap}td.left small{display:block;font-size:.75em;color:var
 <p class="hint" id="radHint">Type a resort name, state or country. For a radius, type a city and state, such as Orlando, Florida.</p></div>
 </div>
 <div class="col">
-<div><label for="from">Earliest Check-In</label><div class="dbox"><input id="from" type="text" inputmode="numeric" autocomplete="off" placeholder="mm/dd/yy"><button type="button" class="pickbtn" data-for="from" aria-label="Pick Earliest Check-In From a Calendar" title="Pick From a Calendar"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="1.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></button><input type="date" class="pickin" tabindex="-1" aria-hidden="true" data-for="from"></div><p class="msg err" id="fromErr" role="status" hidden>Type a date like 10/25/26 or 102526.</p></div>
-<div><label for="to">Latest Check-Out</label><div class="dbox"><input id="to" type="text" inputmode="numeric" autocomplete="off" placeholder="mm/dd/yy"><button type="button" class="pickbtn" data-for="to" aria-label="Pick Latest Check-Out From a Calendar" title="Pick From a Calendar"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="1.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></button><input type="date" class="pickin" tabindex="-1" aria-hidden="true" data-for="to"></div><p class="msg err" id="toErr" role="status" hidden>Type a date like 10/25/26 or 102526.</p><p class="hint"><button type="button" class="link small" id="clearTo">Leave blank</button> to check in on the Earliest Check-In date only.</p></div>
-<div><label for="minN">Min Nights</label><input id="minN" type="number" min="1" max="30" value="2"><p class="msg err" id="oneNight" role="status" hidden>Note: Club Wyndham min. booking is 2 nights.</p></div>
-<div><label for="maxN">Max Nights</label><input id="maxN" type="number" min="1" max="30" value="7"><p class="msg err" id="maxWarn" role="status" hidden>Max Nights needs to be 5 or less for weeknight-only stays.</p></div>
-<div><span class="lab" id="dayLbl">Check-In Day: <span class="dayhint">click a day to turn it on or off</span></span>
+<div class="twoup"><div><label for="from">Earliest Check-In</label><div class="dbox"><input id="from" type="text" inputmode="numeric" autocomplete="off" placeholder="mm/dd/yy"><button type="button" class="pickbtn" data-for="from" aria-label="Pick Earliest Check-In From a Calendar" title="Pick From a Calendar"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="1.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></button><input type="date" class="pickin" tabindex="-1" aria-hidden="true" data-for="from"></div><p class="msg err" id="fromErr" role="status" hidden>Type a date like 10/25/26 or 102526.</p></div><div><label for="to">Latest Check-Out</label><div class="dbox"><input id="to" type="text" inputmode="numeric" autocomplete="off" placeholder="mm/dd/yy"><button type="button" class="pickbtn" data-for="to" aria-label="Pick Latest Check-Out From a Calendar" title="Pick From a Calendar"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="1.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></button><input type="date" class="pickin" tabindex="-1" aria-hidden="true" data-for="to"></div><p class="msg err" id="toErr" role="status" hidden>Type a date like 10/25/26 or 102526.</p><p class="hint"><button type="button" class="link small" id="clearTo">Leave blank</button> to check in on the Earliest Check-In date only.</p></div></div>
+<div class="twoup"><div><label for="minN">Min Nights</label><input id="minN" type="number" min="1" max="30" value="2"><p class="msg err" id="oneNight" role="status" hidden>Note: Club Wyndham min. booking is 2 nights.</p></div><div><label for="maxN">Max Nights</label><input id="maxN" type="number" min="1" max="30" value="7"><p class="msg err" id="maxWarn" role="status" hidden>Max Nights needs to be 5 or less for weeknight-only stays.</p></div></div>
+<div><span class="lab" id="dayLbl">Check-In Day:</span>
 <div class="daygrid" role="group" aria-labelledby="dayLbl">
 <button type="button" class="grpday wkday" data-days="0,1,2,3,4">Weekday</button><button type="button" class="grpday wkend" data-days="5,6">Weekend</button>
+<span class="clickday">Click a day</span>
 <button type="button" class="day" data-d="0" aria-pressed="true">Sun</button><button type="button" class="day" data-d="1" aria-pressed="true">Mon</button><button type="button" class="day" data-d="2" aria-pressed="true">Tue</button><button type="button" class="day" data-d="3" aria-pressed="true">Wed</button><button type="button" class="day" data-d="4" aria-pressed="true">Thu</button><button type="button" class="day" data-d="5" aria-pressed="true">Fri</button><button type="button" class="day" data-d="6" aria-pressed="true">Sat</button>
 </div>
-<label class="chk"><input type="checkbox" id="wkn"> Use only Weeknights for the stay. <span class="maxn">Max: 5 Nights</span></label></div>
+<div class="wkbox"><label class="chk"><input type="checkbox" id="wkn"> Use only weeknights for the stay (Max: 5 Nights)</label></div></div>
 </div>
 </div>
 <div class="btns"><button type="submit" id="go">Find Stays</button></div>
@@ -201,7 +214,7 @@ td.left{white-space:nowrap}td.left small{display:block;font-size:.75em;color:var
 </ul>
 </section>
 
-<p class="foot">Independent guide, not affiliated with or endorsed by Club Wyndham. Not legal or financial advice. Last checked: not yet confirmed.</p>
+<p class="foot">Independent guide, not affiliated with or endorsed by Club Wyndham. Not legal or financial advice.</p>
 </div>
 
 <script src="data.js"></script>
