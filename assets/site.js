@@ -63,7 +63,7 @@
   ];
   var FOOT_LINKS = [["About", "about/"], ["Contact", "contact/"], ["Privacy", "privacy/"], ["Terms of Use", "terms/"], ["Site Map", "sitemap/"]];
 
-  // The live site (owner, 2026-10-24) shows only its finished pages: Home, 52 Weeks, Knight Move and Contact.
+  // The live site (owner, 2026-10-24) shows only its finished pages: Home, 52 Weeks, Knight Move, Points Budget (2026-10-26) and Contact, with Contact last.
   // The full workshop tabs stay on the local preview (port 8099) and when a page is opened from disk.
   var LIVE = !FILE && location.port !== "8099";
   if (LIVE) {
@@ -71,12 +71,14 @@
       { id: "home", t: "Home", href: "" },
       { id: "52weeks", t: "52 Weeks", href: "52weeks/" },
       { id: "cancelknight", t: "Knight Move", href: "cancelknight/" },
+      { id: "pointsbudget", t: "Points Budget", href: "52weeks/pointsbudget.html" },
       { id: "contact", t: "Contact", href: "contact/" }
     ];
     FOOT_LINKS = [["Contact", "contact/"]];
   }
 
-  var current = LIVE ? (location.pathname.split("/")[1] || "home").toLowerCase() : (document.body.getAttribute("data-tab") || "").toLowerCase();
+  // Points Budget lives inside the 52weeks folder, so its tab is found by file name, not by folder
+  var current = LIVE ? (/\/pointsbudget(\.html)?\/?$/i.test(location.pathname) ? "pointsbudget" : (location.pathname.split("/")[1] || "home").toLowerCase()) : (document.body.getAttribute("data-tab") || "").toLowerCase();
   // Club Wyndham runs on Eastern Time (owner, 2026-10-25), so the masthead's date, week and clock are Eastern.
   function eastern() {
     var p = {};

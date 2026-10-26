@@ -89,7 +89,8 @@
       "<li>Move it one square to the left. That is one more day: " + mdy(target) + "." +
       (ci.getDay() === 0 ? " Your check-in day is the first square of its row, so the knight steps off the board into the grey edge, which holds the day before that row starts." : "") + "</li>" +
       "<li>Your last day to cancel and get your points back is <strong>" + mdy(target) + "</strong>, by 11:59 p.m. ET.</li>";
-    $("kn-cite").innerHTML = '<span class="kn-src-h">Sources:</span>' + Y.cite(281, 285, true) + "<br>" + Y.cite(282, 286, true);
+    $("kn-cite").innerHTML = '<span class="kn-src-h">Sources:</span>' + Y.cite(281, 285, true);
+    $("kn-exc-cite").innerHTML = Y.cite(282, 286, true);   // Page 282 sits at the bottom of the Exceptions box (owner, 2026-10-26)
   }
 
   function caption(s) {
