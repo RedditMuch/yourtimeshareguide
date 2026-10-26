@@ -2,12 +2,13 @@
 import { test, expect } from "@playwright/test";
 
 const URL = "/52weeks/pointsbudget.html";
+const open = async page => { await page.goto(URL); await page.selectOption("#size", { label: "All Sizes" }); };
 const num = t => parseInt(String(t).replace(/[^\d]/g, ""), 10);
 const isDash = t => !/\d/.test(t);
 const dateOf = s => { const m = /^(\d\d)\/(\d\d)\/(\d\d)$/.exec(s); return Date.UTC(2000 + +m[3], +m[1] - 1, +m[2]); };
 
 async function search(page, { points = "60,000", from, to, vip = "Show All Discounts" } = {}) {
-  await page.goto(URL);
+  await open(page);
   await page.fill("#pts", points);
   if (vip) await page.selectOption("#vip", { label: vip });
   if (from) await page.fill("#from", from);
@@ -17,7 +18,7 @@ async function search(page, { points = "60,000", from, to, vip = "Show All Disco
 }
 // Columns as rows() and heads() return them (they skip Points Left Over, the 3rd column on the page, and the More Dates button):
 // 0 Season, 1 Full Price, 2 Resort, 3 City, 4 State, 5 Room Type, 6 Building, 7 Check-In, 8 Check-Out, 9 Nights, 10 VIP Discount Date (only with VIP prices), 11.. discount columns
-const rows = page => page.$$eval("#body tr:not(.sub)", trs => trs.map(tr => [...tr.children].filter(td => !td.classList.contains("left")).map(td => { const c = td.cloneNode(true); c.querySelectorAll("button").forEach(b => b.remove()); return { t: c.textContent.trim(), fit: td.dataset.fit, cls: td.className }; })));
+const rows = page => page.$$eval("#body tr:not(.sub)", trs => trs.map(tr => [...tr.children].filter(td => !td.classList.contains("left")).map(td => { const c = td.cloneNode(true); c.querySelectorAll("button, small").forEach(b => b.remove()); return { t: c.textContent.trim(), fit: td.dataset.fit, cls: td.className }; })));
 const heads = page => page.$$eval("#tbl thead th", ths => ths.map(th => th.innerText.replace(/[▲▼⇅]/g, "").replace(/\s+/g, " ").trim()).filter(t => t !== "Points Left Over"));
 const col = (page, i) => page.locator('#tbl thead button[data-col="' + (i >= 2 ? i + 1 : i) + '"]');   // page column for a heads() index
 const sortOf = (page, i) => page.locator("#tbl thead th").nth(i >= 2 ? i + 1 : i).getAttribute("aria-sort");
@@ -232,7 +233,7 @@ test("pointsbudget: at 1366 and 1400 px wide the table fits without inner scroll
 });
 
 test("pointsbudget: no duplicate resort and room type rows, short State codes, sort resets when the VIP Level changes", async ({ page }) => {
-  await page.goto(URL);
+  await open(page);
   await page.selectOption("#vip", { label: "Show All Discounts" });
   await page.fill("#pts", "400,000");
   await page.fill("#minN", "1");
@@ -253,7 +254,7 @@ test("pointsbudget: no duplicate resort and room type rows, short State codes, s
 });
 
 test("pointsbudget: Location finds a state, a resort name and a city with a radius; VIP Discount Date is 60 days before check-in", async ({ page }) => {
-  await page.goto(URL);
+  await open(page);
   await expect(page.locator("#area")).toHaveCount(0);
   await expect(page.locator("#state")).toHaveCount(0);
   await expect(page.locator("#radius")).toBeDisabled();
@@ -288,7 +289,7 @@ test("pointsbudget: Location finds a state, a resort name and a city with a radi
 });
 
 test("pointsbudget: Discovery Resorts Only shows only resorts on Club Wyndham's Discovery list (owner, 2026-10-25)", async ({ page }) => {
-  await page.goto(URL);
+  await open(page);
   await page.fill("#pts", "150,000");
   await page.fill("#loc", "Nevada");
   await page.check("#disc");
@@ -303,8 +304,11 @@ test("pointsbudget: Discovery Resorts Only shows only resorts on Club Wyndham's 
   await expect.poll(async () => new Set((await rows(page)).map(c => c[2].t)).size).toBeGreaterThan(names.length);
 });
 
-test("pointsbudget: starts for a new owner: Not VIP, 2 to 7 nights, Points Left Over after Full Price", async ({ page }) => {
+test("pointsbudget: starts for a new owner: Not VIP, 1 Bedroom, 2 to 7 nights, Points Left Over after Full Price", async ({ page }) => {
   await page.goto(URL);
+  await expect(page.locator("#size option:checked")).toHaveText("1 Bedroom");
+  await expect(page.locator("#size option").last()).toHaveText("All Sizes");
+  await expect(page.locator("#vip option").last()).toHaveText("Show All Discounts");
   await expect(page.locator("#vip option:checked")).toHaveText("Not VIP");
   await expect(page.locator("#minN")).toHaveValue("2");
   await expect(page.locator("#maxN")).toHaveValue("7");
@@ -349,7 +353,7 @@ test("pointsbudget: broad settings show the count and one row per resort and roo
 
 test("pointsbudget: narrow settings list every stay that fits, more than one per room type", async ({ page }) => {
   const n = new Date(), iso = d => new Date(d).toISOString().slice(0, 10), start = Date.UTC(n.getFullYear(), n.getMonth(), n.getDate()) + 30 * 864e5;
-  await page.goto(URL);
+  await open(page);
   await page.fill("#pts", "100,000");
   await page.fill("#loc", "bonnet creek");
   await page.fill("#minN", "4");
@@ -383,7 +387,7 @@ test("pointsbudget: with VIP prices shown, Points Left Over names its price leve
 
 test("pointsbudget: building names are split out of the room type in all three printed forms (owner, 2026-10-25)", async ({ page }) => {
   const look = async q => {
-    await page.goto(URL);
+    await open(page);
     await page.fill("#pts", "400,000");
     await page.fill("#loc", q);
     await page.click("#go");
@@ -404,7 +408,7 @@ test("pointsbudget: building names are split out of the room type in all three p
 });
 
 test("pointsbudget: SeaWatch's second chart shows as Villas, and no Building is ever a placeholder like Chart 1 (owner, 2026-10-25)", async ({ page }) => {
-  await page.goto(URL);
+  await open(page);
   await page.fill("#pts", "400,000");
   await page.fill("#loc", "SeaWatch");
   await page.click("#go");
@@ -420,7 +424,7 @@ test("pointsbudget: SeaWatch's second chart shows as Villas, and no Building is 
 });
 
 test("pointsbudget: rows with week-by-week nightly points are searched, e.g. Ocean Boulevard Towers 1 and 2 (owner, 2026-10-25)", async ({ page }) => {
-  await page.goto(URL);
+  await open(page);
   await page.fill("#pts", "400,000");
   await page.fill("#loc", "Ocean Boulevard");
   await page.click("#go");
@@ -433,4 +437,45 @@ test("pointsbudget: the old thriftypoints.html address forwards to pointsbudget.
   await page.goto("/52weeks/thriftypoints.html#x");
   await expect(page).toHaveURL(/\/52weeks\/pointsbudget\.html#x$/);
   await expect(page.locator("h1")).toHaveText("Where Can My Points Take Me?");
+});
+
+test("pointsbudget: Check-In Day buttons and Weeknights Only; the day shows under each date (owner, 2026-10-25)", async ({ page }) => {
+  const dow = s => ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][new Date(dateOf(s)).getUTCDay()];
+  const cells = () => page.$$eval("#body tr:not(.sub)", trs => trs.map(tr => [tr.children[8].innerText.trim().split("\n"), tr.children[9].innerText.trim().split("\n"), tr.children[10].innerText.trim()]));
+  await open(page);
+  await page.fill("#pts", "60,000");
+  await page.click('button.link[data-days="5,6"]');
+  await expect(page.locator("button.day[aria-pressed=true]")).toHaveCount(2);
+  await page.click("#go");
+  await expect(page.locator("#body tr").first()).toBeVisible();
+  for (const [ci, co] of await cells()) {
+    expect(["Fri", "Sat"]).toContain(ci[1]);
+    expect(ci[1]).toBe(dow(ci[0]));
+    expect(co[1]).toBe(dow(co[0]));
+  }
+  await page.click('button.link[data-days="0,1,2,3,4,5,6"]');
+  await page.check("#wkn");
+  await page.click("#go");
+  await expect(page.locator("#body tr").first()).toBeVisible();
+  for (const [ci, co, n] of await cells()) {
+    expect(["Sun", "Mon", "Tue", "Wed", "Thu"]).toContain(ci[1]);
+    expect(num(n)).toBeLessThanOrEqual(5);
+    for (let d = dateOf(ci[0]); d < dateOf(co[0]); d += 864e5) expect([5, 6]).not.toContain(new Date(d).getUTCDay());
+  }
+  for (const b of await page.locator("button.day").all()) if ((await b.getAttribute("aria-pressed")) === "true") await b.click();
+  await page.click("#go");
+  await expect(page.locator("#err")).toHaveText("Pick at least one check-in day.");
+});
+
+test("pointsbudget: one night shows the red note; the availability notice sits below the results (owner, 2026-10-25)", async ({ page }) => {
+  await page.goto(URL);
+  await expect(page.locator("#oneNight")).toBeHidden();
+  await page.fill("#minN", "1");
+  await expect(page.locator("#oneNight")).toBeVisible();
+  await expect(page.locator("#oneNight")).toHaveText("For information only: Club Wyndham's minimum booking is 2 nights.");
+  await expect(page.locator("#oneNight")).toHaveCSS("color", "rgb(185, 28, 28)");
+  await page.fill("#minN", "2");
+  await expect(page.locator("#oneNight")).toBeHidden();
+  const order = await page.evaluate(() => { const n = document.getElementById("notice"), r = document.getElementById("resCard"); return !!(r.compareDocumentPosition(n) & Node.DOCUMENT_POSITION_FOLLOWING); });
+  expect(order).toBe(true);
 });
