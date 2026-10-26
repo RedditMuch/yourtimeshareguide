@@ -371,6 +371,7 @@ setDate('to', CAL_END);
   var inp = $(id), pick = document.querySelector('input.pickin[data-for="' + id + '"]');
   inp.addEventListener('blur', function () { var t = readTyped(inp.value); if (!isNaN(t)) setDate(id, t); else $(id + 'Err').hidden = !inp.value.trim(); });
   inp.addEventListener('input', function () { $(id + 'Err').hidden = true; });
+  inp.addEventListener('focus', function () { setTimeout(function () { inp.select(); }, 0); });   /* clicking in selects the whole date, so typing replaces it (owner, 2026-10-25) */
   document.querySelector('button.pickbtn[data-for="' + id + '"]').addEventListener('click', function () {
     var t = readTyped(inp.value); pick.value = isNaN(t) ? '' : iso(t); pick.min = iso(CAL_START); pick.max = iso(CAL_END);
     try { pick.showPicker(); } catch (e) { pick.focus(); pick.click(); }

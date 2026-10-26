@@ -592,3 +592,12 @@ test("pointsbudget: dates can be typed freely and are written back as mm/dd/yy; 
   await expect(page.locator("#fromErr")).toBeVisible();
   await expect(page.locator("button.pickbtn")).toHaveCount(2);
 });
+
+test("pointsbudget: clicking in a date box selects the whole date (owner, 2026-10-25)", async ({ page }) => {
+  await page.goto(URL);
+  await page.click("#to");
+  await expect.poll(() => page.$eval("#to", i => i.value.slice(i.selectionStart, i.selectionEnd))).toBe("01/07/28");
+  await page.keyboard.type("123127");
+  await page.locator("#to").blur();
+  await expect(page.locator("#to")).toHaveValue("12/31/27");
+});
