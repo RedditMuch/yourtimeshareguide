@@ -64,7 +64,6 @@ test("pointsbudget: every row has a price at most 60,000 and highlights match ex
 
 test("pointsbudget: 35% Off is the rounded-up full price times 0.65 for every stay, near or far; no dashes", async ({ page }) => {
   await search(page, { points: "150,000" });
-  await page.click("#all").catch(() => {});
   const col = (await heads(page)).findIndex(t => /^35%/.test(t));
   expect(col).toBeGreaterThan(6);
   let near = 0, far = 0;
@@ -114,7 +113,6 @@ test("pointsbudget: dates are mm/dd/yy and check-out is after check-in", async (
 
 test("pointsbudget: sorting by Check-In, Nights and Reset Order", async ({ page }) => {
   await search(page, { points: "150,000" });
-  await page.click("#all").catch(() => {});
   const first = (await rows(page))[0][2].t;
   const all = await rows(page);
   const c = i => col(page, i), sortAttr = i => sortOf(page, i);
@@ -145,7 +143,6 @@ test("pointsbudget: sorting by Check-In, Nights and Reset Order", async ({ page 
 
 test("pointsbudget: City and State columns exist, State sorts with equal codes grouped, every heading has an indicator", async ({ page }) => {
   await search(page, { points: "150,000" });
-  await page.click("#all").catch(() => {});
   const h = await heads(page);
   const si = h.indexOf("State"), ci = h.indexOf("City");
   expect(ci).toBeGreaterThanOrEqual(0);
@@ -162,7 +159,6 @@ test("pointsbudget: City and State columns exist, State sorts with equal codes g
 
 test("pointsbudget: the Season cell shows the season name on its color, Full Price uses the green fit highlight, and Season sorts in groups", async ({ page }) => {
   await search(page, { points: "150,000" });
-  await page.click("#all").catch(() => {});
   await expect(page.locator("#seasonLegend")).toHaveCount(0);
   const h = await heads(page);
   const si = h.indexOf("Season");
@@ -195,7 +191,6 @@ test("pointsbudget: the Season cell shows the season name on its color, Full Pri
 
 test("pointsbudget: Club Wyndham is dropped from resort names but typing it still finds the resort", async ({ page }) => {
   await search(page, { points: "150,000" });
-  await page.click("#all").catch(() => {});
   const names = (await rows(page)).map(c => c[2].t);
   const clubbed = names.filter(n => /^Club Wyndham/.test(n));
   expect(clubbed.length).toBeLessThan(names.length / 4);
@@ -239,7 +234,6 @@ test("pointsbudget: no duplicate resort and room type rows, short State codes, s
   await page.fill("#minN", "1");
   await page.click("#go");
   await expect(page.locator("#body tr").first()).toBeVisible();
-  await page.click("#all").catch(() => {});
   const r = await rows(page);
   expect(r.length).toBeGreaterThan(100);
   const keys = r.map(c => [c[2].t, c[5].t, c[6].t].join("|"));
@@ -346,9 +340,10 @@ test("pointsbudget: broad settings show the count and one row per resort and roo
   for (const [full, res, room] of sub) { expect(num(full)).toBeLessThanOrEqual(60000); expect(res).toBe(r[0][2].t); expect(room).toBe(r[0][5].t); }
   await page.locator("#body button.more").first().click();
   await expect(page.locator("#body tr.sub")).toHaveCount(0);
-  await page.locator('#many button[data-fix="7"]').click();
-  await expect(page.locator("#minN")).toHaveValue("7");
-  await expect(page.locator("#maxN")).toHaveValue("7");
+  await expect(page.locator('#many button[data-fix="7"]')).toHaveCount(0);
+  await expect(many).toContainText("Want every stay in one list?");
+  await expect(many).toContainText("the one that uses the most of your points without going over");
+  await expect(page.locator("#status")).not.toContainText("ms");
 });
 
 test("pointsbudget: narrow settings list every stay that fits, more than one per room type", async ({ page }) => {
@@ -364,7 +359,6 @@ test("pointsbudget: narrow settings list every stay that fits, more than one per
   await expect(page.locator("#body tr").first()).toBeVisible();
   await expect(page.locator("#many")).toBeHidden();
   await expect(page.locator("#status")).toContainText(/^All [\d,]+ stays that fit/);
-  await page.click("#all").catch(() => {});
   const r = await rows(page);
   const keys = r.map(c => [c[2].t, c[5].t, c[6].t].join("|"));
   expect(new Set(keys).size).toBeLessThan(keys.length);
@@ -418,7 +412,6 @@ test("pointsbudget: SeaWatch's second chart shows as Villas, and no Building is 
   expect(r).toContainEqual(["1 Bedroom Deluxe", "Towers & North Tower"]);
   await page.fill("#loc", "");
   await page.click("#go");
-  await page.click("#all").catch(() => {});
   const blds = await page.$$eval("#body td.bld", tds => tds.map(td => td.innerText.trim()));
   expect(blds.filter(b => /^(Chart \d+|All listed suites)$/i.test(b))).toEqual([]);
 });
@@ -530,7 +523,6 @@ test("pointsbudget: a blank Latest Check-Out shows stays that check in on the Ea
   await page.fill("#to", "");
   await page.click("#go");
   await expect(page.locator("#body tr").first()).toBeVisible();
-  await page.click("#all").catch(() => {});
   const r = await rows(page);
   expect(r.length).toBeGreaterThan(1);
   for (const c of r) expect(dateOf(c[7].t)).toBe(day);
@@ -538,4 +530,47 @@ test("pointsbudget: a blank Latest Check-Out shows stays that check in on the Ea
   await page.click('button.day[data-d="' + dow + '"]');
   await page.click("#go");
   await expect(page.locator("#err")).toContainText("which is turned off under Check-In Day");
+});
+
+test("pointsbudget: example buttons fill in the settings and search (owner, 2026-10-25)", async ({ page }) => {
+  await page.goto(URL);
+  const names = () => page.$$eval("#body tr:not(.sub) td.res", t => [...new Set(t.map(x => x.childNodes[0].textContent.trim()))]);
+  await page.click('button[data-preset="water"]');
+  await expect(page.locator("#body tr").first()).toBeVisible();
+  expect((await names()).sort()).toEqual(["Glacier Canyon", "Great Smokies Lodge"]);
+  await page.click('button[data-preset="bonnet"]');
+  await expect(page.locator("#loc")).toHaveValue("Club Wyndham Bonnet Creek");
+  await expect.poll(names).toEqual(["Bonnet Creek"]);
+  await page.click('button[data-preset="vegas"]');
+  await expect.poll(async () => (await page.$$eval("#body tr:not(.sub)", trs => trs.map(tr => tr.children[4].innerText.trim()))).every(c => c === "Las Vegas")).toBe(true);
+  await page.click('button[data-preset="210"]');
+  await expect(page.locator("#pts")).toHaveValue("210,000");
+  await expect(page.locator("#status")).toContainText("closest to 210,000 points first");
+  await page.click('button[data-preset="low"]');
+  await expect(page.locator("#status")).toContainText("fewest points first");
+  const r = await rows(page);
+  const prices = r.map(c => num(c[1].t));
+  expect(prices).toEqual([...prices].sort((a, b) => a - b));
+  for (const c of r) expect(num(c[9].t)).toBe(1);
+  await expect(page.locator("#oneNight")).toBeVisible();
+});
+
+test("pointsbudget: Leave blank clears Latest Check-Out; More Dates opens 25, then Show All; matches are blue (owner, 2026-10-25)", async ({ page }) => {
+  await page.goto(URL);
+  await page.click("#clearTo");
+  await expect(page.locator("#to")).toHaveValue("");
+  await page.fill("#to", "2027-12-31");
+  await page.fill("#pts", "60,000");
+  await page.click("#go");
+  await expect(page.locator("#body tr").first()).toBeVisible();
+  await expect(page.locator("#all")).toHaveCount(0);
+  const fit = page.locator("#body td.fit").first();
+  await expect(fit).toHaveCSS("background-color", "rgb(211, 230, 250)");
+  const btn = page.locator("#body button.more").first();
+  const others = num(await btn.textContent());
+  expect(others).toBeGreaterThan(25);
+  await btn.click();
+  await expect(page.locator("#body tr.sub")).toHaveCount(26);   // 25 dates and the Show All row
+  await page.locator("#body button.more[data-step]").click();
+  await expect(page.locator("#body tr.sub")).toHaveCount(others);
 });

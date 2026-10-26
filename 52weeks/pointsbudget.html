@@ -38,6 +38,9 @@ button.day[aria-pressed="true"]::before{content:"\2713";color:#15803d;font-weigh
 .col .msg{margin-top:6px}
 .sethead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px 16px;margin:0 0 10px}
 .sethead h2{margin:0}.sethead label.chk{margin-top:0;font-size:.9rem;color:var(--mute)}
+.dayhint{font-size:.78rem;font-style:italic;margin-left:4px}
+button.link{all:unset;cursor:pointer;color:var(--stay);font-weight:700;text-decoration:underline}button.link:focus-visible{outline:2px solid var(--stay);outline-offset:2px}
+.presets{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 16px;padding:0 0 14px;border-bottom:1px solid var(--line)}.presets .lab{margin-right:4px}.presets button{min-height:34px;padding:5px 12px;font-size:.9rem}
 .where{background:var(--head);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
 .radrow{display:flex;align-items:center;gap:10px;margin-top:8px}.radrow label{white-space:nowrap}.radrow select{margin-top:0}
 #pts{width:150px}#vip{width:220px}#size{width:230px}#radius{width:150px}#from,#to{width:180px}#minN,#maxN{width:90px}
@@ -93,13 +96,14 @@ td.sPrime{background:var(--prime)}td.sHigh{background:var(--high)}td.sValue{back
 .chips span.chip{display:inline-flex;align-items:center;gap:5px;color:var(--ink)}
 .chips i{display:inline-block;width:14px;height:14px;border-radius:3px;border:1px solid rgba(0,0,0,.35)}
 td.pPrime{background:rgba(229,127,118,.34)}td.pHigh{background:rgba(239,156,76,.34)}td.pValue{background:rgba(247,226,151,.55)}td.pQuiet{background:rgba(140,207,176,.34)}
-td.fit{background:#d4efe0;font-weight:700;box-shadow:inset 3px 0 0 var(--good)}
-@media (prefers-color-scheme:dark){td.fit{background:#1d4a31}}
+td.fit{background:#d3e6fa;color:#0f3d6b;font-weight:700;box-shadow:inset 3px 0 0 #2a6fb0}   /* blue, not a season color (owner, 2026-10-25) */
+@media (prefers-color-scheme:dark){td.fit{background:#1d3a5c;color:#e8edf3}}
 .notes{background:var(--warn)}
 .notice{max-width:1000px;margin:0 auto 16px;padding:10px 14px;border:1px solid #e0b25a;border-left:5px solid #d08a00;border-radius:8px;background:var(--warn);font-size:.95rem}
 .notice a{color:var(--stay)}
 .many{background:var(--warn);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:0 0 10px;font-size:.95rem}
-.many p{margin:0 0 8px}.many .btns{margin-top:0;gap:8px}.many button{min-height:34px;padding:5px 12px}
+.many p{margin:0 0 8px}.many p:last-child{margin:0}
+.many .manytip{font-size:1.05rem;padding:8px 10px;margin:0 0 10px;background:var(--card);border:1px solid #e0b25a;border-radius:8px}.many .manytip button{margin-left:6px;vertical-align:middle}.many .btns{margin-top:0;gap:8px}.many button{min-height:34px;padding:5px 12px}
 button.more{all:unset;display:block;margin-top:4px;font-size:.8rem;font-weight:700;color:var(--stay);cursor:pointer;text-decoration:underline}
 button.more:focus-visible{outline:2px solid var(--stay);outline-offset:1px}
 tr.sub td{background:var(--head);font-size:.92em}tr.sub td.res{padding-left:14px;color:var(--mute)}
@@ -133,6 +137,9 @@ td.left{white-space:nowrap}td.left small{display:block;font-size:.75em;color:var
 <section class="card noprint" id="setCard" aria-labelledby="sh">
 <div class="sethead"><h2 id="sh">Search Settings</h2><label class="chk"><input type="checkbox" id="disc"> Discovery Resorts Only</label></div>
 <form id="f" novalidate>
+<div class="presets"><span class="lab">Try an Example:</span>
+<button type="button" class="alt" data-preset="low">Lowest Points per Night</button><button type="button" class="alt" data-preset="bonnet">Bonnet Creek</button><button type="button" class="alt" data-preset="water">Water Park Resorts</button><button type="button" class="alt" data-preset="vegas">Las Vegas</button><button type="button" class="alt" data-preset="210">210,000 Points a Year</button>
+</div>
 <div class="cols">
 <div class="col">
 <div><label for="pts">How Many Points Do You Want to Use?</label><input id="pts" inputmode="numeric" autocomplete="off" placeholder="60,000" value="60,000"></div>
@@ -145,10 +152,10 @@ td.left{white-space:nowrap}td.left small{display:block;font-size:.75em;color:var
 </div>
 <div class="col">
 <div><label for="from">Earliest Check-In</label><input id="from" type="date"></div>
-<div><label for="to">Latest Check-Out</label><input id="to" type="date"><p class="hint">Leave blank to check in on the Earliest Check-In date only.</p></div>
+<div><label for="to">Latest Check-Out</label><input id="to" type="date"><p class="hint"><button type="button" class="link small" id="clearTo">Leave blank</button> to check in on the Earliest Check-In date only.</p></div>
 <div><label for="minN">Min Nights</label><input id="minN" type="number" min="1" max="30" value="2"><p class="msg err" id="oneNight" role="status" hidden>Note: Club Wyndham min. booking is 2 nights.</p></div>
 <div><label for="maxN">Max Nights</label><input id="maxN" type="number" min="1" max="30" value="7"><p class="msg err" id="maxWarn" role="status" hidden>Max Nights needs to be 5 or less for weeknight-only stays.</p></div>
-<div><span class="lab" id="dayLbl">Check-In Day:</span>
+<div><span class="lab" id="dayLbl">Check-In Day: <span class="dayhint">click a day to turn it on or off</span></span>
 <div class="daygrid" role="group" aria-labelledby="dayLbl">
 <button type="button" class="grpday wkday" data-days="0,1,2,3,4">Weekday</button><button type="button" class="grpday wkend" data-days="5,6">Weekend</button>
 <button type="button" class="day" data-d="0" aria-pressed="true">Sun</button><button type="button" class="day" data-d="1" aria-pressed="true">Mon</button><button type="button" class="day" data-d="2" aria-pressed="true">Tue</button><button type="button" class="day" data-d="3" aria-pressed="true">Wed</button><button type="button" class="day" data-d="4" aria-pressed="true">Thu</button><button type="button" class="day" data-d="5" aria-pressed="true">Fri</button><button type="button" class="day" data-d="6" aria-pressed="true">Sat</button>
@@ -167,18 +174,17 @@ td.left{white-space:nowrap}td.left small{display:block;font-size:.75em;color:var
 <div class="printonly" id="printInfo"></div>
 <p class="status" id="status" aria-live="polite"></p>
 <div class="many noprint" id="many" hidden></div>
-<p class="hint" id="legend">Highlighted prices (green fill and bold) are at or below your total points.</p>
+<p class="hint" id="legend">Highlighted prices (blue fill and bold) are at or below your total points.</p>
 <p class="hint noprint">Select any column heading to sort.</p>
 <div class="scroll" id="scroll" tabindex="0" role="region" aria-label="Best stays for your points, scrollable table">
 <table id="tbl"><thead><tr></tr></thead><tbody id="body"></tbody></table>
 </div>
 <div class="btns noprint">
-<button type="button" class="alt" id="all" hidden>Show All</button>
 <button type="button" class="alt" id="reset" hidden>Reset Order</button>
 <button type="button" id="xlsx">Download Excel</button>
 <button type="button" class="alt" id="pdf">Print or Save as PDF</button>
 </div>
-<p class="hint noprint">The Excel and PDF files contain the rows shown above. Select Show All first to include every result.</p>
+<p class="hint noprint">The Excel and PDF files contain the rows shown above.</p>
 <p class="msg err" id="xerr" role="alert" hidden></p>
 </section>
 
@@ -291,7 +297,7 @@ $('radius').innerHTML = RADII.map(function (r) { return '<option value="' + r + 
 var regions = []; rows.forEach(function (r) { if (r._region && regions.indexOf(r._region) < 0) regions.push(r._region); }); regions.sort();
 var regionOf = function (q) { var n = flat(q); return regions.filter(function (r) { return flat(r) === n; })[0] || null; };
 var countryOf = function (q) { var n = flat(q); return COUNTRY_ALIASES[n] || (COUNTRIES.filter(function (c) { return flat(c[0]) === n; })[0] || [])[1] || null; };
-var names = []; rows.forEach(function (r) { var n = officialName(r.name); if (names.indexOf(n) < 0) names.push(n); }); names.sort();
+var names = []; rows.forEach(function (r) { var n = officialName(r.name); if (names.indexOf(n) < 0) names.push(n); }); names.sort(); names.unshift('Water Park Resorts');
 $('places').innerHTML = regions.concat(COUNTRIES.map(function (c) { return c[0]; })).filter(function (r, i, a) { return a.indexOf(r) === i && r !== 'U.S. Virgin Islands'; })
   .concat(names).map(function (n) { return '<option value="' + esc(n) + '"></option>'; }).join('');
 /* City positions (geo-data.js, a large file) load only when a place search needs them */
@@ -302,8 +308,11 @@ function loadGeo() {
     GEO = window.ResortGeo; $('places').insertAdjacentHTML('beforeend', GEO.options()); placeUI();
   }, function () { /* without it, a place search matches names as text */ }));
 }
+/* Water Park Resorts (owner, 2026-10-25): the real water parks, Glacier Canyon (Wisconsin, Directory Page 187) and Great Smokies Lodge (Tennessee, Page 164). Reunion's is a small play area, so it is left out (owner). */
+var WATER_PARKS = ['Club Wyndham Glacier Canyon', 'Club Wyndham Great Smokies Lodge'];
 function placeFilter(q, radius) {
   if (!q) return { test: function () { return true; }, label: 'Anywhere' };
+  if (flat(q) === 'water park resorts') return { test: function (r) { return WATER_PARKS.indexOf(r.name) >= 0; }, label: 'Water Park Resorts' };
   var country = countryOf(q);
   if (country) return { test: function (r) { return r.country === country; }, label: q };
   var region = regionOf(q);
@@ -380,7 +389,7 @@ var pctOf = function (d) { return Math.round(d * 1000) / 10 + '%'; };
   setColumns();
   if (!RATES.length) { $('ratenote').textContent = 'The VIP discount percentages could not be read from the reference data, so only full prices are shown.'; $('ratenote').hidden = false; }
 })();
-var results = [], shown = 50, lastInfo = null, shownRows = [];
+var results = [], lastInfo = null, shownRows = [];
 function sortUI() {
   var ths = $('tbl').querySelectorAll('thead th');
   for (var i = 0; i < ths.length; i++) {
@@ -470,13 +479,13 @@ function search(cfg) {
       var x = { r: r, s: s0, n: n, used: used, prices: prices, uk: uk };
       count++; total++;
       if (all && total <= LIMIT) all.push(x); else all = null;
-      if (!top || used > top.used || (used === top.used && (n > top.n || (n === top.n && s0 < top.s)))) top = x;
+      if (!top || (cfg.low ? used < top.used || (used === top.used && s0 < top.s) : used > top.used || (used === top.used && (n > top.n || (n === top.n && s0 < top.s))))) top = x;
     });
     if (top) { top.others = count - 1; best.push(top); }
   });
   var list = all || best;
   list.forEach(function (x) { x.season = staySeason(x.r, x.s, x.n); });
-  list.sort(closest);
+  list.sort(cfg.low ? function (x, y) { return x.used - y.used || x.s - y.s || (x.r._dlow < y.r._dlow ? -1 : 1); } : closest);
   return { list: list, every: !!all, total: total, ms: performance.now() - t0 };
 }
 /* ---- Output ---- */
@@ -488,7 +497,7 @@ function rowData(x) {
 var DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 var MORE_STEP = 25, open = new Map();   /* More Dates: row -> how many of its other stays are shown */
 function render() {
-  var list = ordered().slice(0, shown), budget = lastInfo.points, html = '', cols = headOf(lastInfo.rates).length;
+  var list = ordered(), budget = lastInfo.points, html = '', cols = headOf(lastInfo.rates).length;
   var priceCell = function (x, v) { var fit = v != null && v <= budget; return '<td class="n' + (fit ? ' fit' : x.season ? ' p' + x.season : '') + '" data-fit="' + fit + '">' + (v == null ? '—' : NUM.format(v)) + '</td>'; };
   var rowHtml = function (x, sub, btn) {
     var d = rowData(x), h = '<tr' + (sub ? ' class="sub"' : '') + '><td class="sea' + (x.season ? ' s' + x.season : '') + '" data-season="' + esc(x.season) + '"' + '>' + esc(x.season) + '</td>' + priceCell(x, d[1]);
@@ -503,18 +512,16 @@ function render() {
     html += rowHtml(x, false, btn);
     if (!o) return;
     o.list.slice(0, o.n).forEach(function (y) { html += rowHtml(y, true, ''); });
-    if (o.n < o.list.length) html += '<tr class="sub"><td colspan="' + cols + '"><button type="button" class="more" data-i="' + i + '" data-step="1">Show ' + Math.min(MORE_STEP, o.list.length - o.n) + ' More Dates for This Room (' + NUM.format(o.list.length - o.n) + ' Not Shown Yet)</button></td></tr>';
+    if (o.n < o.list.length) html += '<tr class="sub"><td colspan="' + cols + '"><button type="button" class="more" data-i="' + i + '" data-step="1">Show All ' + NUM.format(o.list.length) + ' Other Dates for This Room (' + NUM.format(o.list.length - o.n) + ' More)</button></td></tr>';
   });
   shownRows = list;
   if (!list.length) html = '<tr><td colspan="' + cols + '">No stay fits these settings. Try more points, a wider date range or fewer filters.</td></tr>';
   $('body').innerHTML = html;
   var many = $('many');
   many.hidden = lastInfo.every || !results.length;
-  if (!many.hidden) many.innerHTML = '<p><strong>Your settings match ' + NUM.format(lastInfo.total) + ' possible stays.</strong> Showing the best one for each of the ' + NUM.format(results.length) + ' resorts and room types that have a stay that fits. Select More Dates on a row to see its other dates.</p>' +
-    '<p>To see every stay in one list (up to ' + NUM.format(LIMIT) + '), narrow your search: type a city and pick a smaller radius, pick one room size, or try these:</p>' +
-    '<div class="btns">' + (lastInfo.minN === 7 && lastInfo.maxN === 7 || lastInfo.cfg.weeknights ? '' : '<button type="button" class="alt" data-fix="7">7 Nights Only</button>') + (lastInfo.cfg.to - lastInfo.cfg.from <= 91 * DAY ? '' : '<button type="button" class="alt" data-fix="90">Next 3 Months Only</button>') + '</div>';
-  $('status').textContent = !results.length ? 'No stays fit these settings.' : (lastInfo.every ? 'All ' + NUM.format(results.length) + ' stays that fit. Showing ' + list.length : 'Showing ' + list.length + ' of ' + results.length + ' resorts and room types') + (sortKey == null ? ', closest to ' + NUM.format(budget) + ' points first' : ', sorted by ' + $('tbl').querySelectorAll('thead th')[sortKey].textContent.replace(/[\u25B2\u25BC\u21C5]/g, '') + (sortDir > 0 ? ' (ascending)' : ' (descending)')) + '. Searched in ' + Math.round(lastInfo.ms) + ' ms.';
-  $('all').hidden = results.length <= shown;
+  if (!many.hidden) many.innerHTML = '<p class="manytip"><strong>Want every stay in one list?</strong> Narrow your search to ' + NUM.format(LIMIT) + ' stays or fewer: type a city and pick a smaller radius, pick one room size, or choose fewer dates.' + (lastInfo.cfg.to - lastInfo.cfg.from <= 91 * DAY ? '' : ' <button type="button" class="alt" data-fix="90">Next 3 Months Only</button>') + '</p>' +
+    '<p>Your settings match ' + NUM.format(lastInfo.total) + ' possible stays, so this list shows one stay for each of the ' + NUM.format(results.length) + ' resorts and room types: ' + (lastInfo.cfg.low ? 'the one that uses the fewest points.' : 'the one that uses the most of your points without going over (if two tie, the longer stay, then the earlier date).') + ' That may not be the best fit for your plans, so select More Dates on a row to see its other dates.</p>';
+  $('status').textContent = !results.length ? 'No stays fit these settings.' : (lastInfo.every ? 'All ' + NUM.format(results.length) + ' stays that fit' : NUM.format(results.length) + ' resorts and room types') + (sortKey == null ? (lastInfo.cfg.low ? ', fewest points first.' : ', closest to ' + NUM.format(budget) + ' points first.') : ', sorted by ' + $('tbl').querySelectorAll('thead th')[sortKey].textContent.replace(/[\u25B2\u25BC\u21C5]/g, '') + (sortDir > 0 ? ' (ascending).' : ' (descending).'));
   $('resCard').hidden = false;
   $('xlsx').disabled = $('pdf').disabled = !list.length;
   $('printInfo').innerHTML = '<p>Total Points: ' + NUM.format(budget) + ' | VIP Level: ' + esc(lastInfo.vipLabel) + ' | Location: ' + esc(lastInfo.place) + ' | Room Size: ' + esc(lastInfo.size || 'All') + '<br>Check-In From: ' + esc(lastInfo.from) + ' | Check-Out By: ' + esc(lastInfo.to) + ' | Nights per Stay: ' + lastInfo.minN + ' to ' + lastInfo.maxN + ' | Check-In Day: ' + esc(lastInfo.dayLabel) + '<br>Generated: ' + fmtDate(todayUTC) + '</p>';
@@ -547,9 +554,9 @@ $('f').addEventListener('submit', function (ev) {
   if (!RATES.length) note = $('ratenote').textContent;
   $('ratenote').textContent = note; $('ratenote').hidden = !note;
   setColumns();
-  var cfg = { points: pts, rates: VIS.slice(), today: todayUTC, from: from, to: to, minN: minN, maxN: Math.min(maxN, 60), size: $('size').value, place: placeFilter(q, +$('radius').value), disc: $('disc').checked, days: days, weeknights: $('wkn').checked, oneDay: oneDay };
+  var cfg = { points: pts, rates: VIS.slice(), today: todayUTC, from: from, to: to, minN: minN, maxN: Math.min(maxN, 60), size: $('size').value, place: placeFilter(q, +$('radius').value), disc: $('disc').checked, days: days, weeknights: $('wkn').checked, oneDay: oneDay, low: lowMode };
   var res = search(cfg);
-  results = res.list; shown = 50; open = new Map();
+  results = res.list; open = new Map();
   lastInfo = { rates: VIS.slice(), vipLabel: vs.options[vs.selectedIndex].text, points: pts, ms: res.ms, every: res.every, total: res.total, cfg: cfg, dayLabel: dayLabel(days) + (cfg.weeknights ? ', Weeknight Stays Only' : ''), place: cfg.place.label + (cfg.disc ? ' (Discovery Resorts Only)' : ''), size: cfg.size, from: fmtDate(from), to: oneDay ? 'Blank (check in on ' + fmtDate(from) + ' only)' : fmtDate(to), minN: minN, maxN: cfg.maxN };
   render();
 });
@@ -561,7 +568,6 @@ $('tbl').querySelector('thead').addEventListener('click', function (ev) {
   sortUI(); render(); var nb = $('tbl').querySelector('thead button[data-col="' + c + '"]'); if (nb) nb.focus();
 });
 $('reset').addEventListener('click', function () { sortKey = null; sortDir = 1; sortUI(); render(); });
-$('all').addEventListener('click', function () { shown = results.length; render(); });
 /* Check-In Day buttons (owner, 2026-10-25): pick any days; Weekday (Sun to Thu) and Weekend (Fri and Sat) toggle their days. Off: red outline, grey text; on: green */
 var dayBtns = document.querySelectorAll('button.day');
 function readDays() { var d = []; for (var i = 0; i < dayBtns.length; i++) d[+dayBtns[i].getAttribute('data-d')] = dayBtns[i].getAttribute('aria-pressed') === 'true'; return d; }
@@ -575,6 +581,26 @@ document.querySelector('.daygrid').addEventListener('click', function (ev) {
     grp.forEach(function (x) { x.setAttribute('aria-pressed', String(!allOn)); });
   }
 });
+/* Try an Example buttons (owner, 2026-10-25). Lowest Points per Night keeps the cheapest stay per row until a setting is changed by hand. */
+var lowMode = false;
+function allDays() { for (var i = 0; i < dayBtns.length; i++) dayBtns[i].setAttribute('aria-pressed', 'true'); $('wkn').checked = false; maxWarn(); }
+document.querySelector('.presets').addEventListener('click', function (ev) {
+  var b = ev.target.closest('button[data-preset]'); if (!b) return;
+  var p = b.getAttribute('data-preset');
+  $('from').value = iso(Math.max(CAL_START, todayUTC)); $('to').value = iso(CAL_END); allDays(); lowMode = false;
+  if (p === 'low') { $('loc').value = ''; $('minN').value = 1; $('maxN').value = 1; lowMode = true; }
+  else { $('minN').value = 2; $('maxN').value = 7; }
+  if (p === 'bonnet') $('loc').value = 'Club Wyndham Bonnet Creek';
+  if (p === 'water') $('loc').value = 'Water Park Resorts';
+  if (p === 'vegas') $('loc').value = 'Las Vegas';
+  if (p === '210') { $('pts').value = '210,000'; $('loc').value = ''; }
+  oneNight(); placeUI(); sortKey = null; sortDir = 1;
+  $('f').requestSubmit();
+  setTimeout(function () { var rc = $('resCard'); if (!rc.hidden) rc.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 50);
+});
+$('f').addEventListener('input', function () { lowMode = false; }); $('f').addEventListener('change', function () { lowMode = false; });
+document.querySelector('.daygrid').addEventListener('click', function () { lowMode = false; });
+$('clearTo').addEventListener('click', function () { $('to').value = ''; $('to').focus(); lowMode = false; });
 /* One night: allowed for information, with a note (owner, 2026-10-25) */
 function oneNight() { $('oneNight').hidden = parseInt($('minN').value, 10) !== 1; }
 $('minN').addEventListener('input', oneNight); oneNight();
@@ -591,7 +617,7 @@ document.querySelector('.daygrid').addEventListener('click', function () { if ($
 $('body').addEventListener('click', function (ev) {
   var b = ev.target.closest('button.more'); if (!b) return;
   var x = shownRows[+b.getAttribute('data-i')], o = open.get(x);
-  if (b.hasAttribute('data-step')) o.n += MORE_STEP;
+  if (b.hasAttribute('data-step')) o.n = o.list.length;   /* Show All: the rest at once (owner, 2026-10-25) */
   else if (o) open.delete(x);
   else { var l = moreFor(x, lastInfo.cfg); l.forEach(function (y) { y.season = staySeason(y.r, y.s, y.n); }); open.set(x, { list: l, n: MORE_STEP }); }
   render();
@@ -599,8 +625,7 @@ $('body').addEventListener('click', function (ev) {
 });
 $('many').addEventListener('click', function (ev) {
   var b = ev.target.closest('button[data-fix]'); if (!b) return;
-  if (b.getAttribute('data-fix') === '7') { $('minN').value = 7; $('maxN').value = 7; }
-  else { var f = parse($('from').value); $('to').value = iso(Math.min(CAL_END, (isNaN(f) ? todayUTC : f) + 90 * DAY)); }
+  { var f = parse($('from').value); $('to').value = iso(Math.min(CAL_END, (isNaN(f) ? todayUTC : f) + 90 * DAY)); }
   $('f').requestSubmit();
 });
 $('pdf').addEventListener('click', function () { window.print(); });
@@ -608,7 +633,7 @@ $('pdf').addEventListener('click', function () { window.print(); });
 /* ---- Exports (Excel loads only when selected; CSV if the library fails) ---- */
 var HEAD = function () { return headOf(lastInfo.rates); };
 function exportRows() {
-  return ordered().slice(0, shown).map(function (x) { return rowData(x).map(function (v, i) { return i === 0 ? (v || '—') : v == null ? '—' : v; }); });
+  return ordered().map(function (x) { return rowData(x).map(function (v, i) { return i === 0 ? (v || '—') : v == null ? '—' : v; }); });
 }
 function metaRows() {
   return [['Where Can My Points Take Me?'], ['Total Points', lastInfo.points], ['VIP Level', lastInfo.vipLabel], ['Location', lastInfo.place], ['Room Size', lastInfo.size || 'All'],
