@@ -1,7 +1,7 @@
-// Thrifty Points: every price shown (full and each VIP discount), planning #53.
+// Where Can My Points Take Me? (pointsbudget.html; called Thrifty Points until 2026-10-25): every price shown (full and each VIP discount), planning #53.
 import { test, expect } from "@playwright/test";
 
-const URL = "/52weeks/thriftypoints.html";
+const URL = "/52weeks/pointsbudget.html";
 const num = t => parseInt(String(t).replace(/[^\d]/g, ""), 10);
 const isDash = t => !/\d/.test(t);
 const dateOf = s => { const m = /^(\d\d)\/(\d\d)\/(\d\d)$/.exec(s); return Date.UTC(2000 + +m[3], +m[1] - 1, +m[2]); };
@@ -23,7 +23,7 @@ const col = (page, i) => page.locator('#tbl thead button[data-col="' + (i >= 2 ?
 const sortOf = (page, i) => page.locator("#tbl thead th").nth(i >= 2 ? i + 1 : i).getAttribute("aria-sort");
 const daysOut = c => { const n = new Date(); return Math.round((dateOf(c[7].t) - Date.UTC(n.getFullYear(), n.getMonth(), n.getDate())) / 864e5); };
 
-test("thriftypoints: the VIP Level dropdown tailors the columns and re-renders when changed", async ({ page }) => {
+test("pointsbudget: the VIP Level dropdown tailors the columns and re-renders when changed", async ({ page }) => {
   await search(page);
   await expect(page.locator("#vip")).toHaveCount(1);
   const all = await heads(page);
@@ -46,7 +46,7 @@ test("thriftypoints: the VIP Level dropdown tailors the columns and re-renders w
   await expect.poll(async () => (await heads(page)).length).toBe(all.length);
 });
 
-test("thriftypoints: every row has a price at most 60,000 and highlights match exactly", async ({ page }) => {
+test("pointsbudget: every row has a price at most 60,000 and highlights match exactly", async ({ page }) => {
   await search(page);
   const r = await rows(page);
   expect(r.length).toBeGreaterThan(0);
@@ -61,7 +61,7 @@ test("thriftypoints: every row has a price at most 60,000 and highlights match e
   }
 });
 
-test("thriftypoints: 35% Off is the rounded-up full price times 0.65 for every stay, near or far; no dashes", async ({ page }) => {
+test("pointsbudget: 35% Off is the rounded-up full price times 0.65 for every stay, near or far; no dashes", async ({ page }) => {
   await search(page, { points: "150,000" });
   await page.click("#all").catch(() => {});
   const col = (await heads(page)).findIndex(t => /^35%/.test(t));
@@ -77,7 +77,7 @@ test("thriftypoints: 35% Off is the rounded-up full price times 0.65 for every s
   expect(far).toBeGreaterThan(0);
 });
 
-test("thriftypoints: results stay inside the chosen date range", async ({ page }) => {
+test("pointsbudget: results stay inside the chosen date range", async ({ page }) => {
   const now = new Date(); const iso = d => new Date(d).toISOString().slice(0, 10);
   const start = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) + 100 * 864e5, end = start + 30 * 864e5;
   await search(page, { from: iso(start), to: iso(end) });
@@ -86,7 +86,7 @@ test("thriftypoints: results stay inside the chosen date range", async ({ page }
   for (const c of r) { expect(dateOf(c[7].t)).toBeGreaterThanOrEqual(start); expect(dateOf(c[8].t)).toBeLessThanOrEqual(end); }
 });
 
-test("thriftypoints: no console errors and no sideways scrolling; the table sits in a labelled scroll region", async ({ page }) => {
+test("pointsbudget: no console errors and no sideways scrolling; the table sits in a labelled scroll region", async ({ page }) => {
   const errs = [];
   page.on("pageerror", e => errs.push(String(e)));
   page.on("console", m => { if (m.type() === "error") errs.push(m.text()); });
@@ -100,7 +100,7 @@ test("thriftypoints: no console errors and no sideways scrolling; the table sits
   await expect(reg).toHaveAttribute("aria-label", /.+/);
 });
 
-test("thriftypoints: dates are mm/dd/yy and check-out is after check-in", async ({ page }) => {
+test("pointsbudget: dates are mm/dd/yy and check-out is after check-in", async ({ page }) => {
   await search(page);
   const r = await rows(page);
   expect(r.length).toBeGreaterThan(0);
@@ -111,7 +111,7 @@ test("thriftypoints: dates are mm/dd/yy and check-out is after check-in", async 
   }
 });
 
-test("thriftypoints: sorting by Check-In, Nights and Reset Order", async ({ page }) => {
+test("pointsbudget: sorting by Check-In, Nights and Reset Order", async ({ page }) => {
   await search(page, { points: "150,000" });
   await page.click("#all").catch(() => {});
   const first = (await rows(page))[0][2].t;
@@ -142,7 +142,7 @@ test("thriftypoints: sorting by Check-In, Nights and Reset Order", async ({ page
   expect(await sortAttr(8)).toBe("none");
 });
 
-test("thriftypoints: City and State columns exist, State sorts with equal codes grouped, every heading has an indicator", async ({ page }) => {
+test("pointsbudget: City and State columns exist, State sorts with equal codes grouped, every heading has an indicator", async ({ page }) => {
   await search(page, { points: "150,000" });
   await page.click("#all").catch(() => {});
   const h = await heads(page);
@@ -159,7 +159,7 @@ test("thriftypoints: City and State columns exist, State sorts with equal codes 
   expect(codes).toEqual([...codes].sort((a, b) => (a.toLowerCase() < b.toLowerCase() ? -1 : a.toLowerCase() > b.toLowerCase() ? 1 : 0)));
 });
 
-test("thriftypoints: the Season cell shows the season name on its color, Full Price uses the green fit highlight, and Season sorts in groups", async ({ page }) => {
+test("pointsbudget: the Season cell shows the season name on its color, Full Price uses the green fit highlight, and Season sorts in groups", async ({ page }) => {
   await search(page, { points: "150,000" });
   await page.click("#all").catch(() => {});
   await expect(page.locator("#seasonLegend")).toHaveCount(0);
@@ -192,7 +192,7 @@ test("thriftypoints: the Season cell shows the season name on its color, Full Pr
   expect(await page.locator("#tbl thead th").nth(si).getAttribute("aria-sort")).toBe("descending");
 });
 
-test("thriftypoints: Club Wyndham is dropped from resort names but typing it still finds the resort", async ({ page }) => {
+test("pointsbudget: Club Wyndham is dropped from resort names but typing it still finds the resort", async ({ page }) => {
   await search(page, { points: "150,000" });
   await page.click("#all").catch(() => {});
   const names = (await rows(page)).map(c => c[2].t);
@@ -210,7 +210,7 @@ test("thriftypoints: Club Wyndham is dropped from resort names but typing it sti
   expect((await rows(page)).length).toBe(a.length);
 });
 
-test("thriftypoints: at 1366 and 1400 px wide the table fits without inner scrolling, with a margin", async ({ page }) => {
+test("pointsbudget: at 1366 and 1400 px wide the table fits without inner scrolling, with a margin", async ({ page }) => {
   for (const w of [1366, 1400]) {
     await page.setViewportSize({ width: w, height: 900 });
     await search(page);
@@ -231,7 +231,7 @@ test("thriftypoints: at 1366 and 1400 px wide the table fits without inner scrol
   }
 });
 
-test("thriftypoints: no duplicate resort and room type rows, short State codes, sort resets when the VIP Level changes", async ({ page }) => {
+test("pointsbudget: no duplicate resort and room type rows, short State codes, sort resets when the VIP Level changes", async ({ page }) => {
   await page.goto(URL);
   await page.selectOption("#vip", { label: "Show All Discounts" });
   await page.fill("#pts", "400,000");
@@ -252,7 +252,7 @@ test("thriftypoints: no duplicate resort and room type rows, short State codes, 
   expect(await page.locator('#tbl thead th[aria-sort="ascending"], #tbl thead th[aria-sort="descending"]').count()).toBe(0);
 });
 
-test("thriftypoints: Location finds a state, a resort name and a city with a radius; VIP Discount Date is 60 days before check-in", async ({ page }) => {
+test("pointsbudget: Location finds a state, a resort name and a city with a radius; VIP Discount Date is 60 days before check-in", async ({ page }) => {
   await page.goto(URL);
   await expect(page.locator("#area")).toHaveCount(0);
   await expect(page.locator("#state")).toHaveCount(0);
@@ -287,7 +287,7 @@ test("thriftypoints: Location finds a state, a resort name and a city with a rad
   expect(await heads(page)).not.toContain("VIP Discount Date");
 });
 
-test("thriftypoints: Discovery Resorts Only shows only resorts on Club Wyndham's Discovery list (owner, 2026-10-25)", async ({ page }) => {
+test("pointsbudget: Discovery Resorts Only shows only resorts on Club Wyndham's Discovery list (owner, 2026-10-25)", async ({ page }) => {
   await page.goto(URL);
   await page.fill("#pts", "150,000");
   await page.fill("#loc", "Nevada");
@@ -303,12 +303,14 @@ test("thriftypoints: Discovery Resorts Only shows only resorts on Club Wyndham's
   await expect.poll(async () => new Set((await rows(page)).map(c => c[2].t)).size).toBeGreaterThan(names.length);
 });
 
-test("thriftypoints: starts for a new owner: Not VIP, 2 to 7 nights, Points Left Over after Full Price", async ({ page }) => {
+test("pointsbudget: starts for a new owner: Not VIP, 2 to 7 nights, Points Left Over after Full Price", async ({ page }) => {
   await page.goto(URL);
   await expect(page.locator("#vip option:checked")).toHaveText("Not VIP");
   await expect(page.locator("#minN")).toHaveValue("2");
   await expect(page.locator("#maxN")).toHaveValue("7");
-  await expect(page.locator(".sub").first()).toContainText("Have points left over?");
+  await expect(page.locator("h1")).toHaveText("Where Can My Points Take Me?");
+  await expect(page.locator(".sub").first()).toHaveText("Find resorts, travel dates and room types that fit your Club Wyndham points budget.");
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", "Find stays that fit your points and explore your options.");
   await expect(page.locator("#notice")).toContainText("Not Live Availability");
   await expect(page.locator("#notice a")).toHaveAttribute("href", /clubwyndham/);
   await page.fill("#pts", "60,000");
@@ -321,7 +323,7 @@ test("thriftypoints: starts for a new owner: Not VIP, 2 to 7 nights, Points Left
   for (const [full, left, n] of cells) { expect(num(full) + num(left)).toBe(60000); expect(num(n)).toBeLessThanOrEqual(7); }
 });
 
-test("thriftypoints: broad settings show the count and one row per resort and room type; More Dates opens that row's other stays", async ({ page }) => {
+test("pointsbudget: broad settings show the count and one row per resort and room type; More Dates opens that row's other stays", async ({ page }) => {
   await search(page, { vip: null });
   const many = page.locator("#many");
   await expect(many).toBeVisible();
@@ -345,7 +347,7 @@ test("thriftypoints: broad settings show the count and one row per resort and ro
   await expect(page.locator("#maxN")).toHaveValue("7");
 });
 
-test("thriftypoints: narrow settings list every stay that fits, more than one per room type", async ({ page }) => {
+test("pointsbudget: narrow settings list every stay that fits, more than one per room type", async ({ page }) => {
   const n = new Date(), iso = d => new Date(d).toISOString().slice(0, 10), start = Date.UTC(n.getFullYear(), n.getMonth(), n.getDate()) + 30 * 864e5;
   await page.goto(URL);
   await page.fill("#pts", "100,000");
@@ -366,7 +368,7 @@ test("thriftypoints: narrow settings list every stay that fits, more than one pe
   await expect(page.locator("#body button.more")).toHaveCount(0);
 });
 
-test("thriftypoints: with VIP prices shown, Points Left Over names its price level and equals the points minus that price", async ({ page }) => {
+test("pointsbudget: with VIP prices shown, Points Left Over names its price level and equals the points minus that price", async ({ page }) => {
   await search(page);
   const h = await page.$$eval("#tbl thead th", ths => ths.map(th => th.innerText.replace(/[▲▼⇅]/g, "").replace(/\s+/g, " ").trim()));
   const data = await page.$$eval("#body tr:not(.sub)", trs => trs.map(tr => [...tr.children].map(td => td.innerText.trim())));
@@ -379,7 +381,7 @@ test("thriftypoints: with VIP prices shown, Points Left Over names its price lev
   }
 });
 
-test("thriftypoints: building names are split out of the room type in all three printed forms (owner, 2026-10-25)", async ({ page }) => {
+test("pointsbudget: building names are split out of the room type in all three printed forms (owner, 2026-10-25)", async ({ page }) => {
   const look = async q => {
     await page.goto(URL);
     await page.fill("#pts", "400,000");
@@ -401,7 +403,7 @@ test("thriftypoints: building names are split out of the room type in all three 
   expect(await look("Royal Garden at Waikiki")).toContainEqual(["Studio-J (Asian Inspired)", ""]);
 });
 
-test("thriftypoints: SeaWatch's second chart shows as Villas, and no Building is ever a placeholder like Chart 1 (owner, 2026-10-25)", async ({ page }) => {
+test("pointsbudget: SeaWatch's second chart shows as Villas, and no Building is ever a placeholder like Chart 1 (owner, 2026-10-25)", async ({ page }) => {
   await page.goto(URL);
   await page.fill("#pts", "400,000");
   await page.fill("#loc", "SeaWatch");
@@ -417,7 +419,7 @@ test("thriftypoints: SeaWatch's second chart shows as Villas, and no Building is
   expect(blds.filter(b => /^(Chart \d+|All listed suites)$/i.test(b))).toEqual([]);
 });
 
-test("thriftypoints: rows with week-by-week nightly points are searched, e.g. Ocean Boulevard Towers 1 and 2 (owner, 2026-10-25)", async ({ page }) => {
+test("pointsbudget: rows with week-by-week nightly points are searched, e.g. Ocean Boulevard Towers 1 and 2 (owner, 2026-10-25)", async ({ page }) => {
   await page.goto(URL);
   await page.fill("#pts", "400,000");
   await page.fill("#loc", "Ocean Boulevard");
@@ -425,4 +427,10 @@ test("thriftypoints: rows with week-by-week nightly points are searched, e.g. Oc
   await expect(page.locator("#body tr").first()).toBeVisible();
   const blds = new Set(await page.$$eval("#body tr:not(.sub) td.bld", tds => tds.map(td => td.innerText.trim())));
   for (const t of ["Tower 1", "Tower 2", "Tower 3", "Tower 4"]) expect(blds.has(t)).toBe(true);
+});
+
+test("pointsbudget: the old thriftypoints.html address forwards to pointsbudget.html, keeping the hash", async ({ page }) => {
+  await page.goto("/52weeks/thriftypoints.html#x");
+  await expect(page).toHaveURL(/\/52weeks\/pointsbudget\.html#x$/);
+  await expect(page.locator("h1")).toHaveText("Where Can My Points Take Me?");
 });
