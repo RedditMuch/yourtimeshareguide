@@ -378,3 +378,25 @@ test("thriftypoints: with VIP prices shown, Points Left Over names its price lev
     expect(num(left)).toBe(60000 - num(c[i]));
   }
 });
+
+test("thriftypoints: building names are split out of the room type in all three printed forms (owner, 2026-10-25)", async ({ page }) => {
+  const look = async q => {
+    await page.goto(URL);
+    await page.fill("#pts", "400,000");
+    await page.fill("#loc", q);
+    await page.click("#go");
+    await expect(page.locator("#body tr").first()).toBeVisible();
+    return page.$$eval("#body tr:not(.sub)", trs => trs.map(tr => [tr.children[6].innerText.trim(), tr.children[7].innerText.trim()]));
+  };
+  for (const q of ["Sea Gardens", "Palm-Aire", "Smugglers"]) {
+    for (const [room, bldg] of await look(q)) {
+      expect(room).not.toMatch(/[():]| — /);
+      expect(bldg.length).toBeGreaterThan(0);
+    }
+  }
+  const sg = await look("Sea Gardens");
+  expect(sg).toContainEqual(["Studio Deluxe", "Ocean View"]);
+  expect(sg).toContainEqual(["1 Bedroom Deluxe", "Ocean Palms"]);
+  expect(await look("Smugglers")).toContainEqual(["1 Bedroom Deluxe", "Mountain Laurels"]);
+  expect(await look("Royal Garden at Waikiki")).toContainEqual(["Studio-J (Asian Inspired)", ""]);
+});

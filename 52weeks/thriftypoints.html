@@ -213,13 +213,24 @@ rows.forEach(function (r) {
 var PFX = "Club Wyndham ", dispSeen = {};
 rows.forEach(function (r) { r._disp = r.name.indexOf(PFX) === 0 ? r.name.slice(PFX.length) : r.name; var k = r._disp + "|" + r._city + "|" + r._code; (dispSeen[k] = dispSeen[k] || {})[r.name] = 1; });
 rows.forEach(function (r) { if (r._disp !== r.name && Object.keys(dispSeen[r._disp + "|" + r._city + "|" + r._code]).length > 1) r._disp = r.name; r._dlow = r._disp.toLowerCase(); r._dflat = flat(r._disp); });
-/* The building goes in its own column: some room types are printed as "Room — Building" and some as "Building — Room"; the side that names a bedroom or studio is the room */
+/* The building goes in its own column, the same way season chart v2 reads it. Room types come three ways:
+   "Room — Building" or "Building — Room" (the side that names a bedroom or studio is the room), "Building: Room" (Smugglers' Notch)
+   and "Room (Building)" (Palm-Aire, Sea Gardens). "Studio-J (Asian Inspired)" is a room name, not a building (Directory Page 107). */
+var ROOM_NAMES = { 'Studio-J (Asian Inspired)': 1 };
 function splitRoom(t) {
-  var p = String(t).split(' — ');
-  if (p.length !== 2) return [t, ''];
+  t = String(t);
+  if (ROOM_NAMES[t]) return [t, ''];
+  var c = t.indexOf(': ');
+  if (c > 0) return [t.slice(c + 2), t.slice(0, c)];
+  var p = t.split(' — ');
   var isRoom = function (x) { return /bedroom|studio/i.test(x); };
-  if (isRoom(p[0]) && !isRoom(p[1])) return [p[0], p[1]];
-  if (isRoom(p[1]) && !isRoom(p[0])) return [p[1], p[0]];
+  if (p.length === 2) {
+    if (isRoom(p[0]) && !isRoom(p[1])) return [p[0], p[1]];
+    if (isRoom(p[1]) && !isRoom(p[0])) return [p[1], p[0]];
+    return [t, ''];
+  }
+  var m = /^(.*?)\s*\(([^)]+)\)\s*$/.exec(t);
+  if (m && isRoom(m[1])) return [m[1], m[2]];
   return [t, ''];
 }
 /* Same resort and room type listed twice: drop the copy when every season price is identical, otherwise label each with its schedule */
@@ -229,7 +240,7 @@ var keep = [];
 Object.keys(grp).forEach(function (k) {
   var a = grp[k], uniq = [], sig = {};
   a.forEach(function (r) { var g = JSON.stringify(r.weeks) + JSON.stringify(N[r.id]); if (!sig[g]) { sig[g] = 1; uniq.push(r); } });
-  uniq.forEach(function (r) { r._sch = uniq.length > 1 && r.schedule ? r.schedule : ''; var sp = splitRoom(r.roomType); r._rt = sp[0]; r._bld = sp[1] || r._sch; r._room = r._rt + (r._bld ? ' (' + r._bld + ')' : ''); keep.push(r); });
+  uniq.forEach(function (r) { r._sch = (uniq.length > 1 || r.multiple) && r.schedule ? r.schedule : ''; var sp = splitRoom(r.roomType); r._rt = sp[0]; r._bld = sp[1] || r._sch;   /* a resort with several charts: the chart's building names fill in a blank Building */ r._room = r._rt + (r._bld ? ' (' + r._bld + ')' : ''); keep.push(r); });
 });
 rows = rows.filter(function (r) { return keep.indexOf(r) >= 0; });
 var fill = function (sel, items) { items.forEach(function (it) { var o = document.createElement('option'); o.value = it[0]; o.textContent = it[1]; sel.appendChild(o); }); };
