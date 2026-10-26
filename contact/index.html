@@ -12,44 +12,92 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,700;1,600&family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;0,800;0,900;1,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../assets/site.css">
 <style>
+  /* Contact page (owner, 2026-10-26: "prettier"): a heading band, the form card with a gold shadow, and a dark side panel */
+  .c-head{text-align:center;margin:10px 0 26px}   /* title sits where the Points Budget title does (owner, 2026-10-26) */
+  .c-head h1{font-size:3rem}
+  .c-head .c-rule{display:flex;align-items:center;justify-content:center;gap:14px;margin:10px 0 0;font-family:var(--serif);font-style:italic;font-size:1.35rem;color:var(--ink2)}
+  .c-head .c-rule::before,.c-head .c-rule::after{content:"";width:60px;height:2px;background:var(--mustard);flex:none}
+  .c-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:34px;align-items:start;margin-bottom:40px}
+  .c-card{background:var(--card);border:2px solid var(--ink);box-shadow:10px 10px 0 var(--mustard);padding:26px 28px 28px}
+  .c-card h2{font-size:1.6rem;margin:0 0 4px}
+  .c-card .c-sub{color:var(--ink3);font-size:1rem;margin:0}
   /* Contact form */
-  .cf{display:grid;gap:14px;max-width:640px}
-  .cf label{display:block;font-weight:700;margin-bottom:4px}
-  .cf .req{color:var(--ink2);font-weight:500;font-size:.9rem}
-  .cf input,.cf textarea{font:inherit;font-size:1rem;color:var(--ink);background:var(--card);border:1.5px solid var(--ink);padding:8px 10px;border-radius:0;width:100%;box-sizing:border-box}
-  .cf textarea{min-height:170px;resize:vertical}
-  .cf .send{justify-self:start;font:inherit;font-weight:800;font-size:1rem;background:var(--ink);color:var(--mustard);border:2px solid var(--ink);padding:10px 26px;cursor:pointer}
-  .cf .send:hover{background:var(--mustard);color:var(--ink)}
-  .cf-done{display:none}
+  .cf{display:grid;grid-template-columns:1fr 1fr;gap:16px 18px}
+  .cf .full{grid-column:1/-1}
+  .cf label{display:block;font-weight:700;font-size:1rem;margin-bottom:5px}
+  .cf .req{color:var(--ink3);font-weight:500;font-size:.85rem}
+  .cf input,.cf textarea{font:inherit;font-size:1rem;color:var(--ink);background:#fff;border:1.5px solid var(--ink);padding:10px 12px;border-radius:0;width:100%;box-sizing:border-box}
+  .cf input:focus,.cf textarea:focus{outline:3px solid var(--mustard);outline-offset:1px;box-shadow:none}
+  .cf textarea{min-height:190px;resize:vertical}
+  .cf .send{justify-self:start;display:inline-flex;align-items:center;gap:10px;font:inherit;font-weight:800;font-size:1.05rem;background:var(--mustard);color:var(--ink);border:2px solid var(--ink);box-shadow:4px 4px 0 var(--ink);padding:11px 26px;cursor:pointer}
+  .cf .send:hover{background:var(--ink);color:var(--mustard)}
+  .cf .send:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ink)}
+  .cf .send:disabled{opacity:.6;cursor:default}
+  .cf .send svg{width:20px;height:20px}
+  .cf-done{display:none;text-align:center;padding:20px 0 6px}
   .cf-done.on{display:block}
-  .cf-err{color:var(--red);font-weight:700;margin:12px 0 0}
+  .cf-done .tick{display:inline-grid;place-items:center;width:64px;height:64px;border-radius:50%;background:var(--mustard);border:2px solid var(--ink);font-size:2rem;font-weight:800;margin-bottom:10px}
+  .cf-done h2{font-size:2rem}
+  .cf-err{color:var(--red);font-weight:700;margin:14px 0 0}
+  .c-side{background:var(--ink);color:var(--paper);padding:26px 26px 22px;border-top:6px solid var(--mustard)}
+  .c-side h2{color:var(--mustard);font-size:1.45rem;margin:0 0 16px}
+  .c-side ul{list-style:none;margin:0;padding:0;display:grid;gap:16px}
+  .c-side li{display:grid;grid-template-columns:42px 1fr;gap:12px;align-items:start}
+  .c-side .ic{display:grid;place-items:center;width:42px;height:42px;border:2px solid var(--mustard);border-radius:50%;color:var(--mustard)}
+  .c-side .ic svg{width:20px;height:20px}
+  .c-side strong{display:block;font-size:1.05rem;color:#fff}
+  .c-side li span{display:block;font-size:.95rem;line-height:1.5;color:#d9d3c4}
+  .c-note{margin-top:22px;background:var(--mustard-pale);color:var(--ink);border:2px solid var(--mustard);padding:14px 16px;font-size:.95rem;line-height:1.5}
+  .c-note strong{display:block;font-size:1rem;margin-bottom:2px;color:var(--ink)}
+  .c-note a{color:var(--ink)}
+  .c-note p{margin:10px 0 0}
+  .c-side .c-dont{display:block;list-style:none;margin:6px 0 0;padding:0 0 0 18px}
+  .c-side .c-dont li{display:flex;align-items:center;gap:8px;font-weight:600}
+  .c-side .c-dont li::before{content:"\2715";color:var(--red);font-weight:800;font-size:.85rem}
+  @media (max-width:860px){.c-grid{grid-template-columns:1fr}.c-card{box-shadow:6px 6px 0 var(--mustard)}}
+  @media (max-width:560px){.cf{grid-template-columns:1fr}.c-head h1{font-size:2.4rem}.c-head .c-rule{font-size:1.15rem}.c-head .c-rule::before,.c-head .c-rule::after{width:24px}.c-card{padding:20px 18px 22px}}
 </style>
 </head>
 <body data-tab="contact">
 <div id="site-header"></div>
 <main>
   <div class="wrap">
-    <div class="page-head">
+    <div class="c-head">
       <h1>Contact</h1>
-      <div class="question">Spotted a mistake? Have a question?</div>
+      <p class="c-rule">Spotted a mistake? Have a question?</p>
     </div>
-    <div class="card gold">
-      <form class="cf" id="cf" novalidate>
-        <input type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" style="display:none">
-        <div><label for="cf-name">Your Name <span class="req">(Required)</span></label><input id="cf-name" name="name" autocomplete="name" required></div>
-        <div><label for="cf-email">Your Email Address <span class="req">(Required)</span></label><input id="cf-email" name="email" type="email" autocomplete="email" required></div>
-        <div><label for="cf-subject">Subject</label><input id="cf-subject" name="subject"></div>
-        <div><label for="cf-message">Message <span class="req">(Required)</span></label><textarea id="cf-message" name="message" required></textarea></div>
-        <button type="submit" class="send">Send Message</button>
-      </form>
-      <p class="cf-err" id="cf-err" role="alert" hidden></p>
-      <div class="cf-done" id="cf-done" role="status">
-        <h2>Thank You</h2>
-        <p>Your message was sent. We'll reply to the email address you gave.</p>
+    <div class="c-grid">
+      <div class="c-card">
+        <form class="cf" id="cf" novalidate>
+          <div class="full"><h2>Send a Message</h2><p class="c-sub">It comes straight to the owner of this site by email.</p></div>
+          <input type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" style="display:none">
+          <div><label for="cf-name">Your Name <span class="req">(Required)</span></label><input id="cf-name" name="name" autocomplete="name" required></div>
+          <div><label for="cf-email">Your Email Address <span class="req">(Required)</span></label><input id="cf-email" name="email" type="email" autocomplete="email" required></div>
+          <div class="full"><label for="cf-subject">Subject</label><input id="cf-subject" name="subject"></div>
+          <div class="full"><label for="cf-message">Message <span class="req">(Required)</span></label><textarea id="cf-message" name="message" required></textarea></div>
+          <button type="submit" class="send"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5 21 3l-6.5 18-3-7.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m11.5 13.5 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Send Message</span></button>
+        </form>
+        <p class="cf-err" id="cf-err" role="alert" hidden></p>
+        <div class="cf-done" id="cf-done" role="status">
+          <div class="tick" aria-hidden="true">&#10003;</div>
+          <h2>Thank You</h2>
+          <p>Your message was sent. We'll reply to the email address you gave.</p>
+        </div>
       </div>
-    </div>
-    <div class="prose">
-      <p>This site cannot book, change or look up reservations. Please don't send your owner number, password or payment details. For your own account, contact Club Wyndham directly through <a href="https://clubwyndham.wyndhamdestinations.com/us/en/help" target="_blank" rel="noopener">Club Wyndham Help</a>.</p>
+      <aside class="c-side" aria-label="What to Send">
+        <h2>What to Send</h2>
+        <ul>
+          <li><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><div><strong>Corrections</strong><span>A number or date that doesn't match the Directory. The page number helps.</span></div></li>
+          <li><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .8-1 1.5V14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="17.2" r="1.2" fill="currentColor"/></svg></span><div><strong>Questions</strong><span>About a chart, a calculator or how something on this site works.</span></div></li>
+          <li><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg></span><div><strong>Ideas</strong><span>A chart or tool you wish this site had.</span></div></li>
+          <li><span class="ic"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><div><strong>Compliments</strong><span>Let me know what you liked about the site or how it helped you.</span></div></li>
+        </ul>
+        <div class="c-note">
+          <strong>Do NOT Send</strong>
+          <ul class="c-dont"><li>Owner Number</li><li>Contract Number</li><li>Usernames &amp; Passwords</li><li>Payment Details</li></ul>
+          <p>This site cannot book, change or look up reservations. For your own account, contact <a href="https://clubwyndham.wyndhamdestinations.com/us/en/help" target="_blank" rel="noopener">Club Wyndham Help</a>.</p>
+        </div>
+      </aside>
     </div>
   </div>
 </main>
@@ -59,7 +107,7 @@
   // Messages go to the owner by email through Web3Forms (web3forms.com). The access key only lets this form send to the
   // owner's address; it is not a password. Replace ACCESS_KEY with the key from the Web3Forms account.
   var ACCESS_KEY = "5743843a-16c5-44fe-b0bc-c4546366a8e5";
-  var form = document.getElementById("cf"), err = document.getElementById("cf-err"), btn = form.querySelector(".send");
+  var form = document.getElementById("cf"), err = document.getElementById("cf-err"), btn = form.querySelector(".send"), btnText = btn.querySelector("span");
   form.addEventListener("submit", function (e) {
     e.preventDefault();
     if (!form.reportValidity()) return;
@@ -70,7 +118,7 @@
     data.set("subject", "Your Timeshare Guide: " + (data.get("subject") || "New Message"));
     data.set("from_name", "Your Timeshare Guide");
     data.set("replyto", data.get("email"));
-    btn.disabled = true; btn.textContent = "Sending...";
+    btn.disabled = true; btnText.textContent = "Sending...";
     fetch("https://api.web3forms.com/submit", { method: "POST", headers: { Accept: "application/json" }, body: data })
       .then(function (r) { return r.json(); })
       .then(function (res) {
@@ -81,7 +129,7 @@
       .catch(function () {
         err.textContent = "Sorry, your message could not be sent. Please try again in a few minutes.";
         err.hidden = false;
-        btn.disabled = false; btn.textContent = "Send Message";
+        btn.disabled = false; btnText.textContent = "Send Message";
       });
   });
 </script>

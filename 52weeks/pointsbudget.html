@@ -5,7 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Where Can My Points Take Me? | Your Timeshare Guide</title>
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
-<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@800&family=Playfair+Display:ital,wght@0,600;0,700;0,800;0,900;1,600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Cormorant+Garamond:ital,wght@0,700;1,600&family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@800&family=Playfair+Display:ital,wght@0,600;0,700;0,800;0,900;1,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../assets/site.css">
 <meta name="description" content="Find stays that fit your points and explore your options.">
 <meta name="robots" content="noindex, nofollow">
@@ -14,7 +16,7 @@
 @media (prefers-color-scheme:dark){:root{--bg:#10151c;--card:#19212b;--ink:#e8edf3;--mute:#9aa6b5;--line:#2c3744;--stay:#6aa9e6;--good:#4ade80;--bad:#f87171;--warn:#2b2113;--head:#212c38}}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,Segoe UI,Roboto,sans-serif}
-.wrap{max-width:1500px;margin:0 auto;padding:12px 16px 60px}
+#main.wrap{max-width:1500px;margin:0 auto;padding:12px 16px 60px}
 #setCard,.sub,.notes{max-width:1000px;margin-left:auto;margin-right:auto}
 h1{font-size:1.8rem;margin:0 0 2px;text-align:center}
 h2{font-size:1.1rem;margin:0 0 10px}
@@ -32,7 +34,7 @@ button.wkday{grid-column:1/6}button.wkend{grid-column:6/8}
 /* Check-In Day buttons, option C (owner, 2026-10-25): on = white with a small green check; off = grey, dashed and crossed through */
 button.day{display:flex;align-items:center;justify-content:center;gap:3px;min-height:38px;padding:4px 0;background:#f3f4f6;color:#a3abb5;border:1.5px dashed #c9cfd6;font-weight:600;text-decoration:line-through}
 button.day[aria-pressed="true"]{background:#fff;color:var(--ink);border:1.5px solid #8a96a3;text-decoration:none}
-button.day[aria-pressed="true"]::before{content:"\2713";color:#15803d;font-weight:800}
+button.day[aria-pressed="true"]::before{content:"\2713";color:#15803d;font-weight:800;font-size:1.2em;line-height:1;-webkit-text-stroke:1.2px #15803d}   /* bolder check (owner, 2026-10-26) */
 @media (prefers-color-scheme:dark){button.day{background:#212c38;color:#6b7785;border-color:#3a4654}button.day[aria-pressed="true"]{background:#19212b;color:var(--ink);border-color:#9aa6b5}button.day[aria-pressed="true"]::before{color:#4ade80}}
 .maxn{margin-left:10px;font-weight:700;color:var(--mute)}
 .sethead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px 16px;margin:0 0 10px}
@@ -53,6 +55,7 @@ button.link{all:unset;cursor:pointer;color:var(--stay);font-weight:700;text-deco
 .fgrid>div{min-width:0}.fgrid .full{grid-column:1/-1}.fgrid .rule{border-top:1px solid var(--line);margin:2px 0}
 .fgrid input:not([type=checkbox]):not(.pickin),.fgrid select{width:100%}
 .fgrid .msg{margin-top:6px}
+.sizebox{margin-top:12px}   /* Room Size under Latest Check-Out, across from Max Nights (owner, 2026-10-26) */
 .nights{margin-top:12px}.nrow{display:grid;grid-template-columns:96px 84px;align-items:center;gap:10px;margin-top:8px}.nrow label{margin:0}.fgrid .nrow input{width:84px;height:38px;margin:0}
 .where{background:var(--head);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
 .radrow{display:flex;align-items:center;gap:10px;margin-top:8px}.radrow label{white-space:nowrap;margin:0}.fgrid .radrow select{width:auto;min-width:150px;margin:0}
@@ -119,7 +122,7 @@ td.sPrime{background:var(--prime)}td.sHigh{background:var(--high)}td.sValue{back
 .chips{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:.8rem;color:var(--mute);margin:0 0 6px}
 .chips span.chip{display:inline-flex;align-items:center;gap:5px;color:var(--ink)}
 .chips i{display:inline-block;width:14px;height:14px;border-radius:3px;border:1px solid rgba(0,0,0,.35)}
-td.pPrime{background:rgba(229,127,118,.34)}td.pHigh{background:rgba(239,156,76,.34)}td.pValue{background:rgba(247,226,151,.55)}td.pQuiet{background:rgba(140,207,176,.34)}
+td.pPrime,td.pHigh,td.pValue,td.pQuiet{background:#ecebe7;color:#8a867d}   /* prices over your points: grey, not their season color (owner, 2026-10-26) */
 td.fit{background:#d3e6fa;color:#0f3d6b;font-weight:700;box-shadow:inset 3px 0 0 #2a6fb0}   /* blue, not a season color (owner, 2026-10-25) */
 @media (prefers-color-scheme:dark){td.fit{background:#1d3a5c;color:#e8edf3}}
 .notes{background:var(--warn)}
@@ -136,7 +139,7 @@ p.foot{color:var(--mute);font-size:.85rem;text-align:center;max-width:1000px;mar
 .printonly{display:none}
 @media print{
  body{background:#fff;color:#000}
- .wrap{max-width:none;padding:0}
+ #main.wrap{max-width:none;padding:0}
  .noprint{display:none!important}
  .printonly{display:block}
  .card{border:0;padding:0}
@@ -165,7 +168,7 @@ p.foot{display:none}   /* the site footer below carries the same notice */
 #pts{border-width:2.5px}
 .ptslabel{font-family:"Playfair Display",Georgia,serif;font-weight:800;font-size:1.5rem}
 #vip{border:1px solid #c9bfa9;background:#efe9da;color:#6b665b}
-.fgrid .rule{border-top:2px dotted #c9bfa9}
+.fgrid .rule{border-top:2px dotted #9c8f74}   /* a little darker (owner, 2026-10-26) */
 .where{background:#f9edc8;border:1.5px solid #22211e;border-radius:0}
 @media (max-width:900px){.hero{display:flex;flex-direction:column}.hsmall{order:-1}.hwide{display:none}.htext{position:static;padding:0}.hsmall{display:grid;grid-template-columns:130px 180px;justify-content:center;align-items:end;gap:6px;margin-bottom:8px}.hero h1{white-space:normal;font-size:2rem}.hero p{font-size:1.05rem}}
 .card{border-radius:0;border:2px solid #22211e}
@@ -178,7 +181,7 @@ button.alt:hover{background:#f9edc8}
 #go{background:#e0a81e;color:#22211e;border:2px solid #22211e;box-shadow:4px 4px 0 #22211e;font-size:1.05rem;padding:10px 24px}
 input,select{border-radius:0;border:2px solid #22211e;background:#fff}
 input:focus,select:focus{outline:3px solid #e0a81e;outline-offset:1px}
-.presets{border-bottom:2px dotted #c9bfa9}
+.presets{border-bottom:2px dotted #9c8f74}
 button.grpday,button.link,button.more{color:#22211e;text-decoration-color:#e0a81e;text-decoration-thickness:2px}
 .sethead label.chk{color:#45423b}
 .scroll{border:1.5px solid #22211e;border-radius:0}
@@ -195,7 +198,6 @@ th[aria-sort=ascending] .arr .u,th[aria-sort=descending] .arr .d{color:#22211e}
 .btns{border:0;padding-bottom:0}
 /* every heading puts its sort arrows under the words, as the number columns do, so the table fits at 1366 px in the site font */
 th:not(.n) button .lbl{display:inline-flex;flex-direction:column;align-items:flex-start}th:not(.n) .arr{flex-direction:row;margin:3px 0 0}th.sea .lbl{align-items:center}   /* site.css draws a gold rule under .btns; not wanted here */
-.mast .wrap,.nav .wrap,#site-header .wrap,footer .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
 </style>
 </head>
 <body data-tab="planastay">
@@ -540,7 +542,7 @@ th:not(.n) button .lbl{display:inline-flex;flex-direction:column;align-items:fle
 <div class="sethead"><h2 id="sh">Search Settings</h2></div>
 <form id="f" novalidate>
 <div class="presets"><span class="lab">Try an Example:</span>
-<button type="button" class="alt" data-preset="low">Lowest Points per Night</button><button type="button" class="alt" data-preset="bonnet">Bonnet Creek</button><button type="button" class="alt" data-preset="water">Water Park Resorts</button><button type="button" class="alt" data-preset="vegas">Las Vegas</button><button type="button" class="alt" data-preset="65">65,000 Points a Year</button>
+<button type="button" class="alt" data-preset="low">Lowest Points per Night</button><button type="button" class="alt" data-preset="bonnet">Bonnet Creek</button><button type="button" class="alt" data-preset="water">Water Park Resorts</button><button type="button" class="alt" data-preset="vegas">Las Vegas</button><button type="button" class="alt" data-preset="65">65,000 Points</button>
 </div>
 <div class="ptsc">
 <label for="pts" class="ptslabel">How Many Points Do You Want to Use?</label>
@@ -548,20 +550,20 @@ th:not(.n) button .lbl{display:inline-flex;flex-direction:column;align-items:fle
 <div class="minor"><label for="vip">VIP Level</label><select id="vip"><option value="none">Non-VIP</option><option value="all">Show All</option></select><label class="chk"><input type="checkbox" id="disc"> Discovery Resorts Only</label></div>
 </div>
 <div class="fgrid">
-<div><label for="size">Room Size</label><select id="size"></select></div>
 <div class="full where"><label for="loc">Location</label><input id="loc" type="search" list="places" autocomplete="off" placeholder="e.g. Bay Club, Maine, Canada"><datalist id="places"></datalist>
 <div class="radrow"><label for="radius">Search Radius</label><select id="radius" disabled></select></div>
 <p class="hint" id="radHint">Type a resort name, state or country. For a radius, type a city and state, such as Orlando, Florida.</p></div>
 <div class="rule full" aria-hidden="true"></div>
 <div><label for="from">Earliest Check-In</label><div class="dbox"><input id="from" type="text" inputmode="numeric" autocomplete="off" placeholder="mm/dd/yy"><button type="button" class="pickbtn" data-for="from" aria-label="Pick Earliest Check-In From a Calendar" title="Pick From a Calendar"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="1.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></button><input type="date" class="pickin" tabindex="-1" aria-hidden="true" data-for="from"></div><p class="msg err" id="fromErr" role="status" hidden>Type a date like 10/25/26 or 102526.</p><div class="nights"><div class="nrow"><label for="minN">Min Nights</label><input id="minN" type="number" min="1" max="30" value="2"></div><p class="msg err" id="oneNight" role="status" hidden>Note: Club Wyndham min. booking is 2 nights.</p><div class="nrow"><label for="maxN">Max Nights</label><input id="maxN" type="number" min="1" max="30" value="7"></div><p class="msg err" id="maxWarn" role="status" hidden>Max Nights needs to be 5 or less for weeknight-only stays.</p></div></div>
-<div><label for="to">Latest Check-Out</label><div class="dbox"><input id="to" type="text" inputmode="numeric" autocomplete="off" placeholder="mm/dd/yy"><button type="button" class="pickbtn" data-for="to" aria-label="Pick Latest Check-Out From a Calendar" title="Pick From a Calendar"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="1.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></button><input type="date" class="pickin" tabindex="-1" aria-hidden="true" data-for="to"></div><p class="msg err" id="toErr" role="status" hidden>Type a date like 10/25/26 or 102526.</p><div class="spans" role="group" aria-label="Set Latest Check-Out from Earliest Check-In"><button type="button" data-span="7d">1 Wk</button><button type="button" data-span="14d">2 Wks</button><button type="button" data-span="1m">1 Mo</button><button type="button" data-span="6m">6 Mo</button><button type="button" data-span="12m">1 Yr</button></div><p class="hint"><button type="button" class="link small" id="clearTo">Leave blank</button> to check in on the Earliest Check-In date only.</p></div>
+<div><label for="to">Latest Check-Out</label><div class="dbox"><input id="to" type="text" inputmode="numeric" autocomplete="off" placeholder="mm/dd/yy"><button type="button" class="pickbtn" data-for="to" aria-label="Pick Latest Check-Out From a Calendar" title="Pick From a Calendar"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="1.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></button><input type="date" class="pickin" tabindex="-1" aria-hidden="true" data-for="to"></div><p class="msg err" id="toErr" role="status" hidden>Type a date like 10/25/26 or 102526.</p><div class="spans" role="group" aria-label="Set Latest Check-Out from Earliest Check-In"><button type="button" data-span="7d">1 Wk</button><button type="button" data-span="14d">2 Wks</button><button type="button" data-span="1m">1 Mo</button><button type="button" data-span="6m">6 Mo</button><button type="button" data-span="12m">1 Yr</button></div><p class="hint"><button type="button" class="link small" id="clearTo">Leave blank</button> to check in on the Earliest Check-In date only.</p><div class="sizebox"><label for="size">Room Size</label><select id="size"></select></div></div>
+<div class="rule full" aria-hidden="true"></div>
 <div class="full"><span class="lab" id="dayLbl">Check-In Day:</span>
 <div class="daygrid" role="group" aria-labelledby="dayLbl">
 <button type="button" class="grpday wkday" data-days="0,1,2,3,4">Weekday</button><button type="button" class="grpday wkend" data-days="5,6">Weekend</button>
 <span class="clickday">Click a day</span>
 <button type="button" class="day" data-d="0" aria-pressed="true">Sun</button><button type="button" class="day" data-d="1" aria-pressed="true">Mon</button><button type="button" class="day" data-d="2" aria-pressed="true">Tue</button><button type="button" class="day" data-d="3" aria-pressed="true">Wed</button><button type="button" class="day" data-d="4" aria-pressed="true">Thu</button><button type="button" class="day" data-d="5" aria-pressed="true">Fri</button><button type="button" class="day" data-d="6" aria-pressed="true">Sat</button>
 </div>
-<div class="wkbox"><label class="chk"><input type="checkbox" id="wkn"> Use only weeknights for the stay (Max: 5 Nights)</label></div></div>
+<div class="wkbox"><label class="chk"><input type="checkbox" id="wkn"> Use only weeknights (least points) for the stay (Max: 5 Nights)</label></div></div>
 </div>
 <div class="btns go"><button type="submit" id="go">Find Stays</button></div>
 <p class="msg err" id="err" role="alert" hidden></p>
@@ -1024,7 +1026,10 @@ function allDays() { for (var i = 0; i < dayBtns.length; i++) dayBtns[i].setAttr
 document.querySelector('.presets').addEventListener('click', function (ev) {
   var b = ev.target.closest('button[data-preset]'); if (!b) return;
   var p = b.getAttribute('data-preset');
-  setDate('from', Math.max(CAL_START, todayUTC)); setDate('to', CAL_END); allDays(); lowMode = false;
+  /* Examples (owner, 2026-10-26): All Sizes, and Latest Check-Out 3 months after Earliest Check-In */
+  var f0 = Math.max(CAL_START, todayUTC), d0 = new Date(f0), t0 = Date.UTC(d0.getUTCFullYear(), d0.getUTCMonth() + 3, d0.getUTCDate());
+  if (new Date(t0).getUTCDate() !== d0.getUTCDate()) t0 = Date.UTC(d0.getUTCFullYear(), d0.getUTCMonth() + 4, 0);
+  setDate('from', f0); setDate('to', Math.min(CAL_END, t0)); $('size').value = ''; allDays(); lowMode = false;
   if (p === 'low') { $('loc').value = ''; $('minN').value = 1; $('maxN').value = 1; lowMode = true; }
   else { $('minN').value = 2; $('maxN').value = 7; }
   if (p === 'bonnet') $('loc').value = 'Club Wyndham Bonnet Creek';
