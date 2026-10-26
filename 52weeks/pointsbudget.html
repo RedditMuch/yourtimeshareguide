@@ -49,6 +49,8 @@ button.link{all:unset;cursor:pointer;color:var(--stay);font-weight:700;text-deco
 .fgrid>div{min-width:0}.fgrid .full{grid-column:1/-1}.fgrid .rule{border-top:1px solid var(--line);margin:2px 0}
 .fgrid input:not([type=checkbox]):not(.pickin),.fgrid select{width:100%}
 .fgrid .msg{margin-top:6px}
+.where{background:var(--head);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.radrow{display:flex;align-items:center;gap:10px;margin-top:8px}.radrow label{white-space:nowrap;margin:0}.fgrid .radrow select{width:auto;min-width:150px;margin:0}
 .btns.go{justify-content:center;margin-top:18px}
 .dbox{position:relative;width:100%}.dbox input[type=text]{padding-right:42px}
 .pickbtn{all:unset;position:absolute;right:4px;top:50%;transform:translateY(-50%);margin-top:1px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink);border-radius:6px}
@@ -159,9 +161,10 @@ td.left{white-space:nowrap}td.left small{display:block;font-size:.75em;color:var
 <div class="minor"><label for="vip">VIP Level</label><select id="vip"><option value="none">Non-VIP</option><option value="all">Show All</option></select><label class="chk"><input type="checkbox" id="disc"> Discovery Resorts Only</label></div>
 </div>
 <div class="fgrid">
-<div class="full"><label for="loc">Location</label><input id="loc" type="search" list="places" autocomplete="off" placeholder="e.g. Bay Club, Maine, Canada"><datalist id="places"></datalist><p class="hint" id="radHint">Type a resort name, state or country. For a radius, type a city and state, such as Orlando, Florida.</p></div>
 <div><label for="size">Room Size</label><select id="size"></select></div>
-<div><label for="radius">Search Radius</label><select id="radius" disabled></select></div>
+<div class="full where"><label for="loc">Location</label><input id="loc" type="search" list="places" autocomplete="off" placeholder="e.g. Bay Club, Maine, Canada"><datalist id="places"></datalist>
+<div class="radrow"><label for="radius">Search Radius</label><select id="radius" disabled></select></div>
+<p class="hint" id="radHint">Type a resort name, state or country. For a radius, type a city and state, such as Orlando, Florida.</p></div>
 <div class="rule full" aria-hidden="true"></div>
 <div><label for="from">Earliest Check-In</label><div class="dbox"><input id="from" type="text" inputmode="numeric" autocomplete="off" placeholder="mm/dd/yy"><button type="button" class="pickbtn" data-for="from" aria-label="Pick Earliest Check-In From a Calendar" title="Pick From a Calendar"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="1.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></button><input type="date" class="pickin" tabindex="-1" aria-hidden="true" data-for="from"></div><p class="msg err" id="fromErr" role="status" hidden>Type a date like 10/25/26 or 102526.</p></div>
 <div><label for="to">Latest Check-Out</label><div class="dbox"><input id="to" type="text" inputmode="numeric" autocomplete="off" placeholder="mm/dd/yy"><button type="button" class="pickbtn" data-for="to" aria-label="Pick Latest Check-Out From a Calendar" title="Pick From a Calendar"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="1.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></button><input type="date" class="pickin" tabindex="-1" aria-hidden="true" data-for="to"></div><p class="msg err" id="toErr" role="status" hidden>Type a date like 10/25/26 or 102526.</p><p class="hint"><button type="button" class="link small" id="clearTo">Leave blank</button> to check in on the Earliest Check-In date only.</p></div>
@@ -413,7 +416,7 @@ var nightWeek = new Int16Array(NIGHTS), nightWknd = new Uint8Array(NIGHTS), nigh
 /* ---- Search ---- */
 var SEASONS = ['Prime', 'High', 'Value', 'Quiet'];
 /* Columns: Season and Full Price first (owner, 2026-10-25); the VIP Discount Date column (60 days before check-in) shows only when VIP prices are shown */
-var sortKey = null, sortDir = 1, BASE_HEAD = ['Season', 'Full Price', 'Nights', 'Check-In', 'Check-Out', 'Room Type', 'Resort', 'Building', 'City', 'State', 'Points Left Over'];   /* column order: owner, 2026-10-25 */
+var sortKey = null, sortDir = 1, BASE_HEAD = ['Season', 'Nights', 'Full Price', 'Check-In', 'Check-Out', 'Room Type', 'Resort', 'Building', 'City', 'State', 'Points Left Over'];   /* column order: owner, 2026-10-25 */
 var firstRate = function (rates) { return BASE_HEAD.length + (rates.length ? 1 : 0); };
 var headOf = function (rates) { return BASE_HEAD.concat(rates.length ? ['VIP Discount Date'] : [], rates.map(colLabel)); };
 var RATES = [], TIER_OF = {}, TIERS = [], VIS = [], VIS_TIER = null;  /* discounts read from reference-data.js, ascending */
@@ -446,8 +449,8 @@ function sortUI() {
 }
 function sortVal(x, c) {
   if (c === 0) return SEASONS.indexOf(x.season) >= 0 ? SEASONS.indexOf(x.season) : null;
-  if (c === 1) return x.prices[0];
-  if (c === 2) return x.n;
+  if (c === 1) return x.n;
+  if (c === 2) return x.prices[0];
   if (c === 3 || c === 11 && lastInfo.rates.length) return x.s;
   if (c === 4) return x.s + x.n;
   if (c === 5) return x.r._room.toLowerCase();
@@ -537,7 +540,7 @@ function search(cfg) {
 /* ---- Output ---- */
 function rowData(x) {
   var t = CAL_START + x.s * DAY, vipDay = t - VIP_DAYS * DAY;
-  return [x.season || '', x.prices[0], x.n, fmtDate(t), fmtDate(t + x.n * DAY), x.r._rt, x.r._disp, x.r._bld || '', x.r._city, x.r._code, lastInfo.points - x.used]
+  return [x.season || '', x.n, x.prices[0], fmtDate(t), fmtDate(t + x.n * DAY), x.r._rt, x.r._disp, x.r._bld || '', x.r._city, x.r._code, lastInfo.points - x.used]
     .concat(lastInfo.rates.length ? [vipDay <= todayUTC ? 'Now' : fmtDate(vipDay)] : [], x.prices.slice(1));
 }
 var DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -546,8 +549,8 @@ function render() {
   var list = ordered(), budget = lastInfo.points, html = '', cols = headOf(lastInfo.rates).length;
   var priceCell = function (x, v) { var fit = v != null && v <= budget; return '<td class="n' + (fit ? ' fit' : x.season ? ' p' + x.season : '') + '" data-fit="' + fit + '">' + (v == null ? '—' : NUM.format(v)) + '</td>'; };
   var rowHtml = function (x, sub, btn) {
-    var d = rowData(x), h = '<tr' + (sub ? ' class="sub"' : '') + '><td class="sea' + (x.season ? ' s' + x.season : '') + '" data-season="' + esc(x.season) + '"' + '>' + esc(x.season) + '</td>' + priceCell(x, d[1]);
-    h += '<td class="n">' + d[2] + '</td><td class="nw">' + esc(d[3]) + '<small>' + DOW[nightDow[x.s]] + '</small></td><td class="nw">' + esc(d[4]) + '<small>' + DOW[(nightDow[x.s] + x.n) % 7] + '</small></td><td class="rt">' + esc(d[5]) + '</td><td class="res">' + esc(d[6]) + btn + '</td><td class="bld">' + esc(d[7]) + '</td><td>' + esc(d[8]) + '</td><td>' + esc(d[9]) + '</td><td class="n left">' + NUM.format(d[10]) + (lastInfo.rates.length ? '<small>' + esc(x.uk ? tierOf(lastInfo.rates[x.uk - 1]) : 'Full Price') + '</small>' : '') + '</td>';
+    var d = rowData(x), h = '<tr' + (sub ? ' class="sub"' : '') + '><td class="sea' + (x.season ? ' s' + x.season : '') + '" data-season="' + esc(x.season) + '"' + '>' + esc(x.season) + '</td><td class="n">' + d[1] + '</td>' + priceCell(x, d[2]);
+    h += '<td class="nw">' + esc(d[3]) + '<small>' + DOW[nightDow[x.s]] + '</small></td><td class="nw">' + esc(d[4]) + '<small>' + DOW[(nightDow[x.s] + x.n) % 7] + '</small></td><td class="rt">' + esc(d[5]) + '</td><td class="res">' + esc(d[6]) + btn + '</td><td class="bld">' + esc(d[7]) + '</td><td>' + esc(d[8]) + '</td><td>' + esc(d[9]) + '</td><td class="n left">' + NUM.format(d[10]) + (lastInfo.rates.length ? '<small>' + esc(x.uk ? tierOf(lastInfo.rates[x.uk - 1]) : 'Full Price') + '</small>' : '') + '</td>';
     var k = 11;
     if (lastInfo.rates.length) h += '<td class="n nw">' + esc(d[k++]) + '</td>';
     for (; k < d.length; k++) h += priceCell(x, d[k]);
@@ -652,6 +655,8 @@ $('clearTo').addEventListener('click', function () { $('to').value = ''; $('to')
 /* One night: allowed for information, with a note (owner, 2026-10-25) */
 function oneNight() { $('oneNight').hidden = parseInt($('minN').value, 10) !== 1; }
 $('minN').addEventListener('input', oneNight); oneNight();
+/* Clicking in Min Nights or Max Nights selects the number, so typing replaces it (owner, 2026-10-26) */
+['minN', 'maxN'].forEach(function (id) { $(id).addEventListener('focus', function () { var el = this; setTimeout(function () { el.select(); }, 0); }); });
 /* Weeknight-only stays are 5 nights at most: warn under Max Nights (owner, 2026-10-25) */
 function maxWarn() { $('maxWarn').hidden = !($('wkn').checked && parseInt($('maxN').value, 10) > 5); }
 $('maxN').addEventListener('input', maxWarn); $('wkn').addEventListener('change', maxWarn); maxWarn();
@@ -714,7 +719,7 @@ $('xlsx').addEventListener('click', function () {
   var btn = this, xe = $('xerr'); xe.hidden = true; btn.disabled = true;
   loadXlsx().then(function () {
     var meta = metaRows(), ws = XLSX.utils.aoa_to_sheet(meta.concat([HEAD()], exportRows()));
-    ws['!cols'] = [{ wch: 9 }, { wch: 12 }, { wch: 8 }, { wch: 12 }, { wch: 12 }, { wch: 22 }, { wch: 38 }, { wch: 22 }, { wch: 20 }, { wch: 8 }, { wch: 10 }].concat(lastInfo.rates.length ? [{ wch: 16 }] : [], lastInfo.rates.map(function () { return { wch: 12 }; }));
+    ws['!cols'] = [{ wch: 9 }, { wch: 8 }, { wch: 12 }, { wch: 12 }, { wch: 12 }, { wch: 22 }, { wch: 38 }, { wch: 22 }, { wch: 20 }, { wch: 8 }, { wch: 10 }].concat(lastInfo.rates.length ? [{ wch: 16 }] : [], lastInfo.rates.map(function () { return { wch: 12 }; }));
     var wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Where Can My Points Take Me');
     XLSX.writeFile(wb, 'pointsbudget.xlsx');
   }).catch(function () {
