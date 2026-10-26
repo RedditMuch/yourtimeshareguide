@@ -373,7 +373,7 @@ test("thriftypoints: with VIP prices shown, Points Left Over names its price lev
   expect(data.length).toBeGreaterThan(0);
   for (const c of data) {
     const [left, level] = c[2].split("\n");
-    const i = level === "Full Price" ? 1 : h.findIndex(t => t.startsWith(level + " "));
+    const i = level === "Full Price" ? 1 : h.findIndex(t => / Off /.test(t + " ") && t.split(" ").includes(level));
     expect(i).toBeGreaterThan(0);
     expect(num(left)).toBe(60000 - num(c[i]));
   }
