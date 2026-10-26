@@ -66,7 +66,7 @@ button:disabled{opacity:.5;cursor:default}
 table{border-collapse:collapse;width:100%;min-width:1000px;font-size:14px;table-layout:auto}
 td.res{min-width:130px;max-width:170px}td.nw{white-space:nowrap}td.n{white-space:nowrap;min-width:54px}td.bld{color:var(--mute);font-size:.9em;min-width:84px;max-width:110px}
 td.rt{max-width:160px}td.rt small{display:block;color:var(--mute);font-size:.8em;line-height:1.25}
-th[data-h="4"],td:nth-child(5){min-width:80px}th[data-h="5"],td:nth-child(6){min-width:60px}th[data-h="6"],td:nth-child(7){min-width:105px}th[data-h="3"]{min-width:130px}
+th[data-h="8"],td:nth-child(9){min-width:80px}th[data-h="9"],td:nth-child(10){min-width:44px}th[data-h="5"],td:nth-child(6){min-width:105px}th[data-h="6"]{min-width:130px}
 th,td{padding:6px 4px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
 th{background:var(--head);font-size:.82rem;white-space:nowrap;padding:0}
 th[aria-sort=ascending],th[aria-sort=descending]{background:#cfe0f3}
@@ -367,7 +367,7 @@ var nightWeek = new Int16Array(NIGHTS), nightWknd = new Uint8Array(NIGHTS), nigh
 /* ---- Search ---- */
 var SEASONS = ['Prime', 'High', 'Value', 'Quiet'];
 /* Columns: Season and Full Price first (owner, 2026-10-25); the VIP Discount Date column (60 days before check-in) shows only when VIP prices are shown */
-var sortKey = null, sortDir = 1, BASE_HEAD = ['Season', 'Full Price', 'Points Left Over', 'Resort', 'City', 'State', 'Room Type', 'Building', 'Check-In', 'Check-Out', 'Nights'];
+var sortKey = null, sortDir = 1, BASE_HEAD = ['Season', 'Full Price', 'Nights', 'Check-In', 'Check-Out', 'Room Type', 'Resort', 'Building', 'City', 'State', 'Points Left Over'];   /* column order: owner, 2026-10-25 */
 var firstRate = function (rates) { return BASE_HEAD.length + (rates.length ? 1 : 0); };
 var headOf = function (rates) { return BASE_HEAD.concat(rates.length ? ['VIP Discount Date'] : [], rates.map(colLabel)); };
 var RATES = [], TIER_OF = {}, TIERS = [], VIS = [], VIS_TIER = null;  /* discounts read from reference-data.js, ascending */
@@ -381,7 +381,7 @@ var tierOf = function (d) { return VIS_TIER || TIER_OF[d] || ''; };
 function setColumns() {
   var tr = $('tbl').querySelector('thead tr'), labels = headOf(VIS), r0 = firstRate(VIS);
   if (sortKey != null && sortKey >= labels.length) sortKey = null;
-  tr.innerHTML = labels.map(function (l, i) { var tier = i >= r0 ? tierOf(VIS[i - r0]) : ''; return '<th' + (i === 0 ? ' class="sea"' : i === 2 ? ' class="n"' : i === 1 || i === 10 || i >= r0 - (VIS.length ? 1 : 0) ? ' class="n"' : '') + ' data-h="' + i + '"' + '><button type="button" data-col="' + i + '">' + '<span class="lbl">' + ({ 'Points Left Over': 'Points<br>Left Over', 'VIP Discount Date': 'VIP Discount<br>Date' }[l] || esc(l)) + '<span class="arr" aria-hidden="true"><i class="u"></i><i class="d"></i></span></span>' + (tier ? '<span class="tier"> ' + esc(tier) + '</span>' : '') + '</button></th>'; }).join('');
+  tr.innerHTML = labels.map(function (l, i) { var tier = i >= r0 ? tierOf(VIS[i - r0]) : ''; return '<th' + (i === 0 ? ' class="sea"' : i === 1 || i === 2 || i === 10 || i >= r0 - (VIS.length ? 1 : 0) ? ' class="n"' : '') + ' data-h="' + i + '"' + '><button type="button" data-col="' + i + '">' + '<span class="lbl">' + ({ 'Points Left Over': 'Points<br>Left Over', 'VIP Discount Date': 'VIP Discount<br>Date' }[l] || esc(l)) + '<span class="arr" aria-hidden="true"><i class="u"></i><i class="d"></i></span></span>' + (tier ? '<span class="tier"> ' + esc(tier) + '</span>' : '') + '</button></th>'; }).join('');
   sortUI();
 }
 var pctOf = function (d) { return Math.round(d * 1000) / 10 + '%'; };
@@ -401,15 +401,15 @@ function sortUI() {
 function sortVal(x, c) {
   if (c === 0) return SEASONS.indexOf(x.season) >= 0 ? SEASONS.indexOf(x.season) : null;
   if (c === 1) return x.prices[0];
-  if (c === 2) return lastInfo.points - x.used;
-  if (c === 3) return x.r._dlow;
-  if (c === 4) return x.r._city.toLowerCase();
-  if (c === 5) return x.r._code.toLowerCase();
-  if (c === 6) return x.r._room.toLowerCase();
+  if (c === 2) return x.n;
+  if (c === 3 || c === 11 && lastInfo.rates.length) return x.s;
+  if (c === 4) return x.s + x.n;
+  if (c === 5) return x.r._room.toLowerCase();
+  if (c === 6) return x.r._dlow;
   if (c === 7) return x.r._bld ? x.r._bld.toLowerCase() : null;
-  if (c === 8 || c === 11 && lastInfo.rates.length) return x.s;
-  if (c === 9) return x.s + x.n;
-  if (c === 10) return x.n;
+  if (c === 8) return x.r._city.toLowerCase();
+  if (c === 9) return x.r._code.toLowerCase();
+  if (c === 10) return lastInfo.points - x.used;
   return x.prices[c - firstRate(lastInfo.rates) + 1];
 }
 function ordered() {
@@ -491,7 +491,7 @@ function search(cfg) {
 /* ---- Output ---- */
 function rowData(x) {
   var t = CAL_START + x.s * DAY, vipDay = t - VIP_DAYS * DAY;
-  return [x.season || '', x.prices[0], lastInfo.points - x.used, x.r._disp, x.r._city, x.r._code, x.r._rt, x.r._bld || '', fmtDate(t), fmtDate(t + x.n * DAY), x.n]
+  return [x.season || '', x.prices[0], x.n, fmtDate(t), fmtDate(t + x.n * DAY), x.r._rt, x.r._disp, x.r._bld || '', x.r._city, x.r._code, lastInfo.points - x.used]
     .concat(lastInfo.rates.length ? [vipDay <= todayUTC ? 'Now' : fmtDate(vipDay)] : [], x.prices.slice(1));
 }
 var DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -501,7 +501,7 @@ function render() {
   var priceCell = function (x, v) { var fit = v != null && v <= budget; return '<td class="n' + (fit ? ' fit' : x.season ? ' p' + x.season : '') + '" data-fit="' + fit + '">' + (v == null ? '—' : NUM.format(v)) + '</td>'; };
   var rowHtml = function (x, sub, btn) {
     var d = rowData(x), h = '<tr' + (sub ? ' class="sub"' : '') + '><td class="sea' + (x.season ? ' s' + x.season : '') + '" data-season="' + esc(x.season) + '"' + '>' + esc(x.season) + '</td>' + priceCell(x, d[1]);
-    h += '<td class="n left">' + NUM.format(d[2]) + (lastInfo.rates.length ? '<small>' + esc(x.uk ? tierOf(lastInfo.rates[x.uk - 1]) : 'Full Price') + '</small>' : '') + '</td><td class="res">' + esc(d[3]) + btn + '</td><td>' + esc(d[4]) + '</td><td>' + esc(d[5]) + '</td><td class="rt">' + esc(d[6]) + '</td><td class="bld">' + esc(d[7]) + '</td><td class="nw">' + esc(d[8]) + '<small>' + DOW[nightDow[x.s]] + '</small></td><td class="nw">' + esc(d[9]) + '<small>' + DOW[(nightDow[x.s] + x.n) % 7] + '</small></td><td class="n">' + d[10] + '</td>';
+    h += '<td class="n">' + d[2] + '</td><td class="nw">' + esc(d[3]) + '<small>' + DOW[nightDow[x.s]] + '</small></td><td class="nw">' + esc(d[4]) + '<small>' + DOW[(nightDow[x.s] + x.n) % 7] + '</small></td><td class="rt">' + esc(d[5]) + '</td><td class="res">' + esc(d[6]) + btn + '</td><td class="bld">' + esc(d[7]) + '</td><td>' + esc(d[8]) + '</td><td>' + esc(d[9]) + '</td><td class="n left">' + NUM.format(d[10]) + (lastInfo.rates.length ? '<small>' + esc(x.uk ? tierOf(lastInfo.rates[x.uk - 1]) : 'Full Price') + '</small>' : '') + '</td>';
     var k = 11;
     if (lastInfo.rates.length) h += '<td class="n nw">' + esc(d[k++]) + '</td>';
     for (; k < d.length; k++) h += priceCell(x, d[k]);
@@ -666,7 +666,7 @@ $('xlsx').addEventListener('click', function () {
   var btn = this, xe = $('xerr'); xe.hidden = true; btn.disabled = true;
   loadXlsx().then(function () {
     var meta = metaRows(), ws = XLSX.utils.aoa_to_sheet(meta.concat([HEAD()], exportRows()));
-    ws['!cols'] = [{ wch: 9 }, { wch: 12 }, { wch: 10 }, { wch: 38 }, { wch: 20 }, { wch: 8 }, { wch: 22 }, { wch: 22 }, { wch: 12 }, { wch: 12 }, { wch: 8 }].concat(lastInfo.rates.length ? [{ wch: 16 }] : [], lastInfo.rates.map(function () { return { wch: 12 }; }));
+    ws['!cols'] = [{ wch: 9 }, { wch: 12 }, { wch: 8 }, { wch: 12 }, { wch: 12 }, { wch: 22 }, { wch: 38 }, { wch: 22 }, { wch: 20 }, { wch: 8 }, { wch: 10 }].concat(lastInfo.rates.length ? [{ wch: 16 }] : [], lastInfo.rates.map(function () { return { wch: 12 }; }));
     var wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Where Can My Points Take Me');
     XLSX.writeFile(wb, 'pointsbudget.xlsx');
   }).catch(function () {

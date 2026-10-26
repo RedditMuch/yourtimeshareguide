@@ -18,10 +18,14 @@ async function search(page, { points = "60,000", from, to, vip = "Show All Disco
 }
 // Columns as rows() and heads() return them (they skip Points Left Over, the 3rd column on the page, and the More Dates button):
 // 0 Season, 1 Full Price, 2 Resort, 3 City, 4 State, 5 Room Type, 6 Building, 7 Check-In, 8 Check-Out, 9 Nights, 10 VIP Discount Date (only with VIP prices), 11.. discount columns
-const rows = page => page.$$eval("#body tr:not(.sub)", trs => trs.map(tr => [...tr.children].filter(td => !td.classList.contains("left")).map(td => { const c = td.cloneNode(true); c.querySelectorAll("button, small").forEach(b => b.remove()); return { t: c.textContent.trim(), fit: td.dataset.fit, cls: td.className }; })));
-const heads = page => page.$$eval("#tbl thead th", ths => ths.map(th => th.innerText.replace(/[▲▼⇅]/g, "").replace(/\s+/g, " ").trim()).filter(t => t !== "Points Left Over"));
-const col = (page, i) => page.locator('#tbl thead button[data-col="' + (i >= 2 ? i + 1 : i) + '"]');   // page column for a heads() index
-const sortOf = (page, i) => page.locator("#tbl thead th").nth(i >= 2 ? i + 1 : i).getAttribute("aria-sort");
+// Page columns (owner, 2026-10-25): Season, Full Price, Nights, Check-In, Check-Out, Room Type, Resort, Building, City, State, Points Left Over, then VIP.
+// DOM index for each logical index the checks use; Points Left Over (page column 10) is left out.
+const DOM = [0, 1, 6, 8, 9, 5, 7, 3, 4, 2];
+const dom = i => (i < 10 ? DOM[i] : i + 1);
+const rows = page => page.$$eval("#body tr:not(.sub)", (trs, D) => trs.map(tr => { const cells = [...tr.children].map(td => { const c = td.cloneNode(true); c.querySelectorAll("button, small").forEach(b => b.remove()); return { t: c.textContent.trim(), fit: td.dataset.fit, cls: td.className }; }); return cells.length < 10 ? cells : D.map(i => cells[i]).concat(cells.slice(11)); }), DOM);
+const heads = page => page.$$eval("#tbl thead th", (ths, D) => { const h = ths.map(th => th.innerText.replace(/[▲▼⇅]/g, "").replace(/\s+/g, " ").trim()); return D.map(i => h[i]).concat(h.slice(11)); }, DOM);
+const col = (page, i) => page.locator('#tbl thead button[data-col="' + dom(i) + '"]');   // page column for a heads() index
+const sortOf = (page, i) => page.locator("#tbl thead th").nth(dom(i)).getAttribute("aria-sort");
 const daysOut = c => { const n = new Date(); return Math.round((dateOf(c[7].t) - Date.UTC(n.getFullYear(), n.getMonth(), n.getDate())) / 864e5); };
 
 test("pointsbudget: the VIP Level dropdown tailors the columns and re-renders when changed", async ({ page }) => {
@@ -262,7 +266,7 @@ test("pointsbudget: Location finds a state, a resort name and a city with a radi
   expect(r.every(c => c[4].t === "TN")).toBe(true);
   const h = await heads(page);
   expect(h.slice(0, 2)).toEqual(["Season", "Full Price"]);
-  expect(h[10]).toBe("VIP Discount Date");
+  expect(h[10]).toBe("VIP Discount Date");   // heads() leaves out Points Left Over
   const n = new Date(), today = Date.UTC(n.getFullYear(), n.getMonth(), n.getDate());
   for (const c of r) {
     const d = dateOf(c[7].t) - 60 * 864e5;
@@ -315,9 +319,9 @@ test("pointsbudget: starts for a new owner: Not VIP, 1 Bedroom, 2 to 7 nights, P
   await page.click("#go");
   await expect(page.locator("#body tr").first()).toBeVisible();
   const h = await page.$$eval("#tbl thead th", ths => ths.map(th => th.innerText.replace(/[▲▼⇅]/g, "").replace(/\s+/g, " ").trim()));
-  expect(h.slice(0, 3)).toEqual(["Season", "Full Price", "Points Left Over"]);
+  expect(h.slice(0, 11)).toEqual(["Season", "Full Price", "Nights", "Check-In", "Check-Out", "Room Type", "Resort", "Building", "City", "State", "Points Left Over"]);
   expect(h).not.toContain("VIP Discount Date");
-  const cells = await page.$$eval("#body tr:not(.sub)", trs => trs.map(tr => [tr.children[1].textContent, tr.children[2].textContent, tr.children[10].textContent]));
+  const cells = await page.$$eval("#body tr:not(.sub)", trs => trs.map(tr => [tr.children[1].textContent, tr.children[10].textContent, tr.children[2].textContent]));
   for (const [full, left, n] of cells) { expect(num(full) + num(left)).toBe(60000); expect(num(n)).toBeLessThanOrEqual(7); }
 });
 
@@ -335,7 +339,7 @@ test("pointsbudget: broad settings show the count and one row per resort and roo
   const btn = page.locator("#body button.more").first();
   const others = num(await btn.textContent());
   await btn.click();
-  const sub = await page.$$eval("#body tr.sub", trs => trs.filter(tr => tr.children.length > 3).map(tr => [tr.children[1].textContent, tr.children[3].textContent, tr.children[6].textContent]));
+  const sub = await page.$$eval("#body tr.sub", trs => trs.filter(tr => tr.children.length > 3).map(tr => [tr.children[1].textContent, tr.children[6].childNodes[0].textContent, tr.children[5].textContent]));
   expect(sub.length).toBe(Math.min(25, others));
   for (const [full, res, room] of sub) { expect(num(full)).toBeLessThanOrEqual(60000); expect(res).toBe(r[0][2].t); expect(room).toBe(r[0][5].t); }
   await page.locator("#body button.more").first().click();
@@ -372,7 +376,7 @@ test("pointsbudget: with VIP prices shown, Points Left Over names its price leve
   const data = await page.$$eval("#body tr:not(.sub)", trs => trs.map(tr => [...tr.children].map(td => td.innerText.trim())));
   expect(data.length).toBeGreaterThan(0);
   for (const c of data) {
-    const [left, level] = c[2].split("\n");
+    const [left, level] = c[10].split("\n");
     const i = level === "Full Price" ? 1 : h.findIndex(t => / Off /.test(t + " ") && t.split(" ").includes(level));
     expect(i).toBeGreaterThan(0);
     expect(num(left)).toBe(60000 - num(c[i]));
@@ -386,7 +390,7 @@ test("pointsbudget: building names are split out of the room type in all three p
     await page.fill("#loc", q);
     await page.click("#go");
     await expect(page.locator("#body tr").first()).toBeVisible();
-    return page.$$eval("#body tr:not(.sub)", trs => trs.map(tr => [tr.children[6].innerText.trim(), tr.children[7].innerText.trim()]));
+    return page.$$eval("#body tr:not(.sub)", trs => trs.map(tr => [tr.children[5].innerText.trim(), tr.children[7].innerText.trim()]));
   };
   for (const q of ["Sea Gardens", "Palm-Aire", "Smugglers"]) {
     for (const [room, bldg] of await look(q)) {
@@ -407,7 +411,7 @@ test("pointsbudget: SeaWatch's second chart shows as Villas, and no Building is 
   await page.fill("#loc", "SeaWatch");
   await page.click("#go");
   await expect(page.locator("#body tr").first()).toBeVisible();
-  const r = await page.$$eval("#body tr:not(.sub)", trs => trs.map(tr => [tr.children[6].innerText.trim(), tr.children[7].innerText.trim()]));
+  const r = await page.$$eval("#body tr:not(.sub)", trs => trs.map(tr => [tr.children[5].innerText.trim(), tr.children[7].innerText.trim()]));
   expect(r).toContainEqual(["1 Bedroom Deluxe", "Villas"]);
   expect(r).toContainEqual(["1 Bedroom Deluxe", "Towers & North Tower"]);
   await page.fill("#loc", "");
@@ -434,7 +438,7 @@ test("pointsbudget: the old thriftypoints.html address forwards to pointsbudget.
 
 test("pointsbudget: Check-In Day buttons and Weeknights Only; the day shows under each date (owner, 2026-10-25)", async ({ page }) => {
   const dow = s => ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][new Date(dateOf(s)).getUTCDay()];
-  const cells = () => page.$$eval("#body tr:not(.sub)", trs => trs.map(tr => [tr.children[8].innerText.trim().split("\n"), tr.children[9].innerText.trim().split("\n"), tr.children[10].innerText.trim()]));
+  const cells = () => page.$$eval("#body tr:not(.sub)", trs => trs.map(tr => [tr.children[3].innerText.trim().split("\n"), tr.children[4].innerText.trim().split("\n"), tr.children[2].innerText.trim()]));
   await open(page);
   await page.fill("#pts", "60,000");
   await page.click('button.grpday[data-days="0,1,2,3,4"]');   // Weekday toggle: Sun to Thu off, Fri and Sat stay on
@@ -542,7 +546,7 @@ test("pointsbudget: example buttons fill in the settings and search (owner, 2026
   await expect(page.locator("#loc")).toHaveValue("Club Wyndham Bonnet Creek");
   await expect.poll(names).toEqual(["Bonnet Creek"]);
   await page.click('button[data-preset="vegas"]');
-  await expect.poll(async () => (await page.$$eval("#body tr:not(.sub)", trs => trs.map(tr => tr.children[4].innerText.trim()))).every(c => c === "Las Vegas")).toBe(true);
+  await expect.poll(async () => (await page.$$eval("#body tr:not(.sub)", trs => trs.map(tr => tr.children[8].innerText.trim()))).every(c => c === "Las Vegas")).toBe(true);
   await page.click('button[data-preset="210"]');
   await expect(page.locator("#pts")).toHaveValue("210,000");
   await expect(page.locator("#status")).toContainText("closest to 210,000 points first");
