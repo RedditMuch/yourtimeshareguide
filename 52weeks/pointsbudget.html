@@ -21,21 +21,22 @@ h2{font-size:1.1rem;margin:0 0 10px}
 @media (max-width:760px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:480px){.grid{grid-template-columns:minmax(0,1fr)}}
 .span2{grid-column:span 2}.span3{grid-column:1/-1}
-.grp{border:0;border-top:1px solid var(--line);margin:0;padding:14px 0 6px;min-width:0}
-.grp:first-of-type{border-top:0;padding-top:2px}
-.grp legend{float:left;width:100%;padding:0 0 10px;font-size:.78rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--stay)}
-.grp legend+*{clear:both}
-.pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:0 28px}
+@media (max-width:760px){.cols{grid-template-columns:1fr}}
+.col{display:flex;flex-direction:column;gap:12px;min-width:0}
 .lab{display:block;font-size:.85rem;color:var(--mute);line-height:1.25}
-.days{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:5px}
-button.day{min-height:36px;width:50px;padding:4px 0;background:var(--bg);color:var(--ink);border:1px solid var(--line);font-weight:600}
-button.day[aria-pressed="true"]{background:var(--stay);border-color:var(--stay);color:#fff}
-@media (prefers-color-scheme:dark){button.day[aria-pressed="true"]{color:#10151c}}
-.daytools{display:inline-flex;flex-wrap:wrap;gap:12px;margin-left:8px}
-button.link{all:unset;cursor:pointer;color:var(--stay);font-weight:700;font-size:.88rem;text-decoration:underline}
-button.link:focus-visible{outline:2px solid var(--stay);outline-offset:2px}
+.daygrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-top:6px;max-width:440px}
+button.grpday{all:unset;cursor:pointer;text-align:center;font-size:.85rem;font-weight:700;color:var(--stay);text-decoration:underline;border-bottom:2px solid var(--line);padding:0 0 3px}
+button.grpday:hover{text-decoration-thickness:2px}button.grpday:focus-visible{outline:2px solid var(--stay);outline-offset:2px}
+button.wkday{grid-column:1/6}button.wkend{grid-column:6/8}
+button.day{min-height:38px;padding:4px 0;background:transparent;color:#6b7280;border:2px solid #b91c1c;font-weight:600}
+button.day[aria-pressed="true"]{background:#15803d;border-color:#15803d;color:#fff}
+.maxn{margin-left:10px;font-weight:700;color:var(--mute)}
+.col .msg{margin-top:6px}
+#pts{width:150px}#vip{width:220px}#size{width:230px}#radius{width:150px}#from,#to{width:180px}#minN,#maxN{width:90px}
+#pts,#vip,#size,#radius,#from,#to,#minN,#maxN{max-width:100%}
 td.nw small{display:block;font-size:.75em;color:var(--mute);line-height:1.2}
-@media (max-width:480px){.span2{grid-column:auto}.daytools{margin-left:0}button.day{width:42px}}
+@media (max-width:480px){.span2{grid-column:auto}}
 select:disabled{opacity:.6}
 label.chk{display:inline-flex;align-items:center;gap:8px;margin-top:8px;font-size:.95rem;color:var(--ink);cursor:pointer}
 label.chk input{width:18px;height:18px;margin:0}
@@ -49,7 +50,7 @@ button{font:inherit;font-weight:600;padding:9px 16px;border-radius:8px;border:1p
 button.alt{background:transparent;color:var(--stay)}
 button:disabled{opacity:.5;cursor:default}
 .msg{margin:10px 0 0;font-size:.95rem}
-.msg.err{color:var(--bad);font-weight:600}
+.msg.err{color:var(--bad);font-weight:400;font-size:.88rem}
 .status{color:var(--mute);font-size:.9rem;margin:0 0 8px}
 .scroll{overflow-x:auto;border:1px solid var(--line);border-radius:8px}
 table{border-collapse:collapse;width:100%;min-width:1000px;font-size:14px;table-layout:auto}
@@ -125,31 +126,27 @@ td.left{white-space:nowrap}td.left small{display:block;font-size:.75em;color:var
 <section class="card noprint" id="setCard" aria-labelledby="sh">
 <h2 id="sh">Search Settings</h2>
 <form id="f" novalidate>
-<fieldset class="grp"><legend>Points and Room Size</legend>
-<div class="grid">
+<div class="cols">
+<div class="col">
 <div><label for="pts">Total Points</label><input id="pts" inputmode="numeric" autocomplete="off" placeholder="60,000" value="60,000"></div>
 <div><label for="vip">VIP Level</label><select id="vip"><option value="none">Not VIP</option><option value="all">Show All Discounts</option></select></div>
 <div><label for="size">Room Size</label><select id="size"></select></div>
-</div>
-</fieldset>
-<fieldset class="grp"><legend>Where</legend>
-<div class="grid">
-<div class="span2"><label for="loc">Location</label><input id="loc" type="search" list="places" autocomplete="off" placeholder="e.g. Bay Club, Maine, Canada"><datalist id="places"></datalist><p class="hint">City and State, Resort Name, State or Country.</p><label class="chk"><input type="checkbox" id="disc"> Discovery Resorts Only</label></div>
+<div><label for="loc">Location</label><input id="loc" type="search" list="places" autocomplete="off" placeholder="e.g. Bay Club, Maine, Canada"><datalist id="places"></datalist><p class="hint">City and State, Resort Name, State or Country.</p><label class="chk"><input type="checkbox" id="disc"> Discovery Resorts Only</label></div>
 <div><label for="radius">Search Radius</label><select id="radius" disabled></select><p class="hint" id="radHint">The search radius needs a city and state, such as Orlando, Florida.</p></div>
 </div>
-</fieldset>
-<fieldset class="grp"><legend>When</legend>
-<div class="grid">
+<div class="col">
 <div><label for="from">Earliest Check-In</label><input id="from" type="date"></div>
 <div><label for="to">Latest Check-Out</label><input id="to" type="date"></div>
-<div class="pair"><div><label for="minN">Min. Nights</label><input id="minN" type="number" min="1" max="30" value="2"></div><div><label for="maxN">Max Nights</label><input id="maxN" type="number" min="1" max="30" value="7"></div></div>
-<div class="span3"><span class="lab" id="dayLbl">Check-In Day</span>
-<div class="days" role="group" aria-labelledby="dayLbl"><button type="button" class="day" data-d="0" aria-pressed="true">Sun</button><button type="button" class="day" data-d="1" aria-pressed="true">Mon</button><button type="button" class="day" data-d="2" aria-pressed="true">Tue</button><button type="button" class="day" data-d="3" aria-pressed="true">Wed</button><button type="button" class="day" data-d="4" aria-pressed="true">Thu</button><button type="button" class="day" data-d="5" aria-pressed="true">Fri</button><button type="button" class="day" data-d="6" aria-pressed="true">Sat</button>
-<span class="daytools"><button type="button" class="link" data-days="5,6">Weekend</button><button type="button" class="link" data-days="0,1,2,3,4">Weekday</button><button type="button" class="link" data-days="0,1,2,3,4,5,6">Any Day</button></span></div>
-<label class="chk"><input type="checkbox" id="wkn"> Show results with only weeknight stays. (Max Nights: 5)</label>
-<p class="msg err" id="oneNight" role="status" hidden>For information only: Club Wyndham's minimum booking is 2 nights.</p></div>
+<div><label for="minN">Min Nights</label><input id="minN" type="number" min="1" max="30" value="2"><p class="msg err" id="oneNight" role="status" hidden>For information only: Club Wyndham's minimum booking is 2 nights.</p></div>
+<div><label for="maxN">Max Nights</label><input id="maxN" type="number" min="1" max="30" value="7"><p class="msg err" id="maxWarn" role="status" hidden>Max Nights needs to be 5 or less for weeknight-only stays.</p></div>
+<div><span class="lab" id="dayLbl">Check-In Day:</span>
+<div class="daygrid" role="group" aria-labelledby="dayLbl">
+<button type="button" class="grpday wkday" data-days="0,1,2,3,4">Weekday</button><button type="button" class="grpday wkend" data-days="5,6">Weekend</button>
+<button type="button" class="day" data-d="0" aria-pressed="true">Sun</button><button type="button" class="day" data-d="1" aria-pressed="true">Mon</button><button type="button" class="day" data-d="2" aria-pressed="true">Tue</button><button type="button" class="day" data-d="3" aria-pressed="true">Wed</button><button type="button" class="day" data-d="4" aria-pressed="true">Thu</button><button type="button" class="day" data-d="5" aria-pressed="true">Fri</button><button type="button" class="day" data-d="6" aria-pressed="true">Sat</button>
 </div>
-</fieldset>
+<label class="chk"><input type="checkbox" id="wkn"> Use only Weeknights for the stay. <span class="maxn">Max: 5 Nights</span></label></div>
+</div>
+</div>
 <div class="btns"><button type="submit" id="go">Find Stays</button></div>
 <p class="msg err" id="err" role="alert" hidden></p>
 <p class="msg err" id="ratenote" role="status" hidden></p>
@@ -524,7 +521,7 @@ $('f').addEventListener('submit', function (ev) {
   if (!(minN >= 1) || !(maxN >= minN)) return fail('Enter a minimum number of nights of at least 1 and a maximum that is not smaller.');
   var days = readDays();
   if (days.indexOf(true) < 0) return fail('Pick at least one check-in day.');
-  if ($('wkn').checked && minN > 5) return fail('Weeknight stays are 5 nights at most (Sunday to Thursday). Lower the Min. Nights.');
+  if ($('wkn').checked && minN > 5) return fail('Weeknight stays are 5 nights at most (Sunday to Thursday). Lower the Min Nights.');
   fail('');
   var q = $('loc').value.trim();
   if (q && !GEO && !countryOf(q) && !regionOf(q)) { $('go').disabled = true; loadGeo().then(function () { $('go').disabled = false; $('f').requestSubmit(); }); return; }
@@ -551,18 +548,25 @@ $('tbl').querySelector('thead').addEventListener('click', function (ev) {
 });
 $('reset').addEventListener('click', function () { sortKey = null; sortDir = 1; sortUI(); render(); });
 $('all').addEventListener('click', function () { shown = results.length; render(); });
-/* Check-In Day buttons (owner, 2026-10-25): pick any days; Weekend = Fri and Sat, Weekday = Sun to Thu */
+/* Check-In Day buttons (owner, 2026-10-25): pick any days; Weekday = Sun to Thu, Weekend = Fri and Sat. Off: red outline, grey text; on: green */
 var dayBtns = document.querySelectorAll('button.day');
 function readDays() { var d = []; for (var i = 0; i < dayBtns.length; i++) d[+dayBtns[i].getAttribute('data-d')] = dayBtns[i].getAttribute('aria-pressed') === 'true'; return d; }
 function dayLabel(d) { var on = DOW.filter(function (x, i) { return d[i]; }); return on.length === 7 ? 'Any Day' : on.join(', '); }
-document.querySelector('.days').addEventListener('click', function (ev) {
+document.querySelector('.daygrid').addEventListener('click', function (ev) {
   var b = ev.target.closest('button'); if (!b) return;
   if (b.classList.contains('day')) b.setAttribute('aria-pressed', String(b.getAttribute('aria-pressed') !== 'true'));
-  else { var want = b.getAttribute('data-days').split(','); for (var i = 0; i < dayBtns.length; i++) dayBtns[i].setAttribute('aria-pressed', String(want.indexOf(dayBtns[i].getAttribute('data-d')) >= 0)); }
+  else { var want = b.getAttribute('data-days').split(','); for (var i = 0; i < dayBtns.length; i++) dayBtns[i].setAttribute('aria-pressed', String(want.indexOf(dayBtns[i].getAttribute('data-d')) >= 0)); }   /* Weekday or Weekend link: select just those days */
 });
 /* One night: allowed for information, with a note (owner, 2026-10-25) */
 function oneNight() { $('oneNight').hidden = parseInt($('minN').value, 10) !== 1; }
 $('minN').addEventListener('input', oneNight); oneNight();
+/* Weeknight-only stays are 5 nights at most: warn under Max Nights (owner, 2026-10-25) */
+function maxWarn() { $('maxWarn').hidden = !($('wkn').checked && parseInt($('maxN').value, 10) > 5); }
+$('maxN').addEventListener('input', maxWarn); $('wkn').addEventListener('change', maxWarn); maxWarn();
+/* A weeknight-only stay can't check in on Friday or Saturday: checking the box turns those days off, and turning either back on unchecks it (owner, 2026-10-25) */
+var weekendDays = [].filter.call(dayBtns, function (x) { return +x.getAttribute('data-d') >= 5; });
+$('wkn').addEventListener('change', function () { if (this.checked) weekendDays.forEach(function (x) { x.setAttribute('aria-pressed', 'false'); }); });
+document.querySelector('.daygrid').addEventListener('click', function () { if ($('wkn').checked && weekendDays.some(function (x) { return x.getAttribute('aria-pressed') === 'true'; })) { $('wkn').checked = false; maxWarn(); } });
 $('body').addEventListener('click', function (ev) {
   var b = ev.target.closest('button.more'); if (!b) return;
   var x = shownRows[+b.getAttribute('data-i')], o = open.get(x);

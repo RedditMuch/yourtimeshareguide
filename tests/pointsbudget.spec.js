@@ -444,7 +444,7 @@ test("pointsbudget: Check-In Day buttons and Weeknights Only; the day shows unde
   const cells = () => page.$$eval("#body tr:not(.sub)", trs => trs.map(tr => [tr.children[8].innerText.trim().split("\n"), tr.children[9].innerText.trim().split("\n"), tr.children[10].innerText.trim()]));
   await open(page);
   await page.fill("#pts", "60,000");
-  await page.click('button.link[data-days="5,6"]');
+  await page.click('button.grpday[data-days="5,6"]');   // Weekend link: Fri and Sat only
   await expect(page.locator("button.day[aria-pressed=true]")).toHaveCount(2);
   await page.click("#go");
   await expect(page.locator("#body tr").first()).toBeVisible();
@@ -453,7 +453,8 @@ test("pointsbudget: Check-In Day buttons and Weeknights Only; the day shows unde
     expect(ci[1]).toBe(dow(ci[0]));
     expect(co[1]).toBe(dow(co[0]));
   }
-  await page.click('button.link[data-days="0,1,2,3,4,5,6"]');
+  await page.click('button.grpday[data-days="0,1,2,3,4"]');   // Weekday link: Sun to Thu only
+  await expect(page.locator("button.day[aria-pressed=true]")).toHaveCount(5);
   await page.check("#wkn");
   await page.click("#go");
   await expect(page.locator("#body tr").first()).toBeVisible();
@@ -462,7 +463,8 @@ test("pointsbudget: Check-In Day buttons and Weeknights Only; the day shows unde
     expect(num(n)).toBeLessThanOrEqual(5);
     for (let d = dateOf(ci[0]); d < dateOf(co[0]); d += 864e5) expect([5, 6]).not.toContain(new Date(d).getUTCDay());
   }
-  for (const b of await page.locator("button.day").all()) if ((await b.getAttribute("aria-pressed")) === "true") await b.click();
+  for (const d of await page.$$eval("button.day[aria-pressed=true]", bs => bs.map(b => b.dataset.d))) await page.click('button.day[data-d="' + d + '"]');
+  await expect(page.locator("button.day[aria-pressed=true]")).toHaveCount(0);
   await page.click("#go");
   await expect(page.locator("#err")).toHaveText("Pick at least one check-in day.");
 });
@@ -478,4 +480,35 @@ test("pointsbudget: one night shows the red note; the availability notice sits b
   await expect(page.locator("#oneNight")).toBeHidden();
   const order = await page.evaluate(() => { const n = document.getElementById("notice"), r = document.getElementById("resCard"); return !!(r.compareDocumentPosition(n) & Node.DOCUMENT_POSITION_FOLLOWING); });
   expect(order).toBe(true);
+});
+
+test("pointsbudget: day buttons are solid green when on and red-outlined with grey text when off; Max Nights warns above 5 with weeknights (owner, 2026-10-25)", async ({ page }) => {
+  await page.goto(URL);
+  const sun = page.locator('button.day[data-d="0"]');
+  await expect(sun).toHaveCSS("background-color", "rgb(21, 128, 61)");
+  await sun.click();
+  await expect(sun).toHaveAttribute("aria-pressed", "false");
+  await expect(sun).toHaveCSS("border-top-color", "rgb(185, 28, 28)");
+  await expect(sun).toHaveCSS("color", "rgb(107, 114, 128)");
+  await expect(page.locator("#maxWarn")).toBeHidden();
+  await page.check("#wkn");
+  await expect(page.locator("#maxWarn")).toBeVisible();
+  await expect(page.locator("#maxWarn")).toHaveText("Max Nights needs to be 5 or less for weeknight-only stays.");
+  await page.fill("#maxN", "5");
+  await expect(page.locator("#maxWarn")).toBeHidden();
+  await page.fill("#maxN", "6");
+  await expect(page.locator("#maxWarn")).toBeVisible();
+  await page.uncheck("#wkn");
+  await expect(page.locator("#maxWarn")).toBeHidden();
+});
+
+test("pointsbudget: weeknights only turns off Fri and Sat; picking Weekend again unchecks it (owner, 2026-10-25)", async ({ page }) => {
+  await page.goto(URL);
+  await page.check("#wkn");
+  await expect(page.locator('button.day[data-d="5"]')).toHaveAttribute("aria-pressed", "false");
+  await expect(page.locator('button.day[data-d="6"]')).toHaveAttribute("aria-pressed", "false");
+  await expect(page.locator("button.day[aria-pressed=true]")).toHaveCount(5);
+  await page.click('button.grpday[data-days="5,6"]');
+  await expect(page.locator("#wkn")).not.toBeChecked();
+  await expect(page.locator("button.day[aria-pressed=true]")).toHaveCount(2);
 });
