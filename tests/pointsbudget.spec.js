@@ -519,3 +519,21 @@ test("pointsbudget: weeknights only selects Sun to Wed for 2 night stays (Sun to
   await expect(page.locator("#wkn")).not.toBeChecked();
   expect(await on()).toBe("Sun,Mon,Tue,Wed,Thu,Fri,Sat");
 });
+
+test("pointsbudget: a blank Latest Check-Out shows stays that check in on the Earliest Check-In date only (owner, 2026-10-25)", async ({ page }) => {
+  const n = new Date(), day = Date.UTC(n.getFullYear(), n.getMonth(), n.getDate()) + 40 * 864e5, iso = d => new Date(d).toISOString().slice(0, 10);
+  await open(page);
+  await page.fill("#pts", "100,000");
+  await page.fill("#from", iso(day));
+  await page.fill("#to", "");
+  await page.click("#go");
+  await expect(page.locator("#body tr").first()).toBeVisible();
+  await page.click("#all").catch(() => {});
+  const r = await rows(page);
+  expect(r.length).toBeGreaterThan(1);
+  for (const c of r) expect(dateOf(c[7].t)).toBe(day);
+  const dow = new Date(day).getUTCDay();
+  await page.click('button.day[data-d="' + dow + '"]');
+  await page.click("#go");
+  await expect(page.locator("#err")).toContainText("which is turned off under Check-In Day");
+});
