@@ -81,7 +81,7 @@ td.fit{background:#d4efe0;font-weight:700;box-shadow:inset 3px 0 0 var(--good)}
 button.more{all:unset;display:block;margin-top:4px;font-size:.8rem;font-weight:700;color:var(--stay);cursor:pointer;text-decoration:underline}
 button.more:focus-visible{outline:2px solid var(--stay);outline-offset:1px}
 tr.sub td{background:var(--head);font-size:.92em}tr.sub td.res{padding-left:14px;color:var(--mute)}
-td.left{white-space:nowrap}
+td.left{white-space:nowrap}td.left small{display:block;font-size:.75em;color:var(--mute);line-height:1.2}
 .notes p{margin:0 0 8px}.notes p:last-child{margin:0}
 .foot{color:var(--mute);font-size:.85rem;text-align:center;margin-top:20px}
 .printonly{display:none}
@@ -324,7 +324,7 @@ var tierOf = function (d) { return VIS_TIER || TIER_OF[d] || ''; };
 function setColumns() {
   var tr = $('tbl').querySelector('thead tr'), labels = headOf(VIS), r0 = firstRate(VIS);
   if (sortKey != null && sortKey >= labels.length) sortKey = null;
-  tr.innerHTML = labels.map(function (l, i) { var tier = i >= r0 ? tierOf(VIS[i - r0]) : ''; return '<th' + (i === 0 ? ' class="sea"' : i === 2 ? ' class="n"' : i === 1 || i === 10 || i >= r0 ? ' class="n"' : '') + ' data-h="' + i + '"' + '><button type="button" data-col="' + i + '">' + '<span class="lbl">' + ({ 'Points Left Over': 'Points<br>Left Over', 'VIP Discount Date': 'VIP Discount<br>Date' }[l] || esc(l)) + '<span class="arr" aria-hidden="true"><i class="u"></i><i class="d"></i></span></span>' + (tier ? '<span class="tier"> ' + esc(tier) + '</span>' : '') + '</button></th>'; }).join('');
+  tr.innerHTML = labels.map(function (l, i) { var tier = i >= r0 ? tierOf(VIS[i - r0]) : ''; return '<th' + (i === 0 ? ' class="sea"' : i === 2 ? ' class="n"' : i === 1 || i === 10 || i >= r0 - (VIS.length ? 1 : 0) ? ' class="n"' : '') + ' data-h="' + i + '"' + '><button type="button" data-col="' + i + '">' + '<span class="lbl">' + ({ 'Points Left Over': 'Points<br>Left Over', 'VIP Discount Date': 'VIP Discount<br>Date' }[l] || esc(l)) + '<span class="arr" aria-hidden="true"><i class="u"></i><i class="d"></i></span></span>' + (tier ? '<span class="tier"> ' + esc(tier) + '</span>' : '') + '</button></th>'; }).join('');
   sortUI();
 }
 var pctOf = function (d) { return Math.round(d * 1000) / 10 + '%'; };
@@ -377,14 +377,14 @@ function eachFit(r, cfg, a, b, pre, miss, fit) {
     for (var n = cfg.minN; n <= maxLen; n++) {
       var e = s0 + n;
       if (miss[e] - miss[s0]) continue;
-      var full = pre[e] - pre[s0], prices = [full], used = full <= cfg.points ? full : -1, low = full;
+      var full = pre[e] - pre[s0], prices = [full], used = full <= cfg.points ? full : -1, uk = 0, low = full;
       for (var k = 0; k < cfg.rates.length; k++) {
         var dp = Math.ceil(Math.round(full * (1 - cfg.rates[k]) * 1e6) / 1e6);
         prices.push(dp);
-        if (dp < low) low = dp; if (dp <= cfg.points && dp > used) used = dp;
+        if (dp < low) low = dp; if (dp <= cfg.points && dp > used) { used = dp; uk = k + 1; }
       }
       if (low > cfg.points) break;                   /* longer stays only cost more */
-      if (used >= 0) fit(s0, n, used, prices);
+      if (used >= 0) fit(s0, n, used, prices, uk);
     }
   }
 }
@@ -399,7 +399,7 @@ function range(cfg) { return [Math.max(0, Math.round((cfg.from - CAL_START) / DA
 /* Every other stay that fits for one resort and room type (More Dates), closest to the points first */
 function moreFor(x, cfg) {
   var ab = range(cfg), out = [];
-  eachFit(x.r, cfg, ab[0], ab[1], new Float64Array(NIGHTS + 1), new Int32Array(NIGHTS + 1), function (s0, n, used, prices) { if (s0 !== x.s || n !== x.n) out.push({ r: x.r, s: s0, n: n, used: used, prices: prices }); });
+  eachFit(x.r, cfg, ab[0], ab[1], new Float64Array(NIGHTS + 1), new Int32Array(NIGHTS + 1), function (s0, n, used, prices, uk) { if (s0 !== x.s || n !== x.n) out.push({ r: x.r, s: s0, n: n, used: used, prices: prices, uk: uk }); });
   out.sort(closest);
   return out;
 }
@@ -411,8 +411,8 @@ function search(cfg) {
     if (!cfg.place.test(r)) return;
     if (cfg.disc && !r._disc) return;
     var top = null, count = 0;
-    eachFit(r, cfg, a, b, pre, miss, function (s0, n, used, prices) {
-      var x = { r: r, s: s0, n: n, used: used, prices: prices };
+    eachFit(r, cfg, a, b, pre, miss, function (s0, n, used, prices, uk) {
+      var x = { r: r, s: s0, n: n, used: used, prices: prices, uk: uk };
       count++; total++;
       if (all && total <= LIMIT) all.push(x); else all = null;
       if (!top || used > top.used || (used === top.used && (n > top.n || (n === top.n && s0 < top.s)))) top = x;
@@ -436,9 +436,9 @@ function render() {
   var priceCell = function (x, v) { var fit = v != null && v <= budget; return '<td class="n' + (fit ? ' fit' : x.season ? ' p' + x.season : '') + '" data-fit="' + fit + '">' + (v == null ? '—' : NUM.format(v)) + '</td>'; };
   var rowHtml = function (x, sub, btn) {
     var d = rowData(x), h = '<tr' + (sub ? ' class="sub"' : '') + '><td class="sea' + (x.season ? ' s' + x.season : '') + '" data-season="' + esc(x.season) + '"' + '>' + esc(x.season) + '</td>' + priceCell(x, d[1]);
-    h += '<td class="n left">' + NUM.format(d[2]) + '</td><td class="res">' + esc(d[3]) + btn + '</td><td>' + esc(d[4]) + '</td><td>' + esc(d[5]) + '</td><td class="rt">' + esc(d[6]) + '</td><td class="bld">' + esc(d[7]) + '</td><td class="nw">' + esc(d[8]) + '</td><td class="nw">' + esc(d[9]) + '</td><td class="n">' + d[10] + '</td>';
+    h += '<td class="n left">' + NUM.format(d[2]) + (lastInfo.rates.length ? '<small>' + esc(x.uk ? tierOf(lastInfo.rates[x.uk - 1]) : 'Full Price') + '</small>' : '') + '</td><td class="res">' + esc(d[3]) + btn + '</td><td>' + esc(d[4]) + '</td><td>' + esc(d[5]) + '</td><td class="rt">' + esc(d[6]) + '</td><td class="bld">' + esc(d[7]) + '</td><td class="nw">' + esc(d[8]) + '</td><td class="nw">' + esc(d[9]) + '</td><td class="n">' + d[10] + '</td>';
     var k = 11;
-    if (lastInfo.rates.length) h += '<td class="nw">' + esc(d[k++]) + '</td>';
+    if (lastInfo.rates.length) h += '<td class="n nw">' + esc(d[k++]) + '</td>';
     for (; k < d.length; k++) h += priceCell(x, d[k]);
     return h + '</tr>';
   };

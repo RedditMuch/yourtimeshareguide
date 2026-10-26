@@ -365,3 +365,16 @@ test("thriftypoints: narrow settings list every stay that fits, more than one pe
   for (const c of r) { expect(num(c[1].t)).toBeLessThanOrEqual(100000); expect(num(c[9].t)).toBe(4); }
   await expect(page.locator("#body button.more")).toHaveCount(0);
 });
+
+test("thriftypoints: with VIP prices shown, Points Left Over names its price level and equals the points minus that price", async ({ page }) => {
+  await search(page);
+  const h = await page.$$eval("#tbl thead th", ths => ths.map(th => th.innerText.replace(/[▲▼⇅]/g, "").replace(/\s+/g, " ").trim()));
+  const data = await page.$$eval("#body tr:not(.sub)", trs => trs.map(tr => [...tr.children].map(td => td.innerText.trim())));
+  expect(data.length).toBeGreaterThan(0);
+  for (const c of data) {
+    const [left, level] = c[2].split("\n");
+    const i = level === "Full Price" ? 1 : h.findIndex(t => t.startsWith(level + " "));
+    expect(i).toBeGreaterThan(0);
+    expect(num(left)).toBe(60000 - num(c[i]));
+  }
+});
