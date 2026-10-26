@@ -739,7 +739,7 @@ var iso = function (t) { return new Date(t).toISOString().slice(0, 10); };
 var parse = function (s) { var m = /^(\d{4})-(\d\d)-(\d\d)$/.exec(s); return m ? Date.UTC(+m[1], +m[2] - 1, +m[3]) : NaN; };
 var fmtDate = function (t) { var d = new Date(t), p = function (n) { return (n < 10 ? '0' : '') + n; }; return p(d.getUTCMonth() + 1) + '/' + p(d.getUTCDate()) + '/' + p(d.getUTCFullYear() % 100); };
 var today = new Date(); var todayUTC = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
-/* Dates are typed freely (owner, 2026-10-25): 10/25/26, 102526, 10252026, 10-25-2026, 10.25.26, 1/5/27, or 10/25 for the next 10/25.
+/* Dates are typed freely (owner, 2026-10-25): 10/25/26, 1/1/26, 10-25-2026, 10.25.26, or 10/25 for the next 10/25. Digits alone must be 6 or 8 long (102526, 10252026); shorter runs like 1126 are an error (owner, 2026-10-26).
    Leaving the box writes the date as mm/dd/yy. A calendar button opens the browser's date picker on a hidden date box. */
 function readTyped(v) {
   v = String(v || '').trim(); if (!v) return NaN;
@@ -750,10 +750,6 @@ function readTyped(v) {
     var L = v.length;
     if (L === 8) { mo = +v.slice(0, 2); d = +v.slice(2, 4); y = +v.slice(4); }
     else if (L === 6) { mo = +v.slice(0, 2); d = +v.slice(2, 4); y = +v.slice(4); }
-    else if (L === 4) { mo = +v.slice(0, 2); d = +v.slice(2, 4); y = null; }
-    else if (L === 7) { mo = +v.slice(0, 1); d = +v.slice(1, 3); y = +v.slice(3); }
-    else if (L === 5) { mo = +v.slice(0, 1); d = +v.slice(1, 3); y = +v.slice(3); }
-    else if (L === 3) { mo = +v.slice(0, 1); d = +v.slice(1, 3); y = null; }
     else return NaN;
   } else return NaN;
   if (y != null && y < 100) y += 2000;
