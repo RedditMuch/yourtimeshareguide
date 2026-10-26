@@ -78,7 +78,7 @@
   }
 
   // Points Budget lives inside the 52weeks folder, so its tab is found by file name, not by folder
-  var current = LIVE ? (/\/pointsbudget\.html$/i.test(location.pathname) ? "pointsbudget" : (location.pathname.split("/")[1] || "home").toLowerCase()) : (document.body.getAttribute("data-tab") || "").toLowerCase();
+  var current = LIVE ? (/\/pointsbudget(\.html)?\/?$/i.test(location.pathname) ? "pointsbudget" : (location.pathname.split("/")[1] || "home").toLowerCase()) : (document.body.getAttribute("data-tab") || "").toLowerCase();
   // Club Wyndham runs on Eastern Time (owner, 2026-10-25), so the masthead's date, week and clock are Eastern.
   function eastern() {
     var p = {};
