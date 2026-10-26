@@ -54,6 +54,7 @@ button.link{all:unset;cursor:pointer;color:var(--stay);font-weight:700;text-deco
 .where{background:var(--head);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
 .radrow{display:flex;align-items:center;gap:10px;margin-top:8px}.radrow label{white-space:nowrap;margin:0}.fgrid .radrow select{width:auto;min-width:150px;margin:0}
 .btns.go{justify-content:center;margin:18px 0 10px}
+#go.stale{background:#d9d6cf;border-color:#a8a29a;color:#5b574f;box-shadow:none}#go.stale:hover{background:#cfcbc2}
 .dbox{position:relative;width:100%}.dbox input[type=text]{padding-right:42px}
 .pickbtn{all:unset;position:absolute;right:4px;top:50%;transform:translateY(-50%);margin-top:1px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink);border-radius:6px}
 .pickbtn:hover{background:var(--head)}.pickbtn:focus-visible{outline:2px solid var(--stay)}.pickbtn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
@@ -299,8 +300,10 @@ Object.keys(grp).forEach(function (k) {
 });
 rows = rows.filter(function (r) { return keep.indexOf(r) >= 0; });
 var fill = function (sel, items) { items.forEach(function (it) { var o = document.createElement('option'); o.value = it[0]; o.textContent = it[1]; sel.appendChild(o); }); };
-var SIZES = ['Studio', '1 Bedroom', '2 Bedroom', '3 Bedroom and Larger', 'Hotel Room'];
-fill($('size'), SIZES.filter(function (s) { return rows.some(function (r) { return r._size === s; }); }).map(function (s) { return [s, s]; }).concat([['', 'All Sizes']]));
+var SIZES = ['Hotel Room', 'Studio', '1 Bedroom', '2 Bedroom', '2 Bedroom and Larger', '3 Bedroom and Larger'];   /* order: owner, 2026-10-26 */
+var SIZE_SET = { '2 Bedroom and Larger': ['2 Bedroom', '3 Bedroom and Larger'] };   /* a choice that covers several sizes */
+var sizeFits = function (r, size) { return !size || r._size === size || (SIZE_SET[size] || []).indexOf(r._size) >= 0; };
+fill($('size'), SIZES.filter(function (s) { return rows.some(function (r) { return sizeFits(r, s); }); }).map(function (s) { return [s, s]; }).concat([['', 'All Sizes']]));
 $('size').value = '1 Bedroom';   /* owner, 2026-10-25: start on 1 Bedroom, All Sizes last */
 /* ---- Location: same search as season chart v2 (a state or country, a resort name, or a city and state with a radius) ---- */
 var COUNTRIES = [['Australia', 'Australia'], ['Canada', 'Canada'], ['Fiji', 'Fiji'], ['Mexico', 'Mexico'], ['New Zealand', 'New Zealand'], ['Puerto Rico', 'Puerto Rico'], ['United States', 'United States'], ['US Virgin Islands', 'U.S. Virgin Islands']];
@@ -520,7 +523,7 @@ function search(cfg) {
   var t0 = performance.now(), ab = range(cfg), a = ab[0], b = ab[1];
   var pre = new Float64Array(NIGHTS + 1), miss = new Int32Array(NIGHTS + 1), best = [], all = [], total = 0;
   rows.forEach(function (r) {
-    if (cfg.size && r._size !== cfg.size) return;
+    if (!sizeFits(r, cfg.size)) return;
     if (!cfg.place.test(r)) return;
     if (cfg.disc && !r._disc) return;
     var top = null, count = 0;
@@ -608,6 +611,7 @@ $('f').addEventListener('submit', function (ev) {
   var cfg = { points: pts, rates: VIS.slice(), today: todayUTC, from: from, to: to, minN: minN, maxN: Math.min(maxN, 60), size: $('size').value, place: placeFilter(q, +$('radius').value), disc: $('disc').checked, days: days, weeknights: $('wkn').checked, oneDay: oneDay, low: lowMode };
   var res = search(cfg);
   results = res.list; open = new Map();
+  $('go').classList.remove('stale');
   lastInfo = { rates: VIS.slice(), vipLabel: vs.options[vs.selectedIndex].text, points: pts, ms: res.ms, every: res.every, total: res.total, cfg: cfg, dayLabel: dayLabel(days) + (cfg.weeknights ? ', Weeknight Stays Only' : ''), place: cfg.place.label + (cfg.disc ? ' (Discovery Resorts Only)' : ''), size: cfg.size, from: fmtDate(from), to: oneDay ? 'Blank (check in on ' + fmtDate(from) + ' only)' : fmtDate(to), minN: minN, maxN: cfg.maxN };
   render();
 });
@@ -661,6 +665,11 @@ document.querySelector('.spans').addEventListener('click', function (ev) {
   else { t = Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + n, d.getUTCDate()); if (new Date(t).getUTCDate() !== d.getUTCDate()) t = Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + n + 1, 0); }   /* Jan 31 + 1 Mo is the last day of February */
   setDate('to', Math.min(CAL_END, t)); lowMode = false;
 });
+/* After a search, any change to the settings greys out Find Stays until it is clicked again */
+function stale() { if (lastInfo) $('go').classList.add('stale'); }
+$('f').addEventListener('input', stale); $('f').addEventListener('change', stale);
+['.daygrid', '.spans'].forEach(function (sel) { document.querySelector(sel).addEventListener('click', function (ev) { if (ev.target.closest('button')) stale(); }); });
+$('clearTo').addEventListener('click', stale);
 /* One night: allowed for information, with a note (owner, 2026-10-25) */
 function oneNight() { $('oneNight').hidden = parseInt($('minN').value, 10) !== 1; }
 $('minN').addEventListener('input', oneNight); oneNight();

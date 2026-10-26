@@ -624,3 +624,33 @@ test("pointsbudget: 1 Wk, 2 Wks, 1 Mo, 6 Mo and 1 Yr set Latest Check-Out from E
     await expect(page.locator("#to")).toHaveValue(want);
   }
 });
+
+test("pointsbudget: Room Size starts with Hotel Room and has 2 Bedroom and Larger (owner, 2026-10-26)", async ({ page }) => {
+  await page.goto(URL);
+  const opts = await page.$$eval("#size option", o => o.map(x => x.textContent));
+  expect(opts).toEqual(["Hotel Room", "Studio", "1 Bedroom", "2 Bedroom", "2 Bedroom and Larger", "3 Bedroom and Larger", "All Sizes"]);
+  await page.selectOption("#size", { label: "2 Bedroom and Larger" });
+  await page.fill("#pts", "300,000");
+  await page.click("#go");
+  await expect(page.locator("#body tr").first()).toBeVisible();
+  const rooms = await page.$$eval("#body tr:not(.sub)", trs => trs.map(tr => tr.children[5].innerText.trim()));
+  expect(rooms.length).toBeGreaterThan(0);
+  for (const r of rooms) expect(r).toMatch(/^[2-5] Bedroom/);
+  expect(rooms.some(r => /^2 Bedroom/.test(r))).toBe(true);
+  expect(rooms.some(r => /^[3-5] Bedroom/.test(r))).toBe(true);
+});
+
+test("pointsbudget: Find Stays turns grey when a setting changes after a search, and solid again when clicked (owner, 2026-10-26)", async ({ page }) => {
+  await page.goto(URL);
+  await page.fill("#maxN", "5");
+  await expect(page.locator("#go")).not.toHaveClass(/stale/);   // no search yet
+  await page.click("#go");
+  await expect(page.locator("#body tr").first()).toBeVisible();
+  await expect(page.locator("#go")).not.toHaveClass(/stale/);
+  await page.fill("#pts", "70,000");
+  await expect(page.locator("#go")).toHaveClass(/stale/);
+  await page.click("#go");
+  await expect(page.locator("#go")).not.toHaveClass(/stale/);
+  await page.click('button.day[data-d="3"]');
+  await expect(page.locator("#go")).toHaveClass(/stale/);
+});
