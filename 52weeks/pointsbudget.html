@@ -96,7 +96,8 @@ button.more{all:unset;display:block;margin-top:4px;font-size:.8rem;font-weight:7
 button.more:focus-visible{outline:2px solid var(--stay);outline-offset:1px}
 tr.sub td{background:var(--head);font-size:.92em}tr.sub td.res{padding-left:14px;color:var(--mute)}
 td.left{white-space:nowrap}td.left small{display:block;font-size:.75em;color:var(--mute);line-height:1.2}
-.notes p{margin:0 0 8px}.notes p:last-child{margin:0}
+.notes p{margin:0 0 8px}.notes p:last-child{margin:0}.notes ul{margin:0;padding-left:20px}.notes li{margin:0 0 6px}.notes li:last-child{margin:0}.notes a{color:var(--stay)}
+.notes{border-left:5px solid #d08a00}
 .foot{color:var(--mute);font-size:.85rem;text-align:center;margin-top:20px}
 .printonly{display:none}
 @media print{
@@ -175,17 +176,14 @@ td.left{white-space:nowrap}td.left small{display:block;font-size:.75em;color:var
 <p class="msg err" id="xerr" role="alert" hidden></p>
 </section>
 
-<div class="notice" id="notice"><strong>Planning Help Only, Not Live Availability.</strong> This page only does math on the 2026/2027 directory points charts to find stays that could fit your points. It does not see Club Wyndham's live inventory, so a stay shown here may not be open. Check availability and make reservations on <a href="https://clubwyndham.wyndhamdestinations.com/us/en" target="_blank" rel="noopener">Club Wyndham's website</a>.</div>
-
-<section class="card notes" aria-labelledby="nh">
-<h2 id="nh">Notes and Limits</h2>
-<p>Points shown are from the 2026/2027 directory charts. Availability is not checked, so a stay listed here may not be bookable.</p>
-<p>VIP discounts apply only to eligible new reservations made within 2 months (60 days) before check-in. Discounted prices are shown for every stay so you can plan ahead. Eligibility and availability are not verified. Discounted prices are rounded up to the next whole point; Wyndham's booking rounding is not confirmed.</p>
-<p>The VIP Discount Date column shows the first day the VIP discount can apply: 60 days before check-in. "Now" means that day has already come.</p>
-<p>Source: 26/27 Directory - Pages 266-270</p>
-<p>Housekeeping Credits ($185 each when you run out) and Reservation Transactions are not included.</p>
-<p id="left"></p>
-<p>Each night is priced with the season of the chart week that contains it. Friday and Saturday nights use the weekend rate and the other nights use the Sunday to Thursday rate. Each result is one stay at one resort.</p>
+<section class="card notes" id="notice" aria-labelledby="nh">
+<h2 id="nh">Planning Help Only, Not Live Availability</h2>
+<p>This page does math on the 2026/2027 directory points charts. It can't see Club Wyndham's live inventory, so a stay shown here may not be open. Check availability and book on <a href="https://clubwyndham.wyndhamdestinations.com/us/en" target="_blank" rel="noopener">Club Wyndham's website</a>.</p>
+<ul>
+<li><strong>Pricing:</strong> each night uses its chart week's season. Friday and Saturday nights use the weekend rate; Sunday to Thursday nights use the weekday rate.</li>
+<li><strong>VIP:</strong> discounts apply to new reservations made within 60 days of check-in. The VIP Discount Date column shows when that starts ("Now" means it already has). VIP prices are rounded up to the next whole point. Source: 26/27 Directory - Pages 266-270</li>
+<li><strong>Not included:</strong> Housekeeping Credits ($185 each when you run out) and Reservation Transactions.</li>
+</ul>
 </section>
 
 <p class="foot">Independent guide, not affiliated with or endorsed by Club Wyndham. Not legal or financial advice. Last checked: not yet confirmed.</p>
@@ -218,7 +216,6 @@ var WEEK53 = { 'Club Wyndham Paniolo Greens': 'Prime', 'Little Sweden': 'Prime' 
 /* ---- Data ---- */
 var P = window.WEEKLY_POINTS, N = window.NIGHTLY_POINTS || {};
 var allRows = P.rows, rows = allRows.filter(function (r) { return N[r.id]; });
-$('left').textContent = 'Resorts without nightly points are not listed: ' + (allRows.length - rows.length) + ' of ' + allRows.length + ' room type rows in the charts are left out (only Club Wyndham and Margaritaville rows with nightly points are searched).';
 var groupOf = {}; P.classifications.forEach(function (c) { groupOf[c.id] = c.group; });
 var sizeOf = function (r) { var g = groupOf[r.category] || 'Other'; return /^[345] Bedroom$/.test(g) ? '3 Bedroom and Larger' : g === 'Hotel' ? 'Hotel Room' : g; };
 /* Resort names as Club Wyndham's website writes them, same list as season chart v2 */
