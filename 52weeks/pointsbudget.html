@@ -35,6 +35,7 @@ button.day[aria-pressed="true"]::before{content:"\2713";color:#15803d;font-weigh
 .sethead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px 16px;margin:0 0 10px}
 .sethead h2{margin:0}.sethead label.chk{margin-top:0;font-size:.9rem;color:var(--mute)}
 .dayhint{font-size:.78rem;font-style:italic;margin-left:4px}
+.spans{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.spans button{min-height:28px;padding:2px 10px;font-size:.8rem;font-weight:600;background:transparent;color:var(--stay);border:1px solid var(--line);border-radius:14px}.spans button:hover{background:var(--head)}
 button.link{all:unset;cursor:pointer;color:var(--stay);font-weight:700;text-decoration:underline}button.link:focus-visible{outline:2px solid var(--stay);outline-offset:2px}
 .presets{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 16px;padding:0 0 14px;border-bottom:1px solid var(--line)}.presets .lab{margin-right:4px}.presets button{min-height:34px;padding:5px 12px;font-size:.9rem}
 /* One cohesive form (owner, 2026-10-26) */
@@ -167,7 +168,7 @@ td.left{white-space:nowrap}td.left small{display:block;font-size:.75em;color:var
 <p class="hint" id="radHint">Type a resort name, state or country. For a radius, type a city and state, such as Orlando, Florida.</p></div>
 <div class="rule full" aria-hidden="true"></div>
 <div><label for="from">Earliest Check-In</label><div class="dbox"><input id="from" type="text" inputmode="numeric" autocomplete="off" placeholder="mm/dd/yy"><button type="button" class="pickbtn" data-for="from" aria-label="Pick Earliest Check-In From a Calendar" title="Pick From a Calendar"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="1.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></button><input type="date" class="pickin" tabindex="-1" aria-hidden="true" data-for="from"></div><p class="msg err" id="fromErr" role="status" hidden>Type a date like 10/25/26 or 102526.</p></div>
-<div><label for="to">Latest Check-Out</label><div class="dbox"><input id="to" type="text" inputmode="numeric" autocomplete="off" placeholder="mm/dd/yy"><button type="button" class="pickbtn" data-for="to" aria-label="Pick Latest Check-Out From a Calendar" title="Pick From a Calendar"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="1.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></button><input type="date" class="pickin" tabindex="-1" aria-hidden="true" data-for="to"></div><p class="msg err" id="toErr" role="status" hidden>Type a date like 10/25/26 or 102526.</p><p class="hint"><button type="button" class="link small" id="clearTo">Leave blank</button> to check in on the Earliest Check-In date only.</p></div>
+<div><label for="to">Latest Check-Out</label><div class="dbox"><input id="to" type="text" inputmode="numeric" autocomplete="off" placeholder="mm/dd/yy"><button type="button" class="pickbtn" data-for="to" aria-label="Pick Latest Check-Out From a Calendar" title="Pick From a Calendar"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="5" width="17" height="15.5" rx="1.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg></button><input type="date" class="pickin" tabindex="-1" aria-hidden="true" data-for="to"></div><p class="msg err" id="toErr" role="status" hidden>Type a date like 10/25/26 or 102526.</p><div class="spans" role="group" aria-label="Set Latest Check-Out from Earliest Check-In"><button type="button" data-span="7d">1 Wk</button><button type="button" data-span="14d">2 Wks</button><button type="button" data-span="1m">1 Mo</button><button type="button" data-span="6m">6 Mo</button><button type="button" data-span="12m">1 Yr</button></div><p class="hint"><button type="button" class="link small" id="clearTo">Leave blank</button> to check in on the Earliest Check-In date only.</p></div>
 <div><label for="minN">Min Nights</label><input id="minN" type="number" min="1" max="30" value="2"><p class="msg err" id="oneNight" role="status" hidden>Note: Club Wyndham min. booking is 2 nights.</p></div>
 <div><label for="maxN">Max Nights</label><input id="maxN" type="number" min="1" max="30" value="7"><p class="msg err" id="maxWarn" role="status" hidden>Max Nights needs to be 5 or less for weeknight-only stays.</p></div>
 <div class="full"><span class="lab" id="dayLbl">Check-In Day:</span>
@@ -652,6 +653,15 @@ document.querySelector('.presets').addEventListener('click', function (ev) {
 $('f').addEventListener('input', function () { lowMode = false; }); $('f').addEventListener('change', function () { lowMode = false; });
 document.querySelector('.daygrid').addEventListener('click', function () { lowMode = false; });
 $('clearTo').addEventListener('click', function () { $('to').value = ''; $('to').focus(); lowMode = false; });
+/* 1 Wk, 2 Wks, 1 Mo, 6 Mo, 1 Yr: Latest Check-Out that long after Earliest Check-In, no later than the end of the charts */
+document.querySelector('.spans').addEventListener('click', function (ev) {
+  var b = ev.target.closest('button[data-span]'); if (!b) return;
+  var f = readDate('from'); if (isNaN(f)) { f = Math.max(CAL_START, todayUTC); setDate('from', f); }
+  var v = b.getAttribute('data-span'), n = parseInt(v, 10), d = new Date(f), t;
+  if (/d$/.test(v)) t = f + n * DAY;
+  else { t = Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + n, d.getUTCDate()); if (new Date(t).getUTCDate() !== d.getUTCDate()) t = Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + n + 1, 0); }   /* Jan 31 + 1 Mo is the last day of February */
+  setDate('to', Math.min(CAL_END, t)); lowMode = false;
+});
 /* One night: allowed for information, with a note (owner, 2026-10-25) */
 function oneNight() { $('oneNight').hidden = parseInt($('minN').value, 10) !== 1; }
 $('minN').addEventListener('input', oneNight); oneNight();

@@ -615,3 +615,12 @@ test("pointsbudget: clicking in Min Nights or Max Nights selects the number (own
   await page.keyboard.type("3");
   await expect(page.locator("#minN")).toHaveValue("3");
 });
+
+test("pointsbudget: 1 Wk, 2 Wks, 1 Mo, 6 Mo and 1 Yr set Latest Check-Out from Earliest Check-In (owner, 2026-10-26)", async ({ page }) => {
+  await page.goto(URL);
+  await page.fill("#from", "01/31/27");
+  for (const [span, want] of [["7d", "02/07/27"], ["14d", "02/14/27"], ["1m", "02/28/27"], ["6m", "07/31/27"], ["12m", "01/07/28"]]) {
+    await page.click('.spans button[data-span="' + span + '"]');
+    await expect(page.locator("#to")).toHaveValue(want);
+  }
+});
