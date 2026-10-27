@@ -117,6 +117,7 @@ tr.loanend td{border-bottom:2px solid var(--mute)}
 .addlist{list-style:none;margin:0;padding:10px 14px;border:1px solid var(--line);border-left:5px solid var(--buy);border-radius:10px;background:var(--bg)}
 .addlist li{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;padding:6px 0;border-top:1px solid var(--line)}
 .addlist li:first-child{border-top:0}
+.addlist .vtop{flex-basis:100%;text-align:center;margin-bottom:2px}
 .addlist li>b{min-width:118px;color:var(--buy);font-size:1.05rem}
 .vipline{margin:3px 0 2px}.vipline .cvip.sm{display:inline-flex}
 .cvip.non{background:#f1f2f4;border-color:#c9ced5;color:#5d6877}
@@ -322,14 +323,14 @@ function render(){
   // Adding to Your Current Ownership (owner, 2026-10-26): always shown under Current Ownership, whatever is being bought
   const ownAdvice=cur=>{
     const e0=eff(cur,true); if(!cur)return '';
-    if(GF){const nx=nextLvl(cur,GF);return '<ul class="addlist">'+(nx?`<li><b>+${(nx[0]-cur).toLocaleString()} pts</b><span><span class="cvip sm ${nx[2].toLowerCase()}">${crown}VIP ${nx[2]}</span> ${gfKeep}</span></li>`:`<li><span>${gfKeep}. There is no higher VIP level.</span></li>`)+'</ul>'}
+    if(GF){const nx=nextLvl(cur,GF);return '<ul class="addlist">'+(nx?`<li class="hasvip"><div class="vtop"><span class="cvip sm ${nx[2].toLowerCase()}">${crown}VIP ${nx[2]}</span></div><b>+${(nx[0]-cur).toLocaleString()} pts</b><span>${gfKeep}</span></li>`:`<li><span>${gfKeep}. There is no higher VIP level.</span></li>`)+'</ul>'}
     if(e0.u)return '';
     // every credit point from what you own up to the next VIP level (owner, 2026-10-26); past Founders, the next 3
     const k0=cr(cur,true), rows=[], nv=TIERS.map(t=>t[0]).filter(x=>x>cur&&eff(x,true).b>e0.b).sort((a,b)=>a-b)[0]; let p=cur;
     while(rows.length<(nv?40:3)){p=nextJ(p,true);if(nv&&p>nv)break;rows.push(p);if(p===nv)break}
     if(nv&&!rows.includes(nv))rows.push(nv);
     return '<ul class="addlist">'+rows.sort((a,b)=>a-b).map(x=>{const g=cr(x,true)-k0, ex=eff(x,true), v=ex.b>e0.b?ex.n:'';
-      return `<li><b>+${(x-cur).toLocaleString()} pts</b><span>${v?`<span class="cvip sm ${v.toLowerCase()}">${crown}VIP ${v}</span> `:''}+${plural(g,'Housekeeping Credit')} (${cr(x,true)} total)</span></li>`}).join('')+'</ul>';
+      return `<li${v?' class="hasvip"':''}>${v?`<div class="vtop"><span class="cvip sm ${v.toLowerCase()}">${crown}VIP ${v}</span></div>`:''}<b>+${(x-cur).toLocaleString()} pts</b><span>+${plural(g,'Housekeeping Credit')} (${cr(x,true)} total)</span></li>`}).join('')+'</ul>';
   };
   const crown='<svg viewBox="0 0 16 12" aria-hidden="true"><path d="M1 10 2 3l4 3 2-5 2 5 4-3 1 7z"/></svg>';
   const opt=options(c.curPts,c.addPts);
