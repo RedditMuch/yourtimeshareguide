@@ -300,9 +300,10 @@ function render(){
   // Adding to Your Current Ownership (owner, 2026-10-26): always shown under Current Ownership, whatever is being bought
   const ownAdvice=cur=>{
     const e0=eff(cur,true); if(!cur||e0.u)return '';
-    const k0=cr(cur,true), rows=[]; let p=cur;
-    for(let i=0;i<3;i++){p=nextJ(p,true);rows.push(p)}
-    const nv=TIERS.map(t=>t[0]).filter(x=>x>cur&&eff(x,true).b>e0.b).sort((a,b)=>a-b)[0]; if(nv&&!rows.includes(nv))rows.push(nv);
+    // every credit point from what you own up to the next VIP level (owner, 2026-10-26); past Founders, the next 3
+    const k0=cr(cur,true), rows=[], nv=TIERS.map(t=>t[0]).filter(x=>x>cur&&eff(x,true).b>e0.b).sort((a,b)=>a-b)[0]; let p=cur;
+    while(rows.length<(nv?40:3)){p=nextJ(p,true);if(nv&&p>nv)break;rows.push(p);if(p===nv)break}
+    if(nv&&!rows.includes(nv))rows.push(nv);
     return '<ul class="addlist">'+rows.sort((a,b)=>a-b).map(x=>{const g=cr(x,true)-k0, ex=eff(x,true), v=ex.b>e0.b?ex.n:'';
       return `<li><b>+${(x-cur).toLocaleString()} pts</b><span>${v?`<span class="cvip sm ${v.toLowerCase()}">${crown}VIP ${v}</span> `:''}+${plural(g,'Housekeeping Credit')} (${cr(x,true)} total)</span></li>`}).join('')+'</ul>';
   };
