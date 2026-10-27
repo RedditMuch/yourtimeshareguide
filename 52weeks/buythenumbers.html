@@ -331,7 +331,7 @@ function render(){
   const perkBox=(t,p,a)=>{const e=eff(p,a),k=cr(p,a),w=e.u?0:p-Math.max(Math.floor(p/70000)*70000,e.r?0:Math.floor(p/77000)*77000);return `<div class="box ${w?'buy':'goodb'}"><div class="t">${t}: ${p.toLocaleString()} pts</div><div class="vipline">${vipBadges(p,a)}</div><div class="n">${e.u?'Unlimited Housekeeping Credits':plural(k,'Housekeeping Credit')}</div><div class="d">${e.u?'':e.b?`<div style="margin-top:4px">(Includes +${e.b} for ${e.n.startsWith('Grand')?'':'VIP '}${e.n})</div>`:''}${e.r?'Unlimited Reservation Transactions':plural(ph(p),'Reservation Transaction')}<br>`+(!p||e.u?'':a&&exactVip(c.curPts,p)?`<b class="good">Points and dollars optimized by reaching VIP ${exactVip(c.curPts,p)}</b>`:w?`<b class="bad">${w.toLocaleString()} pts earn nothing</b>`:'<b class="good">No points wasted</b>')+`</div></div>`};
   // Adding to Your Current Ownership (owner, 2026-10-26): always shown under Current Ownership, whatever is being bought
   const ownAdvice=cur=>{
-    const e0=eff(cur,true); if(!cur)return '';
+    const e0=eff(cur,true);
     if(GF){const nx=nextLvl(cur,GF);return '<ul class="addlist">'+(nx?`<li class="hasvip"><div class="vtop"><span class="cvip sm ${nx[2].toLowerCase()}">${crown}VIP ${nx[2]}</span></div><b>+${(nx[0]-cur).toLocaleString()} pts</b><span>${gfKeep}</span></li>`:`<li><span>${gfKeep}. There is no higher VIP level.</span></li>`)+'</ul>'}
     if(e0.u)return '';
     // every credit point from what you own up to the next VIP level (owner, 2026-10-26); past Founders, the next 3
@@ -352,7 +352,7 @@ function render(){
   $('perk').innerHTML='<h2>Get the Most From Your Points: Own in Multiples of 70,000</h2>'+
    '<p class="how">Here&rsquo;s How it Works</p>'+
    '<p class="rule">Every <b>70,000 points</b> = 1 free Housekeeping Credit (70K, 140K, 210K, 280K&hellip;).<br>Points left over earn nothing.</p>'+
-   ((c.curPts||c.addPts)?`<div class="live">${c.curPts?perkBox('Current Ownership',c.curPts,false):''}${c.addPts?perkBox(c.curPts?'After Purchase':'Your Purchase',c.curPts+c.addPts,true):''}</div>${(()=>{const L=c.curPts?ownAdvice(c.curPts):'', R=c.addPts?consider:'';return L||R?`<div class="cl clhead">Have You Considered:</div><div class="adv">${L?`<div class="advcol"><div class="advt">Adding to Your Current Ownership</div>${L}</div>`:''}${R?`<div class="advcol"><div class="advt">For This Purchase</div>${R}</div>`:''}</div>`:''})()}`:'')+
+   (true?`<div class="live">${perkBox('Current Ownership',c.curPts,false)}${c.addPts?perkBox(c.curPts?'After Purchase':'Your Purchase',c.curPts+c.addPts,true):''}</div>${(()=>{const L=ownAdvice(c.curPts), R=c.addPts?consider:'';return L||R?`<div class="cl clhead">Have You Considered:</div><div class="adv">${L?`<div class="advcol"><div class="advt">Adding to Your Current Ownership</div>${L}</div>`:''}${R?`<div class="advcol"><div class="advt">For This Purchase</div>${R}</div>`:''}</div>`:''})()}`:'')+
    '<h3 class="kn">What Every Owner Should Know</h3>'+
    '<p class="mix">Don&rsquo;t mix them up: <b>70,000</b> points earns a Housekeeping Credit. <b>77,000</b> points earns a Reservation Transaction.</p>'+
    '<ul><li>Housekeeping Credits cost <b>$185</b> each when you run out. You need 1 Housekeeping Credit per reservation (along with applicable points). Unused Housekeeping Credits expire at the end of your <b>Use Year</b>.</li>'+
