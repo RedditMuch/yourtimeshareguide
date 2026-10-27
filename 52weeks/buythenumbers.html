@@ -306,9 +306,9 @@ function render(){
       const dir=x>T?'more':'less', diff=Math.abs(x-T), ex=eff(x,true), g=cr(x,true)-cr(T,true), why=[];
       const vip=dir==='more'&&ex.b>eT.b?ex.n:'', lostVip=dir==='less'&&ex.b<eT.b?eT.n:'';
       if(x===cur){why.push(`Your Housekeeping Credits stay at ${cr(T,true)} either way`,'You would pay for points that earn nothing extra')}
-      else if(g>0){why.push(`Adds ${plural(g,'Housekeeping Credit')} for a Total of ${plural(cr(x,true),'Housekeeping Credit')}${vip?', including +'+ex.b+' for VIP '+vip:''}`,'Additional Housekeeping Credits cost $185 each')}
+      else if(g>0){why.push(`Adds ${plural(g,'Housekeeping Credit')}. Total = ${cr(x,true)}${vip?` (+${ex.b} for VIP ${vip})`:''}`,'Additional Housekeeping Credits cost $185 each')}
       else if(g===0){why.push(`Your Housekeeping Credits stay at ${cr(T,true)}`,`Those extra ${diff.toLocaleString()} points do not provide any additional Owner benefits within the Club Wyndham system`)}
-      else why.push(`${plural(-g,'Housekeeping Credit')} fewer, for a Total of ${plural(cr(x,true),'Housekeeping Credit')}`,'Fewer points means a smaller loan and lower maintenance fees');
+      else why.push(`${-g} Fewer Housekeeping Credit${-g===1?'':'s'}. Total = ${cr(x,true)}`,'Fewer points means a smaller loan and lower maintenance fees');
       const rt=rtLine(x); if(rt)why.push(rt);
       const cost=ppp?diff*ppp:0, feeY=diff/1000*c.new1k;
       const money1=cost||feeY?`About <b>${money(cost)}</b> ${dir==='more'?'more':'less'} up front${feeY?` and <b>${money(feeY)}</b> ${dir==='more'?'more':'less'} a year in maintenance fees`:''}`:'';
