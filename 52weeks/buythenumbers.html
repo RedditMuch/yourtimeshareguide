@@ -431,11 +431,14 @@ $('chart').addEventListener('pointerleave',()=>{$('tip').style.display='none';co
 const KEY='umc-settings-v3';
 function save(){try{const o={};document.querySelectorAll('input,select').forEach(i=>o[i.id]=i.value);localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}}
 try{const s=JSON.parse(localStorage.getItem(KEY)||'{}');for(const id in s){const el=$(id);if(el)el.value=s[id]}}catch(e){}
+// Typing Current # of Points sets VIP Status to the level those points reach (owner, 2026-10-27), so a status left over from
+// another example doesn't skip levels; it can still be changed by hand. Grandfathered statuses are never changed.
+function vipFromPts(){if(/^g(silver|gold|plat)$/.test($('vipSt').value))return;const p=num('curPts');$('vipSt').value=p>=1400000?'founders':p>=1100000?'platinum':p>=800000?'gold':p>=500000?'silver':p>=300000?'bronze':'non'}
 // The Fees Rise box in Current Ownership and the one in Points Purchase always show the same percent (owner, 2026-10-26)
 // Both start at 3% (owner, 2026-10-26); a blank saved from before counts as the default
 if(!$('inc').value.trim())$('inc').value='3';
 $('incCur').value=$('inc').value;
-document.querySelectorAll('input[type=text]').forEach(i=>i.addEventListener('input',()=>{fmtInput(i);if(i.id==='inc'||i.id==='incCur')$(i.id==='inc'?'incCur':'inc').value=i.value;render();save()}));
+document.querySelectorAll('input[type=text]').forEach(i=>i.addEventListener('input',()=>{fmtInput(i);if(i.id==='inc'||i.id==='incCur')$(i.id==='inc'?'incCur':'inc').value=i.value;if(i.id==='curPts')vipFromPts();render();save()}));
 $('clr').addEventListener('click',e=>{e.preventDefault();document.querySelectorAll('input[type=text]').forEach(i=>i.value='');$('inc').value=$('incCur').value='3';$('vipSt').value='non';render();save()});
 $('yrs').addEventListener('input',()=>{render();save()});
 if(!$('vipSt').value)$('vipSt').value='non';
