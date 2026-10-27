@@ -118,6 +118,12 @@ tr.loanend td{border-bottom:2px solid var(--mute)}
 .addlist li{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;padding:6px 0;border-top:1px solid var(--line)}
 .addlist li:first-child{border-top:0}
 .addlist .vtop{flex-basis:100%;text-align:center;margin-bottom:2px}
+/* For This Purchase is a narrow column: even line breaks instead of a word or two left alone (owner, 2026-10-27) */
+.adv .consider li,.adv .consider .cmoney,.adv .consider .cdir{text-wrap:balance}
+.adv .consider li{font-size:.94rem;line-height:1.4;margin:4px 0}
+.sweet{text-align:center;background:color-mix(in srgb,var(--good) 12%,var(--card));border:1.5px solid var(--good);border-radius:10px;padding:8px 12px;margin:0 0 12px;text-wrap:balance}
+.sweet b:first-child{color:var(--good)}
+.ccons{margin:8px auto 0;color:var(--bad);font-weight:800;font-size:1.05rem;text-wrap:balance}
 .addlist li>b{min-width:118px;color:var(--buy);font-size:1.05rem}
 .vipline{margin:3px 0 2px}.vipline .cvip.sm{display:inline-flex}
 .cvip.non{background:#f1f2f4;border-color:#c9ced5;color:#5d6877}
@@ -300,11 +306,11 @@ function render(){
       if(x===cur){why.push(`Your Housekeeping Credits stay at ${cr(T,true)} either way`,'You would pay for points that earn nothing extra')}
       else if(g>0){why.push(`Adds ${plural(g,'Housekeeping Credit')} for a Total of ${plural(cr(x,true),'Housekeeping Credit')}${vip?', including +'+ex.b+' for VIP '+vip:''}`,'A Housekeeping Credit costs $185 if you run out and have to buy one')}
       else if(g===0){why.push(`Your Housekeeping Credits stay at ${cr(T,true)}`,`Those extra ${diff.toLocaleString()} points do not provide any additional Owner benefits within the Club Wyndham system`)}
-      else why.push(`${plural(-g,'Housekeeping Credit')} fewer, for a Total of ${plural(cr(x,true),'Housekeeping Credit')}${lostVip?' (you would not reach VIP '+lostVip+')':''}`,'Fewer points means a smaller loan and lower maintenance fees');
+      else why.push(`${plural(-g,'Housekeeping Credit')} fewer, for a Total of ${plural(cr(x,true),'Housekeeping Credit')}`,'Fewer points means a smaller loan and lower maintenance fees');
       const rt=rtLine(x); if(rt)why.push(rt);
       const cost=ppp?diff*ppp:0, feeY=diff/1000*c.new1k;
       const money1=cost||feeY?`About <b>${money(cost)}</b> ${dir==='more'?'more':'less'} up front${feeY?` and <b>${money(feeY)}</b> ${dir==='more'?'more':'less'} a year in maintenance fees`:''}`:'';
-      out.push({dir,diff,newAdd:x-cur,vip,why,money1,skip:x===cur});
+      out.push({dir,diff,newAdd:x-cur,vip,lostVip,why,money1,skip:x===cur});
     };
     add1(nextJ(T,true),'hk');
     if(!eT.u){const nv=TIERS.map(t=>t[0]).filter(x=>x>T&&eff(x,true).b>eT.b).sort((p,q)=>p-q)[0]; if(nv)add1(nv,'vip')}
@@ -334,7 +340,11 @@ function render(){
   };
   const crown='<svg viewBox="0 0 16 12" aria-hidden="true"><path d="M1 10 2 3l4 3 2-5 2 5 4-3 1 7z"/></svg>';
   const opt=options(c.curPts,c.addPts);
-  const consider=opt.length?opt.map(o=>`<div class="consider ${o.dir}"><div class="cdir ${o.dir}">${o.skip?'Skipping This Purchase':`Purchasing ${o.diff.toLocaleString()} ${o.dir==='more'?'MORE':'LESS'} Points`}</div><div class="cnum"><b>${o.newAdd.toLocaleString()}</b> <span>vs.</span> <s>${c.addPts.toLocaleString()}</s></div>${o.money1?`<div class="cmoney">${o.money1}</div>`:''}<div class="cwhy">Here&rsquo;s Why:</div>${o.vip?`<div class="cvip ${o.vip.toLowerCase()}">${crown}Reaches VIP ${o.vip}</div>`:''}<ul>${o.why.map(w=>'<li>'+w+'</li>').join('')}</ul></div>`).join(''):'';
+  // Sweet Spot (owner, 2026-10-27): the purchase lands exactly on a credit point or a new VIP level, so no points are wasted
+  const sweet=(()=>{const T=c.curPts+c.addPts,eT=eff(T,true);if(!c.addPts||eT.u||lastJ(T,true)!==T)return '';
+    const nv=eT.b>eff(c.curPts,true).b&&TIERS.some(t=>t[0]===T)?eT.n:'';
+    return `<div class="sweet"><b>Sweet Spot:</b> ${T.toLocaleString()} points ${nv?`reaches <b>VIP ${nv}</b>`:'lands exactly on a Housekeeping Credit'} with no points wasted.</div>`})();
+  const consider=sweet+(opt.length?opt.map(o=>`<div class="consider ${o.dir}"><div class="cdir ${o.dir}">${o.skip?'Skipping This Purchase':`Purchasing ${o.diff.toLocaleString()} ${o.dir==='more'?'MORE':'LESS'} Points`}</div><div class="cnum"><b>${o.newAdd.toLocaleString()}</b> <span>vs.</span> <s>${c.addPts.toLocaleString()}</s></div>${o.money1?`<div class="cmoney">${o.money1}</div>`:''}<div class="cwhy">Here&rsquo;s Why:</div>${o.vip?`<div class="cvip ${o.vip.toLowerCase()}">${crown}Reaches VIP ${o.vip}</div>`:''}<ul>${o.why.map(w=>'<li>'+w+'</li>').join('')}</ul>${o.lostVip?`<div class="ccons"><b>CONS:</b> You will miss out on VIP ${o.lostVip}!</div>`:''}</div>`).join(''):'');
 
   $('perk').innerHTML='<h2>Get the Most From Your Points: Own in Multiples of 70,000</h2>'+
    '<p class="how">Here&rsquo;s How it Works</p>'+
