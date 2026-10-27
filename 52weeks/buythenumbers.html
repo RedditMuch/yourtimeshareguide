@@ -27,6 +27,8 @@ h2{font-size:1.1rem;margin:0 0 10px}
 .f span{padding:0 0 0 8px;color:var(--mute)}
 .f input{width:100%;border:0;background:transparent;color:var(--ink);font:inherit;padding:8px 8px;outline:0}
 .f input::placeholder{color:var(--mute);opacity:.55}
+/* Maintenance fee unit (owner, 2026-10-26): type the fee per month, per year or per 1,000 points */
+.f select.unit{flex:none;align-self:stretch;border:0;border-left:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:.85rem;padding:0 6px;cursor:pointer}
 .f:focus-within{border-color:var(--stay)}
 #curPer1k{color:var(--per1k);font-weight:800;font-size:.9rem}
 .hint{font-size:.78rem;color:var(--mute);margin-top:3px;min-height:2.4em}
@@ -124,8 +126,8 @@ tr.loanend td{border-bottom:2px solid var(--mute)}
 <div class="area"><div class="acap">Maintenance Fees</div><div class="g2">
 <div class="cell"><label><div class="lt">Current # of Points</div><div class="f"><input type="text" inputmode="decimal" id="curPts" value="200,000" placeholder="Points You Own"></div></label><div class="hint"></div></div>
 <div class="cell" aria-hidden="true"></div>
-<div class="cell"><label><div class="lt">Maintenance Fee (per Month)</div><div class="f"><span>$</span><input type="text" inputmode="decimal" id="curMonthly" value="155" placeholder="Per Month"></div></label>
-<div class="hint"><b id="curYearly"></b>: Yearly<br><b id="curPer1k"></b>: per 1,000 pts</div></div>
+<div class="cell"><label><div class="lt">Maintenance Fee</div><div class="f"><span>$</span><input type="text" inputmode="decimal" id="curMonthly" value="155" placeholder="Per Month"><select class="unit" id="curUnit" aria-label="Amount Is"><option value="m" selected>per Month</option><option value="y">per Year</option><option value="k">per 1,000 Pts</option></select></div></label>
+<div class="hint" id="curOther"></div></div>
 <div class="cell"><label><div class="lt">Fees Rise Each Year by (%)</div><div class="f"><input type="text" inputmode="decimal" id="incCur" placeholder="Increase"></div></label>
 <div class="hint">Guesstimate (Suggest 3-5%)</div></div>
 </div></div>
@@ -143,9 +145,9 @@ tr.loanend td{border-bottom:2px solid var(--mute)}
 <div class="cell"><label><div class="lt">Asking Price (Often Negotiable)</div><div class="f"><span>$</span><input type="text" inputmode="decimal" id="price" placeholder="Price"></div></label><div class="hint"></div></div>
 <div class="cell"><label><div class="lt">Interest Rate on Loan</div><div class="f"><input type="text" inputmode="decimal" id="apr" placeholder="Interest Rate"></div></label><div class="hint"></div></div>
 <div class="cell"><label><div class="lt">Length of Loan (Years)</div><div class="f"><input type="text" inputmode="decimal" id="term" placeholder="How Long?"></div></label><div class="hint"></div></div>
-<div class="cell"><label><div class="lt two">New Maintenance Fee<br>($ per 1,000 pts per year)</div><div class="f"><span>$</span><input type="text" inputmode="decimal" id="newPer1k" placeholder="Per 1,000 Pts"></div></label>
+<div class="cell"><label><div class="lt">New Maintenance Fee</div><div class="f"><span>$</span><input type="text" inputmode="decimal" id="newPer1k" placeholder="Per 1,000 Pts"><select class="unit" id="newUnit" aria-label="Amount Is"><option value="m">per Month</option><option value="y">per Year</option><option value="k" selected>per 1,000 Pts</option></select></div></label>
 <div class="hint"><b>GET THIS IN WRITING!</b></div></div>
-<div class="cell"><label><div class="lt two">Fees Rise Each Year by (%)</div><div class="f"><input type="text" inputmode="decimal" id="inc" placeholder="Increase"></div></label>
+<div class="cell"><label><div class="lt">Fees Rise Each Year by (%)</div><div class="f"><input type="text" inputmode="decimal" id="inc" placeholder="Increase"></div></label>
 <div class="hint">Guesstimate (Suggest 3-5%)</div></div>
 </div>
 <div class="sumrow res">
@@ -205,8 +207,11 @@ function fmtInput(el){
 function pmt(P,apr,yrs){const n=yrs*12,r=apr/100/12;if(!n)return 0;return r?P*r/(1-Math.pow(1+r,-n)):P/n}
 
 function calc(){
-  const curPts=Math.floor(num('curPts')),curM=num('curMonthly'),addPts=Math.floor(num('addPts')),price=num('price'),apr=num('apr');
-  const term=Math.max(1,Math.round(num('term'))),new1k=num('newPer1k'),g=num('inc')/100,yrs=+$('yrs').value;
+  const curPts=Math.floor(num('curPts')),addPts=Math.floor(num('addPts')),price=num('price'),apr=num('apr');
+  // Fees can be typed per month, per year or per 1,000 points (owner, 2026-10-26); the math uses monthly (current) and per 1,000 a year (new)
+  const cv=num('curMonthly'),cu=$('curUnit').value,curM=cu==='y'?cv/12:cu==='k'?cv*curPts/1000/12:cv;
+  const nv=num('newPer1k'),nu=$('newUnit').value,allK=(curPts+addPts)/1000,newK=nu==='k'?nv:!allK?0:nu==='y'?nv/allK:nv*12/allK;
+  const term=Math.max(1,Math.round(num('term'))),new1k=newK,g=num('inc')/100,yrs=+$('yrs').value;
   const noBuy=!addPts&&!price&&!new1k;
   const curY=curM*12, newY=noBuy?curM*12:(curPts+addPts)/1000*new1k, loanM=pmt(price,apr,term), loanY=loanM*12;
   const loanTotal=loanM*term*12, interest=loanTotal-price;
@@ -226,9 +231,9 @@ let chartState=null;
 
 function render(){
   const c=calc(), r=c.rows;
-  $('curYearly').parentNode.style.visibility=c.curM?'':'hidden';
-  $('curYearly').textContent=money(c.curY,2);
-  $('curPer1k').textContent=c.curPts?money(c.curY/(c.curPts/1000),2):'-';
+  const cu=$('curUnit').value,forms=[['m',money(c.curM,2),'Monthly'],['y',money(c.curY,2),'Yearly'],['k',c.curPts?money(c.curY/(c.curPts/1000),2):'-','per 1,000 pts']];
+  $('curOther').innerHTML=c.curM?forms.filter(f=>f[0]!==cu).map(f=>'<b'+(f[0]==='k'?' id="curPer1k"':'')+'>'+f[1]+'</b>: '+f[2]).join('<br>'):'';
+  $('curMonthly').placeholder={m:'Per Month',y:'Per Year',k:'Per 1,000 Pts'}[cu];$('newPer1k').placeholder={m:'Per Month',y:'Per Year',k:'Per 1,000 Pts'}[$('newUnit').value];
   $('yrsLbl').textContent=c.yrs;
 
   // points perks: 1 housekeeping credit per 70,000 pts, plus VIP milestone bonus; 1 Reservation Transaction per 77,000 pts
@@ -387,6 +392,8 @@ $('clr').addEventListener('click',e=>{e.preventDefault();document.querySelectorA
 $('yrs').addEventListener('input',()=>{render();save()});
 if(!$('vipSt').value)$('vipSt').value='non';
 $('vipSt').addEventListener('change',()=>{render();save()});
+$('curUnit').addEventListener('change',()=>{render();save()});
+$('newUnit').addEventListener('change',()=>{render();save()});
 render();
 </script>
 </body>
