@@ -319,7 +319,8 @@ function render(){
     // fewer points: back to the last credit point (or skip, when the purchase earns nothing); a total exactly on a credit point
     // only offers the credit point before it when that is still more than you own now
     // no LESS options when the purchase is exactly a newly reached VIP level
-    const lj=lastJ(T,true); if(exactVip(cur,T)){} else if(lj<T)add1(Math.max(cur,lj),'hk'); else{const pj=lastJ(T-1,true); if(pj>cur)add1(pj,'hk')}
+    // new owners buying more than 140,000 never see LESS: fewer points makes it hard to vacation (owner, 2026-10-27)
+    const lj=lastJ(T,true); if(exactVip(cur,T)||(!cur&&T>140000)){} else if(lj<T)add1(Math.max(cur,lj),'hk'); else{const pj=lastJ(T-1,true); if(pj>cur)add1(pj,'hk')}
     return out.sort((p,q)=>p.newAdd-q.newAdd);
   };
   // VIP status under each box title (owner, 2026-10-27): the dropdown's level for Current Ownership, the level after buying for After Purchase;
