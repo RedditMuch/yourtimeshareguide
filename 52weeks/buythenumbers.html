@@ -263,7 +263,7 @@ function render(){
   // Have You Considered (owner, 2026-10-26): every option, not just one within 20,000 points. More: the next Housekeeping Credit and
   // the next VIP level (none past Founders). Less: down to the last Housekeeping Credit (same credits, fewer points), or, at an exact
   // credit point, the one before it; skipping the purchase when it adds nothing. Reservation Transactions are only mentioned when an
-  // option happens to change them, since online booking is free. Listed from the most points added to the most taken away.
+  // option happens to change them, since online booking is free. Listed from the most points taken away to the most added (owner, 2026-10-26).
   const options=(cur,add)=>{
     const T=cur+add, eT=eff(T,true); if(!add||!T||eT.u)return [];
     const ppp=c.price&&add?c.price/add:0, out=[], seen=new Set();
@@ -284,7 +284,7 @@ function render(){
     add1(nextJ(T,true),'hk');
     if(!eT.u){const nv=TIERS.map(t=>t[0]).filter(x=>x>T&&eff(x,true).b>eT.b).sort((p,q)=>p-q)[0]; if(nv)add1(nv,'vip')}
     const lj=lastJ(T,true); add1(Math.max(cur,lj<T?lj:lastJ(T-1,true)),'hk');
-    return out.sort((p,q)=>q.newAdd-p.newAdd);
+    return out.sort((p,q)=>p.newAdd-q.newAdd);
   };
   const perkBox=(t,p,a)=>{const e=eff(p,a),k=cr(p,a),w=e.u?0:p-Math.max(lastJ(p,a),e.r?0:Math.floor(p/77000)*77000);return `<div class="box ${w?'buy':'goodb'}"><div class="t">${t}: ${p.toLocaleString()} pts</div><div class="n">${e.u?'Unlimited Housekeeping Credits':plural(k,'Housekeeping Credit')}</div><div class="d">${e.u?`<div style="margin-top:4px">(${e.n})</div>`:e.b?`<div style="margin-top:4px">(Includes +${e.b} for ${e.n.startsWith('Grand')?'':'VIP '}${e.n})</div>`:''}${e.r?'Unlimited Reservation Transactions':plural(ph(p),'Reservation Transaction')}<br>`+(!p||e.u?'':w?`<b class="bad">${w.toLocaleString()} pts earn nothing</b>`:'<b class="good">No points wasted</b>')+`</div></div>`};
   const crown='<svg viewBox="0 0 16 12" aria-hidden="true"><path d="M1 10 2 3l4 3 2-5 2 5 4-3 1 7z"/></svg>';
