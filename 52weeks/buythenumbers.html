@@ -272,8 +272,22 @@ function render(){
   // the next VIP level (none past Founders). Less: down to the last Housekeeping Credit (same credits, fewer points), or, at an exact
   // credit point, the one before it; skipping the purchase when it adds nothing. Reservation Transactions are only mentioned when an
   // option happens to change them, since online booking is free. Listed from the most points taken away to the most added (owner, 2026-10-26).
+  // Grandfathered (owner, 2026-10-27): the status is kept forever when points are added, with unlimited Housekeeping Credits;
+  // a new VIP level still needs the current milestones, so the advice is the next level above the Grandfathered one
+  const GF={gsilver:2,ggold:4,gplat:6}[st]||0, lvl=p=>(tierAt(p)||[0,0])[1];
+  const nextLvl=(p,base)=>TIERS.filter(t=>t[1]>Math.max(base,lvl(p))).sort((a,b)=>a[0]-b[0])[0];
+  const gfKeep=`You keep ${STAT[st].n} with unlimited Housekeeping Credits${STAT[st].r?' and Reservation Transactions':''}`;
   const options=(cur,add)=>{
-    const T=cur+add, eT=eff(T,true); if(!add||!T||eT.u)return [];
+    const T=cur+add, eT=eff(T,true); if(!add||!T)return [];
+    if(GF){
+      const ppp=c.price&&add?c.price/add:0, out=[], base=Math.max(GF,lvl(cur)), mk=(x,why,vip)=>{const dir=x>T?'more':'less',diff=Math.abs(x-T),cost=ppp?diff*ppp:0,feeY=diff/1000*c.new1k;
+        out.push({dir,diff,newAdd:x-cur,vip,why,money1:cost||feeY?`About <b>${money(cost)}</b> ${dir==='more'?'more':'less'} up front${feeY?` and <b>${money(feeY)}</b> ${dir==='more'?'more':'less'} a year in maintenance fees`:''}`:''})};
+      const reach=lvl(T)>base?TIERS.find(t=>t[1]===lvl(T)):null;
+      if(reach&&T>reach[0]&&reach[0]>cur)mk(reach[0],[`Still reaches VIP ${reach[2]}`,`Those extra ${(T-reach[0]).toLocaleString()} points add nothing more, since your Housekeeping Credits are already unlimited`],'');
+      const nx=nextLvl(T,base); if(nx)mk(nx[0],[gfKeep,`You also get the other benefits of VIP ${nx[2]}`],nx[2]);
+      return out.sort((p,q)=>p.newAdd-q.newAdd);
+    }
+    if(eT.u)return [];
     const ppp=c.price&&add?c.price/add:0, out=[], seen=new Set();
     const rtLine=x=>{if(eff(x,true).r||eT.r)return '';const d=ph(x)-ph(T);return d>0?`Also adds ${plural(d,'Reservation Transaction')} (helpful for phone bookings; online booking is free)`:d<0?`${plural(-d,'Reservation Transaction')} fewer (only matters for phone bookings; online booking is free)`:''};
     const add1=(x,kind)=>{
@@ -299,7 +313,9 @@ function render(){
   const perkBox=(t,p,a)=>{const e=eff(p,a),k=cr(p,a),w=e.u?0:p-Math.max(lastJ(p,a),e.r?0:Math.floor(p/77000)*77000);return `<div class="box ${w?'buy':'goodb'}"><div class="t">${t}: ${p.toLocaleString()} pts</div><div class="n">${e.u?'Unlimited Housekeeping Credits':plural(k,'Housekeeping Credit')}</div><div class="d">${e.u?`<div style="margin-top:4px">(${e.n})</div>`:e.b?`<div style="margin-top:4px">(Includes +${e.b} for ${e.n.startsWith('Grand')?'':'VIP '}${e.n})</div>`:''}${e.r?'Unlimited Reservation Transactions':plural(ph(p),'Reservation Transaction')}<br>`+(!p||e.u?'':w?`<b class="bad">${w.toLocaleString()} pts earn nothing</b>`:'<b class="good">No points wasted</b>')+`</div></div>`};
   // Adding to Your Current Ownership (owner, 2026-10-26): always shown under Current Ownership, whatever is being bought
   const ownAdvice=cur=>{
-    const e0=eff(cur,true); if(!cur||e0.u)return '';
+    const e0=eff(cur,true); if(!cur)return '';
+    if(GF){const nx=nextLvl(cur,GF);return '<ul class="addlist">'+(nx?`<li><b>+${(nx[0]-cur).toLocaleString()} pts</b><span><span class="cvip sm ${nx[2].toLowerCase()}">${crown}VIP ${nx[2]}</span> ${gfKeep}</span></li>`:`<li><span>${gfKeep}. There is no higher VIP level.</span></li>`)+'</ul>'}
+    if(e0.u)return '';
     // every credit point from what you own up to the next VIP level (owner, 2026-10-26); past Founders, the next 3
     const k0=cr(cur,true), rows=[], nv=TIERS.map(t=>t[0]).filter(x=>x>cur&&eff(x,true).b>e0.b).sort((a,b)=>a-b)[0]; let p=cur;
     while(rows.length<(nv?40:3)){p=nextJ(p,true);if(nv&&p>nv)break;rows.push(p);if(p===nv)break}
