@@ -298,13 +298,13 @@ function render(){
     }
     if(eT.u)return [];
     const ppp=c.price&&add?c.price/add:0, out=[], seen=new Set();
-    const rtLine=x=>{if(eff(x,true).r||eT.r)return '';const d=ph(x)-ph(T);return d>0?`Also adds ${plural(d,'Reservation Transaction')} (helpful for phone bookings; online booking is free)`:d<0?`${plural(-d,'Reservation Transaction')} fewer (only matters for phone bookings; online booking is free)`:''};
+    const rtLine=x=>{if(eff(x,true).r||eT.r)return '';const d=ph(x)-ph(T);return d>0?`Also adds ${plural(d,'Reservation Transaction')}<br>(helpful for phone bookings; online booking is free)`:d<0?`${plural(-d,'Reservation Transaction')} fewer<br>(only matters for phone bookings; online booking is free)`:''};
     const add1=(x,kind)=>{
       if(x===T||x<cur||seen.has(x))return; seen.add(x);
       const dir=x>T?'more':'less', diff=Math.abs(x-T), ex=eff(x,true), g=cr(x,true)-cr(T,true), why=[];
       const vip=dir==='more'&&ex.b>eT.b?ex.n:'', lostVip=dir==='less'&&ex.b<eT.b?eT.n:'';
       if(x===cur){why.push(`Your Housekeeping Credits stay at ${cr(T,true)} either way`,'You would pay for points that earn nothing extra')}
-      else if(g>0){why.push(`Adds ${plural(g,'Housekeeping Credit')} for a Total of ${plural(cr(x,true),'Housekeeping Credit')}${vip?', including +'+ex.b+' for VIP '+vip:''}`,'A Housekeeping Credit costs $185 if you run out and have to buy one')}
+      else if(g>0){why.push(`Adds ${plural(g,'Housekeeping Credit')} for a Total of ${plural(cr(x,true),'Housekeeping Credit')}${vip?', including +'+ex.b+' for VIP '+vip:''}`,'Additional Housekeeping Credits cost $185 each')}
       else if(g===0){why.push(`Your Housekeeping Credits stay at ${cr(T,true)}`,`Those extra ${diff.toLocaleString()} points do not provide any additional Owner benefits within the Club Wyndham system`)}
       else why.push(`${plural(-g,'Housekeeping Credit')} fewer, for a Total of ${plural(cr(x,true),'Housekeeping Credit')}`,'Fewer points means a smaller loan and lower maintenance fees');
       const rt=rtLine(x); if(rt)why.push(rt);
@@ -325,7 +325,7 @@ function render(){
   const vipBadges=(p,a)=>{const e=eff(p,a);if(e.n==='Non-VIP')return vb('Non-VIP','non');const g=e.n.startsWith('Grand'),base=g?e.n.split(' ')[1].toLowerCase():e.n.toLowerCase();
     let h=vb(g?e.n:'VIP '+e.n,base);if(g&&a){const t=tierAt(p),gb={silver:2,gold:4,platinum:6}[base];if(t&&t[1]>gb)h+=' '+vb('VIP '+t[2],t[2].toLowerCase())}return h};
   const crownSvg='<svg viewBox="0 0 16 12" aria-hidden="true"><path d="M1 10 2 3l4 3 2-5 2 5 4-3 1 7z"/></svg>';
-  const perkBox=(t,p,a)=>{const e=eff(p,a),k=cr(p,a),w=e.u?0:p-Math.max(lastJ(p,a),e.r?0:Math.floor(p/77000)*77000);return `<div class="box ${w?'buy':'goodb'}"><div class="t">${t}: ${p.toLocaleString()} pts</div><div class="vipline">${vipBadges(p,a)}</div><div class="n">${e.u?'Unlimited Housekeeping Credits':plural(k,'Housekeeping Credit')}</div><div class="d">${e.u?'':e.b?`<div style="margin-top:4px">(Includes +${e.b} for ${e.n.startsWith('Grand')?'':'VIP '}${e.n})</div>`:''}${e.r?'Unlimited Reservation Transactions':plural(ph(p),'Reservation Transaction')}<br>`+(!p||e.u?'':w?`<b class="bad">${w.toLocaleString()} pts earn nothing</b>`:'<b class="good">No points wasted</b>')+`</div></div>`};
+  const perkBox=(t,p,a)=>{const e=eff(p,a),k=cr(p,a),w=e.u?0:p-Math.max(Math.floor(p/70000)*70000,e.r?0:Math.floor(p/77000)*77000);return `<div class="box ${w?'buy':'goodb'}"><div class="t">${t}: ${p.toLocaleString()} pts</div><div class="vipline">${vipBadges(p,a)}</div><div class="n">${e.u?'Unlimited Housekeeping Credits':plural(k,'Housekeeping Credit')}</div><div class="d">${e.u?'':e.b?`<div style="margin-top:4px">(Includes +${e.b} for ${e.n.startsWith('Grand')?'':'VIP '}${e.n})</div>`:''}${e.r?'Unlimited Reservation Transactions':plural(ph(p),'Reservation Transaction')}<br>`+(!p||e.u?'':w?`<b class="bad">${w.toLocaleString()} pts earn nothing</b>`:'<b class="good">No points wasted</b>')+`</div></div>`};
   // Adding to Your Current Ownership (owner, 2026-10-26): always shown under Current Ownership, whatever is being bought
   const ownAdvice=cur=>{
     const e0=eff(cur,true); if(!cur)return '';
@@ -343,7 +343,7 @@ function render(){
   // Sweet Spot (owner, 2026-10-27): the purchase lands exactly on a credit point or a new VIP level, so no points are wasted
   const sweet=(()=>{const T=c.curPts+c.addPts,eT=eff(T,true);if(!c.addPts||eT.u||lastJ(T,true)!==T)return '';
     const nv=eT.b>eff(c.curPts,true).b&&TIERS.some(t=>t[0]===T)?eT.n:'';
-    return `<div class="sweet"><b>Sweet Spot:</b> ${T.toLocaleString()} points ${nv?`reaches <b>VIP ${nv}</b>`:'lands exactly on a Housekeeping Credit'} with no points wasted.</div>`})();
+    return `<div class="sweet"><b>Sweet Spot:</b> ${T.toLocaleString()} points ${nv&&T%70000?`reaches <b>VIP ${nv}</b>.`:`lands exactly on a Housekeeping Credit${nv?` and reaches <b>VIP ${nv}</b>`:''} with no points wasted.`}</div>`})();
   const consider=sweet+(opt.length?opt.map(o=>`<div class="consider ${o.dir}"><div class="cdir ${o.dir}">${o.skip?'Skipping This Purchase':`Purchasing ${o.diff.toLocaleString()} ${o.dir==='more'?'MORE':'LESS'} Points`}</div><div class="cnum"><b>${o.newAdd.toLocaleString()}</b> <span>vs.</span> <s>${c.addPts.toLocaleString()}</s></div>${o.money1?`<div class="cmoney">${o.money1}</div>`:''}<div class="cwhy">Here&rsquo;s Why:</div>${o.vip?`<div class="cvip ${o.vip.toLowerCase()}">${crown}Reaches VIP ${o.vip}</div>`:''}<ul>${o.why.map(w=>'<li>'+w+'</li>').join('')}</ul>${o.lostVip?`<div class="ccons"><b>CONS:</b> You will miss out on VIP ${o.lostVip}!</div>`:''}</div>`).join(''):'');
 
   $('perk').innerHTML='<h2>Get the Most From Your Points: Own in Multiples of 70,000</h2>'+
