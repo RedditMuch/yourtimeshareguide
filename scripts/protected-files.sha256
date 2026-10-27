@@ -2,12 +2,12 @@
 # normalized to LF. Matches the next protected snapshot tag, season-chart-v2-2026-10-11-speed
 # (owner-approved changes: "select" wording, #35; softer season colors, #37;
 # resort, building and room-type names, planning #38; Collections filters, planning #39;
-# faster chart with a loading indicator, planning #36; filters round, owner 2026-10-12; affiliate dot, Angel Fire, Villas at Fairfield, owner 2026-10-12; last rows visible on iPhone, Weekday and Weekend headers stay at the top on phones, trip-totals note removed, filters open on phones, no blank space under filters, date fields fit on phones, resort card with address and printed page only, owner 2026-10-17; Select All and Clear next to Bedrooms, owner 2026-10-20; visitor counter in the bottom-right corner, owner 2026-10-24; moved to /52weeks/ (52weeks/index.html) with the short black and gold site header, owner 2026-10-24; Club Wyndham Discovery box in Collections, with discovery-data.js, and SeaWatch Villas, owner 2026-10-25; Points Budget tab, owner 2026-10-26).
+# faster chart with a loading indicator, planning #36; filters round, owner 2026-10-12; affiliate dot, Angel Fire, Villas at Fairfield, owner 2026-10-12; last rows visible on iPhone, Weekday and Weekend headers stay at the top on phones, trip-totals note removed, filters open on phones, no blank space under filters, date fields fit on phones, resort card with address and printed page only, owner 2026-10-17; Select All and Clear next to Bedrooms, owner 2026-10-20; visitor counter in the bottom-right corner, owner 2026-10-24; moved to /52weeks/ (52weeks/index.html) with the short black and gold site header, owner 2026-10-24; Club Wyndham Discovery box in Collections, with discovery-data.js, and SeaWatch Villas, owner 2026-10-25; Points Budget tab, owner 2026-10-26; Prefer West, Prefer Hawaii, Kai and Presidential Reserve in Collections, with collections-data.js, owner 2026-10-26).
 # Change this list only when the owner asks for a change to season chart v2,
 # in the same pull request as that change.
-8820b6a105cc7548753b506861e42b8d4b9f7b34ea80b5b3b20e26d6a0959c2a  52weeks/index.html
+5d78db1e718c1f84a0ae9f08e34a13afe688e7bcb253c712d040a9a47e3089f8  52weeks/index.html
 e167e25c4aa985ca1c6a13a7eb0602fa05a911d62b79e7b3940641a9a6300340  52weeks/seasons-v2.css
-4e74d8d1fdb01d1d4ecf6d730d62d6633299c9f05c94b16dffaff045ef223d9f  52weeks/seasons-v2.js
+a3779897804e7845cf9a4f610c8b31aa96ca777dd21f6314abb07a7f0b6db14e  52weeks/seasons-v2.js
 031965c8a14c772ad7b53034551091247d954c565621df2e28ae6a97edf2bbb1  52weeks/club-pass-points.js
 e4865afe2436774a0dc51f5de51693e6af5f432d9cd8f29340df3435a86f7526  52weeks/data.js
 7cbcafc2b825a3238dd17423acb22d971acb43f3660d7a69a970acf7b0f52ac0  52weeks/geo-data.js
@@ -18,3 +18,4 @@ beaea14a652c7d30ad0bbceb6ead0e9bf6cfe0771b55bab37a5e5a84c1e6e660  52weeks/logo-b
 2f5a1cd3a9f224327128218dc55a26488f7bdf20fce4be13bb55e67289fed767  52weeks/logo-icon.svg
 84f20cd7300bcb8fe6eb92c0d577d8fb54cb7b0b8d600f63ca226e6fc5ddbd58  52weeks/nightlydata.js
 ab83449665170ff57be62b4e77c8e9e571e94e3bec15c868d88923490043dc8e  52weeks/discovery-data.js
+b6904b1bcaba8f3ae6526adf0e7b6720cd8ae82c80f9fbff3d1d468edfcef4e0  52weeks/collections-data.js
