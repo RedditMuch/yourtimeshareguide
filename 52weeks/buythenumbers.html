@@ -131,7 +131,7 @@ tr.loanend td{border-bottom:2px solid var(--mute)}
 <div class="cell" aria-hidden="true"></div>
 <div class="cell"><label><div class="lt">Maintenance Fee</div><div class="f"><span>$</span><input type="text" inputmode="decimal" id="curMonthly" value="155" placeholder="Per Month"><select class="unit" id="curUnit" aria-label="Amount Is"><option value="m" selected>per Month</option><option value="y">per Year</option><option value="k">per 1,000 Pts</option></select></div></label>
 <div class="hint" id="curOther"></div></div>
-<div class="cell"><label><div class="lt">Fees Rise Each Year by (%)</div><div class="f"><input type="text" inputmode="decimal" id="incCur" placeholder="Increase"></div></label>
+<div class="cell"><label><div class="lt">Fees Rise Each Year by (%)</div><div class="f"><input type="text" inputmode="decimal" id="incCur" value="3" placeholder="Increase"></div></label>
 <div class="hint">Guesstimate (Suggest 3-5%)</div></div>
 </div></div>
 <div class="area div"><div class="acap">Current Loan</div><div class="g2">
@@ -150,7 +150,7 @@ tr.loanend td{border-bottom:2px solid var(--mute)}
 <div class="cell"><label><div class="lt">Length of Loan (Years)</div><div class="f"><input type="text" inputmode="decimal" id="term" placeholder="How Long?"></div></label><div class="hint"></div></div>
 <div class="cell"><label><div class="lt">New Maintenance Fee</div><div class="f"><span>$</span><input type="text" inputmode="decimal" id="newPer1k" placeholder="Per 1,000 Pts"><select class="unit" id="newUnit" aria-label="Amount Is"><option value="m">per Month</option><option value="y">per Year</option><option value="k" selected>per 1,000 Pts</option></select></div></label>
 <div class="hint"><b>GET THIS IN WRITING!</b></div></div>
-<div class="cell"><label><div class="lt">Fees Rise Each Year by (%)</div><div class="f"><input type="text" inputmode="decimal" id="inc" placeholder="Increase"></div></label>
+<div class="cell"><label><div class="lt">Fees Rise Each Year by (%)</div><div class="f"><input type="text" inputmode="decimal" id="inc" value="3" placeholder="Increase"></div></label>
 <div class="hint">Guesstimate (Suggest 3-5%)</div></div>
 </div>
 <div class="sumrow res">
@@ -389,9 +389,11 @@ const KEY='umc-settings-v3';
 function save(){try{const o={};document.querySelectorAll('input,select').forEach(i=>o[i.id]=i.value);localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}}
 try{const s=JSON.parse(localStorage.getItem(KEY)||'{}');for(const id in s){const el=$(id);if(el)el.value=s[id]}}catch(e){}
 // The Fees Rise box in Current Ownership and the one in Points Purchase always show the same percent (owner, 2026-10-26)
+// Both start at 3% (owner, 2026-10-26); a blank saved from before counts as the default
+if(!$('inc').value.trim())$('inc').value='3';
 $('incCur').value=$('inc').value;
 document.querySelectorAll('input[type=text]').forEach(i=>i.addEventListener('input',()=>{fmtInput(i);if(i.id==='inc'||i.id==='incCur')$(i.id==='inc'?'incCur':'inc').value=i.value;render();save()}));
-$('clr').addEventListener('click',e=>{e.preventDefault();document.querySelectorAll('input[type=text]').forEach(i=>i.value='');$('vipSt').value='non';render();save()});
+$('clr').addEventListener('click',e=>{e.preventDefault();document.querySelectorAll('input[type=text]').forEach(i=>i.value='');$('inc').value=$('incCur').value='3';$('vipSt').value='non';render();save()});
 $('yrs').addEventListener('input',()=>{render();save()});
 if(!$('vipSt').value)$('vipSt').value='non';
 $('vipSt').addEventListener('change',()=>{render();save()});
