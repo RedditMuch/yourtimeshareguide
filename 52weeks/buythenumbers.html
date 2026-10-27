@@ -107,7 +107,10 @@ tr.loanend td{border-bottom:2px solid var(--mute)}
 .kn{text-align:center;font-size:1.1rem;margin:16px 0 4px}
 .perk .how{text-align:center;font-weight:600;color:var(--mute);margin:0 0 6px}
 .consider{border:1px solid var(--line);border-left:5px solid var(--buy);border-radius:10px;padding:10px 14px;margin:0 0 12px;background:var(--bg)}
-.consider{text-align:center}.consider .cl{color:var(--mute);font-size:.9rem}.consider .cdir{font-size:1.35rem;font-weight:800;letter-spacing:.01em;margin-top:2px}.cdir.less{color:var(--good)}.cdir.more{color:var(--buy)}.consider .cnum{font-size:1.15rem;margin:4px auto 8px;padding-bottom:8px;border-bottom:2px solid var(--line);width:min(300px,80%)}.consider .cnum b{font-size:1.5rem}.consider .cnum span{color:var(--mute);font-size:.9rem;margin:0 4px}.consider .cnum s{color:var(--mute)}.consider .cwhy{font-weight:700;margin-bottom:2px}.consider .cnote{font-size:.85rem;color:var(--mute);margin:8px 0 0}.consider ul{margin:0;padding:0;list-style:none}.consider li{margin:2px 0}
+.consider{text-align:center}.consider .cl{color:var(--mute);font-size:.9rem}.consider .cdir{font-size:1.35rem;font-weight:800;letter-spacing:.01em;margin-top:2px}.cdir.less{color:var(--good)}.cdir.more{color:var(--buy)}.consider .cnum{font-size:1.15rem;margin:4px auto 8px;padding-bottom:8px;border-bottom:2px solid var(--line);width:min(300px,80%)}.consider .cnum b{font-size:1.5rem}.consider .cnum span{color:var(--mute);font-size:.9rem;margin:0 4px}.consider .cnum s{color:var(--mute)}.consider .cwhy{font-weight:700;margin-bottom:2px}
+/* Reaching a new VIP level stands out (owner, 2026-10-26) */
+.cvip{display:inline-flex;align-items:center;gap:8px;margin:2px auto 10px;padding:6px 16px;background:#fdf1c7;border:2px solid #d4a017;border-radius:999px;color:#5c4300;font-weight:800;font-size:1.2rem;letter-spacing:.01em}
+.cvip svg{width:22px;height:17px;fill:#d4a017}.consider .cnote{font-size:.85rem;color:var(--mute);margin:8px 0 0}.consider ul{margin:0;padding:0;list-style:none}.consider li{margin:2px 0}
 .sumrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0;margin-top:6px;border-top:1px solid var(--line);padding-top:8px}
 .mini{text-align:center;padding:0 14px;font-size:.85rem;color:var(--mute)}.mini:first-child{padding-left:0}.mini+.mini{border-left:1px solid var(--line)}
 .mini .t{font-size:.8rem}.mini .n{font-size:1.1rem;font-weight:600;color:var(--ink)}.mini .n span{font-size:.85rem!important;color:var(--mute)}
@@ -253,9 +256,9 @@ function render(){
     const T=cur+add; if(!T||eff(T,true).u)return null;
     const u=nextJ(T,true), d=lastJ(T,true), gap=u?u-T:Infinity, tgt=Math.max(d,eff(T,true).r?0:Math.floor(T/77000)*77000,cur);
     if(gap<=20000){const g=cr(u,true)-cr(T,true), eu=eff(u,true), nv=eu.b>eff(T,true).b?eu.n:'';
-      return {dir:'more',diff:gap,newAdd:u-cur,t:`Buy ${gap.toLocaleString()} more points (${u.toLocaleString()} total): ${plural(g,'more credit')}${nv?' and reaches VIP '+nv:''}`,
+      return {dir:'more',diff:gap,newAdd:u-cur,vip:nv,t:`Buy ${gap.toLocaleString()} more points (${u.toLocaleString()} total): ${plural(g,'more credit')}${nv?' and reaches VIP '+nv:''}`,
         tg:`Buying ${gap.toLocaleString()} more points (${(u-cur).toLocaleString()} additional points instead of ${add.toLocaleString()})`,
-        why:[`Adds ${plural(g,'Housekeeping Credit')} for a Total of ${plural(cr(u,true),'Housekeeping Credit')}${nv?' and reaches VIP '+nv:''}`,'A Housekeeping Credit costs $185 if you run out and have to buy one']}}
+        why:[`Adds ${plural(g,'Housekeeping Credit')} for a Total of ${plural(cr(u,true),'Housekeeping Credit')}${nv?', including +'+eu.b+' for VIP '+nv:''}`,'A Housekeeping Credit costs $185 if you run out and have to buy one']}}
     if(add>0&&T>tgt){const x=(T-tgt).toLocaleString();
       return tgt===cur?{dir:'less',diff:add,newAdd:0,t:'This purchase adds no credits',tg:'Skipping this purchase',why:[`Your Housekeeping Credits stay at ${cr(T,true)} either way`,'You would pay for points that earn nothing extra']}
        :{dir:'less',diff:T-tgt,newAdd:tgt-cur,t:`Buy ${x} fewer points (${tgt.toLocaleString()} total): same ${plural(cr(T,true),'credit')}`,tg:`Buying ${x} fewer points (${(tgt-cur).toLocaleString()} additional points instead of ${add.toLocaleString()})`,
@@ -264,7 +267,7 @@ function render(){
   };
   const perkBox=(t,p,a)=>{const e=eff(p,a),k=cr(p,a),w=e.u?0:p-Math.max(lastJ(p,a),e.r?0:Math.floor(p/77000)*77000);return `<div class="box ${w?'buy':'goodb'}"><div class="t">${t}: ${p.toLocaleString()} pts</div><div class="n">${e.u?'Unlimited Housekeeping Credits':plural(k,'Housekeeping Credit')}</div><div class="d">${e.u?`<div style="margin-top:4px">(${e.n})</div>`:e.b?`<div style="margin-top:4px">(Includes +${e.b} for ${e.n.startsWith('Grand')?'':'VIP '}${e.n})</div>`:''}${e.r?'Unlimited Reservation Transactions':plural(ph(p),'Reservation Transaction')}<br>`+(!p||e.u?'':w?`<b class="bad">${w.toLocaleString()} pts earn nothing</b>`:'<b class="good">No points wasted</b>')+`</div></div>`};
   const recT=rec(c.curPts,c.addPts);const g77=77000-(c.curPts+c.addPts)%77000, rt77=recT&&recT.dir==='more'&&g77<=20000&&!eff(c.curPts+c.addPts,true).r?`<p class="cnote">Also: ${g77.toLocaleString()} more points would earn 1 more Reservation Transaction ($39 per phone booking; online is free).</p>`:'';
-  const consider=recT&&recT.tg?`<div class="consider"><div class="cl">Have You Considered:</div><div class="cdir ${recT.dir}">Purchasing ${recT.diff.toLocaleString()} ${recT.dir==='more'?'MORE':'LESS'} Points</div><div class="cnum"><b>${recT.newAdd.toLocaleString()}</b> <span>vs.</span> <s>${c.addPts.toLocaleString()}</s></div><div class="cwhy">Here&rsquo;s Why:</div><ul>${recT.why.map(w=>'<li>'+w+'</li>').join('')}</ul>${rt77}</div>`:'';
+  const consider=recT&&recT.tg?`<div class="consider"><div class="cl">Have You Considered:</div><div class="cdir ${recT.dir}">Purchasing ${recT.diff.toLocaleString()} ${recT.dir==='more'?'MORE':'LESS'} Points</div><div class="cnum"><b>${recT.newAdd.toLocaleString()}</b> <span>vs.</span> <s>${c.addPts.toLocaleString()}</s></div>${recT.vip?`<div class="cvip"><svg viewBox="0 0 16 12" aria-hidden="true"><path d="M1 10 2 3l4 3 2-5 2 5 4-3 1 7z"/></svg>Reaches VIP ${recT.vip}</div>`:""}<div class="cwhy">Here&rsquo;s Why:</div><ul>${recT.why.map(w=>'<li>'+w+'</li>').join('')}</ul>${rt77}</div>`:'';
 
   $('perk').innerHTML='<h2>Get the Most From Your Points: Own in Multiples of 70,000</h2>'+
    '<p class="how">Here&rsquo;s How it Works</p>'+
