@@ -848,7 +848,7 @@
     $('collectionChecks').addEventListener('change', e => { e.target.checked ? state.collections.add(e.target.value) : state.collections.delete(e.target.value); render(); });
     $('cwaOnly').addEventListener('change', e => { state.cwaOnly = e.target.checked; render(); });
     $('discOnly').addEventListener('change', e => { state.discOnly = e.target.checked; render(); });
-    for (const g of ['trust', 'membership']) $(g + 'More').innerHTML = MORE.filter(c => c.group === g).map(c => '<label class="check"><input type="checkbox" data-more="' + esc(c.id) + '"><span class="lbl">' + esc(c.label) + '</span></label>').join('');
+    for (const g of ['ownership']) $(g + 'More').innerHTML = MORE.filter(c => c.group === g).map(c => '<label class="check"><input type="checkbox" data-more="' + esc(c.id) + '"><span class="lbl">' + esc(c.label) + '</span></label>').join('');
     for (const i of document.querySelectorAll('input[data-more]')) i.addEventListener('change', e => { e.target.checked ? state.more.add(e.target.dataset.more) : state.more.delete(e.target.dataset.more); render(); });
     // Select All turns on every Collections box except CWA and Discovery; Clear turns them all off, CWA and Discovery included (owner, 2026-10-13)
     $('collAll').addEventListener('click', () => { state.collections = new Set(collections); render(); });
