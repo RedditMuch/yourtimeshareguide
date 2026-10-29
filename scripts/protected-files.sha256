@@ -6,7 +6,7 @@
 # Change this list only when the owner asks for a change to season chart v2,
 # in the same pull request as that change.
 24c3dc128e894522bf5764c2d5b654a082110d0f16cea8506e2f4b52e86d3a9b  52weeks/index.html
-72ba047b208170088e0786b688309d4634c97b374f169af1e2151c1486074518  52weeks/seasons-v2.css
+577edc072c6556f548c8e0971f81c25489a51542074700a5f8afab2a46a56bb9  52weeks/seasons-v2.css
 7001211f3531b1a28ff8db65f2fd1aa8b43aa8fffe410e1de1ce9c58af24a6fd  52weeks/seasons-v2.js
 031965c8a14c772ad7b53034551091247d954c565621df2e28ae6a97edf2bbb1  52weeks/club-pass-points.js
 e4865afe2436774a0dc51f5de51693e6af5f432d9cd8f29340df3435a86f7526  52weeks/data.js

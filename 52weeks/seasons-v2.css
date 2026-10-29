@@ -424,4 +424,4 @@ select option{padding:1px 8px;min-height:0;line-height:1.2;font-size:13.5px}
 
 /* Typing in the boxes on a phone (owner, 2026-10-29): iPhone Safari zooms the whole page in when a box with text
    smaller than 16px is tapped, so the box fills the screen and the page stays zoomed. 16px on touch screens stops it. */
-@media (pointer:coarse){select,input[type=search],input[type=date],.two input[type=date],.timebox input[type=date]{font-size:16px}}
+@media (pointer:coarse){select,input[type=search],input[type=date],.two input[type=date],.timebox select,.timebox input[type=date]{font-size:16px}}
