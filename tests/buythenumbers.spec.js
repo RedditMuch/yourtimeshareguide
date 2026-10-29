@@ -3,7 +3,7 @@
 // Since 10/28 the page has the side-by-side layout: Points Comparison boxes in #pair, advice cards in #adv, no Reservation Transactions.
 import { test, expect } from "@playwright/test";
 
-const URL = "/52weeks/buythenumbers.html";
+const URL = "/buythenumbers.html";
 const BASE = { price: "30,000", apr: "12", term: "10", newPer1k: "7.84" };
 
 // Points are filled first, because typing Current Points sets VIP Status to match; a status given here is chosen after that
@@ -91,4 +91,15 @@ test("phone width: no sideways scroll", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(URL);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+});
+
+test("Sweet Spots: an After total that lands on a listed spot is outlined in the After color", async ({ page }) => {
+  await setup(page, { cur: "200,000", add: "10,000" });
+  await expect(page.locator("#sslist .chip.here.aft")).toContainText("210,000");
+});
+
+test("the old address forwards to /buythenumbers.html", async ({ page }) => {
+  await page.goto("/52weeks/buythenumbers.html");
+  await expect(page).toHaveURL(/\/buythenumbers\.html$/);
+  await expect(page.locator("h1")).toHaveText("Buy the Numbers");
 });
