@@ -86,7 +86,7 @@ html{scroll-behavior:smooth}
 #main .sec>h2{text-align:center;font-size:1.35rem;margin:0 0 6px}
 #main .sec>.intro{text-align:center;color:var(--mute);margin:0 auto 14px;max-width:760px}
 #main .src{text-align:right;font-size:.78rem;color:var(--mute);margin:10px 0 0}
-#main .jump{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 8px;margin:18px auto 0}
+#main .jump{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 8px;margin:0 auto 16px}
 #main .jump a{padding:4px 12px;border:1px solid var(--line);border-radius:999px;font-size:.8rem;font-weight:600;text-decoration:none;background:var(--card)}
 #main .jump a:hover{border-color:var(--gold)}
 
@@ -291,6 +291,7 @@ html{scroll-behavior:smooth}
  <h1>Buy the Numbers</h1>
  <p class="lead">Before you sign, see what the offer really costs and whether the points work for the way you vacation.</p>
 </header>
+<nav class="jump" aria-label="On This Page"><a href="#numbers">Your Numbers</a><a href="#sweet">Sweet Spots</a><a href="#know">VIP, Resale or Not Sure?</a><a href="#bill">Monthly Bill</a><a href="#years">Year by Year</a></nav>
 
 <div class="play">
 <section class="inputs" aria-label="Your numbers and the offer">
@@ -333,8 +334,6 @@ html{scroll-behavior:smooth}
  </section>
 </div>
 </div>
-
-<nav class="jump" aria-label="On This Page"><a href="#numbers">Your Numbers</a><a href="#sweet">Sweet Spots</a><a href="#know">VIP, Resale or Not Sure?</a><a href="#bill">Monthly Bill</a><a href="#years">Year by Year</a></nav>
 
 <section class="sec" id="sweet">
  <h2>Sweet Spots</h2>
@@ -464,7 +463,7 @@ let chartState=null;
 function render(){
   const c=calc(),r=c.rows;
   const cu=$('curUnit').value,forms=[['m',money(c.curM,2),'a month'],['y',money(c.curY,2),'a year'],['k',c.curPts?money(c.curY/(c.curPts/1000),2):'-','per 1,000']];
-  $('curOther').innerHTML=c.curM?forms.filter(f=>f[0]!==cu).map(f=>'<b'+(f[0]==='k'?' id="curPer1k"':'')+'>'+f[1]+'</b> '+f[2]).join(' &middot; '):'';
+  $('curOther').innerHTML=c.curM?forms.filter(f=>f[0]!==cu).map(f=>'<b'+(f[0]==='k'?' id="curPer1k"':'')+'>'+f[1]+'</b> '+f[2]).join('<br>'):'';
   $('yrsLbl').textContent=c.yrs;
 
   const st=STAT[$('vipSt').value]?$('vipSt').value:'non', curTier=tierAt(c.curPts);
