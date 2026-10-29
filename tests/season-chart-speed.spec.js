@@ -94,3 +94,16 @@ test("speed: the chart draws and redraws in reasonable time (generous limits)", 
   }));
   expect(ms).toBeLessThan(3000); // about 80 ms on a desktop; it was about 700 ms before planning #36
 });
+
+test("a city typed as city and state, or with a state abbreviation, turns on the radius (owner, 2026-10-29)", async ({ page }) => {
+  await page.goto(URL);
+  await expect(page.locator("#grid tbody tr").first()).toBeVisible();
+  for (const [q, label] of [["Orlando, Florida", "Orlando, Florida"], ["Myrtle Beach, SC", "Myrtle Beach, South Carolina"]]) {
+    await page.evaluate(q => { document.getElementById("filterBox").open = true; const s = document.getElementById("search"); s.value = q; s.dispatchEvent(new Event("input")); }, q);
+    await expect(page.locator("#searchHint")).toHaveText(new RegExp("^Within 35 miles of " + label), { timeout: 10000 });
+    await settled(page);
+    await expect(page.locator("#radius")).toBeEnabled();
+  }
+  await page.locator("#radius").selectOption("100");
+  await expect(page.locator("#searchHint")).toHaveText(/^Within 100 miles of Myrtle Beach/);
+});
