@@ -5,384 +5,631 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Buy the Numbers: Update Meeting Calculator</title>
 <meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Cormorant+Garamond:ital,wght@0,700;1,600&family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@800&family=Playfair+Display:ital,wght@0,600;0,700;0,800;0,900;1,600&display=swap" rel="stylesheet">
+<meta name="description" content="Before you sign, see what the offer really costs and whether the points work for the way you vacation.">
 <style>
-:root{--bg:#f6f7f9;--card:#fff;--ink:#1c2430;--mute:#5d6877;--line:#dde2e8;--stay:#2a6fb0;--buy:#c2410c;--good:#15803d;--bad:#b91c1c;--warn:#fff4e5;--per1k:#7e22ce}
-@media (prefers-color-scheme:dark){:root{--bg:#10151c;--card:#19212b;--ink:#e8edf3;--mute:#9aa6b5;--line:#2c3744;--stay:#6aa9e6;--buy:#fb923c;--good:#4ade80;--bad:#f87171;--warn:#2b2113;--per1k:#c084fc}}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,Segoe UI,Roboto,sans-serif}
-.wrap{max-width:1000px;margin:0 auto;padding:12px 16px 60px}
-h1{font-size:1.8rem;margin:0 0 2px;text-align:center}
-.tag{text-align:center;font-size:1.15rem;font-weight:600;color:var(--mute);margin:0 0 8px}
-.claim h2.ct{text-align:center;margin-bottom:12px}
-.sub{color:var(--mute);margin:0 auto 10px;text-align:center;max-width:720px}
-.clrrow{margin:0 0 6px;text-align:left}.clrrow a{font-size:.85rem;color:var(--mute)}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px}
-h2{font-size:1.1rem;margin:0 0 10px}
-.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
-@media (max-width:760px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.cell.div{border-left:1px solid var(--line);padding-left:12px}
-@media (max-width:760px){.cell.div{border-left:0;padding-left:0}}
-.lt{display:flex;align-items:flex-end;min-height:1.4em;font-size:.85rem;color:var(--mute);line-height:1.25}
-.f{display:flex;align-items:center;border:1px solid var(--line);border-radius:8px;margin-top:3px;background:var(--bg);overflow:hidden;height:40px}
-.f span{padding:0 0 0 8px;color:var(--mute)}
-.f input{width:100%;border:0;background:transparent;color:var(--ink);font:inherit;padding:8px 8px;outline:0}
-.f input::placeholder{color:var(--mute);opacity:.55}
-.f:focus-within{border-color:var(--stay)}
-#curPer1k{color:var(--per1k);font-weight:800;font-size:.9rem}
-.hint{font-size:.78rem;color:var(--mute);margin-top:3px;min-height:2.4em}
-.three{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
-.box{border-radius:10px;padding:14px;border:1px solid var(--line);text-align:center}
-.lt.two{min-height:2.7em}
-.duo{display:grid;grid-template-columns:1fr 1fr;gap:0}
-.area{padding:0 14px}.area:first-child{padding-left:0}.area:last-child{padding-right:0}
-.area.div{border-left:1px solid var(--line)}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.acap{text-align:center;font-weight:600;font-size:.95rem;color:var(--mute);margin-bottom:10px}
-.acap::after{content:"";display:block;width:70%;height:2px;background:var(--line);margin:5px auto 0;border-radius:2px}
-@media (max-width:760px){.duo{grid-template-columns:1fr;gap:18px}.area,.area:first-child,.area:last-child{padding:0}.area.div{border-left:0;border-top:1px solid var(--line);padding-top:14px}}
-.pc{display:grid;grid-template-columns:5.5em 1fr;gap:0 8px;font-size:1.1rem;margin-bottom:12px}.pc:last-child{margin-bottom:0}
-.box .n small.term{font-size:1.2rem;font-weight:700;color:var(--buy)}
-.box .t{font-size:.85rem;color:var(--mute)}
-.box .n{font-size:1.9rem;font-weight:700;line-height:1.2}
-.box .d{font-size:.85rem;color:var(--mute)}
-.box .n small{font-size:.95rem;font-weight:400;color:var(--mute)}
-.goodb{border-top:5px solid var(--good)}
-.stay{border-top:5px solid var(--stay)}.buy{border-top:5px solid var(--buy)}.after{border-top:5px solid var(--mute)}
-.claim{background:var(--warn);border-left:5px solid var(--buy)}
-.claim p{margin:0 0 10px}.claim p:last-child{margin:0}
-.big{font-size:1.1rem}
-.bad{color:var(--bad)}.good{color:var(--good)}
-.row{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
-.chead{display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:8px;text-align:center}
-.chead h2{margin:0}
-.look{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px 12px;font-size:.9rem}
-.look input{width:min(260px,100%);min-width:0;margin:0}
-tr.payoff td{text-align:center;font-weight:700;font-size:.78rem;line-height:1.1;padding:2px 8px;background:var(--ink);color:var(--bg);border-bottom:0}
-tr.payoff td span{font-weight:400;opacity:.85}
-.cw{position:relative}
-svg{width:100%;height:auto;display:block;touch-action:pan-y}
-.tip{position:absolute;top:8px;pointer-events:none;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:.85rem;box-shadow:0 2px 10px rgba(0,0,0,.18);display:none;white-space:nowrap;z-index:2}
-.tip b{display:block;margin-bottom:2px}
-.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:.85rem;margin-top:6px}
-.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:5px;vertical-align:-1px}
-.tw{overflow:auto;max-height:560px}
-table{border-collapse:separate;border-spacing:0;width:100%;min-width:780px;table-layout:fixed;font-size:.8rem}
-th{text-align:center}
-th,td{padding:5px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
-thead{position:sticky;top:0;z-index:1}
-thead th{font-weight:600;background:var(--card);vertical-align:bottom}
-th.grp{text-align:center;font-size:.9rem;border-bottom:0}
-th.ltr{font-size:.95rem;border-bottom:0;padding-bottom:0}
-th.nm{border-bottom:0;padding-top:0;white-space:normal;line-height:1.2;border-bottom:2px solid var(--line)}
-.hint:empty{min-height:0}
-td{text-align:right;padding-right:16px;font-variant-numeric:tabular-nums}td:first-child{text-align:center;padding-right:6px}
-th.fm{font:400 .72rem/1.2 ui-monospace,Consolas,monospace;color:var(--mute);white-space:normal;max-width:105px;border-bottom:2px solid var(--line)}
-.c th{background:color-mix(in srgb,var(--stay) 18%,var(--card))}
-.n th{background:color-mix(in srgb,var(--buy) 18%,var(--card))}
-.c td{background:color-mix(in srgb,var(--stay) 5%,var(--card))}
-.n td{background:color-mix(in srgb,var(--buy) 5%,var(--card))}
-th.grp.c{border-top:4px solid var(--stay)}th.grp.n{border-top:4px solid var(--buy)}th.grp.yr{border-top:4px solid var(--mute);text-align:center;vertical-align:bottom}th.grp.d{border-top:4px solid var(--mute)}
-.sep{border-left:2px solid var(--line)}
-tr.loanend td{border-bottom:2px solid var(--mute)}
-.note{font-size:.85rem;color:var(--mute)}
-.dedic{text-align:center;font-style:italic;color:var(--mute);margin:28px auto 0;max-width:560px;padding-top:16px;border-top:1px solid var(--line)}
-.perk{border-left:5px solid var(--good)}
-.perk h2{text-align:center;font-size:1.25rem;margin-bottom:6px}
-.perk .rule{text-align:center;font-size:1.05rem;margin:0 0 12px}
-.perk .live{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin-bottom:12px}
-.perk .live .box{padding:10px}
-.perk .live .n{font-size:1.5rem}
-.perk ul{margin:0;padding-left:20px;font-size:.92rem}
-.buyin .f{background:color-mix(in srgb,var(--buy) 9%,var(--card));border-color:color-mix(in srgb,var(--buy) 40%,var(--line))}
-.perk li{margin-bottom:4px}
-.sechead{display:flex;align-items:center;gap:16px;margin:8px 0 8px}.sechead span{flex:1;height:2px;background:var(--line);border-radius:2px;min-width:16px}
-.sechead h2{margin:0;text-align:center;font-size:1.25rem;line-height:1.25;max-width:820px}.sechead em{font-style:normal;color:var(--good);letter-spacing:.06em;text-decoration:underline;text-decoration-thickness:3px;text-underline-offset:4px}
-.mix{text-align:center;font-size:.9rem;color:var(--mute);margin:0 0 10px}
-.ohead{display:flex;align-items:center;justify-content:flex-start;gap:8px 14px;flex-wrap:wrap;margin-bottom:10px}.ohead h2{margin:0}
-.vipsel select{font:inherit;font-size:.85rem;font-weight:500;color:var(--ink);background:color-mix(in srgb,var(--stay) 6%,var(--card));border:1px solid color-mix(in srgb,var(--stay) 25%,var(--line));border-radius:6px;padding:3px 6px;cursor:pointer}
-.newown{flex:1 1 280px;margin:0;font-size:.85rem;font-style:italic;color:var(--mute)}
-.vipsel select:focus{outline:2px solid var(--stay);outline-offset:1px}
-.kn{text-align:center;font-size:1.1rem;margin:16px 0 4px}
-.perk .how{text-align:center;font-weight:600;color:var(--mute);margin:0 0 6px}
-.consider{border:1px solid var(--line);border-left:5px solid var(--buy);border-radius:10px;padding:10px 14px;margin:0 0 12px;background:var(--bg)}
-.consider{text-align:center}.consider .cl{color:var(--mute);font-size:.9rem}.consider .cdir{font-size:1.35rem;font-weight:800;letter-spacing:.01em;margin-top:2px}.cdir.less{color:var(--good)}.cdir.more{color:var(--buy)}.consider .cnum{font-size:1.15rem;margin:4px auto 8px;padding-bottom:8px;border-bottom:2px solid var(--line);width:min(300px,80%)}.consider .cnum b{font-size:1.5rem}.consider .cnum span{color:var(--mute);font-size:.9rem;margin:0 4px}.consider .cnum s{color:var(--mute)}.consider .cwhy{font-weight:700;margin-bottom:2px}.consider .cnote{font-size:.85rem;color:var(--mute);margin:8px 0 0}.consider ul{margin:0;padding:0;list-style:none}.consider li{margin:2px 0}
-.sumrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0;margin-top:6px;border-top:1px solid var(--line);padding-top:8px}
-.mini{text-align:center;padding:0 14px;font-size:.85rem;color:var(--mute)}.mini:first-child{padding-left:0}.mini+.mini{border-left:1px solid var(--line)}
-.mini .t{font-size:.8rem}.mini .n{font-size:1.1rem;font-weight:600;color:var(--ink)}.mini .n span{font-size:.85rem!important;color:var(--mute)}
-@media (max-width:760px){.mini,.mini:first-child{padding:6px 0}.mini+.mini{border-left:0;border-top:1px solid var(--line)}}
+/* The site styles sit in a lower layer, and a reset layer clears them inside the calculator (all but its SVG drawings),
+   so the site header and footer look as on every page and the calculator looks as designed. */
+@layer site, reset;
+@import url("../assets/site.css") layer(site);
+@layer reset{#main :not(svg,svg *){all:revert}}
+html{scroll-behavior:smooth}
+</style>
+<style>
+/* Buy the Numbers (owner, 10/28): inputs on the left, Your Numbers advice on the right, every rule scoped to #main */
+#main{--bg:#f7f3e9;--card:#fffdf8;--soft:#f3eee1;--ink:#22211e;--mute:#6b665b;--line:#d8cfbd;--gold:#e0a81e;--gold2:#c99312;--goldtx:#8a6510;
+--good:#2f7d4f;--buy:#b4530b;--bad:#b42318;--stay:#4b4840;--per1k:#7e22ce;
+--ownb:#eef1f4;--ownl:#c9d1da;--offb:#fdf3e7;--offl:#e8c9a5;--r:12px;color-scheme:light}
+#main *{box-sizing:border-box}
+
+#main{margin:0;padding:0 0 10px;min-height:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,"Segoe UI",Roboto,sans-serif}
+#main .wrap{max-width:1100px;margin:0 auto;padding:0 16px 60px}
+#main .wrap{max-width:1280px}
+#main a{color:inherit}
+#main .bad{color:var(--bad)}#main .good{color:var(--good)}
+
+/* header */
+#main .top{text-align:center;padding:22px 0 14px}
+#main .eyebrow{margin:0;font-size:.74rem;letter-spacing:.2em;text-transform:uppercase;color:var(--goldtx);font-weight:700}
+#main h1{font:800 2.6rem/1.05 'Playfair Display',Georgia,serif;margin:4px 0 6px}
+#main .lead{margin:0 auto;color:var(--mute);font-size:1.02rem}
+@media (min-width:900px){#main .lead{white-space:nowrap}}
+
+/* inputs */
+#main .inputs{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px 12px}
+#main .ihead{display:flex;align-items:baseline;gap:10px;margin:0 0 6px}
+#main .kicker{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;font-weight:800;color:var(--goldtx)}
+#main .ihead h2{margin:0;font-size:1.08rem}
+#main .ihead .sub{font-size:.8rem;color:var(--mute)}
+#main .irow+.irow{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+#main .igrid{display:grid;grid-template-columns:1fr 1.55fr .8fr 1.15fr 1fr 1fr;gap:8px 10px}
+#main .fld label{display:block}
+#main .lt{display:block;font-size:.78rem;font-weight:600;color:var(--mute);line-height:1.2;min-height:1.2em;white-space:nowrap}
+#main .f{display:flex;align-items:center;height:38px;margin-top:3px;border:1px solid var(--ownl);border-radius:8px;background:var(--ownb);overflow:hidden}
+#main .offer .f{border-color:var(--offl);background:var(--offb)}
+#main .f:focus-within{border-color:var(--gold2);box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 25%,transparent)}
+#main .f span{padding-left:9px;color:var(--mute)}
+#main .f .suf{padding:0 9px 0 0}
+#main .f input{width:100%;min-width:0;border:0;background:transparent;color:var(--ink);font:inherit;font-weight:600;padding:6px 8px;outline:0}
+#main .f input::placeholder{color:var(--mute);opacity:.6;font-weight:400}
+#main .f select{flex:none;align-self:stretch;border:0;border-left:1px solid var(--ownl);background:var(--card);color:var(--ink);font:inherit;font-size:.78rem;padding:0 4px;cursor:pointer}
+#main .offer .f select{border-left-color:var(--offl)}
+#main .f select.whole{flex:1;border-left:0;background:transparent;font-size:.9rem;font-weight:600;padding:0 6px}
+#main .hint{display:block;font-size:.72rem;color:var(--mute);margin-top:2px;line-height:1.25;min-height:.9em}
+#main .hint b{color:var(--ink)}#main #curPer1k{color:var(--per1k)}
+#main .warn{color:var(--bad)!important;font-weight:800;letter-spacing:.04em}
+#main .newown{margin:0 0 8px;font-size:.8rem;color:var(--mute);text-align:right}
+#main .newown a{font-weight:600}
+#main .sumrow{display:grid;grid-template-columns:repeat(3,1fr);margin-top:12px;border:1px solid var(--line);border-radius:10px;background:var(--soft)}
+#main .mini{text-align:center;padding:8px 10px;font-size:.78rem;color:var(--mute)}
+#main .mini+.mini{border-left:1px solid var(--line)}
+#main .mini .n{font-size:1.25rem;font-weight:800;color:var(--ink);line-height:1.2}
+#main .mini .n small{font-size:.8rem;font-weight:500;color:var(--mute)}
+@media (max-width:900px){#main .igrid{grid-template-columns:repeat(3,minmax(0,1fr))}#main .lt{white-space:normal}}
+@media (max-width:560px){#main .igrid{grid-template-columns:repeat(2,minmax(0,1fr))}#main .igrid .fld:nth-child(2){grid-column:span 2}#main .sumrow{grid-template-columns:1fr}#main .mini+.mini{border-left:0;border-top:1px solid var(--line)}}
+
+/* VIP badges (directory colors) */
+#main .cvip{display:inline-flex;align-items:center;gap:7px;padding:5px 15px;background:#fdf1c7;border:2px solid #d4a017;border-radius:999px;color:#5c4300;font-weight:800;font-size:1.1rem;white-space:nowrap}
+#main .cvip svg{width:20px;height:15px;fill:#d4a017}
+#main .cvip.sm{font-size:.8rem;padding:2px 10px;gap:5px;border-width:1.5px}#main .cvip.sm svg{width:13px;height:10px}
+#main .cvip.non{background:#fff;border-color:#c9ced5;color:#5d6877}
+#main .cvip.bronze{background:#f2e3d0;border-color:#a8713a;color:#5a3714}#main .cvip.bronze svg{fill:#a8713a}
+#main .cvip.silver{background:#eef0f2;border-color:#a3a9b0;color:#3d4248}#main .cvip.silver svg{fill:#a3a9b0}
+#main .cvip.platinum{background:#d5d8dc;border-color:#5c636b;color:#24282c}#main .cvip.platinum svg{fill:#5c636b}
+#main .cvip.founders{background:#1c1c1e;border-color:#000;color:#f4f4f4}#main .cvip.founders svg{fill:#d9d9d9}
+
+/* section headings */
+#main .sec{margin-top:40px}
+#main .sec>h2{text-align:center;font-size:1.35rem;margin:0 0 6px}
+#main .sec>.intro{text-align:center;color:var(--mute);margin:0 auto 14px;max-width:760px}
+#main .src{text-align:right;font-size:.78rem;color:var(--mute);margin:10px 0 0}
+#main .jump{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 8px;margin:0 auto 16px}
+#main .jump a{padding:4px 12px;border:1px solid var(--line);border-radius:999px;font-size:.8rem;font-weight:600;text-decoration:none;background:var(--card)}
+#main .jump a:hover{border-color:var(--gold)}
+
+/* ---------- Your Numbers, in design E's ledger style ---------- */
+#main .numbers{position:relative;margin-top:30px;padding:30px 20px 22px;border:1.5px solid var(--gold);border-radius:calc(var(--r) + 4px);background:color-mix(in srgb,var(--gold) 5%,var(--card))}
+#main .ntag{position:absolute;top:-15px;left:50%;transform:translateX(-50%);margin:0;padding:4px 22px;border-radius:999px;background:var(--gold);color:#22211e;font-weight:800;font-size:.86rem;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+#main .pair{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+#main .pair.solo{grid-template-columns:minmax(0,520px);justify-content:center}
+#main .pbox{--fc:var(--good);text-align:center;padding:12px 14px;border:3px double color-mix(in srgb,var(--fc) 50%,var(--line));border-radius:10px;background:var(--card)}
+#main .pbox.waste{--fc:var(--buy)}
+#main .pbox .pt{display:table;margin:0 auto 6px;padding:0 4px 3px;font-variant:small-caps;letter-spacing:.05em;font-weight:700;color:var(--fc);border-bottom:3px double color-mix(in srgb,var(--fc) 50%,var(--line))}
+#main .pbox p{margin:0}
+#main .pbox .pn{font-size:1.6rem;font-weight:800;line-height:1.2;margin-top:6px}
+#main .pbox .pd{font-size:.86rem;color:var(--mute)}
+#main .pbox .pw{font-weight:700;font-size:.9rem;margin-top:2px}
+#main .rcap{text-align:center;color:var(--mute);font-size:.9rem;margin:10px 0 0}
+#main .rcap b{color:var(--ink)}
+#main .clhead{display:flex;justify-content:center;align-items:center;gap:10px;margin:22px 0 10px;font-variant:small-caps;letter-spacing:.05em;font-weight:800;font-size:1.15rem}
+#main .clhead::before,#main .clhead::after{content:"\25C6";color:var(--gold);font-size:.6rem}
+#main .adv{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+#main .advt{display:flex;align-items:center;gap:10px;font-variant:small-caps;letter-spacing:.05em;font-weight:800;margin:0 0 8px;white-space:nowrap}
+#main .advt::before,#main .advt::after{content:"";flex:1;border-top:2px dotted color-mix(in srgb,var(--mute) 55%,var(--line))}
+#main .addlist{list-style:none;margin:0;padding:6px 16px;border:3px double color-mix(in srgb,var(--buy) 40%,var(--line));border-radius:10px;background:var(--card)}
+#main .addlist li{display:flex;flex-wrap:wrap;align-items:center;gap:2px 14px;padding:9px 0;border-top:1px dotted color-mix(in srgb,var(--mute) 60%,var(--line))}
+#main .addlist li:first-child{border-top:0}
+#main .addlist li>b{min-width:118px;color:var(--buy);font-size:1.05rem}
+#main .addlist .vtop{flex-basis:100%;text-align:center;margin-bottom:2px}
+#main .addlist .none{color:var(--mute);font-size:.92rem}
+#main .sweet{text-align:center;background:color-mix(in srgb,var(--good) 10%,var(--card));border:1.5px solid var(--good);border-radius:10px;padding:8px 12px;margin:0 0 12px;text-wrap:balance}
+#main .sweet b:first-child{color:var(--good)}
+#main .consider{--fc:var(--buy);text-align:center;border:3px double color-mix(in srgb,var(--fc) 40%,var(--line));border-radius:10px;padding:12px 14px;margin:0 0 12px;background:var(--card)}
+#main .consider.less{--fc:var(--good)}
+#main .cdir{font-variant:small-caps;letter-spacing:.03em;font-size:1.35rem;font-weight:800;color:var(--fc);text-wrap:balance}
+#main .cnum{font-size:1.1rem;margin:4px auto 8px;padding-bottom:8px;border-bottom:1px dotted var(--mute);width:min(300px,80%)}
+#main .cnum b{font-size:1.45rem}#main .cnum span{color:var(--mute);font-size:.88rem;margin:0 4px}#main .cnum s{color:var(--mute)}
+#main .cmoney{font-size:.92rem;margin:-2px 0 8px;text-wrap:balance}
+#main .cwhy{font-weight:700;margin-bottom:4px}
+#main .consider ul{margin:0;padding:0;list-style:none}#main .consider li{margin:4px 0;font-size:.94rem;text-wrap:balance}
+#main .consider .cvip{margin:2px auto 8px}
+#main .notrec{display:inline-block;margin:2px auto 4px;padding:2px 12px;border:2px solid var(--bad);border-radius:6px;color:var(--bad);font-weight:800;font-size:.8rem;letter-spacing:.06em;text-transform:uppercase}
+#main .ccons{margin:8px auto 0;color:var(--bad);font-weight:800;text-wrap:balance}
+#main .empty{text-align:center;color:var(--mute);margin:6px 0 0}
+@media (max-width:760px){#main .pair,#main .adv{grid-template-columns:1fr}#main .numbers{padding:28px 12px 16px}}
+
+/* ---------- Sweet Spots ---------- */
+#main .sslist{display:grid;gap:26px;margin-top:24px}
+#main .ssrow{position:relative;display:flex;flex-direction:column;align-items:center;padding:24px 14px 12px;border-radius:var(--r);border:1.5px solid var(--tl);background:var(--tb)}
+#main .ssrow>.cvip{position:absolute;top:-14px;left:50%;transform:translateX(-50%);min-width:124px;justify-content:center;font-size:.88rem;padding:3px 14px;box-shadow:0 0 0 4px var(--bg)}
+#main .chips{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+#main .chip{display:inline-flex;flex-direction:column;align-items:center;min-width:92px;padding:5px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);font-variant-numeric:tabular-nums;line-height:1.25}
+#main .chip b{font-size:.95rem}#main .chip small{font-size:.74rem;color:var(--mute)}
+#main .chip.vipc{border-color:var(--gold);background:color-mix(in srgb,var(--gold) 12%,var(--card))}
+#main .chip.next{box-shadow:0 0 0 2.5px color-mix(in srgb,var(--good) 60%,transparent)}
+#main .chip em,#main .you em{font-style:normal;font-size:.62rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--goldtx)}
+#main .you{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;min-width:80px;padding:4px 8px;border:1.5px dashed var(--mute);border-radius:8px;line-height:1.2;font-variant-numeric:tabular-nums;background:var(--card)}
+#main .you b{font-size:.86rem}#main .you.aft{border-color:var(--gold2)}
+#main .chip.here{outline:1.5px dashed var(--mute);outline-offset:3px}
+#main .gcn{display:flex;align-items:center;gap:5px;margin-top:10px;padding:3px 12px;border-radius:999px;background:color-mix(in srgb,var(--card) 70%,transparent);font-size:.8rem}
+#main .gcn svg{width:13px;height:13px;fill:var(--goldtx)}#main .gcn b{font-size:.92rem}#main .gcn small{color:var(--mute);font-size:.74rem}
+#main .t-non{--tb:var(--card);--tl:var(--line)}#main .t-bronze{--tb:#fbf1e8;--tl:#e3c3a3}#main .t-silver{--tb:#f3f4f6;--tl:#c9ced5}
+#main .t-gold{--tb:#fdf6dc;--tl:#e8cf7a}#main .t-platinum{--tb:#eceef2;--tl:#aab1bb}#main .t-founders{--tb:#22211e;--tl:#22211e}
+#main .t-founders .gcn{color:#f3dc9a;background:rgba(255,255,255,.08)}#main .t-founders .gcn svg{fill:#e0a81e}#main .t-founders .gcn small{color:#cfc6b0}
+#main .t-founders>.cvip{box-shadow:0 0 0 2px #e0a81e,0 0 0 5px var(--bg)}
+#main .perkkey{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+#main .pk{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line);border-radius:var(--r);background:var(--soft);padding:12px 14px}
+#main .pk>svg{width:22px;height:22px;fill:var(--goldtx);flex:none;margin-top:2px}
+#main .pk p{margin:0;font-size:.86rem;color:var(--mute)}#main .pk p b{color:var(--ink)}#main .pk .pkt{font-weight:700;color:var(--ink);font-size:.92rem;margin-bottom:2px}
+#main .sslegend{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 18px;margin:14px 0 0;font-size:.8rem;color:var(--mute)}
+#main .sslegend i{display:inline-block;width:14px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+#main .sslegend .lv{border:1.5px solid var(--gold);background:color-mix(in srgb,var(--gold) 12%,var(--card))}
+#main .sslegend .ln{border:1px solid var(--line);box-shadow:0 0 0 2px color-mix(in srgb,var(--good) 60%,transparent)}
+#main .sslegend .ly{border:1.5px dashed var(--mute)}
+@media (max-width:760px){#main .perkkey{grid-template-columns:1fr}#main .ssrow{padding:24px 8px 10px}#main .chips{gap:6px}#main .chip{min-width:84px}}
+
+/* Real Example */
+#main .excard{position:relative;margin-top:34px;border:1.5px solid var(--line);border-radius:var(--r);background:var(--card);padding:30px 22px 18px}
+#main .tagx{position:absolute;top:-13px;left:50%;transform:translateX(-50%);margin:0;padding:2px 18px;border-radius:999px;font-weight:800;font-size:.8rem;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+#main .tagx.dark{background:#22211e;color:#f3dc9a}
+#main .tagx.pitch,#main .itag.pitch{background:var(--card);color:var(--bad);border:1.5px solid var(--bad)}
+#main .tagx.sweetT,#main .itag.sweetT{background:var(--good);color:#fff}
+#main .exvs{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:center}
+#main .exc{position:relative;border:1px solid var(--line);border-radius:10px;padding:24px 14px 14px;text-align:center;background:var(--soft)}
+#main .exc.good2{background:color-mix(in srgb,var(--good) 7%,var(--card));border-color:color-mix(in srgb,var(--good) 35%,var(--line))}
+#main .exc p{margin:0}#main .exp{font-weight:800;font-size:1.15rem}#main .exc.good2 .exp{color:var(--good)}#main .exh{font-size:.86rem;color:var(--mute);margin-bottom:10px!important}
+#main .stays{display:flex;justify-content:center;gap:6px;flex-wrap:wrap}
+#main .sty{display:inline-flex;flex-direction:column;align-items:center;min-width:50px;padding:4px 6px;border-radius:8px;line-height:1.2}
+#main .sty small{font-size:.66rem;color:var(--mute)}
+#main .sty.ok{background:color-mix(in srgb,var(--good) 14%,var(--card));border:1px solid color-mix(in srgb,var(--good) 45%,var(--line))}#main .sty.ok b{color:var(--good)}
+#main .sty.pay{background:color-mix(in srgb,var(--bad) 8%,var(--card));border:1px dashed color-mix(in srgb,var(--bad) 55%,var(--line))}#main .sty.pay b{color:var(--bad);font-size:.84rem}
+#main .exmid{display:flex;flex-direction:column;align-items:center;gap:2px;font-weight:700;color:var(--good);font-size:.86rem}#main .exmid b{font-size:1.4rem;line-height:1}
+#main .exwhy{text-align:center;margin:16px 0 0;line-height:1.9}#main .exwhy>b{color:var(--good)}
+#main .itag{display:inline-block;padding:0 12px;border-radius:999px;font-weight:800;font-size:.78em;letter-spacing:.08em;text-transform:uppercase;line-height:1.7;vertical-align:1px;white-space:nowrap}
+#main .excard .src{margin:22px 0 -8px}
+@media (max-width:760px){#main .exvs{grid-template-columns:1fr}#main .exmid{flex-direction:row;justify-content:center;gap:8px}#main .exmid b{transform:rotate(90deg)}#main .exwhy br{display:none}}
+
+/* VIP flowchart */
+#main .fq2{display:table;margin:0 auto;padding:8px 22px;border-radius:999px;background:#22211e;color:#f3dc9a;font-weight:700;font-size:1.05rem}
+#main .fq2 svg{width:16px;height:12px;fill:#e0a81e;margin-right:8px;vertical-align:-1px}
+#main .flow{position:relative;height:40px}
+#main .flow i{position:absolute;border-color:var(--gold2)!important}
+#main .flow .fstem{left:50%;top:0;height:40px;border-left:2px solid}
+#main .flow .fbar{top:20px;height:20px;left:calc((100% - 36px)/6);right:calc((100% - 36px)/6);border:2px solid;border-bottom:0;border-radius:10px 10px 0 0}
+#main .fcols{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:13px}
+#main .path{position:relative;border-radius:var(--r);padding:26px 16px 16px;text-align:center;background:var(--card);border:1.5px solid var(--line)}
+#main .path p{margin:0}
+#main .path.yes{background:color-mix(in srgb,var(--gold) 8%,var(--card));border-color:color-mix(in srgb,var(--gold) 55%,var(--line))}
+#main .path.unsure{background:color-mix(in srgb,#4a6a8a 6%,var(--card));border-color:color-mix(in srgb,#4a6a8a 35%,var(--line))}
+#main .yes .tagx{background:var(--gold);color:#22211e}#main .no .tagx{background:#22211e;color:#f3dc9a}#main .unsure .tagx{background:var(--card);color:#2e4a66;border:1.5px solid #4a6a8a}
+#main .ph{font-weight:700;font-size:1.08rem;margin-bottom:10px!important}
+#main .steps{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px 4px;margin:10px 0 6px}
+#main .stp{padding:3px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);font-weight:700;font-size:.9rem}
+#main .sar{color:var(--gold2);font-weight:700}
+#main .pcap{font-size:.82rem;color:var(--mute)}
+#main .pl2{margin-top:12px!important;font-weight:700}
+#main .xlist{list-style:none;margin:8px auto 0;padding:0;display:inline-block;text-align:left}
+#main .xlist li{position:relative;padding:3px 0 3px 24px}
+#main .xlist li::before{content:"\2715";position:absolute;left:0;top:3px;color:var(--bad);font-weight:800}
+#main .vlist li::before{content:"\2713";color:var(--good)}
+#main .pnote{margin-top:14px!important;padding-top:12px;border-top:1px dashed color-mix(in srgb,var(--gold) 45%,var(--line));font-size:.9rem;color:var(--mute)}
+#main .where{display:flex;flex-wrap:wrap;justify-content:center;gap:5px;margin-top:6px}
+#main .where a,#main .where span{padding:3px 10px;border:1px solid var(--line);border-radius:999px;font-size:.8rem;background:var(--soft)}
+#main .basrc{margin-top:10px!important;font-size:.74rem;color:var(--mute)}
+#main .perp{margin:0 0 10px!important;padding:8px 10px;border-radius:8px;background:color-mix(in srgb,#4a6a8a 10%,var(--card));color:#2e4a66;font-size:.92rem}
+#main .soon{display:table;margin:14px auto 0!important;padding:3px 12px;border:1px dashed #4a6a8a;border-radius:999px;font-size:.8rem;color:#2e4a66}
+@media (max-width:1000px){#main .fcols{grid-template-columns:1fr;gap:28px}#main .flow{height:24px}#main .flow .fbar{display:none}#main .flow .fstem{height:24px}}
+
+/* Monthly Bill */
+#main .bgrid{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:10px;align-items:stretch}
+#main .bc{border:1px solid var(--line);border-radius:var(--r);padding:14px;text-align:center;background:var(--card)}
+#main .bc.during{background:color-mix(in srgb,var(--gold) 12%,var(--card));border-color:color-mix(in srgb,var(--gold) 50%,var(--line))}
+#main .bc .t{font-size:.82rem;color:var(--mute);font-weight:600}#main .bc .n{font-size:1.8rem;font-weight:800;line-height:1.2}#main .bc .n small{font-size:.9rem;font-weight:600}
+#main .bc .d{font-size:.82rem;color:var(--mute)}#main .bc .chg{font-weight:800;margin-top:4px;font-size:.9rem}
+#main .arr{align-self:center;color:var(--mute)}
+@media (max-width:760px){#main .bgrid{grid-template-columns:1fr}#main .arr{transform:rotate(90deg);justify-self:center}}
+
+/* Year by Year */
+#main .more{margin-top:28px;border:1px solid var(--line);border-radius:var(--r);background:var(--card)}
+#main .more summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;padding:14px 18px;font-weight:700;font-size:1.05rem}
+#main .more summary::-webkit-details-marker{display:none}
+#main .more summary::before{content:"";width:9px;height:9px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .2s}
+#main .more[open] summary::before{transform:rotate(45deg)}
+#main .more summary small{margin-left:auto;font-weight:500;color:var(--mute)}
+#main .dbody{padding:6px 18px 20px;border-top:1px solid var(--line)}
+#main .dbody h3{text-align:center;margin:14px 0 8px}
+#main .tw{overflow:auto;max-height:560px;border:1px solid var(--line);border-radius:10px}
+#main table{border-collapse:separate;border-spacing:0;width:100%;min-width:780px;table-layout:fixed;font-size:.8rem}
+#main th,#main td{padding:5px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
+#main thead{position:sticky;top:0;z-index:1}#main thead th{font-weight:600;background:var(--card);vertical-align:bottom;text-align:center}
+#main th.grp{font-size:.88rem;border-bottom:0}#main th.nm{white-space:normal;line-height:1.2;border-bottom:2px solid var(--line)}
+#main td{text-align:right;padding-right:14px;font-variant-numeric:tabular-nums}#main td:first-child{text-align:center;font-weight:700}
+#main .c th{background:color-mix(in srgb,var(--stay) 12%,var(--card))}#main .n th{background:color-mix(in srgb,var(--gold) 22%,var(--card))}
+#main .c td{background:color-mix(in srgb,var(--stay) 3%,var(--card))}#main .n td{background:color-mix(in srgb,var(--gold) 6%,var(--card))}
+#main .sep{border-left:2px solid var(--line)}
+#main tr.payoff td{text-align:center;font-weight:700;font-size:.78rem;padding:3px 8px;background:#22211e;color:#f3dc9a}
+#main .note{font-size:.85rem;color:var(--mute)}
+#main .chead{display:flex;flex-direction:column;align-items:center;gap:6px;margin:26px 0 6px;text-align:center}#main .chead h3{margin:0}
+#main .look{display:flex;align-items:center;gap:10px;font-size:.88rem}#main .look input{width:min(240px,60vw);accent-color:#22211e}
+#main .cw{position:relative}#main svg.ch{width:100%;height:auto;display:block;touch-action:pan-y}
+#main .tip{position:absolute;top:8px;pointer-events:none;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:.85rem;box-shadow:0 2px 10px rgba(0,0,0,.18);display:none;white-space:nowrap;z-index:2}
+#main .legend{display:flex;justify-content:center;gap:16px;flex-wrap:wrap;font-size:.85rem;margin-top:6px}
+#main .legend i{display:inline-block;width:14px;height:4px;border-radius:2px;margin-right:6px;vertical-align:3px}
+#main .foot{text-align:center;color:var(--mute);margin-top:36px;padding-top:18px;border-top:1px solid var(--line)}
+#main .foot .dedic{font-style:italic;margin:0 auto 12px;max-width:560px}#main .foot .legal{font-size:.78rem;margin:0}
+
+/* Side by side on wide screens: the inputs on the left stay put while Your Numbers changes on the right */
+@media (min-width:1100px){
+ #main .play{display:grid;grid-template-columns:370px minmax(0,1fr);gap:22px;align-items:start}
+ #main .inputs{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto;padding:12px 14px}
+ #main .igrid{grid-template-columns:1fr;gap:0}
+ #main .fld{display:grid;grid-template-columns:1fr 1.15fr;gap:2px 10px;align-items:center;padding:5px 0;border-bottom:1px solid color-mix(in srgb,var(--line) 60%,transparent)}
+ #main .fld .lt{white-space:normal}
+ #main .fld label{display:contents}
+ #main .fld .f{margin-top:0;height:34px;grid-column:2;grid-row:1/span 2}
+ #main .fld .hint{grid-column:1;grid-row:2;min-height:0}
+ #main .sumrow{grid-template-columns:1fr}#main .mini+.mini{border-left:0;border-top:1px solid var(--line)}
+ #main .mini{padding:6px}
+ #main .numbers{margin-top:16px}
+ #main .newown{text-align:left}
+}
+/* stronger Sweet Spots markings */
+#main .chip.vipc{border:2px solid var(--gold);background:color-mix(in srgb,var(--gold) 22%,var(--card))}
+#main .chip.next{box-shadow:0 0 0 3.5px var(--good)}
+#main .you{border:2.5px dashed var(--ink);background:color-mix(in srgb,var(--ink) 6%,var(--card))}
+#main .you em{color:var(--ink)}
+#main .you.aft{border-color:var(--buy);background:color-mix(in srgb,var(--buy) 10%,var(--card))}#main .you.aft em{color:#8f3f05}
+#main .chip.here{outline:2.5px dashed var(--ink);outline-offset:3px}
+#main .sslegend{gap:8px 26px;margin:16px 0 4px;font-size:.92rem;font-weight:600;color:var(--ink)}
+#main .sslegend i{width:30px;height:20px;border-radius:5px;margin-right:8px;vertical-align:-5px}
+#main .sslegend .lv{border:2px solid var(--gold);background:color-mix(in srgb,var(--gold) 22%,var(--card))}
+#main .sslegend .ln{border:1px solid var(--line);background:var(--card);box-shadow:0 0 0 3.5px var(--good)}
+#main .sslegend .ly{border:2.5px dashed var(--ink);background:color-mix(in srgb,var(--ink) 6%,var(--card))}
+#main .sslegend .ly2{border:2.5px dashed var(--buy);background:color-mix(in srgb,var(--buy) 10%,var(--card));margin-left:-2px}
 </style>
 </head>
-<body>
+<body data-tab="costsandfees">
+<div id="site-header"></div>
+<main id="main">
 <div class="wrap">
-<h1>Buy the Numbers</h1>
-<div class="sechead"><span></span><h2>Calculations and Considerations <em>BEFORE</em> Purchasing</h2><span></span></div>
-<p class="clrrow"><a href="#" id="clr">Clear All Fields</a></p>
 
-<div class="card">
-<div class="ohead"><h2>Current Ownership</h2><div class="vipsel"><select id="vipSt" aria-label="VIP Status" title="VIP Status"><option value="non">Non-VIP</option><option value="bronze">VIP Bronze</option><option value="silver">VIP Silver</option><option value="gold">VIP Gold</option><option value="platinum">VIP Platinum</option><option value="founders">VIP Founders</option><option value="gsilver">Grandfathered Silver</option><option value="ggold">Grandfathered Gold</option><option value="gplat">Grandfathered Platinum</option></select></div><p class="newown">New owner? Select Clear All Fields above, then start with Points Purchase below.</p></div>
-<div class="duo">
-<div class="area"><div class="acap">Maintenance Fees</div><div class="g2">
-<div class="cell"><label><div class="lt">Current # of Points</div><div class="f"><input type="text" inputmode="decimal" id="curPts" value="200,000" placeholder="Points You Own"></div></label><div class="hint"></div></div>
-<div class="cell"><label><div class="lt">Maintenance Fee (per Month)</div><div class="f"><span>$</span><input type="text" inputmode="decimal" id="curMonthly" value="155" placeholder="Per Month"></div></label>
-<div class="hint"><b id="curYearly"></b>: Yearly<br><b id="curPer1k"></b>: per 1,000 pts</div></div>
-</div></div>
-<div class="area div"><div class="acap">Current Loan</div><div class="g2">
-<div class="cell"><label><div class="lt">Loan Payment (per Month)</div><div class="f"><span>$</span><input type="text" inputmode="decimal" id="oldLoanM" placeholder="Per Month"></div></label>
-<div class="hint">Paid Off? Enter 0</div></div>
-<div class="cell"><label><div class="lt">Months Left on Loan</div><div class="f"><input type="text" inputmode="decimal" id="oldLoanN" placeholder="Remaining"></div></label>
-<div class="hint" id="oldLoanH"></div></div>
-</div></div>
-</div>
+<header class="top">
+ <p class="eyebrow">Update Meeting Calculator</p>
+ <h1>Buy the Numbers</h1>
+ <p class="lead">Before you sign, see what the offer really costs and whether the points work for the way you vacation.</p>
+</header>
+<nav class="jump" aria-label="On This Page"><a href="#numbers">Your Numbers</a><a href="#sweet">Sweet Spots</a><a href="#know">VIP, Resale or Not Sure?</a><a href="#bill">Monthly Bill</a><a href="#years">Year by Year</a></nav>
 
-<h2 style="margin-top:10px;padding-top:10px;border-top:1px solid var(--line)">Points Purchase</h2>
-<div class="grid buyin">
-<div class="cell"><label><div class="lt">Points Purchase</div><div class="f"><input type="text" inputmode="decimal" id="addPts" placeholder="Points Offered"></div></label><div class="hint" id="addH"></div></div>
-<div class="cell"><label><div class="lt">Asking Price (Often Negotiable)</div><div class="f"><span>$</span><input type="text" inputmode="decimal" id="price" placeholder="Price"></div></label><div class="hint"></div></div>
-<div class="cell"><label><div class="lt">Interest Rate on Loan</div><div class="f"><input type="text" inputmode="decimal" id="apr" placeholder="Interest Rate"></div></label><div class="hint"></div></div>
-<div class="cell"><label><div class="lt">Length of Loan (Years)</div><div class="f"><input type="text" inputmode="decimal" id="term" placeholder="How Long?"></div></label><div class="hint"></div></div>
-<div class="cell"><label><div class="lt two">New Maintenance Fee<br>($ per 1,000 pts per year)</div><div class="f"><span>$</span><input type="text" inputmode="decimal" id="newPer1k" placeholder="Per 1,000 Pts"></div></label>
-<div class="hint"><b>GET THIS IN WRITING!</b></div></div>
-<div class="cell"><label><div class="lt two">Fees Rise Each Year by (%)</div><div class="f"><input type="text" inputmode="decimal" id="inc" placeholder="Increase"></div></label>
-<div class="hint">Guesstimate (Suggest 3-5%)</div></div>
-</div>
-<div class="sumrow res">
-<div class="mini"><div class="t">Total Amortized Loan Cost</div><div class="n" id="sLoan"></div><div class="d" id="sLoanD"></div></div>
-<div class="mini"><div class="t">Combined Points After Purchase</div><div class="n" id="sPts"></div><div class="d" id="sPtsD"></div></div>
-<div class="mini"><div class="t">New Maintenance Fee</div><div class="n" id="sFee"></div><div class="d" id="sFeeD"></div></div>
-</div>
-</div>
+<div class="play">
+<section class="inputs" aria-label="Your numbers and the offer">
+ <p class="newown">New owner? Select <a href="#" id="clr">Clear All Fields</a>, then fill in only Step 2.</p>
+ <div class="irow own">
+  <div class="ihead"><span class="kicker">Step 1</span><h2>What You Own Now</h2></div>
+  <div class="igrid">
+   <div class="fld"><label><span class="lt">Current Points</span><span class="f"><input type="text" inputmode="decimal" id="curPts" placeholder="0"></span></label><span class="hint">New owner? Leave at 0</span></div>
+   <div class="fld"><label><span class="lt">Maintenance Fee</span><span class="f"><span>$</span><input type="text" inputmode="decimal" id="curMonthly" placeholder="Per Month"><select id="curUnit" aria-label="Amount Is"><option value="m" selected>per Month</option><option value="y">per Year</option><option value="k">per 1,000 Pts</option></select></span></label><span class="hint" id="curOther"></span></div>
+   <div class="fld"><label><span class="lt">Fees Rise Yearly</span><span class="f"><input type="text" inputmode="decimal" id="incCur" placeholder="3"><span class="suf">%</span></span></label><span class="hint">3 to 5% is typical</span></div>
+   <div class="fld"><label><span class="lt">VIP Status</span><span class="f"><select class="whole" id="vipSt" aria-label="VIP Status"><option value="non">Non-VIP</option><option value="bronze">VIP Bronze</option><option value="silver">VIP Silver</option><option value="gold">VIP Gold</option><option value="platinum">VIP Platinum</option><option value="founders">VIP Founders</option><option value="gsilver">Grandfathered Silver</option><option value="ggold">Grandfathered Gold</option><option value="gplat">Grandfathered Platinum</option></select></span></label><span class="hint">Set from your points</span></div>
+   <div class="fld"><label><span class="lt">Loan Payment / Month</span><span class="f"><span>$</span><input type="text" inputmode="decimal" id="oldLoanM" placeholder="Optional"></span></label><span class="hint">Paid off? Enter 0</span></div>
+   <div class="fld"><label><span class="lt">Months Left on Loan</span><span class="f"><input type="text" inputmode="decimal" id="oldLoanN" placeholder="Optional"></span></label><span class="hint" id="oldLoanH"></span></div>
+  </div>
+ </div>
+ <div class="irow offer">
+  <div class="ihead"><span class="kicker">Step 2</span><h2>What They're Offering</h2></div>
+  <div class="igrid">
+   <div class="fld"><label><span class="lt">Points Offered</span><span class="f"><input type="text" inputmode="decimal" id="addPts" placeholder="Points"></span></label><span class="hint"></span></div>
+   <div class="fld"><label><span class="lt">New Maintenance Fee</span><span class="f"><span>$</span><input type="text" inputmode="decimal" id="newPer1k" placeholder="Per 1,000 Pts"><select id="newUnit" aria-label="Amount Is"><option value="m">per Month</option><option value="y">per Year</option><option value="k" selected>per 1,000 Pts</option></select></span></label><span class="hint warn">Get this in writing!</span></div>
+   <div class="fld"><label><span class="lt">Fees Rise Yearly</span><span class="f"><input type="text" inputmode="decimal" id="inc" placeholder="3"><span class="suf">%</span></span></label><span class="hint">Linked to Step 1</span></div>
+   <div class="fld"><label><span class="lt">Asking Price</span><span class="f"><span>$</span><input type="text" inputmode="decimal" id="price" placeholder="Price"></span></label><span class="hint">Often negotiable</span></div>
+   <div class="fld"><label><span class="lt">Interest Rate</span><span class="f"><input type="text" inputmode="decimal" id="apr" placeholder="Rate"><span class="suf">%</span></span></label><span class="hint"></span></div>
+   <div class="fld"><label><span class="lt">Length of Loan (Years)</span><span class="f"><input type="text" inputmode="decimal" id="term" placeholder="Years"></span></label><span class="hint"></span></div>
+  </div>
+ </div>
+ <div class="sumrow">
+  <div class="mini">Total Amortized Loan Cost<div class="n" id="sLoan"></div><div id="sLoanD"></div></div>
+  <div class="mini">Combined Points<div class="n" id="sPts"></div><div id="sPtsD"></div></div>
+  <div class="mini">New Maintenance Fee<div class="n" id="sFee"></div><div id="sFeeD"></div></div>
+ </div>
+</section>
 
-<div class="card perk" id="perk"></div>
-
-<div class="card claim" id="claim"></div>
-
-<div class="card res">
-<h2>Your Monthly Bill</h2>
-<div class="three">
-<div class="box stay"><div class="t">Current Monthly Payment</div><div class="n" id="mStay"></div><div class="d" id="mStayD"></div></div>
-<div class="box buy"><div class="t">New Monthly Payment</div><div class="n" id="mBuy"></div><div class="d" id="mBuyD"></div></div>
-<div class="box after" id="mAfterBox"><div class="t" id="mAfterT"></div><div class="n" id="mAfter"></div><div class="d" id="mAfterD"></div></div>
+<div class="results">
+ <section class="numbers" id="numbers">
+  <p class="ntag">Your Numbers</p>
+  <div class="pair" id="pair"></div>
+  <p class="rcap" id="rcap"></p>
+  <div id="adv"></div>
+ </section>
 </div>
-</div>
-
-<div class="card res">
-<div class="chead"><h2>Total Paid Over Time: Current Status vs. New Contract</h2>
-<label class="look"><span>Look Ahead: <b id="yrsLbl"></b> Years</span><input type="range" id="yrs" min="1" max="22" value="22"></label></div>
-<div class="cw"><svg id="chart" viewBox="0 0 800 340" role="img" aria-label="Cumulative cost chart"></svg><div class="tip" id="tip"></div></div>
-<div class="legend"><span><i style="background:var(--stay)"></i>Current Status</span><span><i style="background:var(--buy)"></i>New Contract</span></div>
 </div>
 
-<div class="card res">
-<h2>Financial Outlook Comparison</h2>
-<div class="tw" tabindex="0" role="region" aria-label="Financial Outlook Comparison table, scrollable"><table id="tbl"></table></div>
-<p class="note">Maintenance fees never end, so the New Contract keeps costing after the loan is gone (the dark bar marks where the loan ends). The extra points do come with you; the loan is what makes the pitch costly.</p>
+<section class="sec" id="sweet">
+ <h2>Sweet Spots</h2>
+ <p class="intro">The sweet spot is when the total points owned bring the most benefits for every dollar of maintenance fees.</p>
+ <div class="sslegend"><span><i class="lv"></i>VIP Milestone</span><span><i class="ln"></i>Your next Sweet Spot</span><span><i class="ly"></i>Your points now</span><span><i class="ly2"></i>Your points after</span></div>
+ <div class="sslist" id="sslist"></div>
+ <div class="perkkey">
+  <div class="pk"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1 1 7h2v8h4v-5h2v5h4V7h2z"/></svg><div><p class="pkt">HK Credit (Housekeeping Credit)</p><p>Needed for each reservation.<br>Received at the beginning of each <b>Use Year</b>.<br>Run out and each one costs <b>$185</b>.</p></div></div>
+  <div class="pk"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg><div><p class="pkt">Guest Confirmation</p><p>Lets friends or family use your reservation without you.<br>Free ones reset each <b>Calendar Year</b>.<br>Run out and each one costs <b>$99</b> online ($129 by phone).</p></div></div>
+ </div>
+ <p class="src">Source: 26/27 Directory - Pages 266, 279 (VIP levels and Guest Confirmations)</p>
+
+ <div class="excard">
+  <p class="tagx dark">A Real Example</p>
+  <div class="exvs">
+   <div class="exc"><p class="tagx pitch">Sales Pitch</p><p class="exp">200,000 pts</p><p class="exh">2 HK Credits</p><div class="stays" data-ok="2"></div></div>
+   <div class="exmid"><span>+10,000 pts</span><b aria-hidden="true">&rarr;</b></div>
+   <div class="exc good2"><p class="tagx sweetT">Sweet Spot</p><p class="exp">210,000 pts</p><p class="exh">3 HK Credits</p><div class="stays" data-ok="3"></div></div>
+  </div>
+  <p class="exwhy">Buy the <span class="itag pitch">Sales Pitch</span>, and you&rsquo;ll likely be back for a second purchase<br>to include those Housekeeping Credits you didn&rsquo;t know you needed.<br><b>With Your Timeshare Guide, you know the <span class="itag sweetT">Sweet Spot</span> before you sign.</b></p>
+  <p class="src">Source: Club Wyndham - <a href="https://clubwyndham.wyndhamdestinations.com/us/en/owner-guide/resources/housekeeping-credits">Housekeeping Credits</a></p>
+ </div>
+</section>
+
+<section class="sec" id="know">
+ <p class="fq2"><svg viewBox="0 0 16 12" aria-hidden="true"><path d="M1 10 2 3l4 3 2-5 2 5 4-3 1 7z"/></svg>Do You Plan to Reach VIP?</p>
+ <div class="flow" aria-hidden="true"><i class="fstem"></i><i class="fbar"></i></div>
+ <div class="fcols">
+  <div class="path yes"><p class="tagx">Yes</p><p class="ph">Buy From the Developer</p>
+   <p>Purchase in increments of <b>70K</b>:</p>
+   <div class="steps"><span class="stp">70K</span><span class="sar">&rsaquo;</span><span class="stp">140K</span><span class="sar">&rsaquo;</span><span class="stp">210K</span><span class="sar">&rsaquo;</span><span class="stp">280K</span><span class="sar">&rsaquo;</span><span class="cvip bronze sm"><svg viewBox="0 0 16 12" aria-hidden="true"><path d="M1 10 2 3l4 3 2-5 2 5 4-3 1 7z"/></svg>300K</span></div>
+   <p class="pcap">300K unlocks VIP Bronze Perks</p>
+   <p class="pl2">What VIP Bronze Adds:</p>
+   <ul class="xlist vlist"><li>1 extra Housekeeping Credit each Use Year</li><li>3 free Guest Confirmations each Calendar Year</li><li>15% off points for stays booked within 2 months of check-in</li></ul>
+   <p class="basrc">Source: 26/27 Directory - Pages 266, 268, 279</p>
+   <p class="pnote">Having points left over adds to your maintenance fees, with no Housekeeping Credit to help pay for your stay.</p>
+  </div>
+  <div class="path no"><p class="tagx">No</p><p class="ph">Maybe Consider Resale</p>
+   <p>Resale points cost very little and give you almost the same benefits below VIP.</p>
+   <p class="pl2">Resale points can&rsquo;t be used to:</p>
+   <ul class="xlist"><li>Qualify for VIP</li><li>Book WorldMark resorts through <b>Club Pass</b></li><li>Convert to Wyndham Rewards points</li></ul>
+   <p class="pl2">Where to Look:</p>
+   <div class="where"><a href="https://tug2.com/">TUG Marketplace</a><span>Club Wyndham Owner Groups</span><a href="https://www.ebay.com/sch/i.html?_nkw=club+wyndham+points">eBay</a></div>
+   <p class="basrc">Source: 26/27 Directory - Pages 270, 272, 273, 285; Club Wyndham website</p>
+  </div>
+  <div class="path unsure"><p class="tagx">Not Sure Yet</p><p class="ph">Take Your Time</p>
+   <p class="perp">This contract runs <b>in perpetuity</b>: it never ends, and the maintenance fees never end. It&rsquo;s a big decision.</p>
+   <p>Don&rsquo;t sign today. Learn how the program works first, then decide. The offer, or a better one, will still be there.</p>
+   <p class="pl2">Already Signed?</p>
+   <p>You may still be able to cancel. Find the <b>cancellation (rescission) period</b> in your contract. How many days you have depends on your state and your contract, so act quickly.</p>
+   <p class="soon">Cancellation Guide: Coming Soon</p>
+  </div>
+ </div>
+</section>
+
+<section class="sec res" id="bill">
+ <h2>Your Monthly Bill</h2>
+ <div class="bgrid">
+  <div class="bc"><p class="t" style="margin:0">Current Monthly Payment</p><div class="n" id="mStay"></div><div class="d" id="mStayD"></div></div>
+  <div class="arr" aria-hidden="true">&rarr;</div>
+  <div class="bc during"><p class="t" style="margin:0">New Monthly Payment</p><div class="n" id="mBuy"></div><div class="d" id="mBuyD"></div></div>
+  <div class="arr" aria-hidden="true">&rarr;</div>
+  <div class="bc"><p class="t" style="margin:0" id="mAfterT"></p><div class="n" id="mAfter"></div><div class="d" id="mAfterD"></div></div>
+ </div>
+</section>
+
+<details class="more res" id="years" open>
+ <summary><span>See the Year by Year Details</span><small>Table and chart</small></summary>
+ <div class="dbody">
+  <h3>Financial Outlook Comparison</h3>
+  <div class="tw" tabindex="0" role="region" aria-label="Financial Outlook Comparison table, scrollable"><table id="tbl"></table></div>
+  <p class="note">Maintenance fees never end, so the New Contract keeps costing after the loan is gone (the dark bar marks where the loan ends).</p>
+  <div class="chead"><h3>Total Paid Over Time: Current Status vs. New Contract</h3>
+   <label class="look"><span>Look Ahead: <b id="yrsLbl"></b> Years</span><input type="range" id="yrs" min="1" max="22" value="22"></label></div>
+  <div class="cw"><svg class="ch" id="chart" viewBox="0 0 800 340" role="img" aria-label="Total paid over time chart"></svg><div class="tip" id="tip"></div></div>
+  <div class="legend"><span><i style="background:var(--stay)"></i>Current Status</span><span><i style="background:var(--gold2)"></i>New Contract</span></div>
+ </div>
+</details>
+
+<footer class="foot">
+ <p class="dedic">This page is dedicated to Mary.<br>Everyone considering owning a timeshare deserves clear and complete answers to help them make the best decisions <b>before</b> they buy.</p>
+ <p class="legal">An independent guide. Not affiliated with, sponsored by, or endorsed by Club Wyndham or Wyndham Destinations. Not legal or financial advice.</p>
+</footer>
 </div>
-<p class="dedic">This page is dedicated to Mary.<br>Everyone considering owning a timeshare deserves clear and complete answers to help them make the best decisions <b>BEFORE</b> they Buy.</p>
-</div>
+</main>
+<div id="site-footer"></div>
 
 <script>
 const $=id=>document.getElementById(id);
 const money=(x,d=0)=>(x<0?'-':'')+'$'+Math.abs(x).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
 const num=id=>Math.max(0,parseFloat($(id).value.replace(/,/g,''))||0);
+const fmtN=n=>n.toLocaleString('en-US');
+const crown='<svg viewBox="0 0 16 12" aria-hidden="true"><path d="M1 10 2 3l4 3 2-5 2 5 4-3 1 7z"/></svg>';
+const person='<svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="5" r="3"/><path d="M2 15c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5z"/></svg>';
 
 // thousands separators while typing, keeping the caret in place
 function fmtInput(el){
-  const v=el.value, pos=el.selectionStart;
-  const before=v.slice(0,pos).replace(/[^0-9.]/g,'').length;
-  const clean=v.replace(/[^0-9.]/g,'');
-  const i=clean.indexOf('.');
+  const v=el.value,pos=el.selectionStart,before=v.slice(0,pos).replace(/[^0-9.]/g,'').length,clean=v.replace(/[^0-9.]/g,''),i=clean.indexOf('.');
   const int=(i<0?clean:clean.slice(0,i)).replace(/^0+(?=\d)/,'').replace(/\B(?=(\d{3})+(?!\d))/g,',');
-  const out=i<0?int:int+'.'+clean.slice(i+1).replace(/\./g,'');
-  el.value=out;
-  let n=0,p=0;
-  while(p<out.length&&n<before){if(/[0-9.]/.test(out[p]))n++;p++}
-  el.setSelectionRange(p,p);
+  const out=i<0?int:int+'.'+clean.slice(i+1).replace(/\./g,'');el.value=out;
+  let n=0,p=0;while(p<out.length&&n<before){if(/[0-9.]/.test(out[p]))n++;p++}el.setSelectionRange(p,p);
 }
-
 function pmt(P,apr,yrs){const n=yrs*12,r=apr/100/12;if(!n)return 0;return r?P*r/(1-Math.pow(1+r,-n)):P/n}
 
 function calc(){
-  const curPts=Math.floor(num('curPts')),curM=num('curMonthly'),addPts=Math.floor(num('addPts')),price=num('price'),apr=num('apr');
-  const term=Math.max(1,Math.round(num('term'))),new1k=num('newPer1k'),g=num('inc')/100,yrs=+$('yrs').value;
+  const curPts=Math.floor(num('curPts')),addPts=Math.floor(num('addPts')),price=num('price'),apr=num('apr');
+  const cv=num('curMonthly'),cu=$('curUnit').value,curM=cu==='y'?cv/12:cu==='k'?cv*curPts/1000/12:cv;
+  const nv=num('newPer1k'),nu=$('newUnit').value,allK=(curPts+addPts)/1000,newK=nu==='k'?nv:!allK?0:nu==='y'?nv/allK:nv*12/allK;
+  const term=Math.max(1,Math.round(num('term'))),new1k=newK,g=num('inc')/100,yrs=+$('yrs').value;
   const noBuy=!addPts&&!price&&!new1k;
-  const curY=curM*12, newY=noBuy?curM*12:(curPts+addPts)/1000*new1k, loanM=pmt(price,apr,term), loanY=loanM*12;
-  const loanTotal=loanM*term*12, interest=loanTotal-price;
-  const oldM=num('oldLoanM'), oldN=Math.round(num('oldLoanN'));
+  const curY=curM*12,newY=noBuy?curM*12:(curPts+addPts)/1000*new1k,loanM=pmt(price,apr,term),loanY=loanM*12;
+  const loanTotal=loanM*term*12,interest=loanTotal-price,oldM=num('oldLoanM'),oldN=Math.round(num('oldLoanN'));
   const rows=[];let cs=0,cb=0;
-  for(let y=1;y<=100;y++){
-    const f=Math.pow(1+g,y-1);
-    const old=oldM*Math.min(12,Math.max(0,oldN-12*(y-1)));
-    const stayFee=curY*f, stay=stayFee+old, fee=newY*f, loan=y<=term?loanY:0, buy=fee+loan+old;
-    cs+=stay;cb+=buy;
-    rows.push({y,stayFee,stay,fee,loan,old,buy,extra:buy-stay,cs,cb,cum:cb-cs});
-  }
+  for(let y=1;y<=100;y++){const f=Math.pow(1+g,y-1),old=oldM*Math.min(12,Math.max(0,oldN-12*(y-1))),stayFee=curY*f,stay=stayFee+old,fee=newY*f,loan=y<=term?loanY:0,buy=fee+loan+old;cs+=stay;cb+=buy;rows.push({y,stayFee,stay,fee,loan,old,buy,extra:buy-stay,cs,cb,cum:cb-cs})}
   return {oldM,oldN,curPts,curM,curY,addPts,price,apr,term,new1k,g,yrs,newY,loanM,loanY,loanTotal,interest,rows};
 }
 
-let chartState=null;
+// Housekeeping Credits: 1 per 70,000 points, plus the VIP milestone bonus (26/27 Directory)
+const TIERS=[[1400000,8,'Founders'],[1100000,6,'Platinum'],[800000,4,'Gold'],[500000,2,'Silver'],[300000,1,'Bronze']];
+const STAT={non:{n:'Non-VIP',b:0},bronze:{n:'Bronze',b:1},silver:{n:'Silver',b:2},gold:{n:'Gold',b:4},platinum:{n:'Platinum',b:6},founders:{n:'Founders',b:8},
+  gsilver:{n:'Grandfathered Silver',b:0,u:1},ggold:{n:'Grandfathered Gold',b:0,u:1,r:1},gplat:{n:'Grandfathered Platinum',b:0,u:1,r:1}};
+const GUESTS={non:'2',bronze:'3',silver:'5',gold:'10',platinum:'15',founders:'15'};
+const tierAt=p=>TIERS.find(t=>p>=t[0]);
+const plural=(n,w)=>n+' '+w+(n===1?'':'s');
 
+let chartState=null;
 function render(){
-  const c=calc(), r=c.rows;
-  $('curYearly').parentNode.style.visibility=c.curM?'':'hidden';
-  $('curYearly').textContent=money(c.curY,2);
-  $('curPer1k').textContent=c.curPts?money(c.curY/(c.curPts/1000),2):'-';
+  const c=calc(),r=c.rows;
+  const cu=$('curUnit').value,forms=[['m',money(c.curM,2),'a month'],['y',money(c.curY,2),'a year'],['k',c.curPts?money(c.curY/(c.curPts/1000),2):'-','per 1,000']];
+  $('curOther').innerHTML=c.curM?forms.filter(f=>f[0]!==cu).map(f=>'<b'+(f[0]==='k'?' id="curPer1k"':'')+'>'+f[1]+'</b> '+f[2]).join('<br>'):'';
   $('yrsLbl').textContent=c.yrs;
 
-  // points perks: 1 housekeeping credit per 70,000 pts, plus VIP milestone bonus; 1 Reservation Transaction per 77,000 pts
-  const TIERS=[[1400000,8,'Founders'],[1100000,6,'Platinum'],[800000,4,'Gold'],[500000,2,'Silver'],[300000,1,'Bronze']];
-  // VIP status: b = Housekeeping Credits added, u = unlimited Housekeeping Credits, r = unlimited Reservation Transactions
-  const STAT={non:{n:'Non-VIP',b:0},bronze:{n:'Bronze',b:1},silver:{n:'Silver',b:2},gold:{n:'Gold',b:4},platinum:{n:'Platinum',b:6},founders:{n:'Founders',b:8},
-    gsilver:{n:'Grandfathered Silver',b:0,u:1},ggold:{n:'Grandfathered Gold',b:0,u:1,r:1},gplat:{n:'Grandfathered Platinum',b:0,u:1,r:1}};
-  const st=STAT[$('vipSt').value]?$('vipSt').value:'non';
-  // status in effect at p points; a = true for After Purchase: buying up to a higher milestone than you already reach moves you up
-  const tierAt=p=>TIERS.find(t=>p>=t[0]), curTier=tierAt(c.curPts);
+  const st=STAT[$('vipSt').value]?$('vipSt').value:'non', curTier=tierAt(c.curPts);
   const eff=(p,a)=>{const s=STAT[st];if(s.u||!a)return s;const t=tierAt(p);return t&&t[1]>s.b&&(!curTier||t[1]>curTier[1])?STAT[t[2].toLowerCase()]:s};
-  const cr=(p,a)=>{const e=eff(p,a);return e.u?Infinity:Math.floor(p/70000)+e.b}, ph=p=>Math.floor(p/77000);
-  const isJ=(x,a)=>x>0&&cr(x,a)>cr(x-1,a), JC=a=>TIERS.map(t=>t[0]);
-  const nextJ=(p,a)=>Math.min((Math.floor(p/70000)+1)*70000,...JC().filter(x=>x>p&&isJ(x,a))), lastJ=(p,a)=>Math.max(Math.floor(p/70000)*70000,...JC().filter(x=>x<=p&&isJ(x,a)));
-  const plural=(n,w)=>n+' '+w+(n===1?'':'s');
-  const rec=(cur,add)=>{
-    const T=cur+add; if(!T||eff(T,true).u)return null;
-    const u=nextJ(T,true), d=lastJ(T,true), gap=u?u-T:Infinity, tgt=Math.max(d,eff(T,true).r?0:Math.floor(T/77000)*77000,cur);
-    if(gap<=20000){const g=cr(u,true)-cr(T,true), eu=eff(u,true), nv=eu.b>eff(T,true).b?eu.n:'';
-      return {dir:'more',diff:gap,newAdd:u-cur,t:`Buy ${gap.toLocaleString()} more points (${u.toLocaleString()} total): ${plural(g,'more credit')}${nv?' and reaches VIP '+nv:''}`,
-        tg:`Buying ${gap.toLocaleString()} more points (${(u-cur).toLocaleString()} additional points instead of ${add.toLocaleString()})`,
-        why:[`Adds ${plural(g,'Housekeeping Credit')} for a Total of ${plural(cr(u,true),'Housekeeping Credit')}${nv?' and reaches VIP '+nv:''}`,'A Housekeeping Credit costs $185 if you run out and have to buy one']}}
-    if(add>0&&T>tgt){const x=(T-tgt).toLocaleString();
-      return tgt===cur?{dir:'less',diff:add,newAdd:0,t:'This purchase adds no credits',tg:'Skipping this purchase',why:[`Your Housekeeping Credits stay at ${cr(T,true)} either way`,'You would pay for points that earn nothing extra']}
-       :{dir:'less',diff:T-tgt,newAdd:tgt-cur,t:`Buy ${x} fewer points (${tgt.toLocaleString()} total): same ${plural(cr(T,true),'credit')}`,tg:`Buying ${x} fewer points (${(tgt-cur).toLocaleString()} additional points instead of ${add.toLocaleString()})`,
-        why:[`Those extra ${x} points do not provide any additional Owner benefits within the Club Wyndham system`,'Fewer points means a smaller loan and lower maintenance fees']}}
-    return add>0?{t:'No points wasted at this total',tg:'',why:[]}:null;
+  const cr=(p,a)=>{const e=eff(p,a);return e.u?Infinity:Math.floor(p/70000)+e.b};
+  const isJ=(x,a)=>x>0&&cr(x,a)>cr(x-1,a),JC=()=>TIERS.map(t=>t[0]);
+  const nextJ=(p,a)=>Math.min((Math.floor(p/70000)+1)*70000,...JC().filter(x=>x>p&&isJ(x,a))),lastJ=(p,a)=>Math.max(Math.floor(p/70000)*70000,...JC().filter(x=>x<=p&&isJ(x,a)));
+  const GF={gsilver:2,ggold:4,gplat:6}[st]||0,lvl=p=>(tierAt(p)||[0,0])[1];
+  const nextLvl=(p,base)=>TIERS.filter(t=>t[1]>Math.max(base,lvl(p))).sort((a,b)=>a[0]-b[0])[0];
+  const gfKeep=`You keep ${STAT[st].n} with unlimited Housekeeping Credits`;
+  const exactVip=(cur,T)=>TIERS.some(t=>t[0]===T)&&eff(T,true).b>eff(cur,true).b?eff(T,true).n:'';
+  const T=c.curPts+c.addPts;
+
+  // Some Things to Consider: For This Purchase (fewer and more points), from fewest to most points
+  const options=(cur,add)=>{
+    const T=cur+add,eT=eff(T,true);if(!add||!T)return [];
+    const ppp=c.price&&add?c.price/add:0,out=[],seen=new Set();
+    const moneyLine=(dir,diff)=>{const cost=ppp?diff*ppp:0,feeY=diff/1000*c.new1k;return cost||feeY?`About <b>${money(cost)} ${dir==='more'?'more':'less'}</b> up front${feeY?` and <b>${money(feeY)} ${dir==='more'?'more':'less'}</b> a year in maintenance fees`:''}`:''};
+    if(GF){
+      const base=Math.max(GF,lvl(cur)),mk=(x,why,vip)=>{const dir=x>T?'more':'less',diff=Math.abs(x-T);out.push({dir,diff,newAdd:x-cur,vip,why,money1:moneyLine(dir,diff)})};
+      const reach=lvl(T)>base?TIERS.find(t=>t[1]===lvl(T)):null;
+      if(reach&&T>reach[0]&&reach[0]>cur)mk(reach[0],[`Still reaches VIP ${reach[2]}`,`Those extra ${fmtN(T-reach[0])} points add nothing more, since your Housekeeping Credits are already unlimited`],'');
+      const nx=nextLvl(T,base);if(nx)mk(nx[0],[gfKeep,`You also get the other benefits of VIP ${nx[2]}`],nx[2]);
+      return out.sort((p,q)=>p.newAdd-q.newAdd);
+    }
+    if(eT.u)return [];
+    const add1=x=>{
+      if(x===T||x<cur||seen.has(x))return;seen.add(x);
+      const dir=x>T?'more':'less',diff=Math.abs(x-T),ex=eff(x,true),g=cr(x,true)-cr(T,true),why=[];
+      const vip=dir==='more'&&ex.b>eT.b?ex.n:'',lostVip=dir==='less'&&ex.b<eT.b?eT.n:'';
+      if(x===cur)why.push(`Your Housekeeping Credits stay at ${cr(T,true)} either way`,'You would pay for points that earn nothing extra');
+      else if(g>0)why.push(`Adds ${plural(g,'Housekeeping Credit')}. Total = ${cr(x,true)}${vip?` (+${ex.b} for VIP ${vip})`:''}`,'Additional Housekeeping Credits cost $185 each');
+      else if(g===0)why.push(`Your Housekeeping Credits stay at ${cr(T,true)}`,`Those extra ${fmtN(diff)} points do not provide any additional Owner benefits within the Club Wyndham system`);
+      else why.push(`${-g} Fewer Housekeeping Credit${-g===1?'':'s'}. Total = ${cr(x,true)}`,'Fewer points means a smaller loan and lower maintenance fees');
+      out.push({dir,diff,newAdd:x-cur,vip,lostVip,why,money1:moneyLine(dir,diff),skip:x===cur});
+    };
+    add1(nextJ(T,true));
+    const nv=TIERS.map(t=>t[0]).filter(x=>x>T&&eff(x,true).b>eT.b).sort((p,q)=>p-q)[0];if(nv)add1(nv);
+    const lj=lastJ(T,true);if(exactVip(cur,T)||(!cur&&T>140000)){}else if(lj<T)add1(Math.max(cur,lj));else{const pj=lastJ(T-1,true);if(pj>cur)add1(pj)}
+    return out.sort((p,q)=>p.newAdd-q.newAdd);
   };
-  const perkBox=(t,p,a)=>{const e=eff(p,a),k=cr(p,a),w=e.u?0:p-Math.max(lastJ(p,a),e.r?0:Math.floor(p/77000)*77000);return `<div class="box ${w?'buy':'goodb'}"><div class="t">${t}: ${p.toLocaleString()} pts</div><div class="n">${e.u?'Unlimited Housekeeping Credits':plural(k,'Housekeeping Credit')}</div><div class="d">${e.u?`<div style="margin-top:4px">(${e.n})</div>`:e.b?`<div style="margin-top:4px">(Includes +${e.b} for ${e.n.startsWith('Grand')?'':'VIP '}${e.n})</div>`:''}${e.r?'Unlimited Reservation Transactions':plural(ph(p),'Reservation Transaction')}<br>`+(!p||e.u?'':w?`<b class="bad">${w.toLocaleString()} pts earn nothing</b>`:'<b class="good">No points wasted</b>')+`</div></div>`};
-  const recT=rec(c.curPts,c.addPts);const g77=77000-(c.curPts+c.addPts)%77000, rt77=recT&&recT.dir==='more'&&g77<=20000&&!eff(c.curPts+c.addPts,true).r?`<p class="cnote">Also: ${g77.toLocaleString()} more points would earn 1 more Reservation Transaction ($39 per phone booking; online is free).</p>`:'';
-  const consider=recT&&recT.tg?`<div class="consider"><div class="cl">Have You Considered:</div><div class="cdir ${recT.dir}">Purchasing ${recT.diff.toLocaleString()} ${recT.dir==='more'?'MORE':'LESS'} Points</div><div class="cnum"><b>${recT.newAdd.toLocaleString()}</b> <span>vs.</span> <s>${c.addPts.toLocaleString()}</s></div><div class="cwhy">Here&rsquo;s Why:</div><ul>${recT.why.map(w=>'<li>'+w+'</li>').join('')}</ul>${rt77}</div>`:'';
+  const vb=(n,cls)=>`<span class="cvip sm ${cls}">${cls==='non'?'':crown}${n}</span>`;
+  const vipBadges=(p,a)=>{const e=eff(p,a);if(e.n==='Non-VIP')return vb('Non-VIP','non');const g=e.n.startsWith('Grand'),base=g?e.n.split(' ')[1].toLowerCase():e.n.toLowerCase();
+    let h=vb(g?e.n:'VIP '+e.n,base);if(g&&a){const t=tierAt(p),gb={silver:2,gold:4,platinum:6}[base];if(t&&t[1]>gb)h+=' '+vb('VIP '+t[2],t[2].toLowerCase())}return h};
+  // Points Comparison boxes: leftover points count from the last 70,000 step only (Reservation Transactions left out, owner 10/27)
+  const pbox=(t,p,a)=>{const e=eff(p,a),k=cr(p,a),w=e.u?0:p-Math.floor(p/70000)*70000,ev=a&&exactVip(c.curPts,p);
+    const msg=!p||e.u?'':ev?`<p class="pw good">Points and dollars optimized by reaching VIP ${ev}</p>`:w?`<p class="pw bad">${fmtN(w)} extra pts, no extra benefit</p>`:'<p class="pw good">No points wasted</p>';
+    return `<div class="pbox${w&&!ev?' waste':''}"><p class="pt">${t}: ${fmtN(p)} pts</p>${vipBadges(p,a)}<p class="pn">${e.u?'Unlimited Housekeeping Credits':plural(k,'Housekeeping Credit')}</p>${e.b?`<p class="pd">(Includes +${e.b} for VIP ${e.n})</p>`:''}${msg}</div>`};
+  // Adding to Your Current Ownership: every credit point up to the next VIP level (past Founders, the next 3)
+  const ownAdvice=cur=>{
+    const e0=eff(cur,true);
+    if(GF){const nx=nextLvl(cur,GF);return '<ul class="addlist">'+(nx?`<li><span class="vtop">${vb('VIP '+nx[2],nx[2].toLowerCase())}</span><b>+${fmtN(nx[0]-cur)} pts</b><span>${gfKeep}</span></li>`:`<li><span>${gfKeep}. There is no higher VIP level.</span></li>`)+'</ul>'}
+    if(e0.u)return '';
+    const k0=cr(cur,true),rows=[],nv=TIERS.map(t=>t[0]).filter(x=>x>cur&&eff(x,true).b>e0.b).sort((a,b)=>a-b)[0];let p=cur;
+    while(rows.length<(nv?40:3)){p=nextJ(p,true);if(nv&&p>nv)break;rows.push(p);if(p===nv)break}
+    if(nv&&!rows.includes(nv))rows.push(nv);
+    return '<ul class="addlist">'+rows.sort((a,b)=>a-b).map(x=>{const g=cr(x,true)-k0,ex=eff(x,true),v=ex.b>e0.b?ex.n:'';
+      return `<li>${v?`<span class="vtop">${vb('VIP '+v,v.toLowerCase())}</span>`:''}<b>+${fmtN(x-cur)} pts</b><span>+${plural(g,'Housekeeping Credit')} (${cr(x,true)} total)</span></li>`}).join('')+'</ul>';
+  };
+  const opt=options(c.curPts,c.addPts);
+  const sweet=(()=>{const eT=eff(T,true);if(!c.addPts||eT.u||lastJ(T,true)!==T)return '';
+    const nv=eT.b>eff(c.curPts,true).b&&TIERS.some(t=>t[0]===T)?eT.n:'';
+    return `<div class="sweet"><b>Sweet Spot:</b> ${fmtN(T)} points ${nv&&T%70000?`reaches <b>VIP ${nv}</b>.`:`lands exactly on a Housekeeping Credit${nv?` and reaches <b>VIP ${nv}</b>`:''} with no points wasted.`}</div>`})();
+  const consider=sweet+opt.map(o=>`<div class="consider ${o.dir}"><div class="cdir">${o.skip?'Skipping This Purchase':`Purchasing ${fmtN(o.diff)} ${o.dir==='more'?'MORE':'LESS'} Points`}</div>${o.lostVip?'<div class="notrec">Not Recommended</div>':''}<div class="cnum"><b>${fmtN(o.newAdd)}</b> <span>vs.</span> <s>${fmtN(c.addPts)}</s></div><div class="cwhy">Here&rsquo;s Why:</div>${o.vip?`<div class="cvip ${o.vip.toLowerCase()}">${crown}Reaches VIP ${o.vip}</div>`:''}<ul>${o.why.map(w=>'<li>'+w+'</li>').join('')}</ul>${o.lostVip?`<div class="ccons">CONS: You will miss out on VIP ${o.lostVip}!</div>`:''}</div>`).join('');
 
-  $('perk').innerHTML='<h2>Get the Most From Your Points: Own in Multiples of 70,000</h2>'+
-   '<p class="how">Here&rsquo;s How it Works</p>'+
-   '<p class="rule">Every <b>70,000 points</b> = 1 free Housekeeping Credit (70K, 140K, 210K, 280K&hellip;).<br>Points left over earn nothing.</p>'+
-   ((c.curPts||c.addPts)?`<div class="live">${c.curPts?perkBox('Current Ownership',c.curPts,false):''}${c.addPts?perkBox(c.curPts?'After Purchase':'Your Purchase',c.curPts+c.addPts,true):''}</div>${c.addPts?consider:''}`:'')+
-   '<h3 class="kn">What Every Owner Should Know</h3>'+
-   '<p class="mix">Don&rsquo;t mix them up: <b>70,000</b> points earns a Housekeeping Credit. <b>77,000</b> points earns a Reservation Transaction.</p>'+
-   '<ul><li>Housekeeping Credits cost <b>$185</b> each when you run out. You need 1 Housekeeping Credit per reservation (along with applicable points). Unused Housekeeping Credits expire at the end of your <b>Use Year</b>.</li>'+
-   '<li>Reservation Transactions cost <b>$39</b> each when you run out. You need 1 Reservation Transaction per booking made by phone (booking on your owner website is free). Unused Reservation Transactions expire at the end of the <b>Calendar Year</b> (December 31).</li>'+
-   '<li><b>VIP Milestones also add credits:</b> Bronze +1, Silver +2, Gold +4, Platinum +6, Founders +8.</li></ul>'+
-   '<p class="note" style="margin:10px 0 0;text-align:right">Source: Details from Club Wyndham: <a href="https://clubwyndham.wyndhamdestinations.com/us/en/owner-guide/resources/housekeeping-credits" rel="noopener">Housekeeping Credits</a> &middot; <a href="https://clubwyndham.wyndhamdestinations.com/us/en/owner-guide/resources/reservation-transactions" rel="noopener">Reservation Transactions</a></p>';
+  // a new owner sees only Your Purchase
+  const solo=!c.curPts&&c.addPts>0;$('pair').className='pair'+(solo?' solo':'');
+  $('pair').innerHTML=(solo?'':pbox('Current Ownership',c.curPts,false))+(c.addPts?pbox(c.curPts?'After Purchase':'Your Purchase',T,true):'');
+  // one line on where the total lands
+  const eT=eff(T,true);
+  if(!T||eT.u)$('rcap').innerHTML='';
+  else if(lastJ(T,true)===T)$('rcap').innerHTML=`<b>${fmtN(T)}</b> points lands right on a Sweet Spot.`;
+  else{const n=nextJ(T,true),tv=TIERS.find(t=>t[0]===n&&isJ(n,true));$('rcap').innerHTML=`<b>${fmtN(T)}</b> points lands <b>${fmtN(n-T)}</b> short of ${tv?`VIP ${tv[2]} at ${fmtN(n)}`:`the next Housekeeping Credit at ${fmtN(n)}`}.`}
+  const L=ownAdvice(c.curPts),R=c.addPts?consider:'';
+  $('adv').innerHTML=L||R?`<div class="clhead">Some Things to Consider</div><div class="adv">${L?`<div><p class="advt">Adding to Your Current Ownership</p>${L}</div>`:''}${R?`<div><p class="advt">For This Purchase</p>${R}</div>`:''}</div>`:'<p class="empty">Enter the points offered in Step 2 to see the advice.</p>';
 
-  const feeSaveY=c.curY-c.newY, feeSaveM=feeSaveY/12;
-  const buyM=c.newY/12+c.loanM, afterM=c.newY/12;
-  const payback=feeSaveY>0?c.loanTotal/feeSaveY:Infinity;
-  const hasOld=c.oldM>0&&c.oldN>0, oM=hasOld?c.oldM:0;
-  const allPts=(c.curPts+c.addPts).toLocaleString();
-  const termSet=num("term")>0, yt=c.term===1?"1 year":c.term+" years";
+  // Sweet Spots chart: every 70,000 plus each VIP milestone, with this owner's points now and after
+  const bonus=p=>(tierAt(p)||[0,0])[1],credits=p=>Math.floor(p/70000)+bonus(p);
+  const nNow=c.curPts&&!STAT[st].u?nextJ(c.curPts,false):0,nAft=c.addPts&&!eT.u?nextJ(T,true):0;
+  const bands=[['non','Non-VIP',0,300000],...TIERS.slice().reverse().map(([p,,n],i,a)=>[n.toLowerCase(),n,p,a[i+1]?a[i+1][0]:Infinity])];
+  $('sslist').innerHTML=bands.map(([cls,name,lo,hi])=>{
+    const pts=[];if(lo)pts.push(lo);
+    const top=hi===Infinity?Math.max(1400000,c.curPts,T):hi;
+    for(let p=70000;p<top;p+=70000)if(p>lo)pts.push(p);
+    const marks=[];if(c.curPts)marks.push(['now','Now',c.curPts]);if(c.addPts)marks.push(['aft','After',T]);
+    const items=pts.map(p=>({p,html:null}));
+    for(const [k,lab,v] of marks){if(v<lo||v>=hi&&hi!==Infinity)continue;const hit=items.find(x=>x.p===v);if(hit){hit.mark=(hit.mark?hit.mark+' / ':'')+lab}else items.push({p:v,you:k,lab})}
+    items.sort((a,b)=>a.p-b.p||(a.you?1:-1));
+    const chips=items.map(x=>x.you?`<span class="you ${x.you}"><em>${x.lab}</em><b>${fmtN(x.p)}</b></span>`:`<span class="chip${x.p===lo?' vipc':''}${x.p===nNow||x.p===nAft?' next':''}${x.mark?' here':''}">${x.mark?`<em>${x.mark}</em>`:''}<b>${fmtN(x.p)}</b><small>${plural(credits(x.p),'HK Credit')}</small></span>`).join('');
+    const badge=cls==='non'?'<span class="cvip non sm">Non-VIP</span>':vb(name,cls);
+    return `<div class="ssrow t-${cls}">${badge}<div class="chips">${chips}</div><span class="gcn">${person}<b>${GUESTS[cls]}</b> Guest Confirmations${cls==='platinum'||cls==='founders'?'<small> per 1M pts</small>':''}</span></div>`;
+  }).join('');
 
-  $('claim').innerHTML='<h2 class="ct">The Pitch vs. The Math</h2>'+
-   `<div class="pc"><b>The Pitch:</b><div>Your Maintenance Fee ${feeSaveM>0?'drops':'changes'} from ${money(c.curM,2)} to ${money(afterM,2)} a month.<br>
-    That's ${feeSaveM>0?'a savings of':'a change of'} <b class="good">${money(Math.abs(feeSaveM),2)} a month</b> (${money(Math.abs(feeSaveY))} a year).</div></div>
-    <div class="pc"><b>The Catch:</b><div>You are also paying <b class="bad">${money(c.loanM,2)} a month</b> for ${yt} to get that (${money(Math.abs(feeSaveY))} a year) savings.<br>
-    That's ${money(c.loanTotal)} total (${money(c.price)} loan + ${money(c.interest)} interest).<br>${feeSaveY>0?`${money(feeSaveY)} saved per year takes <b class="bad">${payback>=100?Math.round(payback).toLocaleString():payback.toFixed(1)} years</b> of "savings" to break even.`:'Your fee does not actually go down at these numbers.'}</div></div>
-    ${eff(c.curPts+c.addPts,true).u?'':`<div class="pc"><b>Watch For:</b><div>Remember that adding 10,000 points to a 200k points package will give you <b>ONE</b> additional Housekeeping Credit. Saving you $185 per year.</div></div>`}`;
-  const newOwner=!c.curPts&&!c.curM&&c.addPts>0;
-  const empty=!c.curM&&!newOwner;document.querySelectorAll('.res').forEach(e=>e.style.display=empty?'none':'');
-  if(newOwner)$('claim').innerHTML='<h2 class="ct">What This Purchase Costs</h2>'+
-   `<div class="pc"><b>The Loan:</b><div>${c.price?`<b class="bad">${money(c.loanM,2)} a month</b> for ${yt}.<br>That's ${money(c.loanTotal)} total (${money(c.price)} loan + ${money(c.interest)} interest).`:'Enter the Asking Price above to see the loan cost.'}</div></div>
-    <div class="pc"><b>The Fees:</b><div>${c.new1k?`Maintenance fees of <b class="bad">${money(afterM,2)} a month</b> (${money(c.newY)} a year) for ${allPts} points${c.g?`, rising ${+(c.g*100).toFixed(1)}% a year`:''}.<br>They continue after the loan is paid off.`:'Enter the New Maintenance Fee above to see the yearly fees.'}</div></div>
-    ${c.price&&c.new1k?`<div class="pc"><b>Year One:</b><div>${money(buyM*12)} in loan payments and maintenance fees (${money(buyM,2)} a month).</div></div>`:''}
-    ${eff(c.curPts+c.addPts,true).u?'':`<div class="pc"><b>Watch For:</b><div>Remember that adding 10,000 points to a 200k points package will give you <b>ONE</b> additional Housekeeping Credit. Saving you $185 per year.</div></div>`}`;
-  else if(empty||!c.price||!c.addPts)$('claim').innerHTML='<h2 class="ct">The Pitch vs. The Math</h2><p style="text-align:center;margin:0">'+(empty?'Fill in the boxes above and the comparison appears here.':'Now enter the Points Purchase above to see the comparison.')+'</p>';
-  $('sLoan').textContent=money(c.loanTotal);
-  $('sLoanD').innerHTML=termSet?`${money(c.loanM,2)} per month for ${yt}`:'';
-  $('sPts').textContent=allPts;
-  $('sPtsD').textContent=c.curPts?`${c.curPts.toLocaleString()} now + ${c.addPts.toLocaleString()} new`:'All new points';
-  $('sFee').innerHTML=`${money(afterM,2)}<span style="font-size:1rem;font-weight:400"> /month</span>`;
-  $('sFeeD').innerHTML=`${money(c.newY,2)} a year<br>${allPts} pts @ ${money(c.new1k,2)} per 1,000`;
-
-  const oldTxt=hasOld?` + ${money(c.oldM,2)} current loan`:'';
-  const oldEnd=hasOld?`<br>Current loan ends in ${c.oldN.toLocaleString()} months, then this drops by ${money(c.oldM,2)}`:'';
+  // Monthly Bill
+  const feeSaveY=c.curY-c.newY,feeSaveM=feeSaveY/12,buyM=c.newY/12+c.loanM,afterM=c.newY/12;
+  const hasOld=c.oldM>0&&c.oldN>0,oM=hasOld?c.oldM:0,allPts=fmtN(T),termSet=num('term')>0,yt=c.term===1?'1 year':c.term+' years';
+  const newOwner=!c.curPts&&!c.curM&&c.addPts>0,empty=!c.curM&&!newOwner;
+  document.querySelectorAll('.res').forEach(e=>e.style.display=empty?'none':'');
+  $('sLoan').textContent=money(c.loanTotal);$('sLoanD').innerHTML=termSet?`${money(c.loanM,2)} a month for ${yt}`:'';
+  $('sPts').textContent=allPts;$('sPtsD').textContent=c.curPts?`${fmtN(c.curPts)} now + ${fmtN(c.addPts)} new`:'All new points';
+  $('sFee').innerHTML=`${money(afterM,2)}<small> /month</small>`;$('sFeeD').innerHTML=`${money(c.newY,2)} a year`;
   $('oldLoanH').textContent=hasOld?`Still owed: about ${money(c.oldM*c.oldN)}`:'';
   $('mStay').textContent=money(c.curM+oM,2);
-  $('mStayD').innerHTML=hasOld?`${money(c.curM,2)} Maint Fee + ${money(c.oldM,2)} Current Loan${oldEnd}`:(c.curM?'Maint Fee only':'No current ownership');
-  $('mBuy').innerHTML=`${money(buyM+oM,2)}${termSet?`<small class="term"> for ${yt}</small>`:''}`;
-  $('mBuyD').innerHTML=`${money(afterM,2)} Maint Fee + ${money(c.loanM,2)} New Loan${hasOld?` + ${money(c.oldM,2)} Current Loan`:''}<br><b class="bad">${money(buyM-c.curM,2)} more per month</b>`;
-  $('mAfter').innerHTML=`${money(afterM,2)}`;
-  $('mAfterT').innerHTML=termSet?`Monthly Payment in <b>${yt.replace(/year/,'Year')}</b>`:'Monthly Payment After Loan Payoff';
-  $('mAfterBox').className='box '+(feeSaveM>0?'goodb':'buy');
-  $('mAfterD').innerHTML=newOwner?'Maintenance fees continue after the loan':(feeSaveM>0?`<b class="good">${money(feeSaveM,2)} less</b> but still forever`:`<b class="bad">${money(-feeSaveM,2)} more</b>`)+(hasOld&&c.oldN>c.term*12?`<br>(plus your current loan if still running)`:'');
+  $('mStayD').innerHTML=hasOld?`${money(c.curM,2)} maint fee + ${money(c.oldM,2)} current loan`:(c.curM?'Maintenance fee only':'No current ownership');
+  $('mBuy').innerHTML=`${money(buyM+oM,2)}${termSet?`<small> for ${yt}</small>`:''}`;
+  $('mBuyD').innerHTML=`${money(afterM,2)} maint fee + ${money(c.loanM,2)} new loan${hasOld?` + ${money(c.oldM,2)} current loan`:''}<div class="chg bad">${money(buyM-c.curM,2)} more per month</div>`;
+  $('mAfter').textContent=money(afterM,2);
+  $('mAfterT').innerHTML=termSet?`Monthly Payment in ${yt.replace(/year/,'Year')}`:'Monthly Payment After Loan Payoff';
+  $('mAfterD').innerHTML=newOwner?'Maintenance fees continue after the loan':`Maintenance fees never end<div class="chg ${feeSaveM>0?'good':'bad'}">${money(Math.abs(feeSaveM),2)} ${feeSaveM>0?'less':'more'} per month</div>`;
 
   // chart
-  const n=c.yrs, pts=r.slice(0,n);
-  const W=800,H=340,L=70,R=16,T=14,B=34, maxV=Math.max(pts[n-1].cb,pts[n-1].cs,1);
+  const n=c.yrs,pts=r.slice(0,n),W=800,H=340,Lx=74,Rx=16,Tp=14,B=34,maxV=Math.max(pts[n-1].cb,pts[n-1].cs,1);
   const nice=v=>{const p=Math.pow(10,Math.floor(Math.log10(v)));const m=v/p;return (m<=1?1:m<=2?2:m<=5?5:10)*p};
-  const top=nice(maxV), X=i=>L+(W-L-R)*(i/n), Y=v=>T+(H-T-B)*(1-v/top);
+  const top=nice(maxV),X=i=>Lx+(W-Lx-Rx)*(i/n),Y=v=>Tp+(H-Tp-B)*(1-v/top);
   let s='';
-  for(let i=0;i<=4;i++){const v=top*i/4;s+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${L-8}" y="${Y(v)+4}" text-anchor="end" font-size="12" fill="var(--mute)">${money(v)}</text>`}
-  const step=n<=10?1:n<=20?2:n<=50?5:10;
+  for(let i=0;i<=4;i++){const v=top*i/4;s+=`<line x1="${Lx}" x2="${W-Rx}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${Lx-8}" y="${Y(v)+4}" text-anchor="end" font-size="12" fill="var(--mute)">${money(v)}</text>`}
+  const step=n<=10?1:n<=20?2:5;
   for(let i=0;i<=n;i+=step)s+=`<text x="${X(i)}" y="${H-18}" text-anchor="middle" font-size="12" fill="var(--mute)">${i}</text>`;
-  s+=`<text x="${(L+W-R)/2}" y="${H-3}" text-anchor="middle" font-size="11" fill="var(--mute)">Years From Today</text>`;
+  s+=`<text x="${(Lx+W-Rx)/2}" y="${H-3}" text-anchor="middle" font-size="11" fill="var(--mute)">Years From Today</text>`;
   const path=k=>'M'+[`${X(0)},${Y(0)}`].concat(pts.map((p,i)=>`${X(i+1)},${Y(p[k])}`)).join('L');
-  const gap=`${path('cb')}L${[...pts].reverse().map((p,i)=>`${X(n-i)},${Y(p.cs)}`).join('L')}L${X(0)},${Y(0)}Z`;
-  s+=`<path d="${gap}" fill="var(--buy)" opacity=".12"/>`;
-  s+=`<path d="${path('cs')}" fill="none" stroke="var(--stay)" stroke-width="3"/><path d="${path('cb')}" fill="none" stroke="var(--buy)" stroke-width="3"/>`;
-  const ex=X(n), ya=Y(pts[n-1].cs), yb=Y(pts[n-1].cb), ym=(ya+yb)/2;
-  s+=`<line x1="${ex}" x2="${ex}" y1="${yb}" y2="${ya}" stroke="#000" stroke-width="3"/><line x1="${ex-5}" x2="${ex+5}" y1="${yb}" y2="${yb}" stroke="#000" stroke-width="3"/><line x1="${ex-5}" x2="${ex+5}" y1="${ya}" y2="${ya}" stroke="#000" stroke-width="3"/>`;
-  s+=`<text x="${ex-10}" y="${ym+4}" text-anchor="end" font-size="13" font-weight="700" fill="var(--ink)" paint-order="stroke" stroke="var(--card)" stroke-width="4">${money(pts[n-1].cum)} more</text>`;
-  s+=`<g id="hov"></g>`;
-  $('chart').innerHTML=s;
-  chartState={n,pts,X,Y,W,L,R,T,H,B};
+  s+=`<path d="${path('cb')}L${[...pts].reverse().map((p,i)=>`${X(n-i)},${Y(p.cs)}`).join('L')}L${X(0)},${Y(0)}Z" fill="var(--gold)" opacity=".16"/>`;
+  if(c.term<n){const xp=X(c.term);s+=`<line x1="${xp}" x2="${xp}" y1="${Tp+10}" y2="${H-B}" stroke="var(--mute)" stroke-dasharray="3 4"/><text x="${xp+5}" y="${Tp+20}" font-size="11" fill="var(--mute)">Loan Paid Off</text>`}
+  s+=`<path d="${path('cs')}" fill="none" stroke="var(--stay)" stroke-width="3"/><path d="${path('cb')}" fill="none" stroke="var(--gold2)" stroke-width="3"/>`;
+  const ex=X(n),ya=Y(pts[n-1].cs),yb=Y(pts[n-1].cb);
+  s+=`<line x1="${ex-10}" x2="${ex-10}" y1="${yb}" y2="${ya}" stroke="var(--ink)" stroke-width="2"/><text x="${ex-16}" y="${(ya+yb)/2+4}" text-anchor="end" font-size="14" font-weight="700" fill="var(--ink)" paint-order="stroke" stroke="var(--card)" stroke-width="4">${money(pts[n-1].cum)} more</text><g id="hov"></g>`;
+  $('chart').innerHTML=s;chartState={n,pts,X,Y,W,L:Lx,R:Rx,T:Tp,H,B};
 
   // table
-  const oc=hasOld;
-  const cols=[{k:'yr',g:'',h:'Year',f:'',v:x=>x.y}];
-  cols.push({k:'cFee',g:'c',h:'Maintenance Fees',f:'Monthly fee × 12, plus yearly rise',v:x=>money(x.stayFee),sep:1});
-  if(oc)cols.push({k:'cOld',g:'c',h:'Current Loan',f:'Payment × months left that year',v:x=>x.old?money(x.old):'paid off'});
-  cols.push({k:'cTot',g:'c',h:'Total Payments',f:oc?'{cFee} + {cOld}':'{cFee}',v:x=>money(x.stay)});
-  cols.push({k:'cCum',g:'c',h:'Cumulative Payments',f:'row above + {cTot}',v:x=>money(x.cs)});
-  cols.push({k:'nFee',g:'n',h:'Maintenance Fees',f:'All pts ÷ 1,000 × new fee, plus yearly rise',v:x=>money(x.fee),sep:1});
-  cols.push({k:'nLoan',g:'n',h:'New Loan',f:'Loan pmt × 12 (loan years)',v:x=>x.loan?money(x.loan):'paid off'});
-  if(oc)cols.push({k:'nOld',g:'n',h:'Current Loan',f:'Payment × months left that year',v:x=>x.old?money(x.old):'paid off'});
-  cols.push({k:'nTot',g:'n',h:'Total Payments',f:oc?'{nFee} + {nLoan} + {nOld}':'{nFee} + {nLoan}',v:x=>money(x.buy)});
-  cols.push({k:'nCum',g:'n',h:'Cumulative Payments',f:'row above + {nTot}',v:x=>money(x.cb)});
-  cols.push({k:'dYr',g:'d',h:'Extra Cost This Year',f:'{nTot} − {cTot}',v:x=>`<span class="${x.extra>0?'bad':'good'}">${money(x.extra)}</span>`,sep:1});
-  cols.push({k:'dCum',g:'d',h:'Extra Cost Cumulative',f:'{nCum} − {cCum}',v:x=>`<b class="${x.cum>0?'bad':'good'}">${money(x.cum)}</b>`});
-  const cnt=g=>cols.filter(x=>x.g===g).length;
-  const cls=g=>g==='c'?'c':g==='n'?'n':'';
-  let h=`<colgroup><col style="width:52px">${cols.filter(x=>x.g).map(()=>"<col>").join("")}</colgroup><thead><tr><th class="grp yr" rowspan="2">Year</th><th class="grp c sep" colspan="${cnt('c')}" style="color:var(--stay)">Current Status</th><th class="grp n sep" colspan="${cnt('n')}" style="color:var(--buy)">New Contract</th><th class="grp d sep" colspan="2">Difference</th></tr>`;
-  h+=`<tr>${cols.filter(x=>x.g).map(x=>`<th class="nm ${cls(x.g)}${x.sep?' sep':''}">${x.h}</th>`).join('')}</tr></thead><tbody>`;
-  r.slice(0,50).forEach(x=>{
-    h+=`<tr>${cols.map(col=>`<td class="${cls(col.g)}${col.sep?' sep':''}">${col.v(x)}</td>`).join('')}</tr>`;
-    if(x.y===c.term&&c.term<50)h+=`<tr class="payoff"><td colspan="${cols.length}">&#9650; Loan Years Above &nbsp;|&nbsp; Loan Paid Off After Year ${c.term} <span>&mdash; Below, You Pay Maintenance Fees Only</span> &#9660;</td></tr>`;
-  });
+  const oc=hasOld,cols=[{g:'',h:'Year',v:x=>x.y}];
+  cols.push({g:'c',h:'Maintenance Fees',v:x=>money(x.stayFee),sep:1});if(oc)cols.push({g:'c',h:'Current Loan',v:x=>x.old?money(x.old):'Paid Off'});
+  cols.push({g:'c',h:'Total Payments',v:x=>money(x.stay)},{g:'c',h:'Cumulative Payments',v:x=>money(x.cs)});
+  cols.push({g:'n',h:'Maintenance Fees',v:x=>money(x.fee),sep:1},{g:'n',h:'New Loan',v:x=>x.loan?money(x.loan):'Paid Off'});if(oc)cols.push({g:'n',h:'Current Loan',v:x=>x.old?money(x.old):'Paid Off'});
+  cols.push({g:'n',h:'Total Payments',v:x=>money(x.buy)},{g:'n',h:'Cumulative Payments',v:x=>money(x.cb)});
+  cols.push({g:'d',h:'Extra Cost This Year',v:x=>`<span class="${x.extra>0?'bad':'good'}">${money(x.extra)}</span>`,sep:1},{g:'d',h:'Extra Cost Cumulative',v:x=>`<b class="${x.cum>0?'bad':'good'}">${money(x.cum)}</b>`});
+  const cnt=g=>cols.filter(x=>x.g===g).length,cl=g=>g==='c'?'c':g==='n'?'n':'';
+  let h=`<colgroup><col style="width:52px">${cols.filter(x=>x.g).map(()=>'<col>').join('')}</colgroup><thead><tr><th class="grp" rowspan="2">Year</th><th class="grp c sep" colspan="${cnt('c')}">Current Status</th><th class="grp n sep" colspan="${cnt('n')}">New Contract</th><th class="grp sep" colspan="2">Difference</th></tr><tr>${cols.filter(x=>x.g).map(x=>`<th class="nm ${cl(x.g)}${x.sep?' sep':''}">${x.h}</th>`).join('')}</tr></thead><tbody>`;
+  r.slice(0,50).forEach(x=>{h+=`<tr>${cols.map(col=>`<td class="${cl(col.g)}${col.sep?' sep':''}">${col.v(x)}</td>`).join('')}</tr>`;if(x.y===c.term&&c.term<50)h+=`<tr class="payoff"><td colspan="${cols.length}">Loan Paid Off After Year ${c.term}. Below, you pay maintenance fees only.</td></tr>`});
   $('tbl').innerHTML=h+'</tbody>';
 }
 
-// hover: vertical line + totals for both paths
+// Real Example stay tiles
+document.querySelectorAll('.stays').forEach(el=>{const k=+el.dataset.ok;el.innerHTML=[1,2,3,4,5].map(n=>`<span class="sty ${n<=k?'ok':'pay'}"><small>Stay ${n}</small><b>${n<=k?'&#10003;':'$185'}</b></span>`).join('')});
+
 function hover(ev){
-  const st=chartState; if(!st)return;
-  const svg=$('chart'), rect=svg.getBoundingClientRect(), sc=st.W/rect.width;
-  const xv=(ev.clientX-rect.left)*sc;
-  const i=Math.max(0,Math.min(st.n,Math.round((xv-st.L)/(st.W-st.L-st.R)*st.n)));
-  const p=i?st.pts[i-1]:{cs:0,cb:0,cum:0};
-  const x=st.X(i);
-  $('hov').innerHTML=`<line x1="${x}" x2="${x}" y1="${st.T}" y2="${st.H-st.B}" stroke="var(--mute)" stroke-dasharray="4 3"/>
-   <circle cx="${x}" cy="${st.Y(p.cs)}" r="5" fill="var(--stay)"/><circle cx="${x}" cy="${st.Y(p.cb)}" r="5" fill="var(--buy)"/>`;
-  const tip=$('tip');
-  tip.innerHTML=`<b>Year ${i}</b><span style="color:var(--stay)">&#9632;</span> Current Status: <b style="display:inline">${money(p.cs)}</b><br><span style="color:var(--buy)">&#9632;</span> New Contract: <b style="display:inline">${money(p.cb)}</b><br>Extra: <b style="display:inline" class="bad">${money(p.cum)}</b>`;
-  tip.style.display='block';
-  const px=x/st.W*rect.width;
-  if(i>st.n/2){tip.style.left='';tip.style.right=(rect.width-px+10)+'px'}else{tip.style.right='';tip.style.left=(px+10)+'px'}
+  const st=chartState;if(!st)return;const svg=$('chart'),rect=svg.getBoundingClientRect(),sc=st.W/rect.width,xv=(ev.clientX-rect.left)*sc;
+  const i=Math.max(0,Math.min(st.n,Math.round((xv-st.L)/(st.W-st.L-st.R)*st.n))),p=i?st.pts[i-1]:{cs:0,cb:0,cum:0},x=st.X(i);
+  $('hov').innerHTML=`<line x1="${x}" x2="${x}" y1="${st.T}" y2="${st.H-st.B}" stroke="var(--mute)" stroke-dasharray="4 3"/><circle cx="${x}" cy="${st.Y(p.cs)}" r="5" fill="var(--stay)"/><circle cx="${x}" cy="${st.Y(p.cb)}" r="5" fill="var(--gold2)"/>`;
+  const tip=$('tip');tip.innerHTML=`<b>Year ${i}</b><br>Current Status: <b>${money(p.cs)}</b><br>New Contract: <b>${money(p.cb)}</b><br>Extra: <b class="bad">${money(p.cum)}</b>`;tip.style.display='block';
+  const px=x/st.W*rect.width;if(i>st.n/2){tip.style.left='';tip.style.right=(rect.width-px+10)+'px'}else{tip.style.right='';tip.style.left=(px+10)+'px'}
 }
 $('chart').addEventListener('pointermove',hover);
 $('chart').addEventListener('pointerleave',()=>{$('tip').style.display='none';const g=$('hov');if(g)g.innerHTML=''});
 
-const KEY='umc-settings-v3';
-function save(){try{const o={};document.querySelectorAll('input,select').forEach(i=>o[i.id]=i.value);localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}}
+// sample numbers to start, then whatever was typed last
+const KEY='umc-settings-v3',DEF={curPts:'200,000',curMonthly:'155',incCur:'3',inc:'3',addPts:'90,000',newPer1k:'9.30',price:'30,000',apr:'15',term:'10'};
+for(const id in DEF)$(id).value=DEF[id];
+function save(){try{const o={};document.querySelectorAll('input,select').forEach(i=>{if(i.id)o[i.id]=i.value});localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}}
 try{const s=JSON.parse(localStorage.getItem(KEY)||'{}');for(const id in s){const el=$(id);if(el)el.value=s[id]}}catch(e){}
-document.querySelectorAll('input[type=text]').forEach(i=>i.addEventListener('input',()=>{fmtInput(i);render();save()}));
-$('clr').addEventListener('click',e=>{e.preventDefault();document.querySelectorAll('input[type=text]').forEach(i=>i.value='');$('vipSt').value='non';render();save()});
-$('yrs').addEventListener('input',()=>{render();save()});
-if(!$('vipSt').value)$('vipSt').value='non';
-$('vipSt').addEventListener('change',()=>{render();save()});
+function vipFromPts(){if(/^g(silver|gold|plat)$/.test($('vipSt').value))return;const p=num('curPts');$('vipSt').value=p>=1400000?'founders':p>=1100000?'platinum':p>=800000?'gold':p>=500000?'silver':p>=300000?'bronze':'non'}
+if(!$('inc').value.trim())$('inc').value='3';$('incCur').value=$('inc').value;
+document.querySelectorAll('input[type=text]').forEach(i=>i.addEventListener('input',()=>{fmtInput(i);if(i.id==='inc'||i.id==='incCur')$(i.id==='inc'?'incCur':'inc').value=i.value;if(i.id==='curPts')vipFromPts();render();save()}));
+$('clr').addEventListener('click',e=>{e.preventDefault();document.querySelectorAll('input[type=text]').forEach(i=>i.value='');$('inc').value=$('incCur').value='3';$('vipSt').value='non';render();save()});
+['yrs','vipSt','curUnit','newUnit'].forEach(id=>$(id).addEventListener(id==='yrs'?'input':'change',()=>{render();save()}));
+
 render();
 </script>
+<script src="../assets/site.js"></script>
 </body>
 </html>

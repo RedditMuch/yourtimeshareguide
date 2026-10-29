@@ -256,7 +256,7 @@ test.describe("season chart v2 Collections filters (2026-10-12)", () => {
     await chartRows(page, { size: null });
     await page.evaluate(() => { document.getElementById("filterBox").open = true; });
     const boxes = await page.locator("#collectionBox input[type=checkbox]").evaluateAll(els => els.map(e => { const r = e.getBoundingClientRect(); return [Math.round(r.width), Math.round(r.height)]; }));
-    expect(boxes).toHaveLength(7); // six before Club Wyndham Discovery (owner, 2026-10-25)
+    expect(boxes).toHaveLength(11); // seven plus Prefer West, Prefer Hawaii, Kai and Presidential Reserve added (owner, 2026-10-26)
     for (const b of boxes) expect(b).toEqual(boxes[0]);
   });
 });

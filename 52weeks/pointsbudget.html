@@ -692,7 +692,7 @@ var SIZES = ['Hotel Room', 'Studio', '1 Bedroom', '2 Bedroom', '2 Bedroom and La
 var SIZE_SET = { '2 Bedroom and Larger': ['2 Bedroom', '3 Bedroom and Larger'] };   /* a choice that covers several sizes */
 var sizeFits = function (r, size) { return !size || r._size === size || (SIZE_SET[size] || []).indexOf(r._size) >= 0; };
 fill($('size'), SIZES.filter(function (s) { return rows.some(function (r) { return sizeFits(r, s); }); }).map(function (s) { return [s, s]; }).concat([['', 'All Sizes']]));
-$('size').value = '1 Bedroom';   /* owner, 2026-10-25: start on 1 Bedroom, All Sizes last */
+$('size').value = '';   /* owner, 2026-10-26: start on All Sizes (All Sizes stays last in the list) */
 /* ---- Location: same search as season chart v2 (a state or country, a resort name, or a city and state with a radius) ---- */
 var COUNTRIES = [['Australia', 'Australia'], ['Canada', 'Canada'], ['Fiji', 'Fiji'], ['Mexico', 'Mexico'], ['New Zealand', 'New Zealand'], ['Puerto Rico', 'Puerto Rico'], ['United States', 'United States'], ['US Virgin Islands', 'U.S. Virgin Islands']];
 var COUNTRY_ALIASES = { 'pr': 'Puerto Rico', 'nz': 'New Zealand', 'usvi': 'U.S. Virgin Islands', 'us virgin islands': 'U.S. Virgin Islands', 'u s virgin islands': 'U.S. Virgin Islands', 'virgin islands': 'U.S. Virgin Islands',
