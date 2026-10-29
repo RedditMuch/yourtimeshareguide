@@ -379,6 +379,36 @@
   }
 
   /* ---- Which rows to show ---- */
+  /* A city typed as "Orlando, Florida", "Orlando, FL" or "Orlando Florida" (owner, 2026-10-29). The city list only knew
+     the full "Orlando, Florida, United States" or a city name found once, so the radius stayed greyed out for the page's
+     own example. Where a city and state match more than one place, the biggest is used. */
+  const ABBR = { AL: 'Alabama', AK: 'Alaska', AZ: 'Arizona', AR: 'Arkansas', CA: 'California', CO: 'Colorado', CT: 'Connecticut', DE: 'Delaware',
+    DC: 'District of Columbia', FL: 'Florida', GA: 'Georgia', HI: 'Hawaii', ID: 'Idaho', IL: 'Illinois', IN: 'Indiana', IA: 'Iowa', KS: 'Kansas',
+    KY: 'Kentucky', LA: 'Louisiana', ME: 'Maine', MD: 'Maryland', MA: 'Massachusetts', MI: 'Michigan', MN: 'Minnesota', MS: 'Mississippi',
+    MO: 'Missouri', MT: 'Montana', NE: 'Nebraska', NV: 'Nevada', NH: 'New Hampshire', NJ: 'New Jersey', NM: 'New Mexico', NY: 'New York',
+    NC: 'North Carolina', ND: 'North Dakota', OH: 'Ohio', OK: 'Oklahoma', OR: 'Oregon', PA: 'Pennsylvania', RI: 'Rhode Island',
+    SC: 'South Carolina', SD: 'South Dakota', TN: 'Tennessee', TX: 'Texas', UT: 'Utah', VT: 'Vermont', VA: 'Virginia', WA: 'Washington',
+    WV: 'West Virginia', WI: 'Wisconsin', WY: 'Wyoming', AB: 'Alberta', BC: 'British Columbia', MB: 'Manitoba', NB: 'New Brunswick',
+    NL: 'Newfoundland and Labrador', NS: 'Nova Scotia', ON: 'Ontario', PE: 'Prince Edward Island', QC: 'Quebec', SK: 'Saskatchewan' };
+  let cityKeys = null;
+  const findCity = q => {
+    const exact = GEO.resolve(q);
+    if (exact) return exact;
+    if (!cityKeys) {
+      cityKeys = new Map();
+      const add = (k, c) => { const o = cityKeys.get(k); if (!o || (c.population || 0) > (o.population || 0)) cityKeys.set(k, c); };
+      for (const c of GEO.cities) {
+        const parts = String(c.label).split(', ');
+        if (parts.length < 3) continue;
+        const name = parts.slice(0, -2).join(' '), region = parts[parts.length - 2], country = parts[parts.length - 1];
+        add(GEO.norm(name + ' ' + region), c);
+        if (country !== 'United States' && country !== 'Canada') add(GEO.norm(name + ' ' + country), c); // San Juan, Puerto Rico
+        for (const [ab, full] of Object.entries(ABBR)) if (full === region) add(GEO.norm(name + ' ' + ab), c);
+      }
+    }
+    const n = GEO.norm(q);
+    return cityKeys.get(n) || cityKeys.get(n.replace(/^st /, 'saint ')) || cityKeys.get(n.replace(/^ft /, 'fort ')) || null; // St. George, UT
+  };
   const needsGeo = () => !GEO && !geoFailed && !!state.query && !regionByName.get(norm(state.query)) && !countryOfQuery(state.query);
   function placeFilter() {
     const q = state.query;
@@ -389,8 +419,8 @@
     const region = regionByName.get(norm(q));
     if (region) return { test: s => regionOf(s) === region, region: true,
       hint: 'Showing resorts in ' + region + '. The radius works from a city: to include nearby states, type a city, such as Phoenix, Arizona.' };
-    const center = GEO ? GEO.resolve(q) : null;
-    if (center) return { city: true, test: s => GEO.match({ resort_id: s.resort_id, name: s.name, city: s.city, state: s.state, country: s.country, schedule: s.schedule }, q, state.radius),
+    const center = GEO ? findCity(q) : null;
+    if (center) return { city: true, test: s => { const d = GEO.distance(s, center); return d !== null && d <= state.radius; },
       hint: 'Within ' + state.radius.toLocaleString('en-US') + ' miles of ' + center.label + ', in a straight line.' };
     const words = norm(q).split(' ').filter(Boolean);
     return { test: s => { const t = norm([s.name, officialName(s.name), s.city, s.state, s.country, s.schedule].join(' ')); return words.every(w => t.includes(w)); },
