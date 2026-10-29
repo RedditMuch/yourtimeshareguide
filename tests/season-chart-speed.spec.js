@@ -53,7 +53,11 @@ test("a city search typed before the city data arrives waits for it, then shows 
   await settled(page);
   expect(await page.evaluate(() => window.__hints)).toEqual([expect.stringMatching(/^Within 35 miles of Orlando/)]); // never a text-match result first
   await expect(page.locator("#grid tbody .res-name").first()).toBeVisible();
-  expect(await page.locator("#places option").count()).toBeGreaterThan(1000); // city suggestions filled
+  // City suggestions arrive with the city data, but only the best few for what's typed (owner, 2026-10-29: a list of
+  // 5,000+ froze iPhone Safari when the box was tapped)
+  const opts = await page.locator("#places option").evaluateAll(o => o.map(x => x.value));
+  expect(opts.length).toBeLessThanOrEqual(12);
+  expect(opts).toContain("Orlando, Florida, United States");
 });
 
 test("one shared tooltip gives each week cell's description (pointer, tap and keyboard)", async ({ page, isMobile }) => {
