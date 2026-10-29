@@ -8,8 +8,19 @@
   let GEO = window.ResortGeo || null, geoLoad = null, geoFailed = false;
   const loadScript = src => new Promise((ok, fail) => { const e = document.createElement('script'); e.src = src; e.onload = ok; e.onerror = fail; document.head.appendChild(e); });
   const loadGeo = () => geoLoad || (geoLoad = GEO ? Promise.resolve() : loadScript('geo-data.js').then(() => loadScript('geo.js')).then(() => {
-    GEO = window.ResortGeo; $('places').insertAdjacentHTML('beforeend', GEO.options());
+    GEO = window.ResortGeo; PLACES = PLACES.concat(GEO.cities.map(c => String(c.label))); fillPlaces();
   }, () => { geoFailed = true; })); // without it, a search matches names as text, as before
+  /* Suggestions under the location box (owner, 2026-10-29): only the best matches for what's typed, at most 12, once
+     2 letters are in. A list of 5,000+ places made iPhone Safari cover the whole screen and stall when the box was tapped. */
+  let PLACES = [];
+  const fillPlaces = () => {
+    const q = $('search').value.trim().toLowerCase(), out = [];
+    if (q.length >= 2) {
+      for (const p of PLACES) if (p.toLowerCase().startsWith(q) && !out.includes(p) && out.push(p) >= 12) break;
+      if (out.length < 12) for (const p of PLACES) if (p.toLowerCase().includes(q) && !out.includes(p) && out.push(p) >= 12) break;
+    }
+    $('places').innerHTML = out.map(p => '<option value="' + esc(p) + '"></option>').join('');
+  };
 
   /* Official directory: the 2026/2027 edition, where CW search bar page = book page + 4 */
   const DIRECTORY_URL = 'https://media.travelandleisure.com/WD/email/2025/0625-2025/cw-directory/index.html';
@@ -335,7 +346,8 @@
     const firstDay = iso(WEEKS.find(x => x.y === startYear).start), lastDay = iso(WEEKS[WEEKS.length - 1].start + 6 * DAY);
     for (const id of ['startDate', 'endDate']) { $(id).min = firstDay; $(id).max = lastDay; }
     const names = [...new Set(D.rows.map(s => officialName(s.name)))].sort(); // official names only; a short form would just repeat each one (owner, 2026-10-12)
-    $('places').innerHTML = regions.concat(COUNTRIES.map(c => c[0])).filter((r, i, a) => a.indexOf(r) === i && r !== 'U.S. Virgin Islands').map(r => '<option value="' + esc(r) + '"></option>').join('') + names.map(n => '<option value="' + esc(n) + '"></option>').join('') + (GEO ? GEO.options() : '');
+    PLACES = regions.concat(COUNTRIES.map(c => c[0])).filter((r, i, a) => a.indexOf(r) === i && r !== 'U.S. Virgin Islands').concat(names, GEO ? GEO.cities.map(c => String(c.label)) : []);
+    fillPlaces();
   }
 
   function syncControls() {
@@ -843,7 +855,7 @@
       render();
     });
     $('search').addEventListener('focus', loadGeo);
-    let t; $('search').addEventListener('input', e => { clearTimeout(t); t = setTimeout(() => { state.query = e.target.value.trim(); render(); }, 250); });
+    let t; $('search').addEventListener('input', e => { fillPlaces(); clearTimeout(t); t = setTimeout(() => { state.query = e.target.value.trim(); render(); }, 250); });
     $('radius').addEventListener('change', e => { state.radius = Number(e.target.value); render(); });
     $('collectionChecks').addEventListener('change', e => { e.target.checked ? state.collections.add(e.target.value) : state.collections.delete(e.target.value); render(); });
     $('cwaOnly').addEventListener('change', e => { state.cwaOnly = e.target.checked; render(); });
