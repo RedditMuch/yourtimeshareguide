@@ -302,9 +302,9 @@ test("pointsbudget: Discovery Resorts Only shows only resorts on Club Wyndham's 
   await expect.poll(async () => new Set((await rows(page)).map(c => c[2].t)).size).toBeGreaterThan(names.length);
 });
 
-test("pointsbudget: starts for a new owner: Not VIP, 1 Bedroom, 2 to 7 nights, Points Left Over after Full Price", async ({ page }) => {
+test("pointsbudget: starts for a new owner: Not VIP, All Sizes (owner, 2026-10-26), 2 to 7 nights, Points Left Over after Full Price", async ({ page }) => {
   await page.goto(URL);
-  await expect(page.locator("#size option:checked")).toHaveText("1 Bedroom");
+  await expect(page.locator("#size option:checked")).toHaveText("All Sizes");
   await expect(page.locator("#size option").last()).toHaveText("All Sizes");
   await expect(page.locator("#vip option").last()).toHaveText("Show All");
   await expect(page.locator("#vip option:checked")).toHaveText("Non-VIP");
