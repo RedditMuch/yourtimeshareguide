@@ -400,12 +400,14 @@
       for (const c of GEO.cities) {
         const parts = String(c.label).split(', ');
         if (parts.length < 3) continue;
-        const name = parts.slice(0, -2).join(' '), region = parts[parts.length - 2];
+        const name = parts.slice(0, -2).join(' '), region = parts[parts.length - 2], country = parts[parts.length - 1];
         add(GEO.norm(name + ' ' + region), c);
+        if (country !== 'United States' && country !== 'Canada') add(GEO.norm(name + ' ' + country), c); // San Juan, Puerto Rico
         for (const [ab, full] of Object.entries(ABBR)) if (full === region) add(GEO.norm(name + ' ' + ab), c);
       }
     }
-    return cityKeys.get(GEO.norm(q)) || null;
+    const n = GEO.norm(q);
+    return cityKeys.get(n) || cityKeys.get(n.replace(/^st /, 'saint ')) || cityKeys.get(n.replace(/^ft /, 'fort ')) || null; // St. George, UT
   };
   const needsGeo = () => !GEO && !geoFailed && !!state.query && !regionByName.get(norm(state.query)) && !countryOfQuery(state.query);
   function placeFilter() {
@@ -418,7 +420,7 @@
     if (region) return { test: s => regionOf(s) === region, region: true,
       hint: 'Showing resorts in ' + region + '. The radius works from a city: to include nearby states, type a city, such as Phoenix, Arizona.' };
     const center = GEO ? findCity(q) : null;
-    if (center) return { city: true, test: s => GEO.match({ resort_id: s.resort_id, name: s.name, city: s.city, state: s.state, country: s.country, schedule: s.schedule }, center.label, state.radius),
+    if (center) return { city: true, test: s => { const d = GEO.distance(s, center); return d !== null && d <= state.radius; },
       hint: 'Within ' + state.radius.toLocaleString('en-US') + ' miles of ' + center.label + ', in a straight line.' };
     const words = norm(q).split(' ').filter(Boolean);
     return { test: s => { const t = norm([s.name, officialName(s.name), s.city, s.state, s.country, s.schedule].join(' ')); return words.every(w => t.includes(w)); },
