@@ -18,6 +18,18 @@
     if (q.length >= 2) {
       for (const p of PLACES) if (p.toLowerCase().startsWith(q) && !out.includes(p) && out.push(p) >= 12) break;
       if (out.length < 12) for (const p of PLACES) if (p.toLowerCase().includes(q) && !out.includes(p) && out.push(p) >= 12) break;
+      /* "St. Aug" or "Ft. My" (owner, 2026-10-29): the list says Saint and Fort, and phones hide suggestions that don't
+         contain what was typed, so offer "St. Augustine, Florida", which findCity already understands. */
+      const m = q.match(/^(st|ft)(?:\.\s*|\s+)(.*)$/);
+      if (m && out.length < 12) {
+        const long = (m[1] === 'st' ? 'saint ' : 'fort ') + m[2], short = m[1] === 'st' ? 'St. ' : 'Ft. ';
+        for (const p of PLACES) {
+          const parts = p.split(', ');
+          if (parts.length < 3 || !p.toLowerCase().startsWith(long)) continue;
+          const s = short + parts[0].replace(/^(Saint|Fort) /, '') + ', ' + parts[parts.length - 2];
+          if (!out.includes(s) && out.push(s) >= 12) break;
+        }
+      }
     }
     $('places').innerHTML = out.map(p => '<option value="' + esc(p) + '"></option>').join('');
   };
